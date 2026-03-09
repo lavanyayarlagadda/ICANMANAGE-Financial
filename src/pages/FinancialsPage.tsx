@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout';
 import FinancialsTabs from '@/components/organisms/FinancialsTabs';
@@ -23,6 +24,8 @@ import {
   closeEditDialog,
   closeConfirmDelete,
   showSnackbar,
+  setActivePage,
+  setActiveTab,
 } from '@/store/slices/uiSlice';
 import {
   setShowRemittanceDetail,
@@ -40,6 +43,36 @@ const FinancialsPage: React.FC = () => {
   const { activeTab, activePage, viewDialogOpen, viewDialogData, editDialogOpen, editDialogData, confirmDeleteOpen, confirmDeleteId, confirmDeleteType } = useAppSelector((s) => s.ui);
   const { showRemittanceDetail } = useAppSelector((s) => s.financials);
   const [addDialogOpen, setAddDialogOpen] = React.useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (location.pathname.startsWith('/collections')) {
+      dispatch(setActivePage('collections'));
+    } else if (location.pathname.startsWith('/financials')) {
+      dispatch(setActivePage('financials'));
+      const pathPart = location.pathname.split('/financials/')[1] || '';
+      const pathMap: Record<string, number> = {
+        'all-transactions': 0,
+        'payments': 1,
+        'pip': 2,
+        'forward-balances': 3,
+        'recoupments': 4,
+        'other-adjustments': 5,
+        'variance-analysis': 6,
+        'trends-forecast': 7,
+      };
+
+      const tabIndex = pathMap[pathPart];
+      if (tabIndex !== undefined) {
+        if (activeTab !== tabIndex) {
+          dispatch(setActiveTab(tabIndex));
+        }
+      } else if (pathPart === '') {
+        navigate('/financials/all-transactions', { replace: true });
+      }
+    }
+  }, [location.pathname, dispatch, navigate, activeTab]);
 
   const tabContentMap: Record<number, React.ReactNode> = {
     0: <AllTransactionsScreen />,

@@ -7,7 +7,9 @@ import StatusBadge from "@/components/atoms/StatusBadge";
 import { useAppSelector } from "@/store";
 import { PipRecord } from "@/types/financials";
 import DataTable, { DataColumn } from "../molecules/DataTable";
-import { Box, Typography, Chip,IconButton } from "@mui/material";
+import { Box, Typography, IconButton, Chip } from "@mui/material";
+
+
 import { NpiAllocation } from "@/types/financials";
 import { formatCurrency, formatPercent } from "@/utils/formatters";
 
@@ -16,90 +18,110 @@ interface Props {
 }
 
 export const NpiSection: React.FC<Props> = ({ allocation }) => {
-
-  const columns: DataColumn<NpiAllocation['claims'][number]>[] = [
-    {
-      id: "claimId",
-      label: "CLAIM ID",
-      accessor: (row) => row.claimId,
-      render: (row) => row.claimId,
-    },
-    {
-      id: "patientName",
-      label: "PATIENT NAME",
-      accessor: (row) => row.patientName,
-      render: (row) => row.patientName,
-    },
-    {
-      id: "allowedAmt",
-      label: "ALLOWED AMOUNT",
-      align: "right",
-      accessor: (row) => row.allowedAmt,
-      render: (row) => formatCurrency(row.allowedAmt),
-    },
-    {
-      id: "appliedToPipBalance",
-      label: "APPLIED TO PIP BALANCE",
-      align: "right",
-      accessor: (row) => row.appliedToPipBalance,
-      render: (row) => (
-        <span style={{ color: "#d32f2f" }}>
-          {formatCurrency(row.appliedToPipBalance)}
-        </span>
-      ),
-    },
-  ];
+  const [open, setOpen] = useState(false);
 
   return (
-    <Box
-      sx={{
-        mb: 2,
-        ml: { xs: 0, md: 4 },
-        p: 2,
-        borderRadius: 1,
-        border: (t) => `1px solid ${t.palette.divider}`,
-      }}
-    >
+    <Box sx={{ ml: 5, mb: 1 }}>
       {/* NPI Header */}
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          mb: 2,
-          flexWrap: "wrap",
-          gap: 1,
+          display: "grid",
+          gridTemplateColumns: "40px 2fr 1fr 1fr",
+          alignItems: "center",
+          px: 2,
+          py: 1,
+          background: "#f7f9fc",
+          border: "1px solid #e0e0e0",
         }}
       >
-        <Typography variant="body2" fontWeight={600}>
-          NPI: {allocation.npi} – {allocation.name}
+        <IconButton size="small" onClick={() => setOpen(!open)}>
+          {open ? (
+            <KeyboardArrowDownIcon fontSize="small" />
+          ) : (
+            <KeyboardArrowRightIcon fontSize="small" />
+          )}
+        </IconButton>
+
+        <Typography fontSize={13} fontWeight={600}>
+          NPI {allocation.npi} – {allocation.name}
         </Typography>
 
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Typography sx={{ fontFamily: "monospace", fontWeight: 600 }}>
-            {formatCurrency(allocation.allocatedAmount)}
-          </Typography>
+        <Typography textAlign="right" fontSize={13} fontWeight={600}>
+          {formatCurrency(allocation.allocatedAmount)}
+        </Typography>
 
-          <Chip
-            label={`${formatPercent(allocation.allocatedPercent, 2)} Allocated`}
-            size="small"
-            color="primary"
-            variant="outlined"
-          />
-        </Box>
+        <Chip sx={{ml:1}}
+          label={`${formatPercent(allocation.allocatedPercent, 2)} Allocated`}
+          size="small"
+          variant="outlined"
+          color="primary"
+        />
       </Box>
 
-      {/* Claims Table */}
-      <DataTable
-        columns={columns}
-        data={allocation.claims}
-        rowKey={(row) => row.claimId}
-        paginated={false}
-        searchable={false}
-        exportTitle="NPI Claims"
-      />
+      {/* Claims Section */}
+      {open && (
+        <Box sx={{ border: "1px solid #eee", borderTop: "none" }}>
+          {/* Header */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1.2fr 2fr 1fr 1fr",
+              px: 2,
+              py: 1,
+              background: "#fafafa",
+              borderBottom: "1px solid #eee",
+            }}
+          >
+            <Typography fontSize={12} fontWeight={600}>
+              CLAIM ID
+            </Typography>
+            <Typography fontSize={12} fontWeight={600}>
+              PATIENT NAME
+            </Typography>
+            <Typography textAlign="right" fontSize={12} fontWeight={600}>
+              ALLOWED AMT
+            </Typography>
+            <Typography textAlign="right" fontSize={12} fontWeight={600}>
+              APPLIED TO PIP BALANCE
+            </Typography>
+          </Box>
+
+          {/* Claims */}
+          {allocation.claims.map((claim) => (
+            <Box
+              key={claim.claimId}
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1.2fr 2fr 1fr 1fr",
+                px: 2,
+                py: 1,
+                borderBottom: "1px solid #f1f1f1",
+              }}
+            >
+              <Typography fontSize={13} color="primary">
+                {claim.claimId}
+              </Typography>
+
+              <Typography fontSize={13}>{claim.patientName}</Typography>
+
+              <Typography fontSize={13} textAlign="right">
+                {formatCurrency(claim.allowedAmt)}
+              </Typography>
+
+              <Typography fontSize={13} textAlign="right" color="success.main">
+                {formatCurrency(claim.appliedToPipBalance)}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 };
+
+ 
+
+
 
 const PipScreen: React.FC = () => {
   const pipRecords = useAppSelector((s) => s.financials.pipRecords);

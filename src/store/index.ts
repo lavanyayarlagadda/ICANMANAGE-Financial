@@ -2,11 +2,13 @@ import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import financialsReducer from './slices/financialsSlice';
 import uiReducer from './slices/uiSlice';
+import authReducer from './slices/authSlice';
 
 export const store = configureStore({
   reducer: {
     financials: financialsReducer,
     ui: uiReducer,
+    auth: authReducer,
   },
   devTools: import.meta.env.DEV,
 });

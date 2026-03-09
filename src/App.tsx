@@ -5,7 +5,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { muiTheme } from '@/theme';
 import { store } from '@/store';
 import FinancialsPage from '@/pages/FinancialsPage';
+import LoginPage from '@/pages/LoginPage';
+import UserProfilePage from '@/pages/UserProfilePage';
 import NotFound from '@/pages/NotFound';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 const App = () => (
   <Provider store={store}>
@@ -13,8 +16,40 @@ const App = () => (
       <CssBaseline />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<FinancialsPage />} />
-          <Route path="/financials" element={<FinancialsPage />} />
+          {/* Public Routes */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={
+              <LoginPage />
+            }
+          />
+          <Route
+            path="/financials/*"
+            element={
+              <ProtectedRoute>
+                <FinancialsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/collections"
+            element={
+              <ProtectedRoute>
+                <FinancialsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <UserProfilePage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

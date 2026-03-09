@@ -1,9 +1,20 @@
 import React from 'react';
 import { Tabs, Tab, Box, Button, Typography, useTheme, useMediaQuery } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useAppDispatch, useAppSelector } from '@/store';
-import { setActiveTab } from '@/store/slices/uiSlice';
+import { useAppSelector } from '@/store';
+import { useNavigate } from 'react-router-dom';
 import { openAddDialog } from '@/store/slices/financialsSlice';
+
+const tabPathsMap: Record<number, string> = {
+  0: '/financials/all-transactions',
+  1: '/financials/payments',
+  2: '/financials/pip',
+  3: '/financials/forward-balances',
+  4: '/financials/recoupments',
+  5: '/financials/other-adjustments',
+  6: '/financials/variance-analysis',
+  7: '/financials/trends-forecast',
+};
 
 const tabLabels = [
   'All Transactions',
@@ -23,8 +34,14 @@ interface FinancialsTabsProps {
 const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const activeTab = useAppSelector((s) => s.ui.activeTab);
+  const menus = useAppSelector((s) => s.auth.user?.menus || []);
+
+  const getMenuStatus = (label: string) => {
+    const menu = menus.find(m => m.menuName === label);
+    return menu ? menu.status : 'Hidden';
+  };
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -44,7 +61,10 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
 
       <Tabs
         value={activeTab}
-        onChange={(_, v) => dispatch(setActiveTab(v))}
+        onChange={(_, v) => {
+          const path = tabPathsMap[v];
+          if (path) navigate(path);
+        }}
         variant="scrollable"
         scrollButtons
         allowScrollButtonsMobile
@@ -68,9 +88,11 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
           },
         }}
       >
-        {tabLabels.map((label) => (
-          <Tab key={label} label={label} />
-        ))}
+        {tabLabels.map((label, index) => {
+          const status = getMenuStatus(label);
+          if (status === 'Hidden') return null;
+          return <Tab key={label} label={label} value={index} disabled={status === 'Disabled'} />;
+        })}
       </Tabs>
     </Box>
   );
