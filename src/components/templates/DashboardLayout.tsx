@@ -53,8 +53,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const menus = user?.menus || [];
 
   const getMenuStatus = (label: string) => {
-    const menu = menus.find(m => m.menuName === label);
-    return menu ? menu.status : 'Hidden';
+    const findStatus = (menusArray: typeof menus): string | null => {
+      for (const m of menusArray) {
+        if (m.menuName === label) return m.status;
+        if (m.subModules) {
+          const sub = findStatus(m.subModules);
+          if (sub) return sub;
+        }
+      }
+      return null;
+    };
+    return findStatus(menus) || 'Hidden';
   };
 
   const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;

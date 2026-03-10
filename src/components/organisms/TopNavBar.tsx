@@ -6,7 +6,6 @@ import {
   Typography,
   IconButton,
   Avatar,
-  Button,
   useTheme,
   useMediaQuery,
   Menu,
@@ -14,6 +13,7 @@ import {
   ListItemIcon,
   Divider,
 } from '@mui/material';
+import Button from '@/components/atoms/Button';
 import MenuIcon from '@mui/icons-material/Menu';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -93,9 +93,14 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
             {!isMobile && (
               <>
-                <Button startIcon={<UploadFileIcon />} size="small" color="inherit" sx={{ textTransform: 'none' }}>
-                  Upload Files
-                </Button>
+                <Button
+                  icon={<UploadFileIcon />}
+                  iconPosition="start"
+                  label="Upload Files"
+                  size="small"
+                  color="inherit"
+                  sx={{ textTransform: 'none' }}
+                />
               </>
             )}
             <Box

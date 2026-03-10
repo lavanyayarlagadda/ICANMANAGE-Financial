@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import Accordion from "@/components/atoms/Accordion";
 
 import StatusBadge from "@/components/atoms/StatusBadge";
 
@@ -18,48 +19,38 @@ interface Props {
 }
 
 export const NpiSection: React.FC<Props> = ({ allocation }) => {
-  const [open, setOpen] = useState(false);
-
   return (
     <Box sx={{ ml: 5, mb: 1 }}>
-      {/* NPI Header */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "40px 2fr 1fr 1fr",
-          alignItems: "center",
-          px: 2,
-          py: 1,
-          background: "#f7f9fc",
-          border: "1px solid #e0e0e0",
-        }}
+      <Accordion
+        defaultExpanded={false}
+        summary={
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "2fr 1fr 1fr",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <Typography fontSize={13} fontWeight={600}>
+              NPI {allocation.npi} – {allocation.name}
+            </Typography>
+
+            <Typography textAlign="right" fontSize={13} fontWeight={600}>
+              {formatCurrency(allocation.allocatedAmount)}
+            </Typography>
+
+            <Box sx={{ textAlign: "right", pr: 1 }}>
+              <Chip
+                label={`${formatPercent(allocation.allocatedPercent, 2)} Allocated`}
+                size="small"
+                variant="outlined"
+                color="primary"
+              />
+            </Box>
+          </Box>
+        }
       >
-        <IconButton size="small" onClick={() => setOpen(!open)}>
-          {open ? (
-            <KeyboardArrowDownIcon fontSize="small" />
-          ) : (
-            <KeyboardArrowRightIcon fontSize="small" />
-          )}
-        </IconButton>
-
-        <Typography fontSize={13} fontWeight={600}>
-          NPI {allocation.npi} – {allocation.name}
-        </Typography>
-
-        <Typography textAlign="right" fontSize={13} fontWeight={600}>
-          {formatCurrency(allocation.allocatedAmount)}
-        </Typography>
-
-        <Chip sx={{ml:1}}
-          label={`${formatPercent(allocation.allocatedPercent, 2)} Allocated`}
-          size="small"
-          variant="outlined"
-          color="primary"
-        />
-      </Box>
-
-      {/* Claims Section */}
-      {open && (
         <Box sx={{ border: "1px solid #eee", borderTop: "none" }}>
           {/* Header */}
           <Box
@@ -114,12 +105,12 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
             </Box>
           ))}
         </Box>
-      )}
+      </Accordion>
     </Box>
   );
 };
 
- 
+
 
 
 

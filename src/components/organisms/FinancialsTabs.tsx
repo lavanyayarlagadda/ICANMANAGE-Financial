@@ -1,9 +1,12 @@
-import React from 'react';
-import { Tabs, Tab, Box, Button, Typography, useTheme, useMediaQuery } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
+import Button from '@/components/atoms/Button';
+import Tabs from '@/components/atoms/Tabs';
 import AddIcon from '@mui/icons-material/Add';
 import { useAppSelector } from '@/store';
-import { useNavigate } from 'react-router-dom';
-import { openAddDialog } from '@/store/slices/financialsSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setActiveTab } from '@/store/slices/uiSlice';
 
 const tabPathsMap: Record<number, string> = {
   0: '/financials/all-transactions',
@@ -35,13 +38,37 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
   const activeTab = useAppSelector((s) => s.ui.activeTab);
   const menus = useAppSelector((s) => s.auth.user?.menus || []);
 
+  useEffect(() => {
+    const tabIndex = Object.entries(tabPathsMap).find(([_, path]) => path === location.pathname)?.[0];
+    if (tabIndex !== undefined && parseInt(tabIndex) !== activeTab) {
+      dispatch(setActiveTab(parseInt(tabIndex)));
+    }
+  }, [location.pathname, dispatch, activeTab]);
+
   const getMenuStatus = (label: string) => {
-    const menu = menus.find(m => m.menuName === label);
-    return menu ? menu.status : 'Hidden';
+    const findStatus = (menusArray: typeof menus): string | null => {
+      for (const m of menusArray) {
+        if (m.menuName === label) return m.status;
+        if (m.subModules) {
+          const sub = findStatus(m.subModules);
+          if (sub) return sub;
+        }
+      }
+      return null;
+    };
+    return findStatus(menus) || 'Hidden';
   };
+
+  const tabsData = tabLabels.map((label, index) => {
+    const status = getMenuStatus(label);
+    if (status === 'Hidden') return null;
+    return { label, value: index, disabled: status === 'Disabled' };
+  }).filter(Boolean) as any[];
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -54,17 +81,23 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
             A unified view of all payments, recoupments, and settlements.
           </Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddIcon />} size={isMobile ? 'small' : 'medium'} onClick={onAddNew}>
-          Add New
-        </Button>
+        <Button
+          variant="contained"
+          icon={<AddIcon />}
+          iconPosition="start"
+          size={isMobile ? 'small' : 'medium'}
+          onClick={onAddNew}
+          label="Add New"
+        />
       </Box>
 
       <Tabs
         value={activeTab}
         onChange={(_, v) => {
-          const path = tabPathsMap[v];
+          const path = tabPathsMap[v as number];
           if (path) navigate(path);
         }}
+        tabs={tabsData}
         variant="scrollable"
         scrollButtons
         allowScrollButtonsMobile
@@ -87,13 +120,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
             },
           },
         }}
-      >
-        {tabLabels.map((label, index) => {
-          const status = getMenuStatus(label);
-          if (status === 'Hidden') return null;
-          return <Tab key={label} label={label} value={index} disabled={status === 'Disabled'} />;
-        })}
-      </Tabs>
+      />
     </Box>
   );
 };

@@ -9,49 +9,52 @@ import LoginPage from '@/pages/LoginPage';
 import UserProfilePage from '@/pages/UserProfilePage';
 import NotFound from '@/pages/NotFound';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { GlobalHooksWrapper } from '@/components/GlobalHooksWrapper';
 
 const App = () => (
   <Provider store={store}>
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
       <BrowserRouter>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
+        <GlobalHooksWrapper>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/"
-            element={
-              <LoginPage />
-            }
-          />
-          <Route
-            path="/financials/*"
-            element={
-              <ProtectedRoute>
-                <FinancialsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/collections"
-            element={
-              <ProtectedRoute>
-                <FinancialsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <UserProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                <LoginPage />
+              }
+            />
+            <Route
+              path="/financials/*"
+              element={
+                <ProtectedRoute>
+                  <FinancialsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/collections"
+              element={
+                <ProtectedRoute>
+                  <FinancialsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </GlobalHooksWrapper>
       </BrowserRouter>
     </ThemeProvider>
   </Provider>

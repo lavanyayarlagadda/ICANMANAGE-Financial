@@ -20,7 +20,7 @@ const Logo: React.FC<LogoProps> = ({ collapsed = false }) => {
           justifyContent: "center",
         }}
       >
-        <img src={"./cognitiveLogo.svg"} alt="logo" style={{ width: 120 }} />
+        <img src="/cognitiveLogo.svg" alt="logo" style={{ width: 120 }} />
       </Box>
       {/* {!collapsed && (
         <Box>

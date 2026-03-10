@@ -21,10 +21,11 @@ export const muiTheme = createTheme({
       main: colors.error,
       light: colors.errorLight,
       dark: colors.errorDark,
+      contrastText: '#FFFFFF',
     },
-    warning: { main: colors.warning },
-    info: { main: colors.info },
-    success: { main: colors.success },
+    warning: { main: colors.warning, contrastText: '#FFFFFF' },
+    info: { main: colors.info, contrastText: '#FFFFFF' },
+    success: { main: colors.success, contrastText: '#FFFFFF' },
     background: {
       default: colors.background,
       paper: colors.surface,
@@ -38,7 +39,8 @@ export const muiTheme = createTheme({
   },
   typography: {
     fontFamily: typography.fontFamily.primary,
-    fontSize: 14,
+    htmlFontSize: 13,
+    fontSize: 13,
     h1: { fontSize: typography.fontSize.h1, fontWeight: typography.fontWeight.bold, lineHeight: 1.2, fontFamily: typography.fontFamily.headline },
     h2: { fontSize: typography.fontSize.h2, fontWeight: typography.fontWeight.bold, lineHeight: 1.3, fontFamily: typography.fontFamily.headline },
     h3: { fontSize: typography.fontSize.h3, fontWeight: typography.fontWeight.semibold, lineHeight: 1.3, fontFamily: typography.fontFamily.headline },
@@ -56,7 +58,17 @@ export const muiTheme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        body: { backgroundColor: colors.background, fontFamily: typography.fontFamily.primary },
+        html: {
+          fontSize: '15px',
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
+        },
+        body: {
+          backgroundColor: colors.background,
+          color: colors.text.primary,
+          fontFamily: typography.fontFamily.primary,
+          minHeight: '100vh',
+        },
       },
     },
     MuiButton: {

@@ -14,20 +14,19 @@ import {
     FormControl,
     SelectChangeEvent,
     Switch,
-    Accordion,
-    AccordionSummary,
-    AccordionDetails,
     InputAdornment,
+    Tabs,
+    Tab,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import SearchIcon from '@mui/icons-material/Search';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckIcon from '@mui/icons-material/Check';
+import Accordion from '@/components/atoms/Accordion';
 import { themeConfig } from '@/theme';
-import { DUMMY_USERS } from '@/utils/dummyData';
+import { DUMMY_USERS, MenuAccess } from '@/utils/dummyData';
 
 interface DemoSecurityModalProps {
     open: boolean;
@@ -37,7 +36,7 @@ interface DemoSecurityModalProps {
 
 const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, currentUser }) => {
     const [selectedUser, setSelectedUser] = useState(currentUser.id);
-    const [inactivityTimeout, setInactivityTimeout] = useState('15');
+    const [inactivityTimeout, setInactivityTimeout] = useState(() => localStorage.getItem('ican_inactivity_timeout') || '15');
     const [passwordPolicy, setPasswordPolicy] = useState('30 Days');
 
     // Module Visibility State
@@ -49,12 +48,20 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
         const userBeingEdited = DUMMY_USERS.find(u => u.id === selectedUser);
         if (userBeingEdited && userBeingEdited.menus) {
             const statusMap: Record<string, string> = {};
-            userBeingEdited.menus.forEach(m => {
-                statusMap[m.menuName] = m.status;
-            });
+            const populateMap = (menusToMap: MenuAccess[]) => {
+                menusToMap.forEach(m => {
+                    statusMap[m.menuName] = m.status;
+                    if (m.subModules) populateMap(m.subModules);
+                });
+            };
+            populateMap(userBeingEdited.menus);
             setModuleStatuses(statusMap);
+            setInactivityTimeout(userBeingEdited.inactivityTimeout || '15');
+            setPasswordPolicy(userBeingEdited.passwordPolicy || '30 Days');
         } else {
             setModuleStatuses({});
+            setInactivityTimeout('15');
+            setPasswordPolicy('30 Days');
         }
     }, [selectedUser]);
 
@@ -67,13 +74,15 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
     };
 
     const handleSave = () => {
+        localStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
         onClose();
     };
 
     // Derived username to display
-    const selectedUsername = selectedUser === currentUser.id
-        ? currentUser.username
-        : (selectedUser === '2' ? 'jsmith' : 'demo');
+    const userBeingEdited = DUMMY_USERS.find(u => u.id === selectedUser);
+    const selectedUsername = userBeingEdited ? userBeingEdited.username : currentUser.username;
+
+
 
     return (
         <Dialog
@@ -128,11 +137,11 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                 displayEmpty
                                 sx={{ backgroundColor: themeConfig.colors.surface, borderRadius: 1 }}
                             >
-                                <MenuItem value={currentUser.id}>
-                                    {currentUser.username} ({currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1)}) (You)
-                                </MenuItem>
-                                <MenuItem value="2">jsmith (Manager)</MenuItem>
-                                <MenuItem value="3">demo (User)</MenuItem>
+                                {DUMMY_USERS.map(u => (
+                                    <MenuItem key={u.id} value={u.id}>
+                                        {u.username} ({u.role.charAt(0).toUpperCase() + u.role.slice(1)}) {u.id === currentUser.id ? '(You)' : ''}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Box>
@@ -181,140 +190,133 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                     </Box>
 
                     {/* Accordion List */}
-                    <Box sx={{ border: `1px solid ${themeConfig.colors.border}`, borderRadius: 2, overflow: 'hidden' }}>
-                        <Accordion disableGutters defaultExpanded elevation={0} sx={{ borderTop: `1px solid ${themeConfig.colors.border}`, '&:before': { display: 'none' } }}>
-                            <AccordionDetails sx={{ p: 0 }}>
-                                {['Collections'].map((moduleName, index, arr) => (
-                                    <Box
-                                        key={moduleName}
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            p: 2,
-                                            pl: 5,
-                                            borderBottom: index < arr.length - 1 ? `1px solid ${themeConfig.colors.border}` : 'none'
-                                        }}
-                                    >
-                                        <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem' }}>
-                                            {moduleName}
-                                        </Typography>
-                                        <FormControl size="small" sx={{ width: 120 }}>
-                                            <Select
-                                                value={moduleStatuses[moduleName] || 'Hidden'}
-                                                onChange={(e) => handleModuleStatusChange(moduleName, e.target.value as string)}
-                                                disabled={!moduleSelectionEnabled}
-                                                sx={{
-                                                    height: 32,
-                                                    fontSize: '0.8rem',
-                                                    backgroundColor: themeConfig.colors.surface,
-                                                    '& .MuiSelect-select': { display: 'flex', alignItems: 'center' }
-                                                }}
-                                                MenuProps={{
-                                                    PaperProps: {
-                                                        sx: {
-                                                            '& .MuiMenuItem-root.Mui-selected': {
-                                                                backgroundColor: themeConfig.colors.warning,
-                                                                color: '#000',
-                                                                '&:hover': {
+                    {moduleSelectionEnabled && userBeingEdited?.menus && (
+                        <Box sx={{ border: `1px solid ${themeConfig.colors.border}`, borderRadius: 2, overflow: 'hidden' }}>
+                            {userBeingEdited.menus.map((menuItem, index) => (
+                                <React.Fragment key={menuItem.menuName}>
+                                    <Accordion hideBorderTop={index === 0}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                p: 2,
+                                                pl: 5,
+                                            }}
+                                        >
+                                            <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem' }}>
+                                                {menuItem.menuName}
+                                            </Typography>
+                                            <FormControl size="small" sx={{ width: 120 }}>
+                                                <Select
+                                                    value={moduleStatuses[menuItem.menuName] || 'Hidden'}
+                                                    onChange={(e) => handleModuleStatusChange(menuItem.menuName, e.target.value as string)}
+                                                    disabled={!moduleSelectionEnabled}
+                                                    sx={{
+                                                        height: 32,
+                                                        fontSize: '0.8rem',
+                                                        backgroundColor: themeConfig.colors.surface,
+                                                        '& .MuiSelect-select': { display: 'flex', alignItems: 'center' }
+                                                    }}
+                                                    MenuProps={{
+                                                        PaperProps: {
+                                                            sx: {
+                                                                '& .MuiMenuItem-root.Mui-selected': {
                                                                     backgroundColor: themeConfig.colors.warning,
+                                                                    color: '#000',
+                                                                    '&:hover': {
+                                                                        backgroundColor: themeConfig.colors.warning,
+                                                                    }
                                                                 }
                                                             }
                                                         }
-                                                    }
-                                                }}
-                                            >
-                                                {['Active', 'Hidden', 'Disabled'].map(statusOption => (
-                                                    <MenuItem
-                                                        key={statusOption}
-                                                        value={statusOption}
-                                                        sx={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 1 }}
-                                                    >
-                                                        {moduleStatuses[moduleName] === statusOption ? (
-                                                            <CheckIcon fontSize="small" />
-                                                        ) : (
-                                                            <Box sx={{ width: 20 }} /> // Placeholder for alignment
-                                                        )}
-                                                        {statusOption}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                    </Box>
-                                ))}
-                            </AccordionDetails>
-                        </Accordion>
-                        <Accordion disableGutters defaultExpanded elevation={0} sx={{ borderTop: `1px solid ${themeConfig.colors.border}`, '&:before': { display: 'none' } }}>
-                            <AccordionSummary
-                                expandIcon={<ExpandMoreIcon sx={{ color: themeConfig.colors.primary }} />}
-                                sx={{ backgroundColor: '#FAFBFC', flexDirection: 'row-reverse', gap: 1, minHeight: 48, '& .MuiAccordionSummary-content': { my: 1 } }}
-                            >
-                                <Typography sx={{ fontSize: '0.9rem', color: themeConfig.colors.text.secondary }}>
-                                    Financials Sub-Modules
-                                </Typography>
-                            </AccordionSummary>
-                            <AccordionDetails sx={{ p: 0 }}>
-                                {['All Transactions', 'Payments', 'PIP', 'Forward Balances', 'Recoupments', 'Other Adjustments', 'Variance Analysis', 'Trends & Forecast'].map((moduleName, index, arr) => (
-                                    <Box
-                                        key={moduleName}
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            p: 2,
-                                            pl: 5,
-                                            borderBottom: index < arr.length - 1 ? `1px solid ${themeConfig.colors.border}` : 'none'
-                                        }}
-                                    >
-                                        <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem' }}>
-                                            {moduleName}
-                                        </Typography>
-                                        <FormControl size="small" sx={{ width: 120 }}>
-                                            <Select
-                                                value={moduleStatuses[moduleName] || 'Hidden'}
-                                                onChange={(e) => handleModuleStatusChange(moduleName, e.target.value as string)}
-                                                disabled={!moduleSelectionEnabled}
-                                                sx={{
-                                                    height: 32,
-                                                    fontSize: '0.8rem',
-                                                    backgroundColor: themeConfig.colors.surface,
-                                                    '& .MuiSelect-select': { display: 'flex', alignItems: 'center' }
-                                                }}
-                                                MenuProps={{
-                                                    PaperProps: {
-                                                        sx: {
-                                                            '& .MuiMenuItem-root.Mui-selected': {
-                                                                backgroundColor: themeConfig.colors.warning,
-                                                                color: '#000',
-                                                                '&:hover': {
-                                                                    backgroundColor: themeConfig.colors.warning,
+                                                    }}
+                                                >
+                                                    {['Active', 'Hidden', 'Disabled'].map(statusOption => (
+                                                        <MenuItem
+                                                            key={statusOption}
+                                                            value={statusOption}
+                                                            sx={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 1 }}
+                                                        >
+                                                            {moduleStatuses[menuItem.menuName] === statusOption ? (
+                                                                <CheckIcon fontSize="small" />
+                                                            ) : (
+                                                                <Box sx={{ width: 20 }} /> // Placeholder for alignment
+                                                            )}
+                                                            {statusOption}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        </Box>
+                                    </Accordion>
+
+                                    {menuItem.subModules && moduleStatuses[menuItem.menuName] !== 'Hidden' && (
+                                        <Accordion summary={`${menuItem.menuName} Sub-Modules`}>
+                                            {menuItem.subModules.map((subItem, sIdx, sArr) => (
+                                                <Box
+                                                    key={subItem.menuName}
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                        p: 2,
+                                                        pl: 5,
+                                                        borderBottom: sIdx < sArr.length - 1 ? `1px solid ${themeConfig.colors.border}` : 'none'
+                                                    }}
+                                                >
+                                                    <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem' }}>
+                                                        {subItem.menuName}
+                                                    </Typography>
+                                                    <FormControl size="small" sx={{ width: 120 }}>
+                                                        <Select
+                                                            value={moduleStatuses[subItem.menuName] || 'Hidden'}
+                                                            onChange={(e) => handleModuleStatusChange(subItem.menuName, e.target.value as string)}
+                                                            disabled={moduleStatuses[menuItem.menuName] === 'Disabled' || !moduleSelectionEnabled}
+                                                            sx={{
+                                                                height: 32,
+                                                                fontSize: '0.8rem',
+                                                                backgroundColor: themeConfig.colors.surface,
+                                                                '& .MuiSelect-select': { display: 'flex', alignItems: 'center' }
+                                                            }}
+                                                            MenuProps={{
+                                                                PaperProps: {
+                                                                    sx: {
+                                                                        '& .MuiMenuItem-root.Mui-selected': {
+                                                                            backgroundColor: themeConfig.colors.warning,
+                                                                            color: '#000',
+                                                                            '&:hover': {
+                                                                                backgroundColor: themeConfig.colors.warning,
+                                                                            }
+                                                                        }
+                                                                    }
                                                                 }
-                                                            }
-                                                        }
-                                                    }
-                                                }}
-                                            >
-                                                {['Active', 'Hidden', 'Disabled'].map(statusOption => (
-                                                    <MenuItem
-                                                        key={statusOption}
-                                                        value={statusOption}
-                                                        sx={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 1 }}
-                                                    >
-                                                        {moduleStatuses[moduleName] === statusOption ? (
-                                                            <CheckIcon fontSize="small" />
-                                                        ) : (
-                                                            <Box sx={{ width: 20 }} /> // Placeholder for alignment
-                                                        )}
-                                                        {statusOption}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                    </Box>
-                                ))}
-                            </AccordionDetails>
-                        </Accordion>
-                    </Box>
+                                                            }}
+                                                        >
+                                                            {['Active', 'Hidden', 'Disabled'].map(statusOption => (
+                                                                <MenuItem
+                                                                    key={statusOption}
+                                                                    value={statusOption}
+                                                                    sx={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 1 }}
+                                                                >
+                                                                    {moduleStatuses[subItem.menuName] === statusOption ? (
+                                                                        <CheckIcon fontSize="small" />
+                                                                    ) : (
+                                                                        <Box sx={{ width: 20 }} /> // Placeholder for alignment
+                                                                    )}
+                                                                    {statusOption}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </Box>
+                                            ))}
+                                        </Accordion>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </Box>
+                    )}
                 </Box>
 
                 {/* Security Settings Box */}
