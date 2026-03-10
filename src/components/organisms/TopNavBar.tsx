@@ -93,14 +93,14 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
             {!isMobile && (
               <>
-                <Button
+                {/* <Button
                   icon={<UploadFileIcon />}
                   iconPosition="start"
                   label="Upload Files"
                   size="small"
                   color="inherit"
                   sx={{ textTransform: 'none' }}
-                />
+                /> */}
               </>
             )}
             <Box
@@ -150,18 +150,17 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
                 <ListItemIcon><LockOutlinedIcon fontSize="small" /></ListItemIcon>
                 <Typography variant="body2">Profile & Password</Typography>
               </MenuItem>
-
-              <Divider />
-              <Box sx={{ px: 2, py: 1 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>Application Settings</Typography>
-              </Box>
-
-
               {user.role !== 'user' && (
-                <MenuItem onClick={openDemoModal} sx={{ py: 1.5 }}>
-                  <ListItemIcon><SettingsOutlinedIcon fontSize="small" /></ListItemIcon>
-                  <Typography variant="body2">Demo & Security</Typography>
-                </MenuItem>
+                <>
+                  <Divider />
+                  <Box sx={{ px: 2, py: 1 }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>Application Settings</Typography>
+                  </Box>
+                  <MenuItem onClick={openDemoModal} sx={{ py: 1.5 }}>
+                    <ListItemIcon><SettingsOutlinedIcon fontSize="small" /></ListItemIcon>
+                    <Typography variant="body2">Demo & Security</Typography>
+                  </MenuItem>
+                </>
               )}
 
               <Divider />

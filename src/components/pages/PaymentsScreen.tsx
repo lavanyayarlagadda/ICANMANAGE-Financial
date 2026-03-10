@@ -42,7 +42,7 @@ const PaymentsScreen: React.FC = () => {
     { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type, render: (r) => r.type },
     {
       id: 'description',
-      label: 'Description',
+      label: 'Transaction Number',
       minWidth: 220,
       accessor: (r) => r.description,
       render: (r) => (
@@ -55,7 +55,7 @@ const PaymentsScreen: React.FC = () => {
         </Typography>
       ),
     },
-    { id: 'sourceProvider', label: 'Source / Provider', minWidth: 180, accessor: (r) => r.sourceProvider, render: (r) => r.sourceProvider },
+    { id: 'sourceProvider', label: 'Payer', minWidth: 180, accessor: (r) => r.sourceProvider, render: (r) => r.sourceProvider },
     { id: 'amount', label: 'Amount', minWidth: 110, align: 'right', accessor: (r) => r.amount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount)}</Box> },
     { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'right', accessor: (r) => r.openBalance ?? 0, render: (r) => r.openBalance != null ? formatCurrency(r.openBalance) : 'N/A' },
     { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },

@@ -254,6 +254,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                         </Box>
                                     </Accordion>
 
+
                                     {menuItem.subModules && moduleStatuses[menuItem.menuName] !== 'Hidden' && (
                                         <Accordion summary={`${menuItem.menuName} Sub-Modules`}>
                                             {menuItem.subModules.map((subItem, sIdx, sArr) => (
@@ -316,6 +317,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                             ))}
                                         </Accordion>
                                     )}
+
                                 </React.Fragment>
                             ))}
                         </Box>

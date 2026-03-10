@@ -259,38 +259,52 @@ function DataTable<T>({
   };
 
   const toolbar = (
-    <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 1, borderBottom: `1px solid ${theme.palette.divider}` }}>
+    <Box sx={{ px: 1.5, py: 0.5, display: 'flex', flexDirection: 'column', gap: 0.5, borderBottom: `1px solid ${theme.palette.divider}` }}>
       {props.selectable && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-          <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-            ({selectedKeys.size}) Rows Selected
-          </Typography>
-          <Typography variant="body2" color="text.secondary">·</Typography>
-          <Link component="button" variant="body2" onClick={() => handleSelectionChange(new Set())} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
-            Deselect All
-          </Link>
-          <Typography variant="body2" color="text.secondary">·</Typography>
-          <Link component="button" variant="body2" onClick={() => {
-            const maxSelection = new Set(filteredData.map(rowKey));
-            handleSelectionChange(maxSelection);
-          }} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
-            Select Max
-          </Link>
+          {selectedKeys.size > 0 && (
+            <>
+              <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
+                ({selectedKeys.size}) Rows Selected
+              </Typography>
+              <Typography variant="body2" color="text.secondary">·</Typography>
+              <Link component="button" variant="body2" onClick={() => handleSelectionChange(new Set())} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
+                Deselect All
+              </Link>
+              <Typography variant="body2" color="text.secondary">·</Typography>
+              <Link component="button" variant="body2" onClick={() => {
+                const maxSelection = new Set(filteredData.map(rowKey));
+                handleSelectionChange(maxSelection);
+              }} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
+                Select Max
+              </Link>
 
-          {(activeFilterCount > 0 || props.customToolbarContent) && (
-            <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+              {(activeFilterCount > 0 || props.customToolbarContent) && (
+                <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+              )}
+            </>
           )}
+        </Box>
+      )}
 
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', width: '100%', justifyContent: 'flex-start' }}>
+        <Typography variant="caption" color="text.secondary">
+          {filteredData.length} record{filteredData.length !== 1 ? 's' : ''}
+        </Typography>
+
+        {activeFilterCount > 0 && (
+          <Chip
+            label={`${activeFilterCount} active filter${activeFilterCount > 1 ? 's' : ''}`}
+            size="small"
+            onDelete={clearAllFilters}
+            color="primary"
+            variant="outlined"
+          />
+        )}
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
           {props.customToolbarContent}
-        </Box>
-      )}
-      {!props.selectable && props.customToolbarContent && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-          {props.customToolbarContent}
-        </Box>
-      )}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-        {searchable && (
+          {/*searchable && (
           <TextField
             size="small"
             placeholder="Search…"
@@ -312,59 +326,48 @@ function DataTable<T>({
               ) : null,
             }}
           />
-        )}
-        {filterableColumns.length > 0 && (
-          <IconButton
-            size="small"
-            onClick={() => setShowFilters((p) => !p)}
-            color={showFilters ? 'primary' : 'default'}
-            sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}
-          >
-            <FilterListIcon fontSize="small" />
-          </IconButton>
-        )}
-
-        {/* Download button */}
-        {exportableColumns.length > 0 && (
-          <>
-            <Button
+        )*/}
+          {filterableColumns.length > 0 && (
+            <IconButton
               size="small"
-              startIcon={<FileDownloadIcon fontSize="small" />}
-              onClick={(e) => setDownloadAnchor(e.currentTarget)}
-              sx={{ textTransform: 'none', minWidth: 'auto' }}
-              color="inherit"
+              onClick={() => setShowFilters((p) => !p)}
+              color={showFilters ? 'primary' : 'default'}
+              sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}
             >
-              {!isMobile && 'Export'}
-            </Button>
-            <Menu
-              anchorEl={downloadAnchor}
-              open={Boolean(downloadAnchor)}
-              onClose={() => setDownloadAnchor(null)}
-            >
-              <MenuItem onClick={handleCSVExport}>
-                <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
-                <ListItemText>Download CSV</ListItemText>
-              </MenuItem>
-              <MenuItem onClick={handlePDFExport}>
-                <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
-                <ListItemText>Download PDF</ListItemText>
-              </MenuItem>
-            </Menu>
-          </>
-        )}
+              <FilterListIcon fontSize="small" />
+            </IconButton>
+          )}
 
-        {activeFilterCount > 0 && (
-          <Chip
-            label={`${activeFilterCount} active filter${activeFilterCount > 1 ? 's' : ''}`}
-            size="small"
-            onDelete={clearAllFilters}
-            color="primary"
-            variant="outlined"
-          />
-        )}
-        <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>
-          {filteredData.length} record{filteredData.length !== 1 ? 's' : ''}
-        </Typography>
+          {/* Download button */}
+          {exportableColumns.length > 0 && (
+            <>
+              <Button
+                size="small"
+                startIcon={<FileDownloadIcon fontSize="small" />}
+                onClick={(e) => setDownloadAnchor(e.currentTarget)}
+                sx={{ textTransform: 'none', minWidth: 'auto' }}
+                color="inherit"
+              >
+                {!isMobile && 'Export'}
+              </Button>
+              <Menu
+                anchorEl={downloadAnchor}
+                open={Boolean(downloadAnchor)}
+                onClose={() => setDownloadAnchor(null)}
+              >
+                <MenuItem onClick={handleCSVExport}>
+                  <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText>Download CSV</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={handlePDFExport}>
+                  <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText>Download PDF</ListItemText>
+                </MenuItem>
+              </Menu>
+            </>
+          )}
+
+        </Box>
       </Box>
 
       <Collapse in={showFilters}>
@@ -408,7 +411,11 @@ function DataTable<T>({
           return (
             <Card
               key={key}
-              sx={{ mb: 1.5, cursor: onRowClick ? 'pointer' : 'default' }}
+              sx={{
+                mb: 1.5,
+                cursor: onRowClick ? 'pointer' : 'default',
+                ...(selectedKeys.has(key) && { backgroundColor: '#F4F9FF' }),
+              }}
               onClick={() => onRowClick?.(row)}
             >
               <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
@@ -469,8 +476,8 @@ function DataTable<T>({
   return (
     <Paper sx={{ width: '100%', maxWidth: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {toolbar}
-      <TableContainer sx={{ flex: 1, minHeight: 0, maxHeight: 'calc(100vh - 380px)', overflowX: 'auto', overflowY: 'auto', overscrollBehavior: 'contain' }}>
-        <Table stickyHeader size="small">
+      <TableContainer sx={{ flex: 1, minHeight: 0, maxHeight: 'calc(100vh - 240px)', overflowX: 'auto', overflowY: 'auto', overscrollBehavior: 'contain' }}>
+        <Table stickyHeader size="small" sx={{ '& .MuiTableCell-root': { p:1, minHeight: 40 }, '& .MuiTableHead-root .MuiTableCell-root': { py: 1, minHeight: 48 } }}>
           <TableHead>
             <TableRow>
               {props.selectable && (
@@ -528,7 +535,10 @@ function DataTable<T>({
                     <TableRow
                       hover
                       onClick={() => onRowClick?.(row)}
-                      sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                      sx={{
+                        cursor: onRowClick ? 'pointer' : 'default',
+                        ...(selectedKeys.has(key) && { backgroundColor: '#F4F9FF !important' }),
+                      }}
                       selected={selectedKeys.has(key)}
                     >
                       {props.selectable && (
@@ -575,7 +585,7 @@ function DataTable<T>({
             setRowsPerPage(parseInt(e.target.value, 10));
             setPage(0);
           }}
-          sx={{ flexShrink: 0, borderTop: (t) => `1px solid ${t.palette.divider}` }}
+          sx={{ flexShrink: 0, borderTop: (t) => `1px solid ${t.palette.divider}`, overflow: 'hidden !important', '& .MuiTablePagination-toolbar': { minHeight: 40, p: 0, px: 2, overflow: 'hidden !important' }, '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': { m: 0 } }}
         />
       )}
     </Paper>

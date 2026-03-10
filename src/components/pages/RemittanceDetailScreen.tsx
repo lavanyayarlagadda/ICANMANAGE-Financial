@@ -11,17 +11,11 @@ import Grid from '@mui/material/Grid';
 import { useAppSelector } from '@/store';
 import { formatCurrency } from '@/utils/formatters';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import DetailCard from '@/components/molecules/DetailCard';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import { ServiceLine } from '@/types/financials';
 
-const LabelValue: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <Box sx={{ mb: 1.5 }}>
-    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-      {label}
-    </Typography>
-    <Typography variant="body2" sx={{ fontWeight: 500 }}>{value}</Typography>
-  </Box>
-);
+
 
 const RemittanceDetailScreen: React.FC = () => {
   const theme = useTheme();
@@ -79,38 +73,43 @@ const RemittanceDetailScreen: React.FC = () => {
         Claim Detail – {detail.patientName}
       </Typography>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Payment Date" value={detail.paymentDate} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Check/EFT Number" value={detail.checkEftNumber} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Payment Amount" value={formatCurrency(detail.paymentAmount)} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Payer Name" value={detail.payerName} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Patient Name" value={detail.patientName} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Patient CTL No" value={detail.patientCtlNo} /></Grid>
-          </Grid>
-          <Divider sx={{ my: 2 }} />
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Payer ICN" value={detail.payerIcn} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Statement Period" value={detail.statementPeriod} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Claim Charge" value={formatCurrency(detail.claimCharge)} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Allowed Amount" value={formatCurrency(detail.allowedAmount)} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Claim Payment" value={formatCurrency(detail.claimPayment)} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Contract Adj" value={formatCurrency(detail.contractAdj)} /></Grid>
-          </Grid>
-          <Divider sx={{ my: 2 }} />
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Adjustment Codes" value={detail.adjustmentCodes} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Remit Remarks" value={detail.remitRemarks} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Provider Adj Amount" value={formatCurrency(detail.providerAdjAmount)} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Provider Adj Codes" value={detail.providerAdjCodes} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Provider NPI" value={detail.providerNpi} /></Grid>
-            <Grid size={{ xs: 6, sm: 4, md: 2 }}><LabelValue label="Claim Status Code" value={detail.claimStatusCode} /></Grid>
-          </Grid>
-          <Divider sx={{ my: 2 }} />
+      <DetailCard
+        sections={[
+          {
+            fields: [
+              { label: "Payment Date", value: detail.paymentDate },
+              { label: "Check/EFT Number", value: detail.checkEftNumber },
+              { label: "Payment Amount", value: formatCurrency(detail.paymentAmount) },
+              { label: "Payer Name", value: detail.payerName },
+              { label: "Patient Name", value: detail.patientName },
+              { label: "Patient CTL No", value: detail.patientCtlNo },
+            ]
+          },
+          {
+            fields: [
+              { label: "Payer ICN", value: detail.payerIcn },
+              { label: "Statement Period", value: detail.statementPeriod },
+              { label: "Claim Charge", value: formatCurrency(detail.claimCharge) },
+              { label: "Allowed Amount", value: formatCurrency(detail.allowedAmount) },
+              { label: "Claim Payment", value: formatCurrency(detail.claimPayment) },
+              { label: "Contract Adj", value: formatCurrency(detail.contractAdj) },
+            ]
+          },
+          {
+            fields: [
+              { label: "Adjustment Codes", value: detail.adjustmentCodes },
+              { label: "Remit Remarks", value: detail.remitRemarks },
+              { label: "Provider Adj Amount", value: formatCurrency(detail.providerAdjAmount) },
+              { label: "Provider Adj Codes", value: detail.providerAdjCodes },
+              { label: "Provider NPI", value: detail.providerNpi },
+              { label: "Claim Status Code", value: detail.claimStatusCode },
+            ]
+          }
+        ]}
+        footer={
           <Typography variant="body2" sx={{ fontWeight: 600 }}>Provider: {detail.providerName}</Typography>
-        </CardContent>
-      </Card>
+        }
+      />
 
       <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2 }}>Service Line Details</Typography>
       <DataTable
@@ -119,7 +118,6 @@ const RemittanceDetailScreen: React.FC = () => {
         rowKey={(r) => String(r.lineNumber)}
         paginated={false}
         exportTitle="Service Line Details"
-        selectable
         customToolbarContent={<RangeDropdown />}
       />
     </Box>

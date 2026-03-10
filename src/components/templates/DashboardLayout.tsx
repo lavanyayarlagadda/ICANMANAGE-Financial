@@ -127,42 +127,30 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
       {/* Financials Section */}
       {hasFinancials && (
-        <>
-          {!sidebarCollapsed && (
-            <Box sx={{ px: 2, py: 0.5 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: theme.palette.text.disabled, fontSize: '0.65rem' }}>
-                Financials
-              </Typography>
-            </Box>
-          )}
-          <List disablePadding>
-            {financialsSubItems.map((item) => (
-              <Tooltip key={item.label} title={sidebarCollapsed ? item.label : ''} placement="right">
-                <ListItemButton
-                  disabled={getMenuStatus(item.label) === 'Disabled'}
-                  selected={activePage === 'financials' && activeTab === item.tab}
-                  onClick={() => getMenuStatus(item.label) !== 'Disabled' && handleNavClick('financials', item.path)}
-                  sx={{
-                    mx: sidebarCollapsed ? 0.5 : 1,
-                    borderRadius: 1,
-                    mb: 0.25,
-                    py: 0.75,
-                    justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-                    px: sidebarCollapsed ? 1 : 2,
-                    '&.Mui-selected': {
-                      backgroundColor: `${theme.palette.primary.main}12`,
-                      color: theme.palette.primary.main,
-                      '& .MuiListItemIcon-root': { color: theme.palette.primary.main },
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 32, justifyContent: 'center' }}>{item.icon}</ListItemIcon>
-                  {!sidebarCollapsed && <ListItemText primary={item.label} primaryTypographyProps={{ variant: 'body2', fontWeight: 500, fontSize: '0.8rem' }} />}
-                </ListItemButton>
-              </Tooltip>
-            ))}
-          </List>
-        </>
+        <List disablePadding>
+          <Tooltip title={sidebarCollapsed ? 'Financials' : ''} placement="right">
+            <ListItemButton
+              disabled={getMenuStatus('Financials') === 'Disabled'}
+              selected={activePage === 'financials'}
+              onClick={() => getMenuStatus('Financials') !== 'Disabled' && handleNavClick('financials', '/financials/all-transactions')}
+              sx={{
+                mx: sidebarCollapsed ? 0.5 : 1,
+                borderRadius: 1,
+                mb: 0.5,
+                justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+                px: sidebarCollapsed ? 1 : 2,
+                '&.Mui-selected': {
+                  backgroundColor: `${theme.palette.primary.main}12`,
+                  color: theme.palette.primary.main,
+                  '& .MuiListItemIcon-root': { color: theme.palette.primary.main },
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}><AccountBalanceIcon fontSize="small" /></ListItemIcon>
+              {!sidebarCollapsed && <ListItemText primary="Financials" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
+            </ListItemButton>
+          </Tooltip>
+        </List>
       )}
     </Box>
   );

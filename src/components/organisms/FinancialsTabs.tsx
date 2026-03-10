@@ -70,6 +70,10 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
     return { label, value: index, disabled: status === 'Disabled' };
   }).filter(Boolean) as any[];
 
+  if (getMenuStatus('Financials') === 'Hidden') {
+    return null;
+  }
+
   return (
     <Box sx={{ mb: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
@@ -81,14 +85,14 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
             A unified view of all payments, recoupments, and settlements.
           </Typography>
         </Box>
-        <Button
+        {/* <Button
           variant="contained"
           icon={<AddIcon />}
           iconPosition="start"
           size={isMobile ? 'small' : 'medium'}
           onClick={onAddNew}
           label="Add New"
-        />
+        /> */}
       </Box>
 
       <Tabs
@@ -106,6 +110,11 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
           '& .MuiTab-root': {
             minWidth: 'auto',
             px: { xs: 1.5, md: 2 },
+            fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+            fontWeight: 500,
+            fontSize: '13px',
+            color: 'rgb(10, 22, 40)',
+            textTransform: 'none',
           },
           '& .MuiTabScrollButton-root': {
             width: 36,

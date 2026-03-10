@@ -49,7 +49,38 @@ const UserProfilePage: React.FC = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const navigate = useNavigate();
     const user = useSelector((state: RootState) => state.auth.user);
+    const menus = user?.menus || [];
     const [tabIndex, setTabIndex] = useState(0);
+
+    const getMenuStatus = (label: string) => {
+        const findStatus = (menusArray: any[]): string | null => {
+            for (const m of menusArray) {
+                if (m.menuName === label) return m.status;
+                if (m.subModules) {
+                    const sub = findStatus(m.subModules);
+                    if (sub) return sub;
+                }
+            }
+            return null;
+        };
+        return findStatus(menus) || 'Hidden';
+    };
+
+    const isModuleVisible = (label: string) => {
+        if (label === 'Financials' || label === 'Collections') {
+            return getMenuStatus(label) !== 'Hidden';
+        }
+        if (getMenuStatus('Financials') === 'Hidden') return false;
+        return getMenuStatus(label) !== 'Hidden';
+    };
+
+    const isModuleDisabled = (label: string) => {
+        if (label === 'Financials' || label === 'Collections') {
+            return getMenuStatus(label) === 'Disabled';
+        }
+        if (getMenuStatus('Financials') === 'Disabled') return true;
+        return getMenuStatus(label) === 'Disabled';
+    };
 
     // Profile
     const [username, setUsername] = useState(user?.username || '');
@@ -253,30 +284,33 @@ const UserProfilePage: React.FC = () => {
                             Customize your application experience.
                         </Typography>
 
-                        {user?.role !== 'user' && (
-                            <>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                                        Default Landing Page
-                                    </Typography>
-                                    <Typography variant="caption" color="primary">
-                                        Current: {landingPage}
-                                    </Typography>
-                                </Box>
+                        <>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                    Default Landing Page
+                                </Typography>
+                                <Typography variant="caption" color="primary">
+                                    Current: {landingPage}
+                                </Typography>
+                            </Box>
 
-                                <Select
-                                    fullWidth
-                                    size="small"
-                                    value={landingPage}
-                                    onChange={(e) => setLandingPage(e.target.value)}
-                                    sx={{ mb: 3, backgroundColor: '#FAFBFC' }}
-                                >
-                                    {user?.accessibleModules.map(module => (
-                                        <MenuItem key={module} value={module}>{module}</MenuItem>
+                            <Select
+                                fullWidth
+                                size="small"
+                                disabled={user?.role === 'user' || user?.username === 'demo'}
+                                value={landingPage}
+                                onChange={(e) => setLandingPage(e.target.value)}
+                                sx={{ mb: 3, backgroundColor: '#FAFBFC' }}
+                            >
+                                {user?.accessibleModules
+                                    .filter(module => isModuleVisible(module))
+                                    .map(module => (
+                                        <MenuItem key={module} value={module} disabled={isModuleDisabled(module)}>
+                                            {module}
+                                        </MenuItem>
                                     ))}
-                                </Select>
-                            </>
-                        )}
+                            </Select>
+                        </>
 
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Button
