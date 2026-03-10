@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
@@ -60,7 +61,16 @@ const PaymentsScreen: React.FC = () => {
     { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
   ];
 
-  return <DataTable columns={columns} data={payments} rowKey={(r) => r.id} exportTitle="Payments" />;
+  return (
+    <DataTable
+      columns={columns}
+      data={payments}
+      rowKey={(r) => r.id}
+      exportTitle="Payments"
+      // selectable
+      customToolbarContent={<RangeDropdown />}
+    />
+  );
 };
 
 export default PaymentsScreen;

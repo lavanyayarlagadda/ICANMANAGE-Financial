@@ -6,6 +6,7 @@ import StatusBadge from '@/components/atoms/StatusBadge';
 import TeamPerformanceCard from '@/components/molecules/TeamPerformanceCard';
 import TrendChart from '@/components/molecules/TrendChart';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
 import { useAppSelector } from '@/store';
 import { ForecastRow } from '@/types/financials';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -130,6 +131,7 @@ const TrendsScreen: React.FC = () => {
         rowKey={(r) => r.metric}
         paginated={false}
         exportTitle="3-Month Forecast"
+        customToolbarContent={<RangeDropdown />}
       />
     </Box>
   );

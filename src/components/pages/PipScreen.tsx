@@ -8,6 +8,7 @@ import StatusBadge from "@/components/atoms/StatusBadge";
 import { useAppSelector } from "@/store";
 import { PipRecord } from "@/types/financials";
 import DataTable, { DataColumn } from "../molecules/DataTable";
+import RangeDropdown from "@/components/atoms/RangeDropdown";
 import { Box, Typography, IconButton, Chip } from "@mui/material";
 
 
@@ -228,6 +229,8 @@ const PipScreen: React.FC = () => {
       exportTitle="PIP Records"
       paginated
       searchable
+      // selectable
+      customToolbarContent={<RangeDropdown />}
     />
   );
 };

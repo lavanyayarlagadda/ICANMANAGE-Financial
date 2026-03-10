@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
 import SummaryCard from '@/components/atoms/SummaryCard';
 import { useAppSelector } from '@/store';
 import { VarianceRecord } from '@/types/financials';
@@ -84,7 +85,7 @@ const VarianceScreen: React.FC = () => {
         </Grid>
       </Grid>
 
-      <DataTable columns={columns} data={varianceRecords} rowKey={(r) => r.id} exportTitle="Variance Analysis" />
+      <DataTable columns={columns} data={varianceRecords} rowKey={(r) => r.id} exportTitle="Variance Analysis" selectable customToolbarContent={<RangeDropdown />} />
     </Box>
   );
 };

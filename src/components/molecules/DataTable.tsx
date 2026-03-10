@@ -28,6 +28,8 @@ import {
   ListItemText,
   useTheme,
   useMediaQuery,
+  Checkbox,
+  Link,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -70,6 +72,10 @@ interface DataTableProps<T> {
   searchable?: boolean;
   /** Title used for PDF export header */
   exportTitle?: string;
+  selectable?: boolean;
+  onSelectionChange?: (selectedKeys: Set<string>) => void;
+  selectedKeys?: Set<string>;
+  customToolbarContent?: React.ReactNode;
 }
 
 function DataTable<T>({
@@ -83,6 +89,7 @@ function DataTable<T>({
   expandedRows,
   searchable = true,
   exportTitle = 'Data Export',
+  ...props
 }: DataTableProps<T>) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -94,6 +101,14 @@ function DataTable<T>({
   const [showFilters, setShowFilters] = React.useState(false);
   const [columnFilters, setColumnFilters] = React.useState<Record<string, string>>({});
   const [downloadAnchor, setDownloadAnchor] = React.useState<null | HTMLElement>(null);
+
+  const [internalSelected, setInternalSelected] = React.useState<Set<string>>(new Set());
+  const selectedKeys = props.selectedKeys ?? internalSelected;
+
+  const handleSelectionChange = (newSelection: Set<string>) => {
+    setInternalSelected(newSelection);
+    props.onSelectionChange?.(newSelection);
+  };
 
   const filterableColumns = columns.filter((c) => c.filterOptions && c.filterOptions.length > 0);
   // All columns with accessor are sortable (unless disableSort). Columns without accessor but not 'actions' get text-based sorting.
@@ -161,6 +176,30 @@ function DataTable<T>({
     setPage(0);
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allPaginatedKeys = paginatedData.map(rowKey);
+      const newSelection = new Set(selectedKeys);
+      allPaginatedKeys.forEach(k => newSelection.add(k));
+      handleSelectionChange(newSelection);
+    } else {
+      const allPaginatedKeys = paginatedData.map(rowKey);
+      const newSelection = new Set(selectedKeys);
+      allPaginatedKeys.forEach(k => newSelection.delete(k));
+      handleSelectionChange(newSelection);
+    }
+  };
+
+  const handleSelectOne = (key: string, checked: boolean) => {
+    const newSelection = new Set(selectedKeys);
+    if (checked) newSelection.add(key);
+    else newSelection.delete(key);
+    handleSelectionChange(newSelection);
+  };
+
+  const isAllSelected = paginatedData.length > 0 && paginatedData.every(row => selectedKeys.has(rowKey(row)));
+  const isIndeterminate = paginatedData.some(row => selectedKeys.has(rowKey(row))) && !isAllSelected;
+
   // --- Export functions ---
   const getExportData = () => {
     const headers = exportableColumns.map((c) => c.exportLabel || c.label);
@@ -221,6 +260,35 @@ function DataTable<T>({
 
   const toolbar = (
     <Box sx={{ p: 1.5, display: 'flex', flexDirection: 'column', gap: 1, borderBottom: `1px solid ${theme.palette.divider}` }}>
+      {props.selectable && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+          <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
+            ({selectedKeys.size}) Rows Selected
+          </Typography>
+          <Typography variant="body2" color="text.secondary">·</Typography>
+          <Link component="button" variant="body2" onClick={() => handleSelectionChange(new Set())} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
+            Deselect All
+          </Link>
+          <Typography variant="body2" color="text.secondary">·</Typography>
+          <Link component="button" variant="body2" onClick={() => {
+            const maxSelection = new Set(filteredData.map(rowKey));
+            handleSelectionChange(maxSelection);
+          }} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
+            Select Max
+          </Link>
+
+          {(activeFilterCount > 0 || props.customToolbarContent) && (
+            <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
+          )}
+
+          {props.customToolbarContent}
+        </Box>
+      )}
+      {!props.selectable && props.customToolbarContent && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+          {props.customToolbarContent}
+        </Box>
+      )}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
         {searchable && (
           <TextField
@@ -344,9 +412,17 @@ function DataTable<T>({
               onClick={() => onRowClick?.(row)}
             >
               <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                {actionsCol && (
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-                    {actionsCol.render(row)}
+                {(actionsCol || props.selectable) && (
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    {props.selectable ? (
+                      <Checkbox
+                        size="small"
+                        checked={selectedKeys.has(key)}
+                        onChange={(e) => handleSelectOne(key, e.target.checked)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : <Box />}
+                    {actionsCol && actionsCol.render(row)}
                   </Box>
                 )}
                 {visibleColumns.map((col, idx) => (
@@ -397,6 +473,16 @@ function DataTable<T>({
         <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
+              {props.selectable && (
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    size="small"
+                    indeterminate={isIndeterminate}
+                    checked={isAllSelected}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                  />
+                </TableCell>
+              )}
               {columns.map((col) => (
                 <TableCell
                   key={col.id}
@@ -443,7 +529,18 @@ function DataTable<T>({
                       hover
                       onClick={() => onRowClick?.(row)}
                       sx={{ cursor: onRowClick ? 'pointer' : 'default' }}
+                      selected={selectedKeys.has(key)}
                     >
+                      {props.selectable && (
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            size="small"
+                            checked={selectedKeys.has(key)}
+                            onChange={(e) => handleSelectOne(key, e.target.checked)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </TableCell>
+                      )}
                       {columns.map((col) => (
                         <TableCell key={col.id} align={col.align || 'left'}>
                           {col.render(row)}

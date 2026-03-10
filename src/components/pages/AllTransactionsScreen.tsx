@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Chip, useTheme } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
@@ -87,7 +88,16 @@ const AllTransactionsScreen: React.FC = () => {
     { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Open', 'Pending', 'Partially Applied', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
   ];
 
-  return <DataTable columns={columns} data={allTransactions} rowKey={(r) => r.id} exportTitle="All Transactions" />;
+  return (
+    <DataTable
+      columns={columns}
+      data={allTransactions}
+      rowKey={(r) => r.id}
+      exportTitle="All Transactions"
+      // selectable
+      customToolbarContent={<RangeDropdown />}
+    />
+  );
 };
 
 export default AllTransactionsScreen;

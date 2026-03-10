@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import SummaryCard from '@/components/atoms/SummaryCard';
 import RowActionMenu from '@/components/molecules/RowActionMenu';
@@ -84,7 +85,7 @@ const RecoupmentsScreen: React.FC = () => {
           <SummaryCard title="Total Records" value={String(recoupments.length)} />
         </Grid>
       </Grid>
-      <DataTable columns={columns} data={recoupments} rowKey={(r) => r.id} exportTitle="Recoupments" />
+      <DataTable columns={columns} data={recoupments} rowKey={(r) => r.id} exportTitle="Recoupments" customToolbarContent={<RangeDropdown />} />
     </Box>
   );
 };

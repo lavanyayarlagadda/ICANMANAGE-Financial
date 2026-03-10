@@ -3,15 +3,15 @@ import { Tabs as MuiTabs, Tab as MuiTab, TabsProps as MuiTabsProps, TabProps as 
 
 export interface TabItem {
     label: React.ReactNode;
-    value: any;
+    value: string | number;
     icon?: string | React.ReactElement;
     disabled?: boolean;
 }
 
 export interface CustomTabsProps extends Omit<MuiTabsProps, 'value' | 'onChange'> {
     tabs: TabItem[];
-    value: any;
-    onChange: (event: React.SyntheticEvent, newValue: any) => void;
+    value: string | number;
+    onChange: (event: React.SyntheticEvent, newValue: string | number) => void;
     tabProps?: Partial<MuiTabProps>;
 }
 

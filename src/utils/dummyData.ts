@@ -13,7 +13,7 @@ const adminMenus: MenuAccess[] = [
         status: 'Active',
         subModules: [
             { menuName: 'All Transactions', status: 'Active' },
-            { menuName: 'Payments', status: 'Disabled' },
+            { menuName: 'Payments', status: 'Active' },
             { menuName: 'PIP', status: 'Active' },
             { menuName: 'Forward Balances', status: 'Active' },
             { menuName: 'Recoupments', status: 'Active' },

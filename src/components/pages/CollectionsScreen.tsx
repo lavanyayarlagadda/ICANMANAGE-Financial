@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography, Chip, useTheme } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import SummaryCard from '@/components/atoms/SummaryCard';
 import RowActionMenu from '@/components/molecules/RowActionMenu';
@@ -102,7 +103,7 @@ const CollectionsScreen: React.FC = () => {
         </Grid>
       </Grid>
 
-      <DataTable columns={columns} data={collections} rowKey={(r) => r.id} exportTitle="Collections" />
+      <DataTable columns={columns} data={collections} rowKey={(r) => r.id} exportTitle="Collections" selectable customToolbarContent={<RangeDropdown />} />
     </Box>
   );
 };

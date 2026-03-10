@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Chip, useTheme } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
@@ -76,7 +77,7 @@ const OtherAdjustmentsScreen: React.FC = () => {
     { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Applied', 'Pending', 'Under Review'], render: (r) => <StatusBadge status={r.status} /> },
   ];
 
-  return <DataTable columns={columns} data={otherAdjustments} rowKey={(r) => r.id} exportTitle="Other Adjustments" />;
+  return <DataTable columns={columns} data={otherAdjustments} rowKey={(r) => r.id} exportTitle="Other Adjustments" customToolbarContent={<RangeDropdown />} />;
 };
 
 export default OtherAdjustmentsScreen;

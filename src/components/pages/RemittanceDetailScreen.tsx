@@ -11,6 +11,7 @@ import Grid from '@mui/material/Grid';
 import { useAppSelector } from '@/store';
 import { formatCurrency } from '@/utils/formatters';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
 import { ServiceLine } from '@/types/financials';
 
 const LabelValue: React.FC<{ label: string; value: string }> = ({ label, value }) => (
@@ -118,6 +119,8 @@ const RemittanceDetailScreen: React.FC = () => {
         rowKey={(r) => String(r.lineNumber)}
         paginated={false}
         exportTitle="Service Line Details"
+        selectable
+        customToolbarContent={<RangeDropdown />}
       />
     </Box>
   );
