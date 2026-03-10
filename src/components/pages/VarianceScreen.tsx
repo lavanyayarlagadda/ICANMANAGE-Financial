@@ -85,7 +85,7 @@ const VarianceScreen: React.FC = () => {
         </Grid>
       </Grid>
 
-      <DataTable columns={columns} data={varianceRecords} rowKey={(r) => r.id} exportTitle="Variance Analysis" selectable customToolbarContent={<RangeDropdown />} />
+      <DataTable columns={columns} data={varianceRecords} rowKey={(r) => r.id} exportTitle="Variance Analysis"  customToolbarContent={<RangeDropdown />} />
     </Box>
   );
 };
