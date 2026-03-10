@@ -60,15 +60,21 @@ const userMenus: MenuAccess[] = [
     }
 ];
 
+export const MOCK_CREDENTIALS = [
+    { username: 'ajohnson', password: 'password123', userId: '1' },
+    { username: 'jsmith', password: 'password123', userId: '2' },
+    { username: 'demo', password: 'demo', userId: '3' },
+];
+
 export const LOGIN_API_RESPONSE = [
     {
-        id: '1', username: 'ajohnson', password: 'password123', email: 'alice.johnson@icanrcm.com', firstName: 'Alice', lastName: 'Johnson', company: 'Care Hospice Inc', roleId: '1', role: 'admin',
+        id: '1', username: 'ajohnson', email: 'alice.johnson@icanrcm.com', firstName: 'Alice', lastName: 'Johnson', company: 'Care Hospice Inc', roleId: '1', role: 'admin',
     },
     {
-        id: '2', username: 'jsmith', password: 'password123', email: 'jsmith@icanrcm.com', firstName: 'John', lastName: 'Smith', company: 'Care Hospice Inc', roleId: '2', role: 'manager',
+        id: '2', username: 'jsmith', email: 'jsmith@icanrcm.com', firstName: 'John', lastName: 'Smith', company: 'Care Hospice Inc', roleId: '2', role: 'manager',
     },
     {
-        id: '3', username: 'demo', password: 'demo', email: 'demo@icanrcm.com', firstName: 'Demo', lastName: 'User', company: 'Care Hospice Inc', roleId: '3', role: 'user',
+        id: '3', username: 'demo', email: 'demo@icanrcm.com', firstName: 'Demo', lastName: 'User', company: 'Care Hospice Inc', roleId: '3', role: 'user',
     },
 ];
 

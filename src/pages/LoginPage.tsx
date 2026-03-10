@@ -16,7 +16,7 @@ import { themeConfig } from '@/theme';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { loginSuccess } from '@/store/slices/authSlice';
-import { LOGIN_API_RESPONSE, USER_DETAILS_API_RESPONSE } from '@/utils/dummyData';
+import { MOCK_CREDENTIALS, LOGIN_API_RESPONSE, USER_DETAILS_API_RESPONSE } from '@/utils/dummyData';
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -39,30 +39,34 @@ const LoginPage = () => {
 
     const handleLogin = () => {
         setErrorMsg('');
-        const loginUser = LOGIN_API_RESPONSE.find(
-            (u) => u.username === username && u.password === password
+        const validCredential = MOCK_CREDENTIALS.find(
+            (c) => c.username === username && c.password === password
         );
 
-        if (loginUser) {
-            const userDetails = USER_DETAILS_API_RESPONSE.find(d => d.userId === loginUser.id);
+        if (validCredential) {
+            const loginUser = LOGIN_API_RESPONSE.find(u => u.id === validCredential.userId);
 
-            if (userDetails) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { password, ...userWithoutPassword } = loginUser;
-                const fullUser = {
-                    ...userWithoutPassword,
-                    ...userDetails
-                };
+            if (loginUser) {
+                const userDetails = USER_DETAILS_API_RESPONSE.find(d => d.userId === loginUser.id);
 
-                dispatch(loginSuccess(fullUser));
+                if (userDetails) {
+                    const fullUser = {
+                        ...loginUser,
+                        ...userDetails
+                    };
 
-                // Map the default landing page string to a route
-                const landingPageRoute = fullUser.defaultLandingPage.toLowerCase() === 'collections' ? '/collections' : '/financials';
-                const redirectTo = location.state?.from?.pathname || landingPageRoute;
+                    dispatch(loginSuccess(fullUser));
 
-                navigate(redirectTo, { replace: true });
+                    // Map the default landing page string to a route
+                    const landingPageRoute = fullUser.defaultLandingPage.toLowerCase() === 'collections' ? '/collections' : '/financials';
+                    const redirectTo = location.state?.from?.pathname || landingPageRoute;
+
+                    navigate(redirectTo, { replace: true });
+                } else {
+                    setErrorMsg('User details not found');
+                }
             } else {
-                setErrorMsg('User details not found');
+                setErrorMsg('User profile not found');
             }
         } else {
             setErrorMsg('Invalid username or password');
