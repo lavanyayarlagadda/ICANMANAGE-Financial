@@ -174,7 +174,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                         </Box>
                     </Box>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: { xs: 1, sm: 2 }, mb: 2 }}>
                         <Typography variant="body2" sx={{ fontWeight: 600 }}>Visible Navigation Items</Typography>
                         <TextField
                             placeholder="Search modules..."
@@ -188,7 +188,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                     </InputAdornment>
                                 ),
                             }}
-                            sx={{ width: 250, backgroundColor: '#FAFBFC', '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+                            sx={{ width: { xs: '100%', sm: 250 }, backgroundColor: '#FAFBFC', '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                         />
                     </Box>
 
@@ -203,24 +203,23 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                                 display: 'flex',
                                                 justifyContent: 'space-between',
                                                 alignItems: 'center',
-                                                p: 2,
-                                                pl: 5,
+                                                p: { xs: 1.5, sm: 2 },
+                                                pl: { xs: 2, sm: 5 },
                                             }}
                                         >
-                                            <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem' }}>
+                                            <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem', flex: 1, pr: 1, wordBreak: 'break-word' }}>
                                                 {menuItem.menuName}
                                             </Typography>
-                                            <FormControl size="small" sx={{ width: 120 }}>
+                                            <FormControl size="small" sx={{ width: { xs: 110, sm: 120 }, flexShrink: 0 }}>
                                                 <Select
                                                     value={moduleStatuses[menuItem.menuName] || 'Hidden'}
                                                     onChange={(e) => handleModuleStatusChange(menuItem.menuName, e.target.value as string)}
                                                     disabled={!moduleSelectionEnabled}
-                                                    renderValue={(selected) => selected}
                                                     sx={{
                                                         height: 32,
                                                         fontSize: '0.8rem',
                                                         backgroundColor: themeConfig.colors.surface,
-                                                        '& .MuiSelect-select': { display: 'flex', alignItems: 'center' }
+                                                        '& .MuiSelect-select': { display: 'flex', alignItems: 'center', pr: '28px !important' }
                                                     }}
                                                     MenuProps={{
                                                         PaperProps: {
@@ -264,25 +263,24 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center',
-                                                        p: 2,
-                                                        pl: 5,
+                                                        p: { xs: 1.5, sm: 2 },
+                                                        pl: { xs: 3, sm: 5 },
                                                         borderBottom: sIdx < sArr.length - 1 ? `1px solid ${themeConfig.colors.border}` : 'none'
                                                     }}
                                                 >
-                                                    <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem' }}>
+                                                    <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem', flex: 1, pr: 1, wordBreak: 'break-word' }}>
                                                         {subItem.menuName}
                                                     </Typography>
-                                                    <FormControl size="small" sx={{ width: 120 }}>
+                                                    <FormControl size="small" sx={{ width: { xs: 110, sm: 120 }, flexShrink: 0 }}>
                                                         <Select
                                                             value={moduleStatuses[subItem.menuName] || 'Hidden'}
                                                             onChange={(e) => handleModuleStatusChange(subItem.menuName, e.target.value as string)}
                                                             disabled={moduleStatuses[menuItem.menuName] === 'Disabled' || !moduleSelectionEnabled}
-                                                            renderValue={(selected) => selected}
                                                             sx={{
                                                                 height: 32,
                                                                 fontSize: '0.8rem',
                                                                 backgroundColor: themeConfig.colors.surface,
-                                                                '& .MuiSelect-select': { display: 'flex', alignItems: 'center' }
+                                                                '& .MuiSelect-select': { display: 'flex', alignItems: 'center', pr: '28px !important' }
                                                             }}
                                                             MenuProps={{
                                                                 PaperProps: {
@@ -373,14 +371,14 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
 
             </DialogContent>
 
-            <DialogActions sx={{ px: 3, pb: 2, justifyContent: 'space-between' }}>
+            <DialogActions sx={{ px: { xs: 2, sm: 3 }, pb: 2, justifyContent: 'space-between', flexWrap: { xs: 'wrap', sm: 'nowrap' }, gap: { xs: 2, sm: 0 } }}>
                 <Box
                     component="img"
                     src="/cognitiveLogo.svg"
                     alt="CognitiveHealth Logo"
-                    sx={{ height: 28 }}
+                    sx={{ height: 28, display: { xs: 'none', sm: 'block' } }}
                 />
-                <Box sx={{ display: 'flex', gap: 1 }}>
+                <Box sx={{ display: 'flex', gap: 1, width: { xs: '100%', sm: 'auto' }, justifyContent: 'flex-end' }}>
                     <Button onClick={onClose} variant="outlined" sx={{ borderColor: themeConfig.colors.border, color: themeConfig.colors.text.primary }}>
                         Cancel
                     </Button>

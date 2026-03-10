@@ -10,6 +10,7 @@ import {
     Select,
     MenuItem,
     useTheme,
+    useMediaQuery,
     Alert,
     IconButton,
 } from '@mui/material';
@@ -45,6 +46,7 @@ const TabPanel = (props: { children?: React.ReactNode; index: number; value: num
 
 const UserProfilePage: React.FC = () => {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const navigate = useNavigate();
     const user = useSelector((state: RootState) => state.auth.user);
     const [tabIndex, setTabIndex] = useState(0);
@@ -114,7 +116,9 @@ const UserProfilePage: React.FC = () => {
                     <Tabs
                         value={tabIndex}
                         onChange={handleTabChange}
-                        variant="fullWidth"
+                        variant={isMobile ? "scrollable" : "fullWidth"}
+                        scrollButtons="auto"
+                        allowScrollButtonsMobile
                         TabIndicatorProps={{ style: { display: 'none' } }}
                         sx={{
                             minHeight: 'unset',
