@@ -11,7 +11,10 @@ import {
     MenuItem,
     useTheme,
     Alert,
+    IconButton,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
@@ -42,6 +45,7 @@ const TabPanel = (props: { children?: React.ReactNode; index: number; value: num
 
 const UserProfilePage: React.FC = () => {
     const theme = useTheme();
+    const navigate = useNavigate();
     const user = useSelector((state: RootState) => state.auth.user);
     const [tabIndex, setTabIndex] = useState(0);
 
@@ -87,9 +91,14 @@ const UserProfilePage: React.FC = () => {
     return (
         <DashboardLayout>
             <Box sx={{ maxWidth: 800, margin: '0 auto', py: 2 }}>
-                <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
-                    User Profile
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <IconButton onClick={() => navigate(-1)} sx={{ mr: 1, color: themeConfig.colors.text.primary }}>
+                        <ArrowBackIcon />
+                    </IconButton>
+                    <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                        User Profile
+                    </Typography>
+                </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mb: 2 }}>
                     Manage your account settings and preferences.
                 </Typography>
@@ -240,26 +249,30 @@ const UserProfilePage: React.FC = () => {
                             Customize your application experience.
                         </Typography>
 
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                                Default Landing Page
-                            </Typography>
-                            <Typography variant="caption" color="primary">
-                                Current: {landingPage}
-                            </Typography>
-                        </Box>
+                        {user?.role !== 'user' && (
+                            <>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                                        Default Landing Page
+                                    </Typography>
+                                    <Typography variant="caption" color="primary">
+                                        Current: {landingPage}
+                                    </Typography>
+                                </Box>
 
-                        <Select
-                            fullWidth
-                            size="small"
-                            value={landingPage}
-                            onChange={(e) => setLandingPage(e.target.value)}
-                            sx={{ mb: 3, backgroundColor: '#FAFBFC' }}
-                        >
-                            {user?.accessibleModules.map(module => (
-                                <MenuItem key={module} value={module}>{module}</MenuItem>
-                            ))}
-                        </Select>
+                                <Select
+                                    fullWidth
+                                    size="small"
+                                    value={landingPage}
+                                    onChange={(e) => setLandingPage(e.target.value)}
+                                    sx={{ mb: 3, backgroundColor: '#FAFBFC' }}
+                                >
+                                    {user?.accessibleModules.map(module => (
+                                        <MenuItem key={module} value={module}>{module}</MenuItem>
+                                    ))}
+                                </Select>
+                            </>
+                        )}
 
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Button

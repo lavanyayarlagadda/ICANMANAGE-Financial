@@ -26,7 +26,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CheckIcon from '@mui/icons-material/Check';
 import Accordion from '@/components/atoms/Accordion';
 import { themeConfig } from '@/theme';
-import { DUMMY_USERS, MenuAccess } from '@/utils/dummyData';
+import { LOGIN_API_RESPONSE, USER_DETAILS_API_RESPONSE, MenuAccess } from '@/utils/dummyData';
 
 interface DemoSecurityModalProps {
     open: boolean;
@@ -45,7 +45,10 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
     const [moduleStatuses, setModuleStatuses] = useState<Record<string, string>>({});
 
     useEffect(() => {
-        const userBeingEdited = DUMMY_USERS.find(u => u.id === selectedUser);
+        const loginUser = LOGIN_API_RESPONSE.find(u => u.id === selectedUser);
+        const userDetails = USER_DETAILS_API_RESPONSE.find(u => u.userId === selectedUser);
+        const userBeingEdited = loginUser && userDetails ? { ...loginUser, ...userDetails } : null;
+
         if (userBeingEdited && userBeingEdited.menus) {
             const statusMap: Record<string, string> = {};
             const populateMap = (menusToMap: MenuAccess[]) => {
@@ -79,10 +82,10 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
     };
 
     // Derived username to display
-    const userBeingEdited = DUMMY_USERS.find(u => u.id === selectedUser);
+    const currentLoginUser = LOGIN_API_RESPONSE.find(u => u.id === selectedUser);
+    const currentUserDetails = USER_DETAILS_API_RESPONSE.find(u => u.userId === selectedUser);
+    const userBeingEdited = currentLoginUser && currentUserDetails ? { ...currentLoginUser, ...currentUserDetails } : null;
     const selectedUsername = userBeingEdited ? userBeingEdited.username : currentUser.username;
-
-
 
     return (
         <Dialog
@@ -137,7 +140,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                 displayEmpty
                                 sx={{ backgroundColor: themeConfig.colors.surface, borderRadius: 1 }}
                             >
-                                {DUMMY_USERS.map(u => (
+                                {LOGIN_API_RESPONSE.map(u => (
                                     <MenuItem key={u.id} value={u.id}>
                                         {u.username} ({u.role.charAt(0).toUpperCase() + u.role.slice(1)}) {u.id === currentUser.id ? '(You)' : ''}
                                     </MenuItem>
@@ -212,6 +215,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                                     value={moduleStatuses[menuItem.menuName] || 'Hidden'}
                                                     onChange={(e) => handleModuleStatusChange(menuItem.menuName, e.target.value as string)}
                                                     disabled={!moduleSelectionEnabled}
+                                                    renderValue={(selected) => selected}
                                                     sx={{
                                                         height: 32,
                                                         fontSize: '0.8rem',
@@ -273,6 +277,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                                             value={moduleStatuses[subItem.menuName] || 'Hidden'}
                                                             onChange={(e) => handleModuleStatusChange(subItem.menuName, e.target.value as string)}
                                                             disabled={moduleStatuses[menuItem.menuName] === 'Disabled' || !moduleSelectionEnabled}
+                                                            renderValue={(selected) => selected}
                                                             sx={{
                                                                 height: 32,
                                                                 fontSize: '0.8rem',

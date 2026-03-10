@@ -16,7 +16,7 @@ import { themeConfig } from '@/theme';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { loginSuccess } from '@/store/slices/authSlice';
-import { DUMMY_USERS } from '@/utils/dummyData';
+import { LOGIN_API_RESPONSE, USER_DETAILS_API_RESPONSE } from '@/utils/dummyData';
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -39,20 +39,31 @@ const LoginPage = () => {
 
     const handleLogin = () => {
         setErrorMsg('');
-        const user = DUMMY_USERS.find(
+        const loginUser = LOGIN_API_RESPONSE.find(
             (u) => u.username === username && u.password === password
         );
 
-        if (user) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { password, ...userWithoutPassword } = user;
-            dispatch(loginSuccess(userWithoutPassword));
+        if (loginUser) {
+            const userDetails = USER_DETAILS_API_RESPONSE.find(d => d.userId === loginUser.id);
 
-            // Map the default landing page string to a route
-            const landingPageRoute = user.defaultLandingPage.toLowerCase() === 'collections' ? '/collections' : '/financials';
-            const redirectTo = location.state?.from?.pathname || landingPageRoute;
+            if (userDetails) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { password, ...userWithoutPassword } = loginUser;
+                const fullUser = {
+                    ...userWithoutPassword,
+                    ...userDetails
+                };
 
-            navigate(redirectTo, { replace: true });
+                dispatch(loginSuccess(fullUser));
+
+                // Map the default landing page string to a route
+                const landingPageRoute = fullUser.defaultLandingPage.toLowerCase() === 'collections' ? '/collections' : '/financials';
+                const redirectTo = location.state?.from?.pathname || landingPageRoute;
+
+                navigate(redirectTo, { replace: true });
+            } else {
+                setErrorMsg('User details not found');
+            }
         } else {
             setErrorMsg('Invalid username or password');
         }

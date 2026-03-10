@@ -20,43 +20,48 @@ interface Props {
 
 export const NpiSection: React.FC<Props> = ({ allocation }) => {
   return (
-    <Box sx={{  mb: 1 }}>
+    <Box sx={{ mb: 1 }}>
       <Accordion
         defaultExpanded={false}
         summary={
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: "2fr 1fr 1fr",
-              alignItems: "center",
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "flex-start", sm: "center" },
+              justifyContent: "space-between",
               width: "100%",
+              gap: { xs: 1, sm: 2 },
             }}
           >
-            <Typography fontSize={13} fontWeight={600}>
+            <Typography fontSize={13} fontWeight={600} sx={{ flex: 1, wordBreak: "break-word" }}>
               NPI {allocation.npi} – {allocation.name}
             </Typography>
 
-            <Typography textAlign="right" fontSize={13} fontWeight={600}>
-              {formatCurrency(allocation.allocatedAmount)}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: { xs: 'space-between', sm: 'flex-end' }, width: { xs: '100%', sm: 'auto' } }}>
+              <Typography textAlign="right" fontSize={13} fontWeight={600}>
+                {formatCurrency(allocation.allocatedAmount)}
+              </Typography>
 
-            <Box sx={{ textAlign: "right", pr: 1 }}>
-              <Chip
-                label={`${formatPercent(allocation.allocatedPercent, 2)} Allocated`}
-                size="small"
-                variant="outlined"
-                color="primary"
-              />
+              <Box sx={{ textAlign: "right", pr: 1 }}>
+                <Chip
+                  label={`${formatPercent(allocation.allocatedPercent, 2)} Allocated`}
+                  size="small"
+                  variant="outlined"
+                  color="primary"
+                />
+              </Box>
             </Box>
           </Box>
         }
       >
-        <Box sx={{ border: "1px solid #eee", borderTop: "none" }}>
+        <Box sx={{ border: "1px solid #eee", borderTop: "none", overflowX: "auto" }}>
           {/* Header */}
           <Box
             sx={{
               display: "grid",
               gridTemplateColumns: "1.2fr 2fr 1fr 1fr",
+              minWidth: 500,
               px: 2,
               py: 1,
               background: "#fafafa",
@@ -84,6 +89,7 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
               sx={{
                 display: "grid",
                 gridTemplateColumns: "1.2fr 2fr 1fr 1fr",
+                minWidth: 500,
                 px: 2,
                 py: 1,
                 borderBottom: "1px solid #f1f1f1",
