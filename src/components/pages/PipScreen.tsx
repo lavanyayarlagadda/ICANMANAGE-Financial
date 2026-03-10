@@ -20,7 +20,7 @@ interface Props {
 
 export const NpiSection: React.FC<Props> = ({ allocation }) => {
   return (
-    <Box sx={{ ml: 5, mb: 1 }}>
+    <Box sx={{  mb: 1 }}>
       <Accordion
         defaultExpanded={false}
         summary={
@@ -204,7 +204,7 @@ const PipScreen: React.FC = () => {
     if (!row.npiAllocations?.length) return null;
 
     return (
-      <Box sx={{ py: 2, px: 1 }}>
+      <Box >
         {row.npiAllocations.map((allocation) => (
           <NpiSection key={allocation.npi} allocation={allocation} />
         ))}
