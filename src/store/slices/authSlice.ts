@@ -58,6 +58,9 @@ const authSlice = createSlice({
             state.user = action.payload;
             state.error = null;
             localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(action.payload));
+            if (action.payload.inactivityTimeout) {
+                localStorage.setItem('ican_inactivity_timeout', action.payload.inactivityTimeout);
+            }
         },
         loginFailure(state, action: PayloadAction<string>) {
             state.isAuthenticated = false;
@@ -70,6 +73,7 @@ const authSlice = createSlice({
             state.user = null;
             state.error = null;
             localStorage.removeItem(AUTH_STORAGE_KEY);
+            localStorage.removeItem('ican_inactivity_timeout');
         },
         clearError(state) {
             state.error = null;

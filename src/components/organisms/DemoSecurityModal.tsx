@@ -78,6 +78,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
 
     const handleSave = () => {
         localStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
+        window.dispatchEvent(new Event('ican_inactivity_timeout_changed'));
         onClose();
     };
 
