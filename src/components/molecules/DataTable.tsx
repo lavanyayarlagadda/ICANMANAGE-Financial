@@ -476,8 +476,31 @@ function DataTable<T>({
   return (
     <Paper sx={{ width: '100%', maxWidth: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {toolbar}
-      <TableContainer sx={{ flex: 1, minHeight: 0, maxHeight: 'calc(100vh - 240px)', overflowX: 'auto', overflowY: 'auto', overscrollBehavior: 'contain' }}>
-        <Table stickyHeader size="small" sx={{ '& .MuiTableCell-root': { p:1, minHeight: 40 }, '& .MuiTableHead-root .MuiTableCell-root': { py: 1, minHeight: 48 } }}>
+      <TableContainer
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          maxHeight: 'calc(100vh - 240px)',
+          overflowX: 'auto',
+          overflowY: 'auto',
+          overscrollBehavior: 'contain',
+          '&::-webkit-scrollbar': {
+            width: '0px',
+            height: '0px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#bdbdbd',
+            borderRadius: '10px',
+            '&:hover': {
+              background: '#9e9e9e',
+            },
+          },
+        }}
+      >
+        <Table stickyHeader size="small" sx={{ '& .MuiTableCell-root': { p: 1, minHeight: 40 }, '& .MuiTableHead-root .MuiTableCell-root': { py: 1, minHeight: 48 } }}>
           <TableHead>
             <TableRow>
               {props.selectable && (
