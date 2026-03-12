@@ -33,6 +33,13 @@ const varianceSubTabs = [
   { id: 1, label: 'Payment Variance', path: '/financials/variance-analysis/payment' },
 ];
 
+const trendsSubTabs = [
+  { id: 0, label: 'Forecast Trends', path: '/financials/trends-forecast/forecast' },
+  { id: 1, label: 'Executive Summary', path: '/financials/trends-forecast/summary' },
+  { id: 2, label: 'Payer Performance', path: '/financials/trends-forecast/payer-performance' },
+];
+
+
 
 
 interface FinancialsTabsProps {
@@ -72,8 +79,6 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
       if (subIndex !== -1) {
         dispatch(setActiveSubTab(subIndex));
       }
-    } else if (path.includes('/trends-forecast')) {
-      dispatch(setActiveTab(4));
     } else if (path.includes('/statements')) {
       dispatch(setActiveTab(2));
       if (path.includes('/pip')) dispatch(setActiveSubTab(0));
@@ -82,7 +87,13 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
       dispatch(setActiveTab(3));
       if (path.includes('/fee-schedule')) dispatch(setActiveSubTab(0));
       else if (path.includes('/payment')) dispatch(setActiveSubTab(1));
+    } else if (path.includes('/trends-forecast')) {
+      dispatch(setActiveTab(4));
+      if (path.includes('/forecast')) dispatch(setActiveSubTab(0));
+      else if (path.includes('/summary')) dispatch(setActiveSubTab(1));
+      else if (path.includes('/payer-performance')) dispatch(setActiveSubTab(2));
     }
+
 
 
     // Add logic for others if needed
@@ -98,7 +109,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
     navigate(path);
   };
 
-  const hasSubTabs = (activeTab === 0) || (activeTab === 2) || (activeTab === 3);
+  const hasSubTabs = (activeTab === 0) || (activeTab === 2) || (activeTab === 3) || (activeTab === 4);
 
   const hasActions = shouldShowPrint || shouldShowReload || shouldShowExport;
   const showSubTabsRow = hasSubTabs || hasActions;
@@ -196,6 +207,31 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
               );
             })}
             {activeTab === 3 && varianceSubTabs.map((subTab) => {
+              const isActive = activeSubTab === subTab.id;
+              return (
+                <Box
+                  key={subTab.id}
+                  onClick={() => handleSubTabChange(subTab.id, subTab.path)}
+                  sx={{
+                    px: 1.5,
+                    py: 0.5,
+                    borderRadius: '16px',
+                    cursor: 'pointer',
+                    backgroundColor: isActive ? 'rgba(107, 153, 196, 0.7)' : 'transparent',
+                    color: isActive ? '#fff' : 'rgb(100, 116, 139)',
+                    fontWeight: 500,
+                    fontSize: '13px',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      backgroundColor: isActive ? 'rgba(107, 153, 196, 0.8)' : 'rgba(241, 245, 249, 1)',
+                    }
+                  }}
+                >
+                  {subTab.label}
+                </Box>
+              );
+            })}
+            {activeTab === 4 && trendsSubTabs.map((subTab) => {
               const isActive = activeSubTab === subTab.id;
               return (
                 <Box

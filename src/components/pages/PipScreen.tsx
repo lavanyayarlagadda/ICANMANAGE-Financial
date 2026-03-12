@@ -228,7 +228,7 @@ const PipScreen: React.FC = () => {
       expandedContent={renderExpandedContent}
       exportTitle="PIP Records"
       paginated
-      searchable
+      // searchable
       // selectable
       customToolbarContent={<RangeDropdown />}
     />

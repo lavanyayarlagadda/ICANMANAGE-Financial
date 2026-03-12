@@ -87,7 +87,7 @@ function DataTable<T>({
   onRowClick,
   expandedContent,
   expandedRows,
-  searchable = true,
+  searchable = false,
   exportTitle = 'Data Export',
   ...props
 }: DataTableProps<T>) {

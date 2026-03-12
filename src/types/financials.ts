@@ -123,22 +123,29 @@ export interface TeamPerformance {
   teamName: string;
   reconCheckPercent: number;
   unreconCheckPercent: number;
+  checkCountPercentByTeam: number;
   reconCheckCount: number;
   unreconCheckCount: number;
   reconAmountPercent: number;
   unreconAmountPercent: number;
+  amountPercentByTeam: number;
   totalAmountPosted: number;
   totalAmountNotPosted: number;
   avgDaysToReconcile: number;
 }
 
-export interface ForecastRow {
-  metric: string;
-  actual: string;
-  month1: string;
-  month2: string;
-  month3: string;
-  trend: TrendDirection;
+
+
+export interface PayerPerformanceRecord {
+  payerName: string;
+  volume: number;
+  depositCount: number;
+  matchRate: number;
+  denialRate: number;
+  suspenseRate: number;
+  avgDaysToSettle: number;
+  totalVariance: number;
+  status: 'Critical' | 'Stable' | 'Improving' | 'Growing' | 'Decreasing';
 }
 
 export interface TrendsData {
@@ -146,22 +153,9 @@ export interface TrendsData {
   teams: TeamPerformance[];
   reconRateTrend: { month: string; rate: number }[];
   avgDaysTrend: { month: string; days: number }[];
-  forecast: ForecastRow[];
+  payerPerformance: PayerPerformanceRecord[];
 }
 
-export interface ForwardBalanceRecord {
-  id: string;
-  payer: string;
-  patientName: string;
-  claimId: string;
-  originalPaymentDate: string;
-  forwardedDate: string;
-  forwardedAmount: number;
-  appliedAmount: number;
-  remainingBalance: number;
-  status: TransactionStatus;
-  aging: string;
-}
 
 export interface RecoupmentRecord {
   id: string;

@@ -4,7 +4,6 @@ import {
   RemittanceDetail,
   VarianceRecord,
   TrendsData,
-  ForwardBalanceRecord,
   RecoupmentRecord,
   OtherAdjustmentRecord,
   AllTransaction,
@@ -140,44 +139,58 @@ export const mockVarianceRecords: VarianceRecord[] = [
 
 export const mockTrendsData: TrendsData = {
   kpis: [
-    { label: 'Total Checks Processed', value: '434', change: '↑ 12% vs prior month', changeType: 'positive' },
-    { label: 'Reconciliation Rate', value: '99.54%', change: '↑ 0.2% vs prior month', changeType: 'positive' },
-    { label: 'Total Amount Posted', value: '$9.77M', change: '↑ 8% vs prior month', changeType: 'positive' },
-    { label: 'Avg. Days to Reconcile', value: '5.39', change: 'Improved from 6.1 days', changeType: 'positive' },
+    { label: 'TOTAL AMOUNT RECONCILED', value: '$9,766,405.93', change: '↑ 8% vs prior month', changeType: 'positive' },
+    { label: 'GLOBAL RECONCILIATION RATE', value: '99.73%', change: '↑ 0.2% vs prior month', changeType: 'positive' },
+    { label: 'TOTAL AMOUNT UNRECONCILED', value: '$26,872.02', change: '↓ 15% vs prior month', changeType: 'positive' },
+    { label: 'AVG DAYS TO RECONCILE', value: '5.39', change: 'Improved from 6.1 days', changeType: 'positive' },
   ],
   teams: [
-    { teamName: 'iCAN / Outsourced RCM', reconCheckPercent: 99.44, unreconCheckPercent: 0.56, reconCheckCount: 355, unreconCheckCount: 2, reconAmountPercent: 99.66, unreconAmountPercent: 0.34, totalAmountPosted: 7989655.36, totalAmountNotPosted: 26872.02, avgDaysToReconcile: 3.73 },
-    { teamName: 'Care Hospice / Internal Team', reconCheckPercent: 100.00, unreconCheckPercent: 0.00, reconCheckCount: 79, unreconCheckCount: 0, reconAmountPercent: 100.00, unreconAmountPercent: 0.00, totalAmountPosted: 1776750.57, totalAmountNotPosted: 0.00, avgDaysToReconcile: 13.06 },
+    { 
+      teamName: 'iCAN', 
+      reconCheckPercent: 99.44, 
+      unreconCheckPercent: 0.56, 
+      checkCountPercentByTeam: 82.18,
+      reconCheckCount: 355, 
+      unreconCheckCount: 2, 
+      reconAmountPercent: 99.66, 
+      unreconAmountPercent: 0.34, 
+      amountPercentByTeam: 81.81,
+      totalAmountPosted: 7989655.36, 
+      totalAmountNotPosted: 26872.02, 
+      avgDaysToReconcile: 3.73 
+    },
+    { 
+      teamName: 'Apex Health Systems', 
+      reconCheckPercent: 100.00, 
+      unreconCheckPercent: 0.00, 
+      checkCountPercentByTeam: 17.82,
+      reconCheckCount: 77, 
+      unreconCheckCount: 0, 
+      reconAmountPercent: 100.00, 
+      unreconAmountPercent: 0.00, 
+      amountPercentByTeam: 18.19,
+      totalAmountPosted: 1776750.57, 
+      totalAmountNotPosted: 0.00, 
+      avgDaysToReconcile: 13.06 
+    },
   ],
   reconRateTrend: [
-    { month: 'Jul', rate: 98.2 }, { month: 'Aug', rate: 98.8 }, { month: 'Sep', rate: 99.1 },
-    { month: 'Oct', rate: 98.9 }, { month: 'Nov', rate: 99.3 }, { month: 'Dec', rate: 99.5 },
+    { month: 'Jun', rate: 7.2 }, { month: 'Jul', rate: 7.55 }, { month: 'Aug', rate: 7.88 },
+    { month: 'Sep', rate: 8.31 }, { month: 'Oct', rate: 8.95 }, { month: 'Nov', rate: 9.38 }, { month: 'Dec', rate: 9.77 },
   ],
   avgDaysTrend: [
-    { month: 'Jul', days: 7.0 }, { month: 'Aug', days: 6.5 }, { month: 'Sep', days: 6.1 },
-    { month: 'Oct', days: 5.8 }, { month: 'Nov', days: 5.4 }, { month: 'Dec', days: 5.39 },
+    // S-curve data
+    { month: 'Jan', days: 10.2 }, { month: 'Feb', days: 10.65 }, { month: 'Mar', days: 10.85 },
   ],
-  forecast: [
-    { metric: 'Reconciliation Rate', actual: '99.54%', month1: '99.62%', month2: '99.68%', month3: '99.72%', trend: 'Improving' },
-    { metric: 'Total Checks Processed', actual: '434', month1: '448', month2: '461', month3: '472', trend: 'Growing' },
-    { metric: 'Total Amount Posted', actual: '$9,766,405', month1: '$1.01M', month2: '$1.04M', month3: '$1.06M', trend: 'Growing' },
-    { metric: 'Avg. Days to Reconcile', actual: '5.39', month1: '5.10', month2: '4.85', month3: '4.62', trend: 'Improving' },
-    { metric: 'Unreconciled Amount', actual: '$26,872', month1: '$24,100', month2: '$21,800', month3: '$19,500', trend: 'Decreasing' },
+
+  payerPerformance: [
+    { payerName: 'UnitedHealthcare', volume: 145, depositCount: 12, matchRate: 92.4, denialRate: 14.2, suspenseRate: 4.5, avgDaysToSettle: 18, totalVariance: 1450.00, status: 'Critical' },
+    { payerName: 'BCBS Federal', volume: 88, depositCount: 5, matchRate: 98.2, denialRate: 5.1, suspenseRate: 1.2, avgDaysToSettle: 12, totalVariance: 240.50, status: 'Stable' },
+    { payerName: 'Aetna Medicare', volume: 64, depositCount: 8, matchRate: 94.8, denialRate: 8.4, suspenseRate: 2.1, avgDaysToSettle: 15, totalVariance: 680.00, status: 'Improving' },
   ],
 };
 
-export const mockForwardBalances: ForwardBalanceRecord[] = [
-  { id: 'fb1', payer: 'AETNA MEDICARE', patientName: 'WILLIAMS, JAMES', claimId: 'MC20451', originalPaymentDate: '12/15/2025', forwardedDate: '01/05/2026', forwardedAmount: 3200.00, appliedAmount: 1800.00, remainingBalance: 1400.00, status: 'Open', aging: '30-60 days' },
-  { id: 'fb2', payer: 'UHC MEDICARE', patientName: 'BROWN, WILLIAM', claimId: 'UH55602', originalPaymentDate: '12/10/2025', forwardedDate: '01/02/2026', forwardedAmount: 5600.00, appliedAmount: 5600.00, remainingBalance: 0.00, status: 'Closed', aging: 'N/A' },
-  { id: 'fb3', payer: 'HUMANA', patientName: 'MARTINEZ, ROSA', claimId: 'HM33021', originalPaymentDate: '12/20/2025', forwardedDate: '01/10/2026', forwardedAmount: 2450.00, appliedAmount: 0.00, remainingBalance: 2450.00, status: 'Open', aging: '0-30 days' },
-  { id: 'fb4', payer: 'BLUE CROSS', patientName: 'TAYLOR, ELIZABETH', claimId: 'BC86701', originalPaymentDate: '11/28/2025', forwardedDate: '12/15/2025', forwardedAmount: 4800.00, appliedAmount: 3200.00, remainingBalance: 1600.00, status: 'Open', aging: '60-90 days' },
-  { id: 'fb5', payer: 'CIGNA HEALTH', patientName: 'PATEL, ANITA', claimId: 'CG44501', originalPaymentDate: '12/18/2025', forwardedDate: '01/08/2026', forwardedAmount: 7200.00, appliedAmount: 7200.00, remainingBalance: 0.00, status: 'Closed', aging: 'N/A' },
-  { id: 'fb6', payer: 'MOLINA', patientName: 'GARCIA, CARLOS', claimId: 'ML77201', originalPaymentDate: '12/05/2025', forwardedDate: '12/20/2025', forwardedAmount: 1950.00, appliedAmount: 950.00, remainingBalance: 1000.00, status: 'Open', aging: '30-60 days' },
-  { id: 'fb7', payer: 'JM MAC SCHEMES', patientName: 'GRANTHAM, ELISE', claimId: '1894716', originalPaymentDate: '01/15/2026', forwardedDate: '01/20/2026', forwardedAmount: 4421.92, appliedAmount: 0.00, remainingBalance: 4421.92, status: 'Pending Review', aging: '0-30 days' },
-  { id: 'fb8', payer: 'UNITED', patientName: 'DAVIS, MARGARET', claimId: 'UH55601', originalPaymentDate: '11/15/2025', forwardedDate: '12/01/2025', forwardedAmount: 5800.00, appliedAmount: 5800.00, remainingBalance: 0.00, status: 'Closed', aging: 'N/A' },
-  { id: 'fb9', payer: 'DHR', patientName: 'ELLIS, MARTHA', claimId: 'MC10677', originalPaymentDate: '01/25/2026', forwardedDate: '01/28/2026', forwardedAmount: 3729.12, appliedAmount: 0.00, remainingBalance: 3729.12, status: 'Pending', aging: '0-30 days' },
-  { id: 'fb10', payer: 'AETNA', patientName: 'THOMPSON, SARAH', claimId: 'MC20452', originalPaymentDate: '12/22/2025', forwardedDate: '01/05/2026', forwardedAmount: 2900.00, appliedAmount: 2900.00, remainingBalance: 0.00, status: 'Closed', aging: 'N/A' },
-];
+
 
 export const mockRecoupments: RecoupmentRecord[] = [
   { id: 'r1', recoupmentId: 'RCP-2026-001', payer: 'AETNA MEDICARE', claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', originalPaymentAmount: 3200.00, recoupmentAmount: -650.00, recoupmentDate: '01/20/2026', reason: 'Overpayment recovery - duplicate billing', status: 'Recovered' },

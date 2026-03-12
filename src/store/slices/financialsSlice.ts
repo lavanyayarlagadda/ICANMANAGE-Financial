@@ -5,7 +5,6 @@ import {
   RemittanceDetail,
   VarianceRecord,
   TrendsData,
-  ForwardBalanceRecord,
   RecoupmentRecord,
   OtherAdjustmentRecord,
   AllTransaction,
@@ -20,7 +19,6 @@ import {
   mockRemittanceDetail,
   mockVarianceRecords,
   mockTrendsData,
-  mockForwardBalances,
   mockRecoupments,
   mockOtherAdjustments,
   mockAllTransactions,
@@ -36,7 +34,6 @@ interface FinancialsState {
   remittanceDetail: RemittanceDetail | null;
   varianceRecords: VarianceRecord[];
   trendsData: TrendsData | null;
-  forwardBalances: ForwardBalanceRecord[];
   recoupments: RecoupmentRecord[];
   otherAdjustments: OtherAdjustmentRecord[];
   allTransactions: AllTransaction[];
@@ -58,7 +55,6 @@ const initialState: FinancialsState = {
   remittanceDetail: mockRemittanceDetail,
   varianceRecords: mockVarianceRecords,
   trendsData: mockTrendsData,
-  forwardBalances: mockForwardBalances,
   recoupments: mockRecoupments,
   otherAdjustments: mockOtherAdjustments,
   allTransactions: mockAllTransactions,
@@ -109,9 +105,6 @@ const financialsSlice = createSlice({
     deleteAdjustment: (state, action: PayloadAction<string>) => {
       state.otherAdjustments = state.otherAdjustments.filter((a) => a.id !== action.payload);
     },
-    deleteForwardBalance: (state, action: PayloadAction<string>) => {
-      state.forwardBalances = state.forwardBalances.filter((f) => f.id !== action.payload);
-    },
     deleteAllTransaction: (state, action: PayloadAction<string>) => {
       state.allTransactions = state.allTransactions.filter((t) => t.id !== action.payload);
     },
@@ -138,7 +131,6 @@ export const {
   deletePayment,
   deleteRecoupment,
   deleteAdjustment,
-  deleteForwardBalance,
   deleteAllTransaction,
   deleteCollection,
   deleteBankDeposit,

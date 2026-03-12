@@ -180,7 +180,7 @@ const ForwardBalanceNoticesTable = ({ data }: { data: ForwardBalanceNotice[] }) 
       expandedContent={renderExpandedContent}
       exportTitle="Forward Balance Notices"
       paginated
-      searchable
+      // searchable
       customToolbarContent={<RangeDropdown />}
     />
   );

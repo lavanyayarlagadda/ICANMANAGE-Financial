@@ -12,7 +12,6 @@ import TrendsScreen from '@/components/pages/TrendsScreen';
 import VarianceScreen from '@/components/pages/VarianceScreen';
 import BankDepositsScreen from '@/components/pages/BankDepositsScreen';
 import StatementsScreen from '@/components/pages/StatementsScreen';
-import ForwardBalancesScreen from '@/components/pages/ForwardBalancesScreen';
 import RecoupmentsScreen from '@/components/pages/RecoupmentsScreen';
 import OtherAdjustmentsScreen from '@/components/pages/OtherAdjustmentsScreen';
 import CollectionsScreen from '@/components/pages/CollectionsScreen';
@@ -35,7 +34,6 @@ import {
   deletePayment,
   deleteRecoupment,
   deleteAdjustment,
-  deleteForwardBalance,
   deleteAllTransaction,
   deleteCollection,
 } from '@/store/slices/financialsSlice';
@@ -104,7 +102,6 @@ const FinancialsPage: React.FC = () => {
       payment: () => dispatch(deletePayment(confirmDeleteId)),
       recoupment: () => dispatch(deleteRecoupment(confirmDeleteId)),
       adjustment: () => dispatch(deleteAdjustment(confirmDeleteId)),
-      'forward balance': () => dispatch(deleteForwardBalance(confirmDeleteId)),
       transaction: () => dispatch(deleteAllTransaction(confirmDeleteId)),
       collection: () => dispatch(deleteCollection(confirmDeleteId)),
     };
