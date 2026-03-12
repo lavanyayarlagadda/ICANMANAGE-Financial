@@ -74,7 +74,7 @@ const RecoupmentsScreen: React.FC = () => {
 
   return (
     <Box>
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      {/* <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 4 }}>
           <SummaryCard title="Total Original Payments" value={formatCurrency(totalOriginal)} variant="highlight" />
         </Grid>
@@ -84,7 +84,7 @@ const RecoupmentsScreen: React.FC = () => {
         <Grid size={{ xs: 12, sm: 4 }}>
           <SummaryCard title="Total Records" value={String(recoupments.length)} />
         </Grid>
-      </Grid>
+      </Grid> */}
       <DataTable columns={columns} data={recoupments} rowKey={(r) => r.id} exportTitle="Recoupments" customToolbarContent={<RangeDropdown />} />
     </Box>
   );

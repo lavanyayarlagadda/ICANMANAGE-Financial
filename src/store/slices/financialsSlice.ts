@@ -10,6 +10,7 @@ import {
   OtherAdjustmentRecord,
   AllTransaction,
   CollectionAccount,
+  BankDepositEntity,
 } from '@/types/financials';
 import {
   mockPayments,
@@ -22,6 +23,7 @@ import {
   mockOtherAdjustments,
   mockAllTransactions,
   mockCollections,
+  mockBankDeposits,
 } from '@/data/mockData';
 
 interface FinancialsState {
@@ -35,6 +37,7 @@ interface FinancialsState {
   otherAdjustments: OtherAdjustmentRecord[];
   allTransactions: AllTransaction[];
   collections: CollectionAccount[];
+  bankDeposits: BankDepositEntity[];
   loading: boolean;
   error: string | null;
   selectedPaymentId: string | null;
@@ -54,6 +57,7 @@ const initialState: FinancialsState = {
   otherAdjustments: mockOtherAdjustments,
   allTransactions: mockAllTransactions,
   collections: mockCollections,
+  bankDeposits: mockBankDeposits,
   loading: false,
   error: null,
   selectedPaymentId: null,
@@ -107,6 +111,12 @@ const financialsSlice = createSlice({
     deleteCollection: (state, action: PayloadAction<string>) => {
       state.collections = state.collections.filter((c) => c.id !== action.payload);
     },
+    deleteBankDeposit: (state, action: PayloadAction<{ entityId: string; itemId: string }>) => {
+      const entity = state.bankDeposits.find(e => e.id === action.payload.entityId);
+      if (entity) {
+        entity.items = entity.items.filter(i => i.id !== action.payload.itemId);
+      }
+    },
   },
 });
 
@@ -124,5 +134,7 @@ export const {
   deleteForwardBalance,
   deleteAllTransaction,
   deleteCollection,
+  deleteBankDeposit,
 } = financialsSlice.actions;
 export default financialsSlice.reducer;
+

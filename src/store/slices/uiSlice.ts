@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UiState {
   activeTab: number;
+  activeSubTab: number;
   activePage: 'financials' | 'collections';
   sidebarOpen: boolean;
   sidebarCollapsed: boolean;
@@ -20,6 +21,7 @@ interface UiState {
 
 const initialState: UiState = {
   activeTab: 0,
+  activeSubTab: 0,
   activePage: 'financials',
   sidebarOpen: true,
   sidebarCollapsed: false,
@@ -42,6 +44,9 @@ const uiSlice = createSlice({
   reducers: {
     setActiveTab: (state, action: PayloadAction<number>) => {
       state.activeTab = action.payload;
+    },
+    setActiveSubTab: (state, action: PayloadAction<number>) => {
+      state.activeSubTab = action.payload;
     },
     setActivePage: (state, action: PayloadAction<'financials' | 'collections'>) => {
       state.activePage = action.payload;
@@ -97,6 +102,7 @@ const uiSlice = createSlice({
 
 export const {
   setActiveTab,
+  setActiveSubTab,
   setActivePage,
   toggleSidebar,
   toggleSidebarCollapse,

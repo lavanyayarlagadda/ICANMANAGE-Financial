@@ -211,3 +211,36 @@ export interface CollectionAccount {
   aging: string;
   priority: 'High' | 'Medium' | 'Low';
 }
+
+export interface RemittanceAdviceItem {
+  reference: string;
+  amount: number;
+}
+
+export interface PostingApplicationItem {
+  system: string;
+  reference: string;
+  amount: number;
+  status: 'Posted' | 'Partially Posted' | 'Review Required' | 'Pending';
+  date: string;
+}
+
+export interface BankDepositItem {
+  id: string;
+  reference: string;
+  date: string;
+  payerName: string;
+  bankAmt: number;
+  remitAmt: number;
+  variance: number;
+  status: 'Matched' | 'Exception';
+  remittanceAdvice: RemittanceAdviceItem[];
+  postingApplication: PostingApplicationItem[];
+}
+
+export interface BankDepositEntity {
+  id: string;
+  name: string;
+  items: BankDepositItem[];
+}
+

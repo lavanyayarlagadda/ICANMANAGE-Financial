@@ -9,6 +9,7 @@ import {
   OtherAdjustmentRecord,
   AllTransaction,
   CollectionAccount,
+  BankDepositEntity,
 } from '@/types/financials';
 
 export const mockPayments: PaymentTransaction[] = [
@@ -193,3 +194,129 @@ export const mockCollections: CollectionAccount[] = [
   { id: 'c7', accountNumber: 'COL-2025-0100', patientName: 'KING, SUSAN', payer: 'UNITED', totalDue: 9800.00, amountCollected: 4500.00, balance: 5300.00, lastActivityDate: '01/08/2026', assignedTo: 'Team Gamma', status: 'Needs Review', aging: '30-60 days', priority: 'Medium' },
   { id: 'c8', accountNumber: 'COL-2025-0101', patientName: 'WRIGHT, ROBERT', payer: 'AETNA', totalDue: 6300.00, amountCollected: 0.00, balance: 6300.00, lastActivityDate: '01/05/2026', assignedTo: 'Team Alpha', status: 'Open', aging: '120+ days', priority: 'High' },
 ];
+
+export const mockBankDeposits: BankDepositEntity[] = [
+  {
+    id: 'e1',
+    name: 'Apex Primary Care',
+    items: [
+      {
+        id: 'bd1',
+        reference: '0374098416TC',
+        date: '2026-02-07',
+        payerName: 'Cedar Cares Inc',
+        bankAmt: 6856.63,
+        remitAmt: 6896.63,
+        variance: -40.00,
+        status: 'Exception',
+        remittanceAdvice: [
+          { reference: 'REM-991', amount: 4500.00 },
+          { reference: 'REM-992', amount: 2396.63 },
+        ],
+        postingApplication: [
+          { system: 'eClinicalWorks - EMR Posting', reference: 'BATCH-CED-2026020701', amount: 4200.00, status: 'Posted', date: '2026-02-07' },
+          { system: 'QuickBooks - GL Posting', reference: 'JE-QBO-44821', amount: 2100.00, status: 'Posted', date: '2026-02-07' },
+          { system: 'eClinicalWorks - Unapplied Cash', reference: 'UA-CED-0207', amount: 516.63, status: 'Review Required', date: '2026-02-07' },
+          { system: 'Cedar Portal - Patient Accounting Adj', reference: 'PA-ADJ-8819', amount: 40.00, status: 'Pending', date: '2026-02-07' },
+        ]
+      },
+      {
+        id: 'bd2',
+        reference: '0374098417TC',
+        date: '2026-02-07',
+        payerName: 'Aetna Health',
+        bankAmt: 12450.00,
+        remitAmt: 12450.00,
+        variance: 0.00,
+        status: 'Matched',
+        remittanceAdvice: [
+          { reference: 'EFT-112233', amount: 12450.00 },
+        ],
+        postingApplication: [
+          { system: 'eClinicalWorks - EMR Posting', reference: 'BATCH-AET-2026020701', amount: 12450.00, status: 'Posted', date: '2026-02-07' },
+        ]
+      },
+      {
+        id: 'bd3',
+        reference: '0374098421TC',
+        date: '2026-02-07',
+        payerName: 'Humana',
+        bankAmt: 18500.00,
+        remitAmt: 18500.00,
+        variance: 0.00,
+        status: 'Matched',
+        remittanceAdvice: [
+          { reference: 'EFT-445566', amount: 18500.00 },
+        ],
+        postingApplication: [
+          { system: 'eClinicalWorks - EMR Posting', reference: 'BATCH-HUM-2026020701', amount: 18500.00, status: 'Posted', date: '2026-02-07' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'e2',
+    name: 'Apex Surgical Center',
+    items: [
+      {
+        id: 'bd4',
+        reference: '0374098418TC',
+        date: '2026-02-07',
+        payerName: 'BCBS Federal',
+        bankAmt: 8320.45,
+        remitAmt: 8320.45,
+        variance: 0.00,
+        status: 'Matched',
+        remittanceAdvice: [
+          { reference: 'EFT-7712009', amount: 8320.45 },
+        ],
+        postingApplication: [
+          { system: 'Epic - EMR Posting', reference: 'BATCH-BCBS-2026020701', amount: 6500.00, status: 'Posted', date: '2026-02-07' },
+          { system: 'Sage Intacct - GL Posting', reference: 'JE-SI-88120', amount: 1120.45, status: 'Partially Posted', date: '2026-02-07' },
+          { system: 'Epic - Unapplied Cash', reference: 'UA-BCBS-0207', amount: 700.00, status: 'Pending', date: '2026-02-07' },
+        ]
+      },
+      {
+        id: 'bd5',
+        reference: '0374098420TC',
+        date: '2026-02-07',
+        payerName: 'Cigna',
+        bankAmt: 15780.00,
+        remitAmt: 15780.00,
+        variance: 0.00,
+        status: 'Matched',
+        remittanceAdvice: [
+          { reference: 'EFT-990011', amount: 15780.00 },
+        ],
+        postingApplication: [
+          { system: 'Epic - EMR Posting', reference: 'BATCH-CIG-2026020701', amount: 15780.00, status: 'Posted', date: '2026-02-07' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'e3',
+    name: 'Apex Home Health',
+    items: [
+      {
+        id: 'bd6',
+        reference: '0374098419TC',
+        date: '2026-02-06',
+        payerName: 'UnitedHealthcare',
+        bankAmt: 22100.00,
+        remitAmt: 22100.00,
+        variance: 0.00,
+        status: 'Exception',
+        remittanceAdvice: [
+          { reference: 'EFT-6634501', amount: 22100.00 },
+        ],
+        postingApplication: [
+          { system: 'Cerner - EMR Posting', reference: 'BATCH-UHC-2026020601', amount: 18250.00, status: 'Posted', date: '2026-02-06' },
+          { system: 'NetSuite - GL Posting', reference: 'JE-NS-10198', amount: 2600.00, status: 'Posted', date: '2026-02-06' },
+          { system: 'Cerner - Unapplied Cash', reference: 'UA-UHC-0206', amount: 950.00, status: 'Review Required', date: '2026-02-07' },
+        ]
+      }
+    ]
+  }
+];
+

@@ -10,6 +10,8 @@ import PipScreen from '@/components/pages/PipScreen';
 import RemittanceDetailScreen from '@/components/pages/RemittanceDetailScreen';
 import TrendsScreen from '@/components/pages/TrendsScreen';
 import VarianceScreen from '@/components/pages/VarianceScreen';
+import BankDepositsScreen from '@/components/pages/BankDepositsScreen';
+import StatementsScreen from '@/components/pages/StatementsScreen';
 import ForwardBalancesScreen from '@/components/pages/ForwardBalancesScreen';
 import RecoupmentsScreen from '@/components/pages/RecoupmentsScreen';
 import OtherAdjustmentsScreen from '@/components/pages/OtherAdjustmentsScreen';
@@ -26,6 +28,7 @@ import {
   showSnackbar,
   setActivePage,
   setActiveTab,
+  setActiveSubTab,
 } from '@/store/slices/uiSlice';
 import {
   setShowRemittanceDetail,
@@ -40,7 +43,7 @@ import {
 const FinancialsPage: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
-  const { activeTab, activePage, viewDialogOpen, viewDialogData, editDialogOpen, editDialogData, confirmDeleteOpen, confirmDeleteId, confirmDeleteType } = useAppSelector((s) => s.ui);
+  const { activeTab, activeSubTab, activePage, viewDialogOpen, viewDialogData, editDialogOpen, editDialogData, confirmDeleteOpen, confirmDeleteId, confirmDeleteType } = useAppSelector((s) => s.ui);
   const { showRemittanceDetail } = useAppSelector((s) => s.financials);
   const [addDialogOpen, setAddDialogOpen] = React.useState(false);
   const location = useLocation();
@@ -52,37 +55,45 @@ const FinancialsPage: React.FC = () => {
     } else if (location.pathname.startsWith('/financials')) {
       dispatch(setActivePage('financials'));
       const pathPart = location.pathname.split('/financials/')[1] || '';
-      const pathMap: Record<string, number> = {
-        'all-transactions': 0,
-        'payments': 1,
-        'pip': 2,
-        'forward-balances': 3,
-        'recoupments': 4,
-        'other-adjustments': 5,
-        'variance-analysis': 6,
-        'trends-forecast': 7,
+      const pathMap: Record<string, { tab: number; subTab: number }> = {
+        'all-transactions': { tab: 0, subTab: 0 },
+        'payments': { tab: 0, subTab: 1 },
+        'recoupments': { tab: 0, subTab: 2 },
+        'other-adjustments': { tab: 0, subTab: 3 },
+        'pip': { tab: 0, subTab: 3 }, // Map PIP to Adjustments for now
+        'bank-deposits': { tab: 1, subTab: 0 },
+        'statements': { tab: 2, subTab: 0 },
+        'variance-analysis': { tab: 3, subTab: 0 },
+        'trends-forecast': { tab: 4, subTab: 0 },
       };
 
-      const tabIndex = pathMap[pathPart];
-      if (tabIndex !== undefined) {
-        if (activeTab !== tabIndex) {
-          dispatch(setActiveTab(tabIndex));
-        }
+      const match = pathMap[pathPart];
+      if (match) {
+        if (activeTab !== match.tab) dispatch(setActiveTab(match.tab));
+        if (activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
       } else if (pathPart === '') {
         navigate('/financials/all-transactions', { replace: true });
       }
     }
-  }, [location.pathname, dispatch, navigate, activeTab]);
+  }, [location.pathname, dispatch, navigate, activeTab, activeSubTab]);
 
-  const tabContentMap: Record<number, React.ReactNode> = {
-    0: <AllTransactionsScreen />,
-    1: <PaymentsScreen />,
-    2: <PipScreen />,
-    3: <ForwardBalancesScreen />,
-    4: <RecoupmentsScreen />,
-    5: <OtherAdjustmentsScreen />,
-    6: <VarianceScreen />,
-    7: <TrendsScreen />,
+  const renderTabContent = () => {
+    if (activeTab === 0) {
+      const subMap: Record<number, React.ReactNode> = {
+        0: <AllTransactionsScreen />,
+        1: <PaymentsScreen />,
+        2: <RecoupmentsScreen />,
+        3: <OtherAdjustmentsScreen />,
+      };
+      return subMap[activeSubTab] ?? <AllTransactionsScreen />;
+    }
+
+    if (activeTab === 1) return <BankDepositsScreen />;
+    if (activeTab === 2) return <StatementsScreen />;
+    if (activeTab === 3) return <VarianceScreen />;
+    if (activeTab === 4) return <TrendsScreen />;
+
+    return <AllTransactionsScreen />;
   };
 
   const handleDelete = () => {
@@ -129,7 +140,7 @@ const FinancialsPage: React.FC = () => {
     return (
       <>
         <FinancialsTabs onAddNew={() => setAddDialogOpen(true)} />
-        {tabContentMap[activeTab] ?? <AllTransactionsScreen />}
+        {renderTabContent()}
       </>
     );
   };
