@@ -5,6 +5,7 @@ import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import SummaryCard from '@/components/atoms/SummaryCard';
+import CollectionsFilter from '@/components/organisms/CollectionsFilter';
 import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { CollectionAccount } from '@/types/financials';
@@ -87,6 +88,8 @@ const CollectionsScreen: React.FC = () => {
         <Typography variant="h5" sx={{ fontWeight: 700 }}>Collections</Typography>
         <Typography variant="body2" color="text.secondary">Manage collection accounts, track balances, and monitor recovery efforts.</Typography>
       </Box>
+
+      <CollectionsFilter />
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 6, md: 3 }}>

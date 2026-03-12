@@ -11,6 +11,13 @@ import {
   AllTransaction,
   CollectionAccount,
 } from '@/types/financials';
+
+export interface ProfilerFilter {
+  id: string;
+  field: string;
+  operator: string;
+  value: string;
+}
 import {
   mockPayments,
   mockPipRecords,
@@ -41,6 +48,8 @@ interface FinancialsState {
   showRemittanceDetail: boolean;
   addDialogOpen: boolean;
   addDialogType: string;
+  profilerFilters: ProfilerFilter[];
+  profilerBannerOpen: boolean;
 }
 
 const initialState: FinancialsState = {
@@ -60,6 +69,8 @@ const initialState: FinancialsState = {
   showRemittanceDetail: false,
   addDialogOpen: false,
   addDialogType: '',
+  profilerFilters: [],
+  profilerBannerOpen: false,
 };
 
 const financialsSlice = createSlice({
@@ -107,6 +118,18 @@ const financialsSlice = createSlice({
     deleteCollection: (state, action: PayloadAction<string>) => {
       state.collections = state.collections.filter((c) => c.id !== action.payload);
     },
+    setProfilerFilters: (state, action: PayloadAction<ProfilerFilter[]>) => {
+      state.profilerFilters = action.payload;
+    },
+    removeProfilerFilter: (state, action: PayloadAction<string>) => {
+      state.profilerFilters = state.profilerFilters.filter((f) => f.id !== action.payload);
+    },
+    clearProfilerFilters: (state) => {
+      state.profilerFilters = [];
+    },
+    setProfilerBannerOpen: (state, action: PayloadAction<boolean>) => {
+      state.profilerBannerOpen = action.payload;
+    },
   },
 });
 
@@ -124,5 +147,9 @@ export const {
   deleteForwardBalance,
   deleteAllTransaction,
   deleteCollection,
+  setProfilerFilters,
+  removeProfilerFilter,
+  clearProfilerFilters,
+  setProfilerBannerOpen,
 } = financialsSlice.actions;
 export default financialsSlice.reducer;
