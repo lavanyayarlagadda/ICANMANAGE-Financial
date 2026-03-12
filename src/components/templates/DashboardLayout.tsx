@@ -70,10 +70,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const navigate = useNavigate();
 
-  const handleNavClick = (page: 'financials' | 'collections', path?: string) => {
+  const handleNavClick = (page: 'financials' | 'collections' | 'poc', path?: string) => {
     dispatch(closeMobileMenu());
     if (page === 'collections') {
       navigate('/collections');
+    } else if (page === 'poc') {
+      navigate('/poc');
     } else if (path) {
       navigate(path);
     }
@@ -123,7 +125,32 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </List>
       )}
 
-      {hasCollections && hasFinancials && <Divider sx={{ mx: sidebarCollapsed ? 0.5 : 2, my: 1 }} />}
+      {/* POC Section */}
+      <List disablePadding>
+        <Tooltip title={sidebarCollapsed ? 'Descriptions POC' : ''} placement="right">
+          <ListItemButton
+            selected={activePage === 'poc' || window.location.pathname === '/poc'}
+            onClick={() => handleNavClick('poc')}
+            sx={{
+              mx: sidebarCollapsed ? 0.5 : 1,
+              borderRadius: 1,
+              mb: 0.5,
+              justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
+              px: sidebarCollapsed ? 1 : 2,
+              '&.Mui-selected': {
+                backgroundColor: `${theme.palette.primary.main}12`,
+                color: theme.palette.primary.main,
+                '& .MuiListItemIcon-root': { color: theme.palette.primary.main },
+              },
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}><DashboardIcon fontSize="small" /></ListItemIcon>
+            {!sidebarCollapsed && <ListItemText primary="Descriptions POC" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
+          </ListItemButton>
+        </Tooltip>
+      </List>
+
+      <Divider sx={{ mx: sidebarCollapsed ? 0.5 : 2, my: 1 }} />
 
       {/* Financials Section */}
       {hasFinancials && (

@@ -42,7 +42,7 @@ import autoTable from 'jspdf-autotable';
 
 export interface DataColumn<T> {
   id: string;
-  label: string;
+  label: React.ReactNode;
   minWidth?: number;
   align?: 'left' | 'center' | 'right';
   render: (row: T) => React.ReactNode;
