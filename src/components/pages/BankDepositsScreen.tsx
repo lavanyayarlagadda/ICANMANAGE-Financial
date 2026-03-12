@@ -9,17 +9,8 @@ import {
   Switch,
   FormControlLabel,
   Grid,
-  Card,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   IconButton,
-  Collapse,
   Chip,
-  Paper,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -29,162 +20,17 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useAppSelector } from '@/store';
 import { formatCurrency } from '@/utils/formatters';
-import { BankDepositItem, RemittanceAdviceItem, PostingApplicationItem } from '@/types/financials';
-
-const KPICard = ({ title, value, subtext, subtextColor }: { title: string; value: string; subtext?: string; subtextColor?: string }) => {
-  return (
-    <Card sx={{ p: 2, height: '100%', border: '1px solid #e2e8f0', boxShadow: 'none' }}>
-      <Typography variant="caption" sx={{ color: 'rgb(100, 116, 139)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-        {title}
-      </Typography>
-      <Typography variant="h5" sx={{ fontWeight: 700, mt: 1, mb: 0.5 }}>
-        {value}
-      </Typography>
-      {subtext && (
-        <Typography variant="body2" sx={{ color: subtextColor || 'rgb(100, 116, 139)', fontWeight: 500 }}>
-          {subtext}
-        </Typography>
-      )}
-    </Card>
-  );
-};
-
-const ExpandableRow = ({ item }: { item: BankDepositItem }) => {
-  const theme = useTheme();
-  const [open, setOpen] = useState(false);
-
-  return (
-    <>
-      <TableRow 
-        onClick={() => setOpen(!open)} 
-        sx={{ 
-          cursor: 'pointer', 
-          '&:hover': { backgroundColor: 'rgba(107, 153, 196, 0.05)' },
-          backgroundColor: open ? 'rgba(107, 153, 196, 0.02)' : 'inherit'
-        }}
-      >
-        <TableCell sx={{ borderBottom: open ? 'none' : undefined }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton size="small">
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
-            <Box>
-              <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>{item.reference}</Typography>
-              <Typography variant="caption" color="text.secondary">{item.date}</Typography>
-            </Box>
-          </Box>
-        </TableCell>
-        <TableCell sx={{ borderBottom: open ? 'none' : undefined }}>
-          <Typography variant="body2">{item.payerName}</Typography>
-        </TableCell>
-        <TableCell align="right" sx={{ borderBottom: open ? 'none' : undefined }}>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(item.bankAmt)}</Typography>
-        </TableCell>
-        <TableCell align="right" sx={{ borderBottom: open ? 'none' : undefined }}>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(item.remitAmt)}</Typography>
-        </TableCell>
-        <TableCell align="right" sx={{ borderBottom: open ? 'none' : undefined }}>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              fontWeight: 600, 
-              color: item.variance < 0 ? theme.palette.error.main : theme.palette.text.primary 
-            }}
-          >
-            {formatCurrency(item.variance)}
-          </Typography>
-        </TableCell>
-        <TableCell align="right" sx={{ borderBottom: open ? 'none' : undefined }}>
-          <Chip 
-            label={item.status} 
-            size="small" 
-            icon={item.status === 'Matched' ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />}
-            sx={{ 
-              backgroundColor: item.status === 'Matched' ? '#f0fdf4' : '#fef2f2', 
-              color: item.status === 'Matched' ? '#166534' : '#991b1b',
-              fontWeight: 600,
-              fontSize: '11px',
-              border: `1px solid ${item.status === 'Matched' ? '#bbf7d0' : '#fecaca'}`
-            }} 
-          />
-        </TableCell>
-      </TableRow>
-      <TableRow>
-        <TableCell colSpan={6} sx={{ p: 0, borderBottom: open ? undefined : 'none' }}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ p: 3, backgroundColor: '#fff', borderTop: '1px solid #e2e8f0' }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 1 }}>
-                    <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-                      <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>(A) REMITTANCE ADVICE</Typography>
-                    </Box>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell sx={{ py: 1.5, color: 'text.secondary', fontWeight: 600, fontSize: '11px' }}>REMIT REFERENCE</TableCell>
-                          <TableCell sx={{ py: 1.5, color: 'text.secondary', fontWeight: 600, fontSize: '11px' }} align="right">AMOUNT</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {item.remittanceAdvice.map((ra, idx) => (
-                          <TableRow key={idx}>
-                            <TableCell sx={{ py: 1.5 }}>{ra.reference}</TableCell>
-                            <TableCell sx={{ py: 1.5, fontWeight: 700 }} align="right">{formatCurrency(ra.amount)}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Box>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 1 }}>
-                    <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
-                      <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>(B) POSTING & APPLICATION</Typography>
-                    </Box>
-                    <Box sx={{ p: 2 }}>
-                      {item.postingApplication.map((pa, idx) => (
-                        <Box key={idx} sx={{ mb: 2, p: 1.5, backgroundColor: '#f8fafc', borderRadius: 1, border: '1px solid #f1f5f9' }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>{pa.system}</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(pa.amount)}</Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="caption" color="text.secondary">{pa.date} | Ref: {pa.reference}</Typography>
-                            <Chip 
-                              label={pa.status} 
-                              size="small" 
-                              sx={{ 
-                                height: 20, 
-                                fontSize: '10px', 
-                                fontWeight: 700,
-                                backgroundColor: pa.status === 'Posted' ? '#f0fdf4' : pa.status === 'Pending' ? '#f1f5f9' : '#fff7ed',
-                                color: pa.status === 'Posted' ? '#166534' : pa.status === 'Pending' ? '#475569' : '#9a3412'
-                              }} 
-                            />
-                          </Box>
-                        </Box>
-                      ))}
-                      <Box sx={{ mt: 2, pt: 2, borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>C-D Variance</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#166534' }}>$0.00</Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Grid>
-              </Grid>
-            </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </>
-  );
-};
+import { BankDepositItem } from '@/types/financials';
+import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import SummaryCard from '@/components/atoms/SummaryCard';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
 
 const BankDepositsScreen: React.FC = () => {
   const theme = useTheme();
   const bankDeposits = useAppSelector((s) => s.financials.bankDeposits);
   const [selectedEntityId, setSelectedEntityId] = useState<'all' | string>('all');
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+
 
   const entities = [
     { id: 'all', name: 'All Entities (Consolidated)' },
@@ -192,6 +38,164 @@ const BankDepositsScreen: React.FC = () => {
     { id: 'e2', name: 'Apex Surgical Center' },
     { id: 'e3', name: 'Apex Home Health' },
   ];
+
+
+  const toggleRow = (id: string) => {
+    setExpandedRows((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
+      return newSet;
+    });
+  };
+
+  const columns: DataColumn<BankDepositItem>[] = [
+    {
+      id: 'expand',
+      label: '',
+      render: (row) => (
+        <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleRow(row.id); }}>
+          {expandedRows.has(row.id) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
+        </IconButton>
+
+      ),
+    },
+    {
+      id: 'reference',
+      label: 'REF / DATE',
+      accessor: (row) => row.reference,
+      render: (row) => (
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>{row.reference}</Typography>
+          <Typography variant="caption" color="text.secondary">{row.date}</Typography>
+        </Box>
+      ),
+    },
+    {
+      id: 'payerName',
+      label: 'PAYER NAME',
+      accessor: (row) => row.payerName,
+      render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
+    },
+    {
+      id: 'bankAmt',
+      label: 'BANK AMT',
+      align: 'right',
+      accessor: (row) => row.bankAmt,
+      render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.bankAmt)}</Typography>,
+    },
+    {
+      id: 'remitAmt',
+      label: 'REMIT AMT',
+      align: 'right',
+      accessor: (row) => row.remitAmt,
+      render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.remitAmt)}</Typography>,
+    },
+    {
+      id: 'variance',
+      label: 'VARIANCE',
+      align: 'right',
+      accessor: (row) => row.variance,
+      render: (row) => (
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+            color: row.variance < 0 ? theme.palette.error.main : theme.palette.text.primary
+          }}
+        >
+          {formatCurrency(row.variance)}
+        </Typography>
+      ),
+    },
+    {
+      id: 'status',
+      label: 'STATUS',
+      align: 'right',
+      accessor: (row) => row.status,
+      render: (row) => (
+        <Chip
+          label={row.status}
+          size="small"
+          icon={row.status === 'Matched' ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />}
+          sx={{
+            backgroundColor: row.status === 'Matched' ? '#f0fdf4' : '#fef2f2',
+            color: row.status === 'Matched' ? '#166534' : '#991b1b',
+            fontWeight: 600,
+            fontSize: '11px',
+            border: `1px solid ${row.status === 'Matched' ? '#bbf7d0' : '#fecaca'}`
+          }}
+        />
+      ),
+    },
+  ];
+
+  const renderExpandedContent = (item: BankDepositItem) => (
+    <Box sx={{ p: 2, backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: 1 }}>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 1 }}>
+            <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>(A) REMITTANCE ADVICE</Typography>
+            </Box>
+            <Box sx={{ maxHeight: 200, overflow: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', background: '#f8fafc' }}>
+                    <th style={{ padding: '8px 16px', fontSize: '11px', color: '#64748b' }}>REMIT REFERENCE</th>
+                    <th style={{ padding: '8px 16px', fontSize: '11px', color: '#64748b', textAlign: 'right' }}>AMOUNT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {item.remittanceAdvice.map((ra, idx) => (
+                    <tr key={idx} style={{ borderTop: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '8px 16px', fontSize: '13px' }}>{ra.reference}</td>
+                      <td style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 700, textAlign: 'right' }}>{formatCurrency(ra.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Box>
+          </Box>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Box sx={{ border: '1px solid #e2e8f0', borderRadius: 1 }}>
+            <Box sx={{ px: 2, py: 1, borderBottom: '1px solid #e2e8f0', backgroundColor: '#f8fafc' }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>(B) POSTING & APPLICATION</Typography>
+            </Box>
+            <Box sx={{ p: 2, maxHeight: 200, overflow: 'auto' }}>
+              {item.postingApplication.map((pa, idx) => (
+                <Box key={idx} sx={{ mb: 2, p: 1.5, backgroundColor: '#f8fafc', borderRadius: 1, border: '1px solid #f1f5f9' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{pa.system}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(pa.amount)}</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="caption" color="text.secondary">{pa.date} | Ref: {pa.reference}</Typography>
+                    <Chip
+                      label={pa.status}
+                      size="small"
+                      sx={{
+                        height: 20,
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        backgroundColor: pa.status === 'Posted' ? '#f0fdf4' : pa.status === 'Pending' ? '#f1f5f9' : '#fff7ed',
+                        color: pa.status === 'Posted' ? '#166534' : pa.status === 'Pending' ? '#475569' : '#9a3412'
+                      }}
+                    />
+                  </Box>
+                </Box>
+              ))}
+              <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>C-D Variance</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#166534' }}>$0.00</Typography>
+              </Box>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
+  );
 
   return (
     <Box sx={{ px: 3, pt: 1, pb: 4 }}>
@@ -205,22 +209,11 @@ const BankDepositsScreen: React.FC = () => {
         </Typography>
       </Box>
 
-      {/* Filters Row 1 */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 4, mb: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase' }}>Range:</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: 1, px: 1, py: 0.5 }}>
-            <Typography variant="body2" sx={{ fontSize: '13px', color: 'text.primary' }}>01-02-2026</Typography>
-            <CalendarMonthIcon sx={{ fontSize: 16, ml: 1, color: 'text.secondary' }} />
-          </Box>
-          <Typography variant="body2" color="text.secondary">to</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: 1, px: 1, py: 0.5 }}>
-            <Typography variant="body2" sx={{ fontSize: '13px', color: 'text.primary' }}>10-02-2026</Typography>
-            <CalendarMonthIcon sx={{ fontSize: 16, ml: 1, color: 'text.secondary' }} />
-          </Box>
-        </Box>
+    
 
-        <Box sx={{ flex: 1 }}>
+      {/* Filter Chips */}
+      <Box sx={{ mb: 3 }}>
+           <Box sx={{ flex: 1 }}>
           <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', mb: 1, display: 'block' }}>View Entity</Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             {entities.map((e) => (
@@ -242,6 +235,7 @@ const BankDepositsScreen: React.FC = () => {
           </Box>
         </Box>
       </Box>
+
 
       {/* Filters Row 2 - Toolbar */}
       <Box sx={{ display: 'flex', alignItems: 'center', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 1, p: 1.5, gap: 2, mb: 3 }}>
@@ -305,30 +299,33 @@ const BankDepositsScreen: React.FC = () => {
       </Box>
 
       {/* KPI Section */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={4}>
-          <KPICard 
-            title="Total Collections" 
-            value={formatCurrency(84007.08)} 
-            subtext="6 Deposits" 
+      {/* KPI Section */}
+      <Grid container spacing={2} sx={{ mb: 4 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard
+            title="Total Collections"
+            value={formatCurrency(84007.08)}
+            variant="highlight"
+            backgroundColor="#fff"
           />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <KPICard 
-            title="Reconciliation Rate" 
-            value="99.95%" 
-            subtext="Variance: $-40.00" 
-            subtextColor={theme.palette.error.main}
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard
+            title="Reconciliation Rate"
+            value="99.95%"
+            variant="negative"
+            backgroundColor="#fff"
           />
         </Grid>
-        <Grid item xs={12} md={4}>
-          <KPICard 
-            title="Action Required" 
-            value="1" 
-            subtext="Cross-Entity Items" 
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard
+            title="Action Required"
+            value="1"
+            backgroundColor="#fff"
           />
         </Grid>
       </Grid>
+
 
       {/* Data Section */}
       {bankDeposits
@@ -340,25 +337,16 @@ const BankDepositsScreen: React.FC = () => {
                 {entity.name} — {entity.items.length} Items
               </Typography>
             </Box>
-            <TableContainer component={Paper} sx={{ borderRadius: '0 0 4px 4px', boxShadow: 'none', border: '1px solid #e2e8f0' }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: '#f8fafc' }}>
-                    <TableCell sx={{ py: 1.5, color: 'text.secondary', fontWeight: 600, fontSize: '11px' }}>REF / DATE</TableCell>
-                    <TableCell sx={{ py: 1.5, color: 'text.secondary', fontWeight: 600, fontSize: '11px' }}>PAYER NAME</TableCell>
-                    <TableCell sx={{ py: 1.5, color: 'text.secondary', fontWeight: 600, fontSize: '11px' }} align="right">BANK AMT</TableCell>
-                    <TableCell sx={{ py: 1.5, color: 'text.secondary', fontWeight: 600, fontSize: '11px' }} align="right">REMIT AMT</TableCell>
-                    <TableCell sx={{ py: 1.5, color: 'text.secondary', fontWeight: 600, fontSize: '11px' }} align="right">VARIANCE</TableCell>
-                    <TableCell sx={{ py: 1.5, color: 'text.secondary', fontWeight: 600, fontSize: '11px' }} align="right">STATUS</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {entity.items.map((item) => (
-                    <ExpandableRow key={item.id} item={item} />
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <DataTable
+              columns={columns}
+              data={entity.items}
+              rowKey={(row) => row.id}
+              expandedRows={expandedRows}
+              expandedContent={renderExpandedContent}
+              paginated={false}
+              searchable={false}
+              customToolbarContent={<RangeDropdown />}
+            />
           </Box>
         ))}
     </Box>

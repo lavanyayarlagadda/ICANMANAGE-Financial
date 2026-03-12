@@ -10,6 +10,7 @@ import {
   AllTransaction,
   CollectionAccount,
   BankDepositEntity,
+  ForwardBalanceNotice,
 } from '@/types/financials';
 
 export const mockPayments: PaymentTransaction[] = [
@@ -29,11 +30,11 @@ export const mockPipRecords: PipRecord[] = [
     id: 'pip1', ptan: 'PTAN12345', paymentDate: '01/15/2026', checkEftNumber: 'EFT998877', paymentAmount: 150000.00, suspenseBalance: 138648.96, status: 'Completed',
     npiAllocations: [
       { npi: '1987191887', name: 'CRESCENT HOSPICE INC', allocatedAmount: 90000.00, allocatedPercent: 60.00, claims: [
-        { claimId: 'MC10677', patientName: 'ELLIS, MARTHA', allowedAmt: 3729.12, appliedToPipBalance: -3729.12 },
-        { claimId: '1894716', patientName: 'GRANTHAM, ELISE', allowedAmt: 6999.16, appliedToPipBalance: -4421.92 },
+          { claimId: 'MC10677', patientName: 'ELLIS, MARTHA', allowedAmt: 3729.12, appliedToPipBalance: -3729.12 },
+          { claimId: '1894716', patientName: 'GRANTHAM, ELISE', allowedAmt: 6999.16, appliedToPipBalance: -4421.92 },
       ]},
       { npi: '1234567890', name: 'SUNCOAST HOSPICE CARE', allocatedAmount: 60000.00, allocatedPercent: 40.00, claims: [
-        { claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', allowedAmt: 3850.00, appliedToPipBalance: -3200.00 },
+          { claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', allowedAmt: 3850.00, appliedToPipBalance: -3200.00 },
       ]},
     ],
   },
@@ -52,6 +53,7 @@ export const mockPipRecords: PipRecord[] = [
   { id: 'pip7', ptan: 'PTAN10025', paymentDate: '12/26/2025', checkEftNumber: 'EFT998825', paymentAmount: 158927.08, suspenseBalance: 84226.32, status: 'Pending Review', npiAllocations: [] },
   { id: 'pip8', ptan: 'PTAN10024', paymentDate: '12/25/2025', checkEftNumber: 'EFT998824', paymentAmount: 196723.10, suspenseBalance: 32951.45, status: 'Completed', npiAllocations: [] },
 ];
+
 
 export const mockRemittanceDetail: RemittanceDetail = {
   paymentDate: '2026-01-25',
@@ -81,22 +83,60 @@ export const mockRemittanceDetail: RemittanceDetail = {
 };
 
 export const mockVarianceRecords: VarianceRecord[] = [
-  { id: 'v1', claimId: 'MC10677', patientName: 'ELLIS, MARTHA', payer: 'DHR', billedCharge: 3729.12, expectedAllowed: 0.00, actualAllowed: 0.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v2', claimId: '1894716', patientName: 'GRANTHAM, ELISE', payer: 'JM MAC', billedCharge: 6999.56, expectedAllowed: 7798.33, actualAllowed: 6999.16, variance: -799.17, reasonCode: 'CO 97, CO 45, CO 42.1' },
-  { id: 'v3', claimId: '894618', patientName: 'JOHNSON, VERONICA', payer: 'JM MAC', billedCharge: 7406.29, expectedAllowed: 1306.29, actualAllowed: 1306.29, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v4', claimId: '1894719', patientName: 'MOORING, RONALD', payer: 'JM MAC', billedCharge: 6524.59, expectedAllowed: 6524.18, actualAllowed: 6524.18, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v5', claimId: '1834815', patientName: 'MURRAY, DORIS', payer: 'JM MAC', billedCharge: 5625.50, expectedAllowed: 5983.46, actualAllowed: 5625.50, variance: -357.96, reasonCode: 'CO 97, CO 94, CO 42.1' },
-  { id: 'v6', claimId: '1894705', patientName: 'ANDRUS, JEFFREY', payer: 'JM MAC', billedCharge: 5826.88, expectedAllowed: 826.88, actualAllowed: 826.88, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v7', claimId: '1894703', patientName: 'BATES, FRANCE', payer: 'JM MAC', billedCharge: 880.96, expectedAllowed: 880.96, actualAllowed: 880.96, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v8', claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', payer: 'AETNA MEDICARE', billedCharge: 4200.00, expectedAllowed: 3850.00, actualAllowed: 3850.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v9', claimId: 'MC20452', patientName: 'THOMPSON, SARAH', payer: 'AETNA MEDICARE', billedCharge: 3100.00, expectedAllowed: 3257.21, actualAllowed: 2900.00, variance: -357.21, reasonCode: 'CO 97, CO 45' },
-  { id: 'v10', claimId: 'HM33021', patientName: 'MARTINEZ, ROSA', payer: 'HUMANA', billedCharge: 5620.00, expectedAllowed: 5503.95, actualAllowed: 5100.00, variance: -403.95, reasonCode: 'CO 45, PR 1, PR 2' },
-  { id: 'v11', claimId: 'HM33022', patientName: 'CHEN, DAVID', payer: 'HUMANA', billedCharge: 2800.75, expectedAllowed: 2650.00, actualAllowed: 2650.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v12', claimId: 'CG44501', patientName: 'PATEL, ANITA', payer: 'CIGNA HEALTH', billedCharge: 7800.00, expectedAllowed: 7200.00, actualAllowed: 7200.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v13', claimId: 'CG44502', patientName: 'JACKSON, ROBERT', payer: 'CIGNA HEALTH', billedCharge: 4500.00, expectedAllowed: 4200.00, actualAllowed: 4200.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v14', claimId: 'UH55601', patientName: 'DAVIS, MARGARET', payer: 'UNITED', billedCharge: 6200.00, expectedAllowed: 5800.00, actualAllowed: 5800.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v15', claimId: 'BC86701', patientName: 'TAYLOR, ELIZABETH', payer: 'BLUE CROSS', billedCharge: 5100.00, expectedAllowed: 5157.27, actualAllowed: 4800.00, variance: -357.27, reasonCode: 'CO 45, CO 253' },
+  { 
+    id: 'v1', 
+    claimId: 'CLM-001', 
+    patientName: 'PATIENT, R17', 
+    payer: 'Evergreen Medical Center', 
+    paymentDate: '2026-03-11', 
+    billedCharge: 3647.57, 
+    expectedAllowed: 3647.57, 
+    actualAllowed: 3647.57, 
+    variance: 0.00, 
+    reasonCode: 'Match', 
+    adjustmentCodes: 'CO 45' 
+  },
+  { 
+    id: 'v2', 
+    claimId: 'CLM-002', 
+    patientName: 'PATIENT, W100', 
+    payer: 'Canyon Creek Medical', 
+    paymentDate: '2026-03-10', 
+    billedCharge: 1963.22, 
+    expectedAllowed: 1963.22, 
+    actualAllowed: 1963.22, 
+    variance: 0.00, 
+    reasonCode: 'Match', 
+    adjustmentCodes: 'CO 45' 
+  },
+  { 
+    id: 'v3', 
+    claimId: 'CLM-003', 
+    patientName: 'PATIENT, F57', 
+    payer: 'Pinecrest Medical Group', 
+    paymentDate: '2026-03-06', 
+    billedCharge: 2512.72, 
+    expectedAllowed: 2512.72, 
+    actualAllowed: 2309.85, 
+    variance: 202.87, 
+    reasonCode: 'Variance', 
+    adjustmentCodes: 'CO 45' 
+  },
+  { 
+    id: 'v4', 
+    claimId: 'CLM-004', 
+    patientName: 'PATIENT, S18', 
+    payer: 'Summit Health Systems', 
+    paymentDate: '2026-03-06', 
+    billedCharge: 2935.14, 
+    expectedAllowed: 2935.14, 
+    actualAllowed: 2935.14, 
+    variance: 0.00, 
+    reasonCode: 'Match', 
+    adjustmentCodes: 'CO 45' 
+  },
 ];
+
 
 export const mockTrendsData: TrendsData = {
   kpis: [
@@ -319,4 +359,73 @@ export const mockBankDeposits: BankDepositEntity[] = [
     ]
   }
 ];
+
+export const mockForwardBalanceNotices: ForwardBalanceNotice[] = [
+  {
+    id: 'fbn1',
+    noticeId: 'FB-2025-99110A',
+    notificationDate: '11/30/2025',
+    providerName: 'Canyon Creek Medical',
+    npi: '1987000030',
+    originalAmount: -1164.57,
+    remainingBalance: -767.81,
+    status: 'Posted',
+    offsets: [
+      {
+        eftNumber: 'EFT55443030',
+        date: '12/15/2025',
+        amount: -396.76,
+        code: 'WO',
+        claims: [
+          { claimId: 'MC99830', patientName: 'SMITH, TEST 30', deductedAmount: -396.76 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'fbn2',
+    noticeId: 'FB-2025-99109A',
+    notificationDate: '11/28/2025',
+    providerName: 'Legacy Health Systems',
+    npi: '1987000029',
+    originalAmount: -1396.12,
+    remainingBalance: -1391.78,
+    status: 'Posted',
+    offsets: []
+  },
+  {
+    id: 'fbn3',
+    noticeId: 'FB-2025-99108A',
+    notificationDate: '11/26/2025',
+    providerName: 'Pinnacle Care Network',
+    npi: '1987000028',
+    originalAmount: -3233.05,
+    remainingBalance: -2836.44,
+    status: 'Posted',
+    offsets: []
+  },
+  {
+    id: 'fbn4',
+    noticeId: 'FB-2025-99107A',
+    notificationDate: '11/24/2025',
+    providerName: 'Radiant Health Services',
+    npi: '1987000027',
+    originalAmount: -3262.19,
+    remainingBalance: -2996.71,
+    status: 'Posted',
+    offsets: []
+  },
+  {
+    id: 'fbn5',
+    noticeId: 'FB-2025-99106A',
+    notificationDate: '11/22/2025',
+    providerName: 'Horizon Specialty Care',
+    npi: '1987000026',
+    originalAmount: -4175.12,
+    remainingBalance: -2684.38,
+    status: 'Posted',
+    offsets: []
+  }
+];
+
 

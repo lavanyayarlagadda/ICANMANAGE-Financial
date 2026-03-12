@@ -11,7 +11,9 @@ import {
   AllTransaction,
   CollectionAccount,
   BankDepositEntity,
+  ForwardBalanceNotice,
 } from '@/types/financials';
+
 import {
   mockPayments,
   mockPipRecords,
@@ -24,7 +26,9 @@ import {
   mockAllTransactions,
   mockCollections,
   mockBankDeposits,
+  mockForwardBalanceNotices,
 } from '@/data/mockData';
+
 
 interface FinancialsState {
   payments: PaymentTransaction[];
@@ -38,7 +42,9 @@ interface FinancialsState {
   allTransactions: AllTransaction[];
   collections: CollectionAccount[];
   bankDeposits: BankDepositEntity[];
+  forwardBalanceNotices: ForwardBalanceNotice[];
   loading: boolean;
+
   error: string | null;
   selectedPaymentId: string | null;
   showRemittanceDetail: boolean;
@@ -58,6 +64,7 @@ const initialState: FinancialsState = {
   allTransactions: mockAllTransactions,
   collections: mockCollections,
   bankDeposits: mockBankDeposits,
+  forwardBalanceNotices: mockForwardBalanceNotices,
   loading: false,
   error: null,
   selectedPaymentId: null,

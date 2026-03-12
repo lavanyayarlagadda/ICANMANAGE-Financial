@@ -63,6 +63,8 @@ const FinancialsPage: React.FC = () => {
         'pip': { tab: 0, subTab: 3 }, // Map PIP to Adjustments for now
         'bank-deposits': { tab: 1, subTab: 0 },
         'statements': { tab: 2, subTab: 0 },
+        'statements/pip': { tab: 2, subTab: 0 },
+        'statements/forward-balance': { tab: 2, subTab: 1 },
         'variance-analysis': { tab: 3, subTab: 0 },
         'trends-forecast': { tab: 4, subTab: 0 },
       };

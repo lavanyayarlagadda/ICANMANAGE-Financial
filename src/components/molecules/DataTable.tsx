@@ -301,32 +301,34 @@ function DataTable<T>({
             variant="outlined"
           />
         )}
-
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
           {props.customToolbarContent}
-          {/*searchable && (
-          <TextField
-            size="small"
-            placeholder="Search…"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-            sx={{ flex: 1, minWidth: 180, maxWidth: 320 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" color="action" />
-                </InputAdornment>
-              ),
-              endAdornment: search ? (
-                <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => { setSearch(''); setPage(0); }}>
-                    <ClearIcon fontSize="small" />
-                  </IconButton>
-                </InputAdornment>
-              ) : null,
-            }}
-          />
-        )*/}
+          {searchable && (
+
+            <TextField
+
+              size="small"
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              sx={{ flex: 1, minWidth: 180, maxWidth: 320 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: search ? (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => { setSearch(''); setPage(0); }}>
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+              }}
+            />
+          )}
+
           {filterableColumns.length > 0 && (
             <IconButton
               size="small"

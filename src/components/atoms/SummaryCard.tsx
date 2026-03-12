@@ -5,12 +5,13 @@ interface SummaryCardProps {
   title: string;
   value: string;
   variant?: 'default' | 'highlight' | 'negative';
+  backgroundColor?: string;
 }
 
-const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, variant = 'default' }) => {
+const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, variant = 'default', backgroundColor }) => {
   const theme = useTheme();
 
-  const bgColor =
+  const defaultBg =
     variant === 'highlight'
       ? `${theme.palette.primary.main}08`
       : variant === 'negative'
@@ -21,7 +22,8 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, variant = 'defa
     variant === 'negative' ? theme.palette.error.main : theme.palette.text.primary;
 
   return (
-    <Card sx={{ backgroundColor: bgColor, height: '100%' }}>
+    <Card sx={{ backgroundColor: backgroundColor || defaultBg, height: '100%' }}>
+
       <CardContent sx={{ p: { xs: 2, md: 3 }, '&:last-child': { pb: { xs: 2, md: 3 } }, textAlign: 'center' }}>
         <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, mb: 1, display: 'block' }}>
           {title}

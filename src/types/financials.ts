@@ -102,12 +102,15 @@ export interface VarianceRecord {
   claimId: string;
   patientName: string;
   payer: string;
+  paymentDate: string;
   billedCharge: number;
   expectedAllowed: number;
   actualAllowed: number;
   variance: number;
   reasonCode: string;
+  adjustmentCodes: string;
 }
+
 
 export interface KpiCard {
   label: string;
@@ -243,4 +246,31 @@ export interface BankDepositEntity {
   name: string;
   items: BankDepositItem[];
 }
+
+export interface OffsetClaim {
+  claimId: string;
+  patientName: string;
+  deductedAmount: number;
+}
+
+export interface OffsetEvent {
+  eftNumber: string;
+  date: string;
+  amount: number;
+  code: string;
+  claims: OffsetClaim[];
+}
+
+export interface ForwardBalanceNotice {
+  id: string;
+  noticeId: string;
+  notificationDate: string;
+  providerName: string;
+  npi: string;
+  originalAmount: number;
+  remainingBalance: number;
+  status: TransactionStatus;
+  offsets: OffsetEvent[];
+}
+
 
