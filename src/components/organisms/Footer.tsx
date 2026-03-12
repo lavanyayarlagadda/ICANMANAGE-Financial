@@ -76,8 +76,8 @@ const Footer: React.FC = () => {
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: 1,
-        backgroundColor: theme.palette.background.paper,
-        flexShrink: 0,
+     backgroundColor: '#0A1929',
+             flexShrink: 0,
       }}
     >
       <Typography variant="caption" color="text.secondary">
