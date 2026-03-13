@@ -34,6 +34,12 @@ interface FinancialsTabsProps {
   onAddNew: () => void;
 }
 
+interface TabData {
+  label: string;
+  value: number;
+  disabled: boolean;
+}
+
 const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -64,11 +70,11 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onAddNew }) => {
     return findStatus(menus) || 'Hidden';
   };
 
-  const tabsData = tabLabels.map((label, index) => {
+  const tabsData: TabData[] = tabLabels.map((label, index) => {
     const status = getMenuStatus(label);
     if (status === 'Hidden') return null;
     return { label, value: index, disabled: status === 'Disabled' };
-  }).filter(Boolean) as any[];
+  }).filter(Boolean) as TabData[];
 
   if (getMenuStatus('Financials') === 'Hidden') {
     return null;
