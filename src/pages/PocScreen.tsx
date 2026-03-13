@@ -130,11 +130,11 @@ export default function PocScreen() {
         { id: 'pattern2', label: 'Pattern 2 — Styled Modern Tooltip' },
         { id: 'pattern3', label: 'Pattern 3 — Popover on Click' },
         // { id: 'pattern4', label: 'Pattern 4 — Expandable Row' },
-        { id: 'pattern5', label: 'Pattern 5 — Side Drawer Dictionary' },
-        { id: 'pattern6', label: 'Pattern 6 — Glassmorphism Floating Card' },
+        { id: 'pattern4', label: 'Pattern 4 — Side Drawer Dictionary' },
+        // { id: 'pattern6', label: 'Pattern 6 — Glassmorphism Floating Card' },
         // { id: 'pattern7', label: 'Pattern 7 — Animated Underline Reveal' },
         // { id: 'pattern8', label: 'Pattern 8 — Accordion Reveal' },
-        { id: 'pattern9', label: 'Pattern 9 — Floating Badge + Zoom' },
+        // { id: 'pattern9', label: 'Pattern 9 — Floating Badge + Zoom' },
         // { id: 'pattern10', label: 'Pattern 10 — Gradient Pill Tags' },
     ];
 
@@ -146,11 +146,11 @@ export default function PocScreen() {
             case 'pattern2': return <Pattern2 />;
             case 'pattern3': return <Pattern3 />;
             // case 'pattern4': return <Pattern4 />;
-            case 'pattern5': return <Pattern5 />;
-            case 'pattern6': return <Pattern6 />;
+            case 'pattern4': return <Pattern5 />;
+            // case 'pattern6': return <Pattern6 />;
             // case 'pattern7': return <Pattern7 />;
             // case 'pattern8': return <Pattern8 />;
-            case 'pattern9': return <Pattern9 />;
+            // case 'pattern9': return <Pattern9 />;
             // case 'pattern10': return <Pattern10 />;
             default: return null;
         }
