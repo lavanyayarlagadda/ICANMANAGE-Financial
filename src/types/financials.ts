@@ -102,12 +102,15 @@ export interface VarianceRecord {
   claimId: string;
   patientName: string;
   payer: string;
+  paymentDate: string;
   billedCharge: number;
   expectedAllowed: number;
   actualAllowed: number;
   variance: number;
   reasonCode: string;
+  adjustmentCodes: string;
 }
+
 
 export interface KpiCard {
   label: string;
@@ -120,22 +123,29 @@ export interface TeamPerformance {
   teamName: string;
   reconCheckPercent: number;
   unreconCheckPercent: number;
+  checkCountPercentByTeam: number;
   reconCheckCount: number;
   unreconCheckCount: number;
   reconAmountPercent: number;
   unreconAmountPercent: number;
+  amountPercentByTeam: number;
   totalAmountPosted: number;
   totalAmountNotPosted: number;
   avgDaysToReconcile: number;
 }
 
-export interface ForecastRow {
-  metric: string;
-  actual: string;
-  month1: string;
-  month2: string;
-  month3: string;
-  trend: TrendDirection;
+
+
+export interface PayerPerformanceRecord {
+  payerName: string;
+  volume: number;
+  depositCount: number;
+  matchRate: number;
+  denialRate: number;
+  suspenseRate: number;
+  avgDaysToSettle: number;
+  totalVariance: number;
+  status: 'Critical' | 'Stable' | 'Improving' | 'Growing' | 'Decreasing';
 }
 
 export interface TrendsData {
@@ -143,22 +153,9 @@ export interface TrendsData {
   teams: TeamPerformance[];
   reconRateTrend: { month: string; rate: number }[];
   avgDaysTrend: { month: string; days: number }[];
-  forecast: ForecastRow[];
+  payerPerformance: PayerPerformanceRecord[];
 }
 
-export interface ForwardBalanceRecord {
-  id: string;
-  payer: string;
-  patientName: string;
-  claimId: string;
-  originalPaymentDate: string;
-  forwardedDate: string;
-  forwardedAmount: number;
-  appliedAmount: number;
-  remainingBalance: number;
-  status: TransactionStatus;
-  aging: string;
-}
 
 export interface RecoupmentRecord {
   id: string;
@@ -211,3 +208,63 @@ export interface CollectionAccount {
   aging: string;
   priority: 'High' | 'Medium' | 'Low';
 }
+
+export interface RemittanceAdviceItem {
+  reference: string;
+  amount: number;
+}
+
+export interface PostingApplicationItem {
+  system: string;
+  reference: string;
+  amount: number;
+  status: 'Posted' | 'Partially Posted' | 'Review Required' | 'Pending';
+  date: string;
+}
+
+export interface BankDepositItem {
+  id: string;
+  reference: string;
+  date: string;
+  payerName: string;
+  bankAmt: number;
+  remitAmt: number;
+  variance: number;
+  status: 'Matched' | 'Exception';
+  remittanceAdvice: RemittanceAdviceItem[];
+  postingApplication: PostingApplicationItem[];
+}
+
+export interface BankDepositEntity {
+  id: string;
+  name: string;
+  items: BankDepositItem[];
+}
+
+export interface OffsetClaim {
+  claimId: string;
+  patientName: string;
+  deductedAmount: number;
+}
+
+export interface OffsetEvent {
+  eftNumber: string;
+  date: string;
+  amount: number;
+  code: string;
+  claims: OffsetClaim[];
+}
+
+export interface ForwardBalanceNotice {
+  id: string;
+  noticeId: string;
+  notificationDate: string;
+  providerName: string;
+  npi: string;
+  originalAmount: number;
+  remainingBalance: number;
+  status: TransactionStatus;
+  offsets: OffsetEvent[];
+}
+
+

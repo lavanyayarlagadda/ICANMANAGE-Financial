@@ -5,24 +5,28 @@ import {
   RemittanceDetail,
   VarianceRecord,
   TrendsData,
-  ForwardBalanceRecord,
   RecoupmentRecord,
   OtherAdjustmentRecord,
   AllTransaction,
   CollectionAccount,
+  BankDepositEntity,
+  ForwardBalanceNotice,
 } from '@/types/financials';
+
 import {
   mockPayments,
   mockPipRecords,
   mockRemittanceDetail,
   mockVarianceRecords,
   mockTrendsData,
-  mockForwardBalances,
   mockRecoupments,
   mockOtherAdjustments,
   mockAllTransactions,
   mockCollections,
+  mockBankDeposits,
+  mockForwardBalanceNotices,
 } from '@/data/mockData';
+
 
 interface FinancialsState {
   payments: PaymentTransaction[];
@@ -30,12 +34,14 @@ interface FinancialsState {
   remittanceDetail: RemittanceDetail | null;
   varianceRecords: VarianceRecord[];
   trendsData: TrendsData | null;
-  forwardBalances: ForwardBalanceRecord[];
   recoupments: RecoupmentRecord[];
   otherAdjustments: OtherAdjustmentRecord[];
   allTransactions: AllTransaction[];
   collections: CollectionAccount[];
+  bankDeposits: BankDepositEntity[];
+  forwardBalanceNotices: ForwardBalanceNotice[];
   loading: boolean;
+
   error: string | null;
   selectedPaymentId: string | null;
   showRemittanceDetail: boolean;
@@ -49,11 +55,12 @@ const initialState: FinancialsState = {
   remittanceDetail: mockRemittanceDetail,
   varianceRecords: mockVarianceRecords,
   trendsData: mockTrendsData,
-  forwardBalances: mockForwardBalances,
   recoupments: mockRecoupments,
   otherAdjustments: mockOtherAdjustments,
   allTransactions: mockAllTransactions,
   collections: mockCollections,
+  bankDeposits: mockBankDeposits,
+  forwardBalanceNotices: mockForwardBalanceNotices,
   loading: false,
   error: null,
   selectedPaymentId: null,
@@ -98,14 +105,17 @@ const financialsSlice = createSlice({
     deleteAdjustment: (state, action: PayloadAction<string>) => {
       state.otherAdjustments = state.otherAdjustments.filter((a) => a.id !== action.payload);
     },
-    deleteForwardBalance: (state, action: PayloadAction<string>) => {
-      state.forwardBalances = state.forwardBalances.filter((f) => f.id !== action.payload);
-    },
     deleteAllTransaction: (state, action: PayloadAction<string>) => {
       state.allTransactions = state.allTransactions.filter((t) => t.id !== action.payload);
     },
     deleteCollection: (state, action: PayloadAction<string>) => {
       state.collections = state.collections.filter((c) => c.id !== action.payload);
+    },
+    deleteBankDeposit: (state, action: PayloadAction<{ entityId: string; itemId: string }>) => {
+      const entity = state.bankDeposits.find(e => e.id === action.payload.entityId);
+      if (entity) {
+        entity.items = entity.items.filter(i => i.id !== action.payload.itemId);
+      }
     },
   },
 });
@@ -121,8 +131,9 @@ export const {
   deletePayment,
   deleteRecoupment,
   deleteAdjustment,
-  deleteForwardBalance,
   deleteAllTransaction,
   deleteCollection,
+  deleteBankDeposit,
 } = financialsSlice.actions;
 export default financialsSlice.reducer;
+

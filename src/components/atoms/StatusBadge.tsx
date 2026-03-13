@@ -29,6 +29,8 @@ const statusColorMap: Record<string, { bg: string; text: string }> = {
   applied: { bg: '#E3F2FD', text: '#1565C0' },
   reversed: { bg: '#F3E5F5', text: '#7B1FA2' },
   underreview: { bg: '#FFF8E1', text: '#F57F17' },
+  stable: { bg: '#F0FDF4', text: '#166534' },
+  critical: { bg: '#FEF2F2', text: '#991B1B' },
 };
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'small' }) => {
