@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Select, MenuItem, SelectChangeEvent, TextField } from '@mui/material';
+import { Box, Typography, Select, MenuItem, SelectChangeEvent, TextField, useTheme, useMediaQuery } from '@mui/material';
 import { themeConfig } from '@/theme/themeConfig';
 import { subMonths, subYears, format, startOfMonth } from 'date-fns';
 
@@ -14,6 +14,8 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
     onChange,
     options = ['1 month', '3 months', '6 months', '1 year', 'All Time', 'Custom']
 }) => {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [internalVal, setInternalVal] = useState(value);
     const [fromDate, setFromDate] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
     const [toDate, setToDate] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -102,30 +104,48 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
                 </Select>
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>FROM</Typography>
+            <Box sx={{ 
+                display: 'flex', 
+                alignItems: isMobile ? 'flex-start' : 'center', 
+                gap: isMobile ? 1 : 2,
+                flexDirection: isMobile ? 'column' : 'row',
+                width: isMobile ? '100%' : 'auto'
+            }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: isMobile ? '100%' : 'auto' }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, minWidth: 40 }}>FROM</Typography>
                     <TextField
                         type="date"
                         size="small"
                         value={fromDate}
                         onChange={(e) => handleDateChange('from', e.target.value)}
                         sx={{
-                            '& .MuiInputBase-root': { height: 32, fontSize: '0.75rem', borderRadius: 1.5, width: 130 },
+                            '& .MuiInputBase-root': { 
+                                height: 32, 
+                                fontSize: '0.75rem', 
+                                borderRadius: 1.5, 
+                                width: isMobile ? '100%' : 130 
+                            },
+                            flex: isMobile ? 1 : 'unset',
                             '& .MuiOutlinedInput-notchedOutline': { borderColor: themeConfig.colors.border }
                         }}
                         InputLabelProps={{ shrink: true }}
                     />
                 </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>TO</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: isMobile ? '100%' : 'auto' }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, minWidth: 40 }}>TO</Typography>
                     <TextField
                         type="date"
                         size="small"
                         value={toDate}
                         onChange={(e) => handleDateChange('to', e.target.value)}
                         sx={{
-                            '& .MuiInputBase-root': { height: 32, fontSize: '0.75rem', borderRadius: 1.5, width: 130 },
+                            '& .MuiInputBase-root': { 
+                                height: 32, 
+                                fontSize: '0.75rem', 
+                                borderRadius: 1.5, 
+                                width: isMobile ? '100%' : 130 
+                            },
+                            flex: isMobile ? 1 : 'unset',
                             '& .MuiOutlinedInput-notchedOutline': { borderColor: themeConfig.colors.border }
                         }}
                         InputLabelProps={{ shrink: true }}

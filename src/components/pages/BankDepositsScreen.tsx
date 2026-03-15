@@ -213,9 +213,9 @@ const BankDepositsScreen: React.FC = () => {
 
       {/* Filter Chips */}
       <Box sx={{ mb: 3 }}>
-           <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1 }}>
           <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', mb: 1, display: 'block' }}>View Entity</Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             {entities.map((e) => (
               <Chip
                 key={e.id}
@@ -226,6 +226,7 @@ const BankDepositsScreen: React.FC = () => {
                   color: selectedEntityId === e.id ? '#fff' : 'rgb(100, 116, 139)',
                   fontWeight: 600,
                   fontSize: '12px',
+                  mb: 0.5,
                   '&:hover': {
                     backgroundColor: selectedEntityId === e.id ? 'rgba(107, 153, 196, 0.8)' : '#e2e8f0',
                   }
@@ -238,13 +239,23 @@ const BankDepositsScreen: React.FC = () => {
 
 
       {/* Filters Row 2 - Toolbar */}
-      <Box sx={{ display: 'flex', alignItems: 'center', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 1, p: 1.5, gap: 2, mb: 3 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', md: 'row' },
+        alignItems: { xs: 'stretch', md: 'center' }, 
+        backgroundColor: '#f8fafc', 
+        border: '1px solid #e2e8f0', 
+        borderRadius: 1, 
+        p: 1.5, 
+        gap: 2, 
+        mb: 3 
+      }}>
         <TextField
           size="small"
           placeholder="Search by Check#, Amount, or Payer..."
           sx={{ 
             backgroundColor: '#fff', 
-            width: 320,
+            flex: { xs: '1 1 auto', md: '0 0 320px' },
             '& .MuiOutlinedInput-root': {
               height: 36,
               fontSize: '13px'
@@ -261,10 +272,10 @@ const BankDepositsScreen: React.FC = () => {
         <FormControlLabel
           control={<Switch size="small" />}
           label={<Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>Exceptions Only</Typography>}
-          sx={{ ml: 1 }}
+          sx={{ ml: { xs: 0, md: 1 } }}
         />
 
-        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: 1, flexWrap: 'wrap' }}>
           <Button 
             variant="outlined" 
             size="small" 
@@ -273,7 +284,8 @@ const BankDepositsScreen: React.FC = () => {
               color: 'text.primary', 
               borderColor: 'divider', 
               textTransform: 'none',
-              fontWeight: 600
+              fontWeight: 600,
+              flex: { xs: 1, md: 'none' }
             }}
           >
             Refresh Data
@@ -287,6 +299,7 @@ const BankDepositsScreen: React.FC = () => {
               textTransform: 'none',
               fontWeight: 600,
               boxShadow: 'none',
+              flex: { xs: 1, md: 'none' },
               '&:hover': {
                 backgroundColor: 'rgba(107, 153, 196, 0.8)',
                 boxShadow: 'none',

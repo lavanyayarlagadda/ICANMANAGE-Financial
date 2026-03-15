@@ -8,6 +8,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
+import { Select, MenuItem, SelectChangeEvent, FormControl } from '@mui/material';
 
 const mainTabs = [
   { id: 0, label: 'Transactions', path: '/financials/all-transactions' },
@@ -63,6 +64,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   const dispatch = useAppDispatch();
   const { activeTab, activeSubTab } = useAppSelector((s) => s.ui);
   const menus = useAppSelector((s) => s.auth.user?.menus || []);
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
 
   const canShowActions = activeTab === 0;
   const shouldShowPrint = showPrint ?? canShowActions;
@@ -119,44 +121,96 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
     <Box sx={{ mb: 1 }}>
 
       {/* Title and Main Tabs Row */}
-      <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', backgroundColor: '#fff', borderBottom: `1px solid ${theme.palette.divider}` }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, mr: 4, color: 'rgb(10, 22, 40)', fontSize: '20px' }}>
+      <Box sx={{ 
+        px: 2, 
+        py: 1.5, 
+        display: 'flex', 
+        flexDirection: isTablet ? 'column' : 'row',
+        alignItems: isTablet ? 'flex-start' : 'center', 
+        backgroundColor: '#fff', 
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        gap: isTablet ? 1.5 : 0
+      }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, mr: isTablet ? 0 : 4, color: 'rgb(10, 22, 40)', fontSize: '20px', mb: isTablet ? 0.5 : 0 }}>
           Financials
         </Typography>
 
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          {mainTabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <Box
-                key={tab.id}
-                onClick={() => handleMainTabChange(tab.id, tab.path)}
+        <Box sx={{ width: isTablet ? '100%' : 'auto' }}>
+          {isTablet ? (
+            <FormControl fullWidth size="small">
+              <Select
+                value={activeTab}
+                onChange={(e: SelectChangeEvent<number>) => {
+                  const val = Number(e.target.value);
+                  const tab = mainTabs.find(t => t.id === val);
+                  if (tab) handleMainTabChange(tab.id, tab.path);
+                }}
                 sx={{
-                  px: 2,
-                  py: 1,
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  backgroundColor: isActive ? 'rgba(107, 153, 196, 0.6)' : 'rgba(240, 244, 248, 0.8)',
-                  color: isActive ? '#fff' : 'rgb(100, 116, 139)',
-                  fontWeight: isActive ? 600 : 500,
-                  fontSize: '13px',
-                  transition: 'all 0.2s',
-                  '&:hover': {
-                    backgroundColor: isActive ? 'rgba(107, 153, 196, 0.7)' : 'rgba(226, 232, 240, 1)',
-                  }
+                  backgroundColor: 'rgba(240, 244, 248, 0.8)',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider }
                 }}
               >
-                {tab.label}
-              </Box>
-            );
-          })}
+                {mainTabs.map((tab) => (
+                  <MenuItem key={tab.id} value={tab.id} sx={{ fontWeight: 500, fontSize: '14px' }}>
+                    {tab.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : (
+            <Box sx={{ display: 'flex', gap: 0.5 }}>
+              {mainTabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <Box
+                    key={tab.id}
+                    onClick={() => handleMainTabChange(tab.id, tab.path)}
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      backgroundColor: isActive ? 'rgba(107, 153, 196, 0.6)' : 'rgba(240, 244, 248, 0.8)',
+                      color: isActive ? '#fff' : 'rgb(100, 116, 139)',
+                      fontWeight: isActive ? 600 : 500,
+                      fontSize: '13px',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        backgroundColor: isActive ? 'rgba(107, 153, 196, 0.7)' : 'rgba(226, 232, 240, 1)',
+                      }
+                    }}
+                  >
+                    {tab.label}
+                  </Box>
+                );
+              })}
+            </Box>
+          )}
         </Box>
       </Box>
 
       {/* Sub-tabs and Actions Row */}
       {showSubTabsRow && (
-        <Box sx={{ px: 2, py: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fcfcfc' }}>
-          <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ 
+          px: 2, 
+          py: 1.5, 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row',
+          justifyContent: isMobile ? 'flex-start' : 'space-between', 
+          alignItems: isMobile ? 'stretch' : 'center', 
+          backgroundColor: '#fcfcfc',
+          gap: 2
+        }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 1, 
+            flexWrap: 'wrap',
+            width: isMobile ? '100%' : 'auto'
+          }}>
             {activeTab === 0 && transactionSubTabs.map((subTab) => {
               const isActive = activeSubTab === subTab.id;
               return (
@@ -172,6 +226,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                     color: isActive ? '#fff' : 'rgb(100, 116, 139)',
                     fontWeight: 500,
                     fontSize: '13px',
+                    whiteSpace: 'nowrap',
                     transition: 'all 0.2s',
                     '&:hover': {
                       backgroundColor: isActive ? 'rgba(107, 153, 196, 0.8)' : 'rgba(241, 245, 249, 1)',
@@ -197,6 +252,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                     color: isActive ? '#fff' : 'rgb(100, 116, 139)',
                     fontWeight: 500,
                     fontSize: '13px',
+                    whiteSpace: 'nowrap',
                     transition: 'all 0.2s',
                     '&:hover': {
                       backgroundColor: isActive ? 'rgba(107, 153, 196, 0.8)' : 'rgba(241, 245, 249, 1)',
@@ -222,6 +278,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                     color: isActive ? '#fff' : 'rgb(100, 116, 139)',
                     fontWeight: 500,
                     fontSize: '13px',
+                    whiteSpace: 'nowrap',
                     transition: 'all 0.2s',
                     '&:hover': {
                       backgroundColor: isActive ? 'rgba(107, 153, 196, 0.8)' : 'rgba(241, 245, 249, 1)',
@@ -247,6 +304,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                     color: isActive ? '#fff' : 'rgb(100, 116, 139)',
                     fontWeight: 500,
                     fontSize: '13px',
+                    whiteSpace: 'nowrap',
                     transition: 'all 0.2s',
                     '&:hover': {
                       backgroundColor: isActive ? 'rgba(107, 153, 196, 0.8)' : 'rgba(241, 245, 249, 1)',
@@ -257,11 +315,15 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                 </Box>
               );
             })}
-
-
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 1.5 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 1.5, 
+            flexDirection: isMobile ? 'row' : 'row',
+            flexWrap: 'wrap',
+            justifyContent: isMobile ? 'flex-start' : 'flex-end'
+          }}>
             {shouldShowPrint && (
               <Button
                 size="small"
@@ -277,6 +339,8 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                   fontSize: '13px',
                   fontWeight: 500,
                   backgroundColor: '#fff',
+                  flex: isMobile ? 1 : 'unset',
+                  minWidth: isMobile ? 'calc(50% - 12px)' : 'unset',
                   '&:hover': { borderColor: '#cbd5e1', bgcolor: '#f8fafc' }
                 }}
               >
@@ -299,6 +363,8 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                   py: 0.7,
                   fontSize: '13px',
                   fontWeight: 700,
+                  flex: isMobile ? 1 : 'unset',
+                  minWidth: isMobile ? 'calc(50% - 12px)' : 'unset',
                   '&:hover': { borderWidth: 1.5, bgcolor: 'rgba(0,0,0,0.04)' }
                 }}
               >
@@ -319,6 +385,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                   py: 0.7,
                   fontSize: '13px',
                   fontWeight: 600,
+                  width: isMobile ? '100%' : 'unset',
                   '&:hover': { bgcolor: '#b45309' }
                 }}
               >

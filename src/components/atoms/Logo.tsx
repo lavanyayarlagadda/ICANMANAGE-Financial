@@ -13,14 +13,20 @@ const Logo: React.FC<LogoProps> = ({ collapsed = false }) => {
     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
       <Box
         sx={{
-          // marginLeft:2,
           borderRadius: 2,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
         }}
       >
-        <img src="/cognitiveLogo.svg" alt="logo" style={{ width: 120 }} />
+        <img 
+          src="/cognitiveLogo.svg" 
+          alt="logo" 
+          style={{ 
+            width: collapsed ? 100 : 120,
+            transition: 'width 0.2s ease-in-out'
+          }} 
+        />
       </Box>
       {/* {!collapsed && (
         <Box>

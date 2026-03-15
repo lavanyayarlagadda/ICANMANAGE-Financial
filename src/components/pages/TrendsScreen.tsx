@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, useTheme, Grid, Card, CardContent } from '@mui/material';
+import { Box, Typography, useTheme, useMediaQuery, Grid, Card, CardContent } from '@mui/material';
 import SummaryCard from '@/components/atoms/SummaryCard';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
@@ -26,6 +26,9 @@ const TrendsScreen: React.FC = () => {
   const theme = useTheme();
   const trendsData = useAppSelector((s) => s.financials.trendsData);
   const { activeSubTab } = useAppSelector((s) => s.ui);
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg')); // Covers 1024px
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   if (!trendsData) return <Typography>No trends data.</Typography>;
 
@@ -110,7 +113,17 @@ const TrendsScreen: React.FC = () => {
           <ResponsiveContainer width="100%" height={350}>
             <ComposedChart data={combinedChartData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme.palette.divider} />
-              <XAxis dataKey="month" tick={{ fontSize: 12, fill: theme.palette.text.secondary }} axisLine={false} tickLine={false} dy={10} />
+              <XAxis 
+                dataKey="month" 
+                tick={{ fontSize: 10, fill: theme.palette.text.secondary }} 
+                axisLine={false} 
+                tickLine={false} 
+                dy={10}
+                interval={isSmallMobile ? 0 : 'preserveStartEnd'}
+                angle={isSmallMobile ? -45 : 0}
+                textAnchor={isSmallMobile ? 'end' : 'middle'}
+                height={isSmallMobile ? 60 : 30}
+              />
               <YAxis
                 tick={{ fontSize: 12, fill: theme.palette.text.secondary }}
                 axisLine={false}
@@ -224,17 +237,24 @@ const TrendsScreen: React.FC = () => {
                           { name: 'Patient Pay', value: 14 },
                           { name: 'Other', value: 6 },
                         ]}
-                        innerRadius={60}
-                        outerRadius={100}
+                        innerRadius={isSmallMobile ? 45 : (isTablet ? 50 : 60)}
+                        outerRadius={isSmallMobile ? 70 : (isTablet ? 80 : 100)}
                         paddingAngle={5}
                         dataKey="value"
+                        cx="50%"
+                        cy="50%"
                       >
                         {[0, 1, 2, 3].map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={paymentColors[index % paymentColors.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
-                      <Legend layout="vertical" align="right" verticalAlign="middle" />
+                      <Legend 
+                        layout={isTablet ? "horizontal" : "vertical"} 
+                        align={isTablet ? "center" : "right"} 
+                        verticalAlign={isTablet ? "bottom" : "middle"} 
+                        wrapperStyle={{ paddingTop: isTablet ? 30 : 0 }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </Box>
@@ -255,17 +275,24 @@ const TrendsScreen: React.FC = () => {
                           { name: 'Denials', value: 15 },
                           { name: 'Other Adj', value: 10 },
                         ]}
-                        innerRadius={60}
-                        outerRadius={100}
+                        innerRadius={isSmallMobile ? 45 : (isTablet ? 50 : 60)}
+                        outerRadius={isSmallMobile ? 70 : (isTablet ? 80 : 100)}
                         paddingAngle={5}
                         dataKey="value"
+                        cx="50%"
+                        cy="50%"
                       >
                         {[0, 1, 2, 3].map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={adjustmentColors[index % adjustmentColors.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
-                      <Legend layout="vertical" align="right" verticalAlign="middle" />
+                      <Legend 
+                        layout={isTablet ? "horizontal" : "vertical"} 
+                        align={isTablet ? "center" : "right"} 
+                        verticalAlign={isTablet ? "bottom" : "middle"} 
+                        wrapperStyle={{ paddingTop: isTablet ? 30 : 0 }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </Box>
