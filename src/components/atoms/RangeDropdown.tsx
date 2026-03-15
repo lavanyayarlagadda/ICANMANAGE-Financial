@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Select, MenuItem, SelectChangeEvent, TextField, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Typography, Select, MenuItem, SelectChangeEvent, useTheme, useMediaQuery } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { themeConfig } from '@/theme/themeConfig';
-import { subMonths, subYears, format, startOfMonth } from 'date-fns';
+import { subMonths, subYears, format, startOfMonth, parse } from 'date-fns';
 
 export interface RangeDropdownProps {
     value?: string;
@@ -17,8 +18,9 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [internalVal, setInternalVal] = useState(value);
-    const [fromDate, setFromDate] = useState(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
-    const [toDate, setToDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+    
+    const [fromDate, setFromDate] = useState<Date | null>(startOfMonth(new Date()));
+    const [toDate, setToDate] = useState<Date | null>(new Date());
 
     const calculateDates = (range: string) => {
         const to = new Date();
@@ -28,21 +30,14 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
             case '3 months': from = subMonths(to, 3); break;
             case '6 months': from = subMonths(to, 6); break;
             case '1 year': from = subYears(to, 1); break;
-            case 'All Time': from = startOfMonth(to); break; // Dynamic: Start of Current Month
+            case 'All Time': from = startOfMonth(to); break;
             default: return null;
         }
-        return {
-            from: format(from || to, 'yyyy-MM-dd'),
-            to: format(to, 'yyyy-MM-dd')
-        };
+        return { from, to };
     };
 
-    // Initial population
     useEffect(() => {
-        if (internalVal === 'All Time' || internalVal === 'Custom') {
-            setFromDate(format(startOfMonth(new Date()), 'yyyy-MM-dd'));
-            setToDate(format(new Date(), 'yyyy-MM-dd'));
-        } else {
+        if (internalVal !== 'Custom') {
             const dates = calculateDates(internalVal);
             if (dates) {
                 setFromDate(dates.from);
@@ -58,20 +53,67 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
         if (dates) {
             setFromDate(dates.from);
             setToDate(dates.to);
-            onChange?.(`${dates.from} to ${dates.to}`);
+            onChange?.(`${format(dates.from, 'yyyy-MM-dd')} to ${format(dates.to, 'yyyy-MM-dd')}`);
         } else if (val !== 'Custom') {
             onChange?.(val);
         }
     };
 
-    const handleDateChange = (type: 'from' | 'to', val: string) => {
+    const handleDateChange = (type: 'from' | 'to', val: Date | null) => {
         setInternalVal('Custom');
         if (type === 'from') {
             setFromDate(val);
-            if (val && toDate) onChange?.(`${val} to ${toDate}`);
+            if (val && toDate) onChange?.(`${format(val, 'yyyy-MM-dd')} to ${format(toDate, 'yyyy-MM-dd')}`);
         } else {
             setToDate(val);
-            if (fromDate && val) onChange?.(`${fromDate} to ${val}`);
+            if (fromDate && val) onChange?.(`${format(fromDate, 'yyyy-MM-dd')} to ${format(val, 'yyyy-MM-dd')}`);
+        }
+    };
+
+    // Custom styles to match the mobile screenshot's vibrant header
+    const datePickerSx = {
+        '& .MuiInputBase-root': { 
+            height: 32, 
+            fontSize: '0.75rem', 
+            borderRadius: 1.5, 
+            width: isMobile ? '100%' : 140,
+            backgroundColor: '#fff',
+        },
+        '& .MuiOutlinedInput-notchedOutline': { borderColor: themeConfig.colors.border },
+        flex: isMobile ? 1 : 'unset',
+    };
+
+    const slotProps = {
+        textField: { size: 'small' as const, sx: datePickerSx },
+        desktopPaper: {
+            sx: {
+                '& .MuiPickersLayout-root': {
+                    backgroundColor: '#fff',
+                },
+                '& .MuiPickersToolbar-root': {
+                    backgroundColor: themeConfig.colors.accent, // Matching the orange/brown header from screenshot
+                    color: '#fff',
+                },
+                '& .MuiDateCalendar-root': {
+                   '& .MuiPickersDay-root.Mui-selected': {
+                       backgroundColor: themeConfig.colors.accent,
+                   }
+                }
+            }
+        },
+        mobilePaper: {
+            sx: {
+                '& .MuiPickersToolbar-root': {
+                    backgroundColor: themeConfig.colors.accent,
+                    color: '#fff',
+                },
+                '& .MuiPickersDay-root.Mui-selected': {
+                    backgroundColor: themeConfig.colors.accent,
+                },
+                '& .MuiButtonBase-root': {
+                    color: themeConfig.colors.accent,
+                }
+            }
         }
     };
 
@@ -113,42 +155,18 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: isMobile ? '100%' : 'auto' }}>
                     <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, minWidth: 40 }}>FROM</Typography>
-                    <TextField
-                        type="date"
-                        size="small"
+                    <DatePicker
                         value={fromDate}
-                        onChange={(e) => handleDateChange('from', e.target.value)}
-                        sx={{
-                            '& .MuiInputBase-root': { 
-                                height: 32, 
-                                fontSize: '0.75rem', 
-                                borderRadius: 1.5, 
-                                width: isMobile ? '100%' : 130 
-                            },
-                            flex: isMobile ? 1 : 'unset',
-                            '& .MuiOutlinedInput-notchedOutline': { borderColor: themeConfig.colors.border }
-                        }}
-                        InputLabelProps={{ shrink: true }}
+                        onChange={(val) => handleDateChange('from', val)}
+                        slotProps={slotProps}
                     />
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: isMobile ? '100%' : 'auto' }}>
                     <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, minWidth: 40 }}>TO</Typography>
-                    <TextField
-                        type="date"
-                        size="small"
+                    <DatePicker
                         value={toDate}
-                        onChange={(e) => handleDateChange('to', e.target.value)}
-                        sx={{
-                            '& .MuiInputBase-root': { 
-                                height: 32, 
-                                fontSize: '0.75rem', 
-                                borderRadius: 1.5, 
-                                width: isMobile ? '100%' : 130 
-                            },
-                            flex: isMobile ? 1 : 'unset',
-                            '& .MuiOutlinedInput-notchedOutline': { borderColor: themeConfig.colors.border }
-                        }}
-                        InputLabelProps={{ shrink: true }}
+                        onChange={(val) => handleDateChange('to', val)}
+                        slotProps={slotProps}
                     />
                 </Box>
             </Box>

@@ -16,6 +16,7 @@ const mainTabs = [
   { id: 2, label: 'Statements', path: '/financials/statements' },
   { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis' },
   { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast' },
+  { id: 5, label: 'Calendar', path: '/financials/calendar' },
 ];
 
 const transactionSubTabs = [
@@ -66,7 +67,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   const menus = useAppSelector((s) => s.auth.user?.menus || []);
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const canShowActions = activeTab === 0;
+  const canShowActions = activeTab === 0 || activeTab === 5;
   const shouldShowPrint = showPrint ?? canShowActions;
   const shouldShowReload = showReload ?? canShowActions;
   const shouldShowExport = showExportWizard ?? canShowActions;
@@ -95,6 +96,8 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
       if (path.includes('/forecast')) dispatch(setActiveSubTab(0));
       else if (path.includes('/summary')) dispatch(setActiveSubTab(1));
       else if (path.includes('/payer-performance')) dispatch(setActiveSubTab(2));
+    } else if (path.includes('/calendar')) {
+      dispatch(setActiveTab(5));
     }
 
 

@@ -15,6 +15,7 @@ import StatementsScreen from '@/components/pages/StatementsScreen';
 import RecoupmentsScreen from '@/components/pages/RecoupmentsScreen';
 import OtherAdjustmentsScreen from '@/components/pages/OtherAdjustmentsScreen';
 import CollectionsScreen from '@/components/pages/CollectionsScreen';
+import CalendarScreen from '@/components/pages/CalendarScreen';
 import ViewDialog from '@/components/molecules/ViewDialog';
 import EditDialog from '@/components/molecules/EditDialog';
 import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog';
@@ -65,6 +66,7 @@ const FinancialsPage: React.FC = () => {
         'statements/forward-balance': { tab: 2, subTab: 1 },
         'variance-analysis': { tab: 3, subTab: 0 },
         'trends-forecast': { tab: 4, subTab: 0 },
+        'calendar': { tab: 5, subTab: 0 },
       };
 
       const match = pathMap[pathPart];
@@ -92,6 +94,7 @@ const FinancialsPage: React.FC = () => {
     if (activeTab === 2) return <StatementsScreen />;
     if (activeTab === 3) return <VarianceScreen />;
     if (activeTab === 4) return <TrendsScreen />;
+    if (activeTab === 5) return <CalendarScreen />;
 
     return <AllTransactionsScreen />;
   };
