@@ -119,6 +119,7 @@ const RemittanceDetailScreen: React.FC = () => {
         paginated={false}
         exportTitle="Service Line Details"
         customToolbarContent={<RangeDropdown />}
+        dictionaryId="service-lines"
       />
     </Box>
   );

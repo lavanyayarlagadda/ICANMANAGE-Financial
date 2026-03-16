@@ -134,6 +134,7 @@ const VarianceScreen: React.FC = () => {
         rowKey={(r) => r.id}
         exportTitle={pageTitle}
         customToolbarContent={<RangeDropdown />}
+        dictionaryId="variance-analysis"
       />
     </Box>
   );

@@ -123,7 +123,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </List>
       )}
 
-      {hasCollections && hasFinancials && <Divider sx={{ mx: sidebarCollapsed ? 0.5 : 2, my: 1 }} />}
+      <Divider sx={{ mx: sidebarCollapsed ? 0.5 : 2, my: 1 }} />
 
       {/* Financials Section */}
       {hasFinancials && (

@@ -96,6 +96,7 @@ const AllTransactionsScreen: React.FC = () => {
       exportTitle="All Transactions"
       // selectable
       customToolbarContent={<RangeDropdown />}
+      dictionaryId="all-transactions"
     />
   );
 };

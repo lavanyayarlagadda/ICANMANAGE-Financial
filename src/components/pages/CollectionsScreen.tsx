@@ -103,7 +103,7 @@ const CollectionsScreen: React.FC = () => {
         </Grid>
       </Grid>
 
-      <DataTable columns={columns} data={collections} rowKey={(r) => r.id} exportTitle="Collections" selectable customToolbarContent={<RangeDropdown />} />
+      <DataTable columns={columns} data={collections} rowKey={(r) => r.id} exportTitle="Collections" selectable customToolbarContent={<RangeDropdown />} dictionaryId="collections" />
     </Box>
   );
 };

@@ -359,6 +359,7 @@ const BankDepositsScreen: React.FC = () => {
               paginated={false}
               searchable={false}
               customToolbarContent={<RangeDropdown />}
+              dictionaryId="bank-deposits"
             />
           </Box>
         ))}
