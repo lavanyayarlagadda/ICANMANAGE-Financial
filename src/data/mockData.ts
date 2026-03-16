@@ -4,11 +4,12 @@ import {
   RemittanceDetail,
   VarianceRecord,
   TrendsData,
-  ForwardBalanceRecord,
   RecoupmentRecord,
   OtherAdjustmentRecord,
   AllTransaction,
   CollectionAccount,
+  BankDepositEntity,
+  ForwardBalanceNotice,
 } from '@/types/financials';
 
 export const mockPayments: PaymentTransaction[] = [
@@ -28,11 +29,11 @@ export const mockPipRecords: PipRecord[] = [
     id: 'pip1', ptan: 'PTAN12345', paymentDate: '01/15/2026', checkEftNumber: 'EFT998877', paymentAmount: 150000.00, suspenseBalance: 138648.96, status: 'Completed',
     npiAllocations: [
       { npi: '1987191887', name: 'CRESCENT HOSPICE INC', allocatedAmount: 90000.00, allocatedPercent: 60.00, claims: [
-        { claimId: 'MC10677', patientName: 'ELLIS, MARTHA', allowedAmt: 3729.12, appliedToPipBalance: -3729.12 },
-        { claimId: '1894716', patientName: 'GRANTHAM, ELISE', allowedAmt: 6999.16, appliedToPipBalance: -4421.92 },
+          { claimId: 'MC10677', patientName: 'ELLIS, MARTHA', allowedAmt: 3729.12, appliedToPipBalance: -3729.12 },
+          { claimId: '1894716', patientName: 'GRANTHAM, ELISE', allowedAmt: 6999.16, appliedToPipBalance: -4421.92 },
       ]},
       { npi: '1234567890', name: 'SUNCOAST HOSPICE CARE', allocatedAmount: 60000.00, allocatedPercent: 40.00, claims: [
-        { claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', allowedAmt: 3850.00, appliedToPipBalance: -3200.00 },
+          { claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', allowedAmt: 3850.00, appliedToPipBalance: -3200.00 },
       ]},
     ],
   },
@@ -51,6 +52,7 @@ export const mockPipRecords: PipRecord[] = [
   { id: 'pip7', ptan: 'PTAN10025', paymentDate: '12/26/2025', checkEftNumber: 'EFT998825', paymentAmount: 158927.08, suspenseBalance: 84226.32, status: 'Pending Review', npiAllocations: [] },
   { id: 'pip8', ptan: 'PTAN10024', paymentDate: '12/25/2025', checkEftNumber: 'EFT998824', paymentAmount: 196723.10, suspenseBalance: 32951.45, status: 'Completed', npiAllocations: [] },
 ];
+
 
 export const mockRemittanceDetail: RemittanceDetail = {
   paymentDate: '2026-01-25',
@@ -80,63 +82,115 @@ export const mockRemittanceDetail: RemittanceDetail = {
 };
 
 export const mockVarianceRecords: VarianceRecord[] = [
-  { id: 'v1', claimId: 'MC10677', patientName: 'ELLIS, MARTHA', payer: 'DHR', billedCharge: 3729.12, expectedAllowed: 0.00, actualAllowed: 0.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v2', claimId: '1894716', patientName: 'GRANTHAM, ELISE', payer: 'JM MAC', billedCharge: 6999.56, expectedAllowed: 7798.33, actualAllowed: 6999.16, variance: -799.17, reasonCode: 'CO 97, CO 45, CO 42.1' },
-  { id: 'v3', claimId: '894618', patientName: 'JOHNSON, VERONICA', payer: 'JM MAC', billedCharge: 7406.29, expectedAllowed: 1306.29, actualAllowed: 1306.29, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v4', claimId: '1894719', patientName: 'MOORING, RONALD', payer: 'JM MAC', billedCharge: 6524.59, expectedAllowed: 6524.18, actualAllowed: 6524.18, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v5', claimId: '1834815', patientName: 'MURRAY, DORIS', payer: 'JM MAC', billedCharge: 5625.50, expectedAllowed: 5983.46, actualAllowed: 5625.50, variance: -357.96, reasonCode: 'CO 97, CO 94, CO 42.1' },
-  { id: 'v6', claimId: '1894705', patientName: 'ANDRUS, JEFFREY', payer: 'JM MAC', billedCharge: 5826.88, expectedAllowed: 826.88, actualAllowed: 826.88, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v7', claimId: '1894703', patientName: 'BATES, FRANCE', payer: 'JM MAC', billedCharge: 880.96, expectedAllowed: 880.96, actualAllowed: 880.96, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v8', claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', payer: 'AETNA MEDICARE', billedCharge: 4200.00, expectedAllowed: 3850.00, actualAllowed: 3850.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v9', claimId: 'MC20452', patientName: 'THOMPSON, SARAH', payer: 'AETNA MEDICARE', billedCharge: 3100.00, expectedAllowed: 3257.21, actualAllowed: 2900.00, variance: -357.21, reasonCode: 'CO 97, CO 45' },
-  { id: 'v10', claimId: 'HM33021', patientName: 'MARTINEZ, ROSA', payer: 'HUMANA', billedCharge: 5620.00, expectedAllowed: 5503.95, actualAllowed: 5100.00, variance: -403.95, reasonCode: 'CO 45, PR 1, PR 2' },
-  { id: 'v11', claimId: 'HM33022', patientName: 'CHEN, DAVID', payer: 'HUMANA', billedCharge: 2800.75, expectedAllowed: 2650.00, actualAllowed: 2650.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v12', claimId: 'CG44501', patientName: 'PATEL, ANITA', payer: 'CIGNA HEALTH', billedCharge: 7800.00, expectedAllowed: 7200.00, actualAllowed: 7200.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v13', claimId: 'CG44502', patientName: 'JACKSON, ROBERT', payer: 'CIGNA HEALTH', billedCharge: 4500.00, expectedAllowed: 4200.00, actualAllowed: 4200.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v14', claimId: 'UH55601', patientName: 'DAVIS, MARGARET', payer: 'UNITED', billedCharge: 6200.00, expectedAllowed: 5800.00, actualAllowed: 5800.00, variance: 0.00, reasonCode: 'Match' },
-  { id: 'v15', claimId: 'BC86701', patientName: 'TAYLOR, ELIZABETH', payer: 'BLUE CROSS', billedCharge: 5100.00, expectedAllowed: 5157.27, actualAllowed: 4800.00, variance: -357.27, reasonCode: 'CO 45, CO 253' },
+  { 
+    id: 'v1', 
+    claimId: 'CLM-001', 
+    patientName: 'PATIENT, R17', 
+    payer: 'Evergreen Medical Center', 
+    paymentDate: '2026-03-11', 
+    billedCharge: 3647.57, 
+    expectedAllowed: 3647.57, 
+    actualAllowed: 3647.57, 
+    variance: 0.00, 
+    reasonCode: 'Match', 
+    adjustmentCodes: 'CO 45' 
+  },
+  { 
+    id: 'v2', 
+    claimId: 'CLM-002', 
+    patientName: 'PATIENT, W100', 
+    payer: 'Canyon Creek Medical', 
+    paymentDate: '2026-03-10', 
+    billedCharge: 1963.22, 
+    expectedAllowed: 1963.22, 
+    actualAllowed: 1963.22, 
+    variance: 0.00, 
+    reasonCode: 'Match', 
+    adjustmentCodes: 'CO 45' 
+  },
+  { 
+    id: 'v3', 
+    claimId: 'CLM-003', 
+    patientName: 'PATIENT, F57', 
+    payer: 'Pinecrest Medical Group', 
+    paymentDate: '2026-03-06', 
+    billedCharge: 2512.72, 
+    expectedAllowed: 2512.72, 
+    actualAllowed: 2309.85, 
+    variance: 202.87, 
+    reasonCode: 'Variance', 
+    adjustmentCodes: 'CO 45' 
+  },
+  { 
+    id: 'v4', 
+    claimId: 'CLM-004', 
+    patientName: 'PATIENT, S18', 
+    payer: 'Summit Health Systems', 
+    paymentDate: '2026-03-06', 
+    billedCharge: 2935.14, 
+    expectedAllowed: 2935.14, 
+    actualAllowed: 2935.14, 
+    variance: 0.00, 
+    reasonCode: 'Match', 
+    adjustmentCodes: 'CO 45' 
+  },
 ];
+
 
 export const mockTrendsData: TrendsData = {
   kpis: [
-    { label: 'Total Checks Processed', value: '434', change: '↑ 12% vs prior month', changeType: 'positive' },
-    { label: 'Reconciliation Rate', value: '99.54%', change: '↑ 0.2% vs prior month', changeType: 'positive' },
-    { label: 'Total Amount Posted', value: '$9.77M', change: '↑ 8% vs prior month', changeType: 'positive' },
-    { label: 'Avg. Days to Reconcile', value: '5.39', change: 'Improved from 6.1 days', changeType: 'positive' },
+    { label: 'TOTAL AMOUNT RECONCILED', value: '$9,766,405.93', change: '↑ 8% vs prior month', changeType: 'positive' },
+    { label: 'GLOBAL RECONCILIATION RATE', value: '99.73%', change: '↑ 0.2% vs prior month', changeType: 'positive' },
+    { label: 'TOTAL AMOUNT UNRECONCILED', value: '$26,872.02', change: '↓ 15% vs prior month', changeType: 'positive' },
+    { label: 'AVG DAYS TO RECONCILE', value: '5.39', change: 'Improved from 6.1 days', changeType: 'positive' },
   ],
   teams: [
-    { teamName: 'iCAN / Outsourced RCM', reconCheckPercent: 99.44, unreconCheckPercent: 0.56, reconCheckCount: 355, unreconCheckCount: 2, reconAmountPercent: 99.66, unreconAmountPercent: 0.34, totalAmountPosted: 7989655.36, totalAmountNotPosted: 26872.02, avgDaysToReconcile: 3.73 },
-    { teamName: 'Care Hospice / Internal Team', reconCheckPercent: 100.00, unreconCheckPercent: 0.00, reconCheckCount: 79, unreconCheckCount: 0, reconAmountPercent: 100.00, unreconAmountPercent: 0.00, totalAmountPosted: 1776750.57, totalAmountNotPosted: 0.00, avgDaysToReconcile: 13.06 },
+    { 
+      teamName: 'iCAN', 
+      reconCheckPercent: 99.44, 
+      unreconCheckPercent: 0.56, 
+      checkCountPercentByTeam: 82.18,
+      reconCheckCount: 355, 
+      unreconCheckCount: 2, 
+      reconAmountPercent: 99.66, 
+      unreconAmountPercent: 0.34, 
+      amountPercentByTeam: 81.81,
+      totalAmountPosted: 7989655.36, 
+      totalAmountNotPosted: 26872.02, 
+      avgDaysToReconcile: 3.73 
+    },
+    { 
+      teamName: 'Apex Health Systems', 
+      reconCheckPercent: 100.00, 
+      unreconCheckPercent: 0.00, 
+      checkCountPercentByTeam: 17.82,
+      reconCheckCount: 77, 
+      unreconCheckCount: 0, 
+      reconAmountPercent: 100.00, 
+      unreconAmountPercent: 0.00, 
+      amountPercentByTeam: 18.19,
+      totalAmountPosted: 1776750.57, 
+      totalAmountNotPosted: 0.00, 
+      avgDaysToReconcile: 13.06 
+    },
   ],
   reconRateTrend: [
-    { month: 'Jul', rate: 98.2 }, { month: 'Aug', rate: 98.8 }, { month: 'Sep', rate: 99.1 },
-    { month: 'Oct', rate: 98.9 }, { month: 'Nov', rate: 99.3 }, { month: 'Dec', rate: 99.5 },
+    { month: 'Jun', rate: 7.2 }, { month: 'Jul', rate: 7.55 }, { month: 'Aug', rate: 7.88 },
+    { month: 'Sep', rate: 8.31 }, { month: 'Oct', rate: 8.95 }, { month: 'Nov', rate: 9.38 }, { month: 'Dec', rate: 9.77 },
   ],
   avgDaysTrend: [
-    { month: 'Jul', days: 7.0 }, { month: 'Aug', days: 6.5 }, { month: 'Sep', days: 6.1 },
-    { month: 'Oct', days: 5.8 }, { month: 'Nov', days: 5.4 }, { month: 'Dec', days: 5.39 },
+    // S-curve data
+    { month: 'Jan', days: 10.2 }, { month: 'Feb', days: 10.65 }, { month: 'Mar', days: 10.85 },
   ],
-  forecast: [
-    { metric: 'Reconciliation Rate', actual: '99.54%', month1: '99.62%', month2: '99.68%', month3: '99.72%', trend: 'Improving' },
-    { metric: 'Total Checks Processed', actual: '434', month1: '448', month2: '461', month3: '472', trend: 'Growing' },
-    { metric: 'Total Amount Posted', actual: '$9,766,405', month1: '$1.01M', month2: '$1.04M', month3: '$1.06M', trend: 'Growing' },
-    { metric: 'Avg. Days to Reconcile', actual: '5.39', month1: '5.10', month2: '4.85', month3: '4.62', trend: 'Improving' },
-    { metric: 'Unreconciled Amount', actual: '$26,872', month1: '$24,100', month2: '$21,800', month3: '$19,500', trend: 'Decreasing' },
+
+  payerPerformance: [
+    { payerName: 'UnitedHealthcare', volume: 145, depositCount: 12, matchRate: 92.4, denialRate: 14.2, suspenseRate: 4.5, avgDaysToSettle: 18, totalVariance: 1450.00, status: 'Critical' },
+    { payerName: 'BCBS Federal', volume: 88, depositCount: 5, matchRate: 98.2, denialRate: 5.1, suspenseRate: 1.2, avgDaysToSettle: 12, totalVariance: 240.50, status: 'Stable' },
+    { payerName: 'Aetna Medicare', volume: 64, depositCount: 8, matchRate: 94.8, denialRate: 8.4, suspenseRate: 2.1, avgDaysToSettle: 15, totalVariance: 680.00, status: 'Improving' },
   ],
 };
 
-export const mockForwardBalances: ForwardBalanceRecord[] = [
-  { id: 'fb1', payer: 'AETNA MEDICARE', patientName: 'WILLIAMS, JAMES', claimId: 'MC20451', originalPaymentDate: '12/15/2025', forwardedDate: '01/05/2026', forwardedAmount: 3200.00, appliedAmount: 1800.00, remainingBalance: 1400.00, status: 'Open', aging: '30-60 days' },
-  { id: 'fb2', payer: 'UHC MEDICARE', patientName: 'BROWN, WILLIAM', claimId: 'UH55602', originalPaymentDate: '12/10/2025', forwardedDate: '01/02/2026', forwardedAmount: 5600.00, appliedAmount: 5600.00, remainingBalance: 0.00, status: 'Closed', aging: 'N/A' },
-  { id: 'fb3', payer: 'HUMANA', patientName: 'MARTINEZ, ROSA', claimId: 'HM33021', originalPaymentDate: '12/20/2025', forwardedDate: '01/10/2026', forwardedAmount: 2450.00, appliedAmount: 0.00, remainingBalance: 2450.00, status: 'Open', aging: '0-30 days' },
-  { id: 'fb4', payer: 'BLUE CROSS', patientName: 'TAYLOR, ELIZABETH', claimId: 'BC86701', originalPaymentDate: '11/28/2025', forwardedDate: '12/15/2025', forwardedAmount: 4800.00, appliedAmount: 3200.00, remainingBalance: 1600.00, status: 'Open', aging: '60-90 days' },
-  { id: 'fb5', payer: 'CIGNA HEALTH', patientName: 'PATEL, ANITA', claimId: 'CG44501', originalPaymentDate: '12/18/2025', forwardedDate: '01/08/2026', forwardedAmount: 7200.00, appliedAmount: 7200.00, remainingBalance: 0.00, status: 'Closed', aging: 'N/A' },
-  { id: 'fb6', payer: 'MOLINA', patientName: 'GARCIA, CARLOS', claimId: 'ML77201', originalPaymentDate: '12/05/2025', forwardedDate: '12/20/2025', forwardedAmount: 1950.00, appliedAmount: 950.00, remainingBalance: 1000.00, status: 'Open', aging: '30-60 days' },
-  { id: 'fb7', payer: 'JM MAC SCHEMES', patientName: 'GRANTHAM, ELISE', claimId: '1894716', originalPaymentDate: '01/15/2026', forwardedDate: '01/20/2026', forwardedAmount: 4421.92, appliedAmount: 0.00, remainingBalance: 4421.92, status: 'Pending Review', aging: '0-30 days' },
-  { id: 'fb8', payer: 'UNITED', patientName: 'DAVIS, MARGARET', claimId: 'UH55601', originalPaymentDate: '11/15/2025', forwardedDate: '12/01/2025', forwardedAmount: 5800.00, appliedAmount: 5800.00, remainingBalance: 0.00, status: 'Closed', aging: 'N/A' },
-  { id: 'fb9', payer: 'DHR', patientName: 'ELLIS, MARTHA', claimId: 'MC10677', originalPaymentDate: '01/25/2026', forwardedDate: '01/28/2026', forwardedAmount: 3729.12, appliedAmount: 0.00, remainingBalance: 3729.12, status: 'Pending', aging: '0-30 days' },
-  { id: 'fb10', payer: 'AETNA', patientName: 'THOMPSON, SARAH', claimId: 'MC20452', originalPaymentDate: '12/22/2025', forwardedDate: '01/05/2026', forwardedAmount: 2900.00, appliedAmount: 2900.00, remainingBalance: 0.00, status: 'Closed', aging: 'N/A' },
-];
+
 
 export const mockRecoupments: RecoupmentRecord[] = [
   { id: 'r1', recoupmentId: 'RCP-2026-001', payer: 'AETNA MEDICARE', claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', originalPaymentAmount: 3200.00, recoupmentAmount: -650.00, recoupmentDate: '01/20/2026', reason: 'Overpayment recovery - duplicate billing', status: 'Recovered' },
@@ -193,3 +247,198 @@ export const mockCollections: CollectionAccount[] = [
   { id: 'c7', accountNumber: 'COL-2025-0100', patientName: 'KING, SUSAN', payer: 'UNITED', totalDue: 9800.00, amountCollected: 4500.00, balance: 5300.00, lastActivityDate: '01/08/2026', assignedTo: 'Team Gamma', status: 'Needs Review', aging: '30-60 days', priority: 'Medium' },
   { id: 'c8', accountNumber: 'COL-2025-0101', patientName: 'WRIGHT, ROBERT', payer: 'AETNA', totalDue: 6300.00, amountCollected: 0.00, balance: 6300.00, lastActivityDate: '01/05/2026', assignedTo: 'Team Alpha', status: 'Open', aging: '120+ days', priority: 'High' },
 ];
+
+export const mockBankDeposits: BankDepositEntity[] = [
+  {
+    id: 'e1',
+    name: 'Apex Primary Care',
+    items: [
+      {
+        id: 'bd1',
+        reference: '0374098416TC',
+        date: '2026-02-07',
+        payerName: 'Cedar Cares Inc',
+        bankAmt: 6856.63,
+        remitAmt: 6896.63,
+        variance: -40.00,
+        status: 'Exception',
+        remittanceAdvice: [
+          { reference: 'REM-991', amount: 4500.00 },
+          { reference: 'REM-992', amount: 2396.63 },
+        ],
+        postingApplication: [
+          { system: 'eClinicalWorks - EMR Posting', reference: 'BATCH-CED-2026020701', amount: 4200.00, status: 'Posted', date: '2026-02-07' },
+          { system: 'QuickBooks - GL Posting', reference: 'JE-QBO-44821', amount: 2100.00, status: 'Posted', date: '2026-02-07' },
+          { system: 'eClinicalWorks - Unapplied Cash', reference: 'UA-CED-0207', amount: 516.63, status: 'Review Required', date: '2026-02-07' },
+          { system: 'Cedar Portal - Patient Accounting Adj', reference: 'PA-ADJ-8819', amount: 40.00, status: 'Pending', date: '2026-02-07' },
+        ]
+      },
+      {
+        id: 'bd2',
+        reference: '0374098417TC',
+        date: '2026-02-07',
+        payerName: 'Aetna Health',
+        bankAmt: 12450.00,
+        remitAmt: 12450.00,
+        variance: 0.00,
+        status: 'Matched',
+        remittanceAdvice: [
+          { reference: 'EFT-112233', amount: 12450.00 },
+        ],
+        postingApplication: [
+          { system: 'eClinicalWorks - EMR Posting', reference: 'BATCH-AET-2026020701', amount: 12450.00, status: 'Posted', date: '2026-02-07' },
+        ]
+      },
+      {
+        id: 'bd3',
+        reference: '0374098421TC',
+        date: '2026-02-07',
+        payerName: 'Humana',
+        bankAmt: 18500.00,
+        remitAmt: 18500.00,
+        variance: 0.00,
+        status: 'Matched',
+        remittanceAdvice: [
+          { reference: 'EFT-445566', amount: 18500.00 },
+        ],
+        postingApplication: [
+          { system: 'eClinicalWorks - EMR Posting', reference: 'BATCH-HUM-2026020701', amount: 18500.00, status: 'Posted', date: '2026-02-07' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'e2',
+    name: 'Apex Surgical Center',
+    items: [
+      {
+        id: 'bd4',
+        reference: '0374098418TC',
+        date: '2026-02-07',
+        payerName: 'BCBS Federal',
+        bankAmt: 8320.45,
+        remitAmt: 8320.45,
+        variance: 0.00,
+        status: 'Matched',
+        remittanceAdvice: [
+          { reference: 'EFT-7712009', amount: 8320.45 },
+        ],
+        postingApplication: [
+          { system: 'Epic - EMR Posting', reference: 'BATCH-BCBS-2026020701', amount: 6500.00, status: 'Posted', date: '2026-02-07' },
+          { system: 'Sage Intacct - GL Posting', reference: 'JE-SI-88120', amount: 1120.45, status: 'Partially Posted', date: '2026-02-07' },
+          { system: 'Epic - Unapplied Cash', reference: 'UA-BCBS-0207', amount: 700.00, status: 'Pending', date: '2026-02-07' },
+        ]
+      },
+      {
+        id: 'bd5',
+        reference: '0374098420TC',
+        date: '2026-02-07',
+        payerName: 'Cigna',
+        bankAmt: 15780.00,
+        remitAmt: 15780.00,
+        variance: 0.00,
+        status: 'Matched',
+        remittanceAdvice: [
+          { reference: 'EFT-990011', amount: 15780.00 },
+        ],
+        postingApplication: [
+          { system: 'Epic - EMR Posting', reference: 'BATCH-CIG-2026020701', amount: 15780.00, status: 'Posted', date: '2026-02-07' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'e3',
+    name: 'Apex Home Health',
+    items: [
+      {
+        id: 'bd6',
+        reference: '0374098419TC',
+        date: '2026-02-06',
+        payerName: 'UnitedHealthcare',
+        bankAmt: 22100.00,
+        remitAmt: 22100.00,
+        variance: 0.00,
+        status: 'Exception',
+        remittanceAdvice: [
+          { reference: 'EFT-6634501', amount: 22100.00 },
+        ],
+        postingApplication: [
+          { system: 'Cerner - EMR Posting', reference: 'BATCH-UHC-2026020601', amount: 18250.00, status: 'Posted', date: '2026-02-06' },
+          { system: 'NetSuite - GL Posting', reference: 'JE-NS-10198', amount: 2600.00, status: 'Posted', date: '2026-02-06' },
+          { system: 'Cerner - Unapplied Cash', reference: 'UA-UHC-0206', amount: 950.00, status: 'Review Required', date: '2026-02-07' },
+        ]
+      }
+    ]
+  }
+];
+
+export const mockForwardBalanceNotices: ForwardBalanceNotice[] = [
+  {
+    id: 'fbn1',
+    noticeId: 'FB-2025-99110A',
+    notificationDate: '11/30/2025',
+    providerName: 'Canyon Creek Medical',
+    npi: '1987000030',
+    originalAmount: -1164.57,
+    remainingBalance: -767.81,
+    status: 'Posted',
+    offsets: [
+      {
+        eftNumber: 'EFT55443030',
+        date: '12/15/2025',
+        amount: -396.76,
+        code: 'WO',
+        claims: [
+          { claimId: 'MC99830', patientName: 'SMITH, TEST 30', deductedAmount: -396.76 }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'fbn2',
+    noticeId: 'FB-2025-99109A',
+    notificationDate: '11/28/2025',
+    providerName: 'Legacy Health Systems',
+    npi: '1987000029',
+    originalAmount: -1396.12,
+    remainingBalance: -1391.78,
+    status: 'Posted',
+    offsets: []
+  },
+  {
+    id: 'fbn3',
+    noticeId: 'FB-2025-99108A',
+    notificationDate: '11/26/2025',
+    providerName: 'Pinnacle Care Network',
+    npi: '1987000028',
+    originalAmount: -3233.05,
+    remainingBalance: -2836.44,
+    status: 'Posted',
+    offsets: []
+  },
+  {
+    id: 'fbn4',
+    noticeId: 'FB-2025-99107A',
+    notificationDate: '11/24/2025',
+    providerName: 'Radiant Health Services',
+    npi: '1987000027',
+    originalAmount: -3262.19,
+    remainingBalance: -2996.71,
+    status: 'Posted',
+    offsets: []
+  },
+  {
+    id: 'fbn5',
+    noticeId: 'FB-2025-99106A',
+    notificationDate: '11/22/2025',
+    providerName: 'Horizon Specialty Care',
+    npi: '1987000026',
+    originalAmount: -4175.12,
+    remainingBalance: -2684.38,
+    status: 'Posted',
+    offsets: []
+  }
+];
+
+

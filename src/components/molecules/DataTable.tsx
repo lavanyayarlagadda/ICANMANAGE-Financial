@@ -87,7 +87,7 @@ function DataTable<T>({
   onRowClick,
   expandedContent,
   expandedRows,
-  searchable = true,
+  searchable = false,
   exportTitle = 'Data Export',
   ...props
 }: DataTableProps<T>) {
@@ -287,86 +287,119 @@ function DataTable<T>({
         </Box>
       )}
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', width: '100%', justifyContent: 'flex-start' }}>
-        <Typography variant="caption" color="text.secondary">
-          {filteredData.length} record{filteredData.length !== 1 ? 's' : ''}
-        </Typography>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center', 
+        gap: 1.5, 
+        width: '100%', 
+        justifyContent: 'space-between' 
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+          <Typography variant="caption" color="text.secondary">
+            {filteredData.length} record{filteredData.length !== 1 ? 's' : ''}
+          </Typography>
 
-        {activeFilterCount > 0 && (
-          <Chip
-            label={`${activeFilterCount} active filter${activeFilterCount > 1 ? 's' : ''}`}
-            size="small"
-            onDelete={clearAllFilters}
-            color="primary"
-            variant="outlined"
-          />
-        )}
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
-          {props.customToolbarContent}
-          {/*searchable && (
-          <TextField
-            size="small"
-            placeholder="Search…"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-            sx={{ flex: 1, minWidth: 180, maxWidth: 320 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" color="action" />
-                </InputAdornment>
-              ),
-              endAdornment: search ? (
-                <InputAdornment position="end">
-                  <IconButton size="small" onClick={() => { setSearch(''); setPage(0); }}>
-                    <ClearIcon fontSize="small" />
-                  </IconButton>
-                </InputAdornment>
-              ) : null,
-            }}
-          />
-        )*/}
-          {filterableColumns.length > 0 && (
-            <IconButton
+          {activeFilterCount > 0 && (
+            <Chip
+              label={`${activeFilterCount} active filter${activeFilterCount > 1 ? 's' : ''}`}
               size="small"
-              onClick={() => setShowFilters((p) => !p)}
-              color={showFilters ? 'primary' : 'default'}
-              sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}
-            >
-              <FilterListIcon fontSize="small" />
-            </IconButton>
+              onDelete={clearAllFilters}
+              color="primary"
+              variant="outlined"
+            />
+          )}
+        </Box>
+
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 1, 
+          ml: isMobile ? 0 : 'auto',
+          width: isMobile ? '100%' : 'auto',
+          flexWrap: 'wrap'
+        }}>
+          {props.customToolbarContent && (
+            <Box sx={{ width: isMobile ? '100%' : 'auto' }}>
+              {props.customToolbarContent}
+            </Box>
+          )}
+          {searchable && (
+            <TextField
+              size="small"
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              sx={{ 
+                flex: isMobile ? 1 : 'unset', 
+                minWidth: isMobile ? '100%' : 180, 
+                maxWidth: isMobile ? '100%' : 320,
+                order: isMobile ? 1 : 0
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: search ? (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => { setSearch(''); setPage(0); }}>
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null,
+              }}
+            />
           )}
 
-          {/* Download button */}
-          {exportableColumns.length > 0 && (
-            <>
-              <Button
+          <Box sx={{ display: 'flex', gap: 1, ml: isMobile ? 0 : 0, width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'flex-end' : 'flex-start' }}>
+            {filterableColumns.length > 0 && (
+              <IconButton
                 size="small"
-                startIcon={<FileDownloadIcon fontSize="small" />}
-                onClick={(e) => setDownloadAnchor(e.currentTarget)}
-                sx={{ textTransform: 'none', minWidth: 'auto' }}
-                color="inherit"
+                onClick={() => setShowFilters((p) => !p)}
+                color={showFilters ? 'primary' : 'default'}
+                sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}
               >
-                {!isMobile && 'Export'}
-              </Button>
-              <Menu
-                anchorEl={downloadAnchor}
-                open={Boolean(downloadAnchor)}
-                onClose={() => setDownloadAnchor(null)}
-              >
-                <MenuItem onClick={handleCSVExport}>
-                  <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
-                  <ListItemText>Download CSV</ListItemText>
-                </MenuItem>
-                <MenuItem onClick={handlePDFExport}>
-                  <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
-                  <ListItemText>Download PDF</ListItemText>
-                </MenuItem>
-              </Menu>
-            </>
-          )}
+                <FilterListIcon fontSize="small" />
+              </IconButton>
+            )}
 
+            {/* Download button */}
+            {exportableColumns.length > 0 && (
+              <>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<FileDownloadIcon fontSize="small" />}
+                  onClick={(e) => setDownloadAnchor(e.currentTarget)}
+                  sx={{ 
+                    textTransform: 'none', 
+                    minWidth: 'auto',
+                    border: `1px solid ${theme.palette.divider}`,
+                    color: 'text.secondary',
+                    px: 1.5
+                  }}
+                >
+                  Export
+                </Button>
+                <Menu
+                  anchorEl={downloadAnchor}
+                  open={Boolean(downloadAnchor)}
+                  onClose={() => setDownloadAnchor(null)}
+                >
+                  <MenuItem onClick={handleCSVExport}>
+                    <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText>Download CSV</ListItemText>
+                  </MenuItem>
+                  <MenuItem onClick={handlePDFExport}>
+                    <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText>Download PDF</ListItemText>
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
+          </Box>
         </Box>
       </Box>
 

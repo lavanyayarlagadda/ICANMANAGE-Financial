@@ -7,6 +7,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
@@ -57,6 +58,7 @@ function TrendChart<T extends Record<string, unknown>>({
   defaultChartType = 'bar',
 }: TrendChartProps<T>) {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [chartType, setChartType] = useState<'bar' | 'line'>(defaultChartType);
 
   const defaultBarColors = [
@@ -89,16 +91,27 @@ function TrendChart<T extends Record<string, unknown>>({
         <ResponsiveContainer width="100%" height={height}>
           {chartType === 'bar' ? (
             <BarChart data={data} barCategoryGap="20%">
-              <XAxis dataKey={xKey} tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+              <XAxis 
+                dataKey={xKey} 
+                tick={{ fontSize: 10 }} 
+                axisLine={false} 
+                tickLine={false}
+                interval={isMobile ? 0 : 'preserveStartEnd'}
+                angle={isMobile ? -45 : 0}
+                textAnchor={isMobile ? 'end' : 'middle'}
+                height={isMobile ? 60 : 30}
+              />
               <YAxis hide domain={yDomain || [0, 'auto']} />
               <RechartsTooltip formatter={tooltipFormatter ? (v: number) => tooltipFormatter(v) : undefined} />
               <Bar dataKey={yKey} radius={[6, 6, 0, 0]}>
-                <LabelList
-                  dataKey={yKey}
-                  position="top"
-                  formatter={labelFormatter}
-                  style={{ fontSize: 11, fontWeight: 600, fill: theme.palette.text.primary }}
-                />
+                {!isMobile && (
+                  <LabelList
+                    dataKey={yKey}
+                    position="top"
+                    formatter={labelFormatter}
+                    style={{ fontSize: 10, fontWeight: 600, fill: theme.palette.text.primary }}
+                  />
+                )}
                 {data.map((_, idx) => (
                   <Cell
                     key={idx}
@@ -114,7 +127,14 @@ function TrendChart<T extends Record<string, unknown>>({
           ) : (
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
-              <XAxis dataKey={xKey} tick={{ fontSize: 12 }} />
+              <XAxis 
+                dataKey={xKey} 
+                tick={{ fontSize: 10 }}
+                interval={isMobile ? 0 : 'preserveStartEnd'}
+                angle={isMobile ? -45 : 0}
+                textAnchor={isMobile ? 'end' : 'middle'}
+                height={isMobile ? 60 : 30}
+              />
               <YAxis domain={yDomain || [0, 'auto']} tick={{ fontSize: 12 }} />
               <RechartsTooltip />
               <Legend />

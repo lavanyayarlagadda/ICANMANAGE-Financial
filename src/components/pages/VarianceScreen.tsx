@@ -1,41 +1,68 @@
 import React from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import DataTable, { DataColumn } from '@/components/molecules/DataTable';
-import RangeDropdown from '@/components/atoms/RangeDropdown';
-import SummaryCard from '@/components/atoms/SummaryCard';
+import { Box, Typography, useTheme, IconButton, Grid } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useAppSelector } from '@/store';
 import { VarianceRecord } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
+import DataTable, { DataColumn } from '@/components/molecules/DataTable';
+import RangeDropdown from '@/components/atoms/RangeDropdown';
+import SummaryCard from '@/components/atoms/SummaryCard';
 
 const VarianceScreen: React.FC = () => {
   const theme = useTheme();
   const varianceRecords = useAppSelector((s) => s.financials.varianceRecords);
+  const { activeSubTab } = useAppSelector((s) => s.ui);
+
 
   const totalExpected = varianceRecords.reduce((sum, r) => sum + r.expectedAllowed, 0);
   const totalActual = varianceRecords.reduce((sum, r) => sum + r.actualAllowed, 0);
-  const netVariance = totalActual - totalExpected;
+  const totalLeakage = varianceRecords.reduce((sum, r) => sum + r.variance, 0);
 
   const columns: DataColumn<VarianceRecord>[] = [
     {
-      id: 'claim',
-      label: 'Claim / Patient',
-      minWidth: 200,
+      id: 'paymentDate',
+      label: 'PAYMENT DATE',
+      minWidth: 120,
+      accessor: (r) => r.paymentDate,
+      render: (r) => <Typography variant="body2">{r.paymentDate}</Typography>
+    },
+    {
+      id: 'patientName',
+      label: 'PATIENT NAME',
+      minWidth: 150,
       accessor: (r) => r.patientName,
       render: (r) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.claimId}</Typography>
-          <Typography variant="caption" color="text.secondary">{r.patientName}</Typography>
-        </Box>
-      ),
+        <Typography variant="body2" sx={{ color: theme.palette.primary.main, fontWeight: 500, cursor: 'pointer' }}>
+          {r.patientName}
+        </Typography>
+      )
     },
-    { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, render: (r) => r.payer },
-    { id: 'billedCharge', label: 'Billed Charge', minWidth: 120, align: 'right', accessor: (r) => r.billedCharge, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.billedCharge)}</Box> },
-    { id: 'expectedAllowed', label: 'Expected Allowed', minWidth: 140, align: 'right', accessor: (r) => r.expectedAllowed, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.expectedAllowed)}</Box> },
-    { id: 'actualAllowed', label: 'Actual Allowed', minWidth: 130, align: 'right', accessor: (r) => r.actualAllowed, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.actualAllowed)}</Box> },
+    {
+      id: 'payerName',
+      label: 'PAYER NAME',
+      minWidth: 180,
+      accessor: (r) => r.payer,
+      render: (r) => <Typography variant="body2">{r.payer}</Typography>
+    },
+    {
+      id: 'expectedAllowed',
+      label: 'EXPECTED ALLOWED',
+      minWidth: 150,
+      align: 'right',
+      accessor: (r) => r.expectedAllowed,
+      render: (r) => <Typography variant="body2" sx={{ fontWeight: 500 }}>{formatCurrency(r.expectedAllowed)}</Typography>
+    },
+    {
+      id: 'actualAllowed',
+      label: 'ACTUAL ALLOWED',
+      minWidth: 150,
+      align: 'right',
+      accessor: (r) => r.actualAllowed,
+      render: (r) => <Typography variant="body2" sx={{ fontWeight: 500 }}>{formatCurrency(r.actualAllowed)}</Typography>
+    },
     {
       id: 'variance',
-      label: 'Variance ($)',
+      label: 'VARIANCE',
       minWidth: 120,
       align: 'right',
       accessor: (r) => r.variance,
@@ -43,9 +70,8 @@ const VarianceScreen: React.FC = () => {
         <Typography
           variant="body2"
           sx={{
-            fontFamily: 'monospace',
-            fontWeight: 600,
-            color: r.variance < 0 ? theme.palette.error.main : r.variance > 0 ? theme.palette.success.main : theme.palette.text.primary,
+            fontWeight: 700,
+            color: r.variance > 0 ? theme.palette.error.main : theme.palette.text.primary,
           }}
         >
           {formatCurrency(r.variance)}
@@ -53,41 +79,65 @@ const VarianceScreen: React.FC = () => {
       ),
     },
     {
-      id: 'reasonCode',
-      label: 'Reason Code',
-      minWidth: 180,
-      accessor: (r) => r.reasonCode,
-      render: (r) => (
-        <Typography
-          variant="body2"
-          sx={{
-            color: r.reasonCode === 'Match' ? theme.palette.success.main : theme.palette.text.primary,
-            fontWeight: r.reasonCode === 'Match' ? 600 : 400,
-          }}
-        >
-          {r.reasonCode}
-        </Typography>
+      id: 'adjustmentCodes',
+      label: 'ADJUSTMENT CODES',
+      minWidth: 160,
+      accessor: (r) => r.adjustmentCodes,
+      render: (r) => <Typography variant="body2">{r.adjustmentCodes}</Typography>
+    },
+    {
+      id: 'action',
+      label: 'ACTION',
+      minWidth: 100,
+      align: 'center',
+      render: () => (
+        <IconButton size="small" sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}>
+          <VisibilityIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+        </IconButton>
       ),
     },
   ];
 
+  const pageTitle = activeSubTab === 0 ? 'Fee Schedule Variance Analysis' : 'Payment Variance Analysis';
+  const pageDescription = activeSubTab === 0
+    ? 'Compares expected allowed amounts (fee schedule) against actual payer allowed amounts to identify underpayments.'
+    : 'Identifies variances between actual paid amounts and expected payments based on contractual terms and remittance detail.';
+
   return (
     <Box>
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <SummaryCard title="Total Expected Allowed" value={formatCurrency(totalExpected)} variant="highlight" />
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: 'rgb(10, 22, 40)' }}>
+          {pageTitle}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {pageDescription}
+        </Typography>
+      </Box>
+
+      <Grid container spacing={2} sx={{ mb: 4 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard title="TOTAL EXPECTED" value={formatCurrency(totalExpected)} variant="default" backgroundColor="#fff" />
         </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <SummaryCard title="Total Actual Allowed" value={formatCurrency(totalActual)} />
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard title="TOTAL ACTUAL ALLOWED" value={formatCurrency(totalActual)} backgroundColor="#fff" />
         </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <SummaryCard title="Net Variance (Leakage)" value={formatCurrency(netVariance)} variant="negative" />
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard title="TOTAL LEAKAGE" value={formatCurrency(totalLeakage)} variant="default" backgroundColor="#fff" />
         </Grid>
       </Grid>
 
-      <DataTable columns={columns} data={varianceRecords} rowKey={(r) => r.id} exportTitle="Variance Analysis"  customToolbarContent={<RangeDropdown />} />
+
+
+      <DataTable
+        columns={columns}
+        data={varianceRecords}
+        rowKey={(r) => r.id}
+        exportTitle={pageTitle}
+        customToolbarContent={<RangeDropdown />}
+      />
     </Box>
   );
 };
 
 export default VarianceScreen;
+
