@@ -10,7 +10,6 @@ import FinancialsPage from '@/pages/FinancialsPage';
 import LoginPage from '@/pages/LoginPage';
 import UserProfilePage from '@/pages/UserProfilePage';
 import NotFound from '@/pages/NotFound';
-import PocScreen from '@/pages/PocScreen';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { GlobalHooksWrapper } from '@/components/GlobalHooksWrapper';
 
@@ -53,14 +52,6 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <UserProfilePage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/poc"
-                element={
-                  <ProtectedRoute>
-                    <PocScreen />
                   </ProtectedRoute>
                 }
               />
