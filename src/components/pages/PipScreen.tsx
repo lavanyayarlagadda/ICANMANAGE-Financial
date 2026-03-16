@@ -231,6 +231,7 @@ const PipScreen: React.FC = () => {
       // searchable
       // selectable
       customToolbarContent={<RangeDropdown />}
+      dictionaryId="statements"
     />
   );
 };

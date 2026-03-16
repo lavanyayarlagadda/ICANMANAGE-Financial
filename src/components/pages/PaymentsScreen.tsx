@@ -69,6 +69,7 @@ const PaymentsScreen: React.FC = () => {
       exportTitle="Payments"
       // selectable
       customToolbarContent={<RangeDropdown />}
+      dictionaryId="all-transactions"
     />
   );
 };

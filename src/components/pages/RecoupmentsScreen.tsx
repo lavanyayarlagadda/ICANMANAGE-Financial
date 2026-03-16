@@ -85,7 +85,7 @@ const RecoupmentsScreen: React.FC = () => {
           <SummaryCard title="Total Records" value={String(recoupments.length)} />
         </Grid>
       </Grid> */}
-      <DataTable columns={columns} data={recoupments} rowKey={(r) => r.id} exportTitle="Recoupments" customToolbarContent={<RangeDropdown />} />
+      <DataTable columns={columns} data={recoupments} rowKey={(r) => r.id} exportTitle="Recoupments" customToolbarContent={<RangeDropdown />} dictionaryId="recoupments" />
     </Box>
   );
 };

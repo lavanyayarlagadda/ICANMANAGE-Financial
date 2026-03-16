@@ -39,6 +39,10 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import DictionaryDrawer from './DictionaryDrawer';
+import { getDescriptionsForTable, TableDescription, TableDescriptions } from '@/services/descriptionService';
+
 
 export interface DataColumn<T> {
   id: string;
@@ -76,7 +80,10 @@ interface DataTableProps<T> {
   onSelectionChange?: (selectedKeys: Set<string>) => void;
   selectedKeys?: Set<string>;
   customToolbarContent?: React.ReactNode;
+  /** ID for dictionary lookups. If provided, headers will show a dictionary icon. */
+  dictionaryId?: string;
 }
+
 
 function DataTable<T>({
   columns,
@@ -89,8 +96,10 @@ function DataTable<T>({
   expandedRows,
   searchable = false,
   exportTitle = 'Data Export',
+  dictionaryId,
   ...props
 }: DataTableProps<T>) {
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [page, setPage] = React.useState(0);
@@ -101,6 +110,23 @@ function DataTable<T>({
   const [showFilters, setShowFilters] = React.useState(false);
   const [columnFilters, setColumnFilters] = React.useState<Record<string, string>>({});
   const [downloadAnchor, setDownloadAnchor] = React.useState<null | HTMLElement>(null);
+  const [descriptions, setDescriptions] = React.useState<TableDescriptions | null>(null);
+  const [dictionaryOpen, setDictionaryOpen] = React.useState(false);
+  const [selectedField, setSelectedField] = React.useState<TableDescription | null>(null);
+
+  React.useEffect(() => {
+    if (dictionaryId) {
+      getDescriptionsForTable(dictionaryId).then(setDescriptions);
+    }
+  }, [dictionaryId]);
+
+  const handleHeaderClick = (colId: string, label: string) => {
+    if (descriptions && descriptions[colId]) {
+      setSelectedField(descriptions[colId]);
+      setDictionaryOpen(true);
+    }
+  };
+
 
   const [internalSelected, setInternalSelected] = React.useState<Set<string>>(new Set());
   const selectedKeys = props.selectedKeys ?? internalSelected;
@@ -202,8 +228,8 @@ function DataTable<T>({
 
   // --- Export functions ---
   const getExportData = () => {
-    const headers = exportableColumns.map((c) => c.exportLabel || c.label);
-    const rows = filteredData.map((row) =>
+    const headers: string[] = exportableColumns.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
+    const rows: string[][] = filteredData.map((row) =>
       exportableColumns.map((col) => {
         const val = col.accessor!(row);
         return String(val);
@@ -468,9 +494,20 @@ function DataTable<T>({
                 {visibleColumns.map((col, idx) => (
                   <Box key={col.id}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', py: 0.5, gap: 2 }}>
-                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600, minWidth: 100, flexShrink: 0 }}>
-                        {col.label}
-                      </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2, minWidth: 100, flexShrink: 0 }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                          {col.label}
+                        </Typography>
+                        {descriptions && descriptions[col.id] && (
+                          <IconButton 
+                            size="small" 
+                            sx={{ p: 0.1 }} 
+                            onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id, String(col.label)); }}
+                          >
+                            <MenuBookIcon sx={{ fontSize: 11, color: theme.palette.primary.main, opacity: 0.7 }} />
+                          </IconButton>
+                        )}
+                      </Box>
                       <Box sx={{ textAlign: 'right', flex: 1 }}>
                         {col.render(row)}
                       </Box>
@@ -501,6 +538,11 @@ function DataTable<T>({
             }}
           />
         )}
+        <DictionaryDrawer 
+          open={dictionaryOpen} 
+          onClose={() => setDictionaryOpen(false)} 
+          selectedField={selectedField} 
+        />
       </Box>
     );
   }
@@ -565,11 +607,34 @@ function DataTable<T>({
                       }}
                       hideSortIcon={false}
                     >
-                      {col.label}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        {col.label}
+                        {descriptions && descriptions[col.id] && (
+                          <IconButton 
+                            size="small" 
+                            sx={{ p: 0.2, ml: 0.5 }} 
+                            onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id, String(col.label)); }}
+                          >
+                            <MenuBookIcon sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }} />
+                          </IconButton>
+                        )}
+                      </Box>
                     </TableSortLabel>
                   ) : (
-                    col.label
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      {col.label}
+                      {descriptions && descriptions[col.id] && (
+                        <IconButton 
+                          size="small" 
+                          sx={{ p: 0.2, ml: 0.5 }} 
+                          onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id, String(col.label)); }}
+                        >
+                          <MenuBookIcon sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }} />
+                        </IconButton>
+                      )}
+                    </Box>
                   )}
+
                 </TableCell>
               ))}
             </TableRow>
@@ -644,8 +709,14 @@ function DataTable<T>({
           sx={{ flexShrink: 0, borderTop: (t) => `1px solid ${t.palette.divider}`, overflow: 'hidden !important', '& .MuiTablePagination-toolbar': { minHeight: 40, p: 0, px: 2, overflow: 'hidden !important' }, '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': { m: 0 } }}
         />
       )}
+      <DictionaryDrawer 
+        open={dictionaryOpen} 
+        onClose={() => setDictionaryOpen(false)} 
+        selectedField={selectedField} 
+      />
     </Paper>
   );
 }
+
 
 export default DataTable;

@@ -150,6 +150,7 @@ const TrendsScreen: React.FC = () => {
             rowKey={(r) => r.teamName}
             paginated={false}
             searchable={false}
+            dictionaryId="forecast-trends"
           />
         </Box>
       </>
@@ -362,6 +363,7 @@ const TrendsScreen: React.FC = () => {
           rowKey={(r) => r.payerName}
           paginated={false}
           searchable={false}
+          dictionaryId="payer-performance"
         />
       </Box>
     );

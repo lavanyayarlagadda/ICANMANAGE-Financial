@@ -182,6 +182,7 @@ const ForwardBalanceNoticesTable = ({ data }: { data: ForwardBalanceNotice[] }) 
       paginated
       // searchable
       customToolbarContent={<RangeDropdown />}
+      dictionaryId="statements"
     />
   );
 };

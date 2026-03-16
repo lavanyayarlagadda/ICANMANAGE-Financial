@@ -77,7 +77,7 @@ const OtherAdjustmentsScreen: React.FC = () => {
     { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Applied', 'Pending', 'Under Review'], render: (r) => <StatusBadge status={r.status} /> },
   ];
 
-  return <DataTable columns={columns} data={otherAdjustments} rowKey={(r) => r.id} exportTitle="Other Adjustments" customToolbarContent={<RangeDropdown />} />;
+  return <DataTable columns={columns} data={otherAdjustments} rowKey={(r) => r.id} exportTitle="Other Adjustments" customToolbarContent={<RangeDropdown />} dictionaryId="other-adjustments" />;
 };
 
 export default OtherAdjustmentsScreen;
