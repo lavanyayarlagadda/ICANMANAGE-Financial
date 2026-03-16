@@ -16,7 +16,7 @@ const mainTabs = [
   { id: 2, label: 'Statements', path: '/financials/statements' },
   { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis' },
   { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast' },
-  { id: 5, label: 'Calendar', path: '/financials/calendar' },
+  // { id: 5, label: 'Calendar', path: '/financials/calendar' },
 ];
 
 const transactionSubTabs = [
@@ -124,13 +124,13 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
     <Box sx={{ mb: 1 }}>
 
       {/* Title and Main Tabs Row */}
-      <Box sx={{ 
-        px: 2, 
-        py: 1.5, 
-        display: 'flex', 
+      <Box sx={{
+        px: 2,
+        py: 1.5,
+        display: 'flex',
         flexDirection: isTablet ? 'column' : 'row',
-        alignItems: isTablet ? 'flex-start' : 'center', 
-        backgroundColor: '#fff', 
+        alignItems: isTablet ? 'flex-start' : 'center',
+        backgroundColor: '#fff',
         borderBottom: `1px solid ${theme.palette.divider}`,
         gap: isTablet ? 1.5 : 0
       }}>
@@ -198,19 +198,19 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
 
       {/* Sub-tabs and Actions Row */}
       {showSubTabsRow && (
-        <Box sx={{ 
-          px: 2, 
-          py: 1.5, 
-          display: 'flex', 
+        <Box sx={{
+          px: 2,
+          py: 1.5,
+          display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
-          justifyContent: isMobile ? 'flex-start' : 'space-between', 
-          alignItems: isMobile ? 'stretch' : 'center', 
+          justifyContent: isMobile ? 'flex-start' : 'space-between',
+          alignItems: isMobile ? 'stretch' : 'center',
           backgroundColor: '#fcfcfc',
           gap: 2
         }}>
-          <Box sx={{ 
-            display: 'flex', 
-            gap: 1, 
+          <Box sx={{
+            display: 'flex',
+            gap: 1,
             flexWrap: 'wrap',
             width: isMobile ? '100%' : 'auto'
           }}>
@@ -320,9 +320,9 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
             })}
           </Box>
 
-          <Box sx={{ 
-            display: 'flex', 
-            gap: 1.5, 
+          <Box sx={{
+            display: 'flex',
+            gap: 1.5,
             flexDirection: isMobile ? 'row' : 'row',
             flexWrap: 'wrap',
             justifyContent: isMobile ? 'flex-start' : 'flex-end'
