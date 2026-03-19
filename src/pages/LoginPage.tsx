@@ -15,8 +15,8 @@ import { Visibility, VisibilityOff, LockOutlined } from '@mui/icons-material';
 import { themeConfig } from '@/theme';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { loginSuccess } from '@/store/slices/authSlice';
-import { MOCK_CREDENTIALS, LOGIN_API_RESPONSE, USER_DETAILS_API_RESPONSE } from '@/utils/dummyData';
+import { setCredentials } from '@/store/slices/authSlice';
+import { useLoginMutation } from '@/store/api/authApi';
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +27,7 @@ const LoginPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
+    const [login, { isLoading }] = useLoginMutation();
 
     // Get the redirect location if we came from a protected route
     const from = location.state?.from?.pathname || '/financials';
@@ -37,39 +38,33 @@ const LoginPage = () => {
         event.preventDefault();
     };
 
-    const handleLogin = () => {
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
         setErrorMsg('');
-        const validCredential = MOCK_CREDENTIALS.find(
-            (c) => c.username === username && c.password === password
-        );
+        
+        if (!username || !password) {
+            setErrorMsg('Please enter both username and password');
+            return;
+        }
 
-        if (validCredential) {
-            const loginUser = LOGIN_API_RESPONSE.find(u => u.id === validCredential.userId);
+        try {
+            const result = await login({ username, password }).unwrap();
+            
+            // Success! Store credentials and navigate
+            dispatch(setCredentials({
+                user: result.user,
+                accessToken: result.accessToken,
+                refreshToken: result.refreshToken,
+            }));
 
-            if (loginUser) {
-                const userDetails = USER_DETAILS_API_RESPONSE.find(d => d.userId === loginUser.id);
+            // Map the default landing page or use the redirect location
+            const landingPageRoute = result.user.role === 'Admin' ? '/financials' : '/collections';
+            const redirectTo = location.state?.from?.pathname || landingPageRoute;
 
-                if (userDetails) {
-                    const fullUser = {
-                        ...loginUser,
-                        ...userDetails
-                    };
-
-                    dispatch(loginSuccess(fullUser));
-
-                    // Map the default landing page string to a route
-                    const landingPageRoute = fullUser.defaultLandingPage.toLowerCase() === 'collections' ? '/collections' : '/financials';
-                    const redirectTo = location.state?.from?.pathname || landingPageRoute;
-
-                    navigate(redirectTo, { replace: true });
-                } else {
-                    setErrorMsg('User details not found');
-                }
-            } else {
-                setErrorMsg('User profile not found');
-            }
-        } else {
-            setErrorMsg('Invalid username or password');
+            navigate(redirectTo, { replace: true });
+        } catch (err: any) {
+            console.error('Login failed:', err);
+            setErrorMsg(err.data?.message || 'Invalid username or password');
         }
     };
 
@@ -254,6 +249,7 @@ const LoginPage = () => {
                             variant="contained"
                             size="large"
                             onClick={handleLogin}
+                            disabled={isLoading}
                             startIcon={<LockOutlined />}
                             sx={{
                                 backgroundColor: themeConfig.colors.primary,
@@ -267,9 +263,13 @@ const LoginPage = () => {
                                 '&:hover': {
                                     backgroundColor: themeConfig.colors.primaryDark,
                                 },
+                                '&.Mui-disabled': {
+                                    backgroundColor: themeConfig.colors.primaryLight,
+                                    color: 'rgba(255, 255, 255, 0.7)',
+                                }
                             }}
                         >
-                            Sign In
+                            {isLoading ? 'Signing In...' : 'Sign In'}
                         </Button>
                     </Box>
 

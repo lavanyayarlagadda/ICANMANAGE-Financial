@@ -12,9 +12,21 @@ import { setShowRemittanceDetail, setSelectedPaymentId } from '@/store/slices/fi
 import PrintIcon from '@mui/icons-material/Print';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
+import { useSearchPaymentsQuery } from '@/store/api/financialsApi';
+
 const PaymentsScreen: React.FC = () => {
   const dispatch = useAppDispatch();
-  const payments = useAppSelector((s) => s.financials.payments);
+  const { data, isLoading, isError } = useSearchPaymentsQuery({
+    page: 1,
+    size: 10,
+    sort: 'amount',
+    desc: true,
+    status: null,
+    fromDate: '2026-01-01',
+    toDate: '2026-01-31'
+  });
+
+  const payments = data?.content ?? [];
 
   const handleDrillDown = (row: PaymentTransaction) => {
     dispatch(setSelectedPaymentId(row.id));
@@ -60,6 +72,10 @@ const PaymentsScreen: React.FC = () => {
     { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'right', accessor: (r) => r.openBalance ?? 0, render: (r) => r.openBalance != null ? formatCurrency(r.openBalance) : 'N/A' },
     { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
   ];
+
+
+  if (isLoading) return <Box sx={{ p: 4, textAlign: 'center' }}>Loading payments...</Box>;
+  if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments. Please ensure the backend is running at http://localhost:8281</Box>;
 
   return (
     <DataTable
