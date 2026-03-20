@@ -34,8 +34,37 @@ const baseQueryWithReauth: BaseQueryFn<
   let result = await baseQuery(fullArgs, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    // If we get a 401, we just logout since no refresh API is available
-    api.dispatch(logout());
+    const refreshToken = (api.getState() as RootState).auth.refreshToken;
+    
+    if (refreshToken) {
+      // Try to refresh the token
+      const refreshResult = await baseQuery(
+        {
+          url: `${AUTH_BASE_URL}/auth/refresh`,
+          method: 'POST',
+          body: { refreshToken },
+        },
+        api,
+        extraOptions
+      );
+
+      if (refreshResult.data) {
+        // Successful refresh
+        const { accessToken, refreshToken: newRefreshToken } = refreshResult.data as { accessToken: string; refreshToken: string };
+        
+        // Update the token in the store
+        api.dispatch(updateToken({ accessToken, refreshToken: newRefreshToken }));
+        
+        // Retry the original query with the new token
+        result = await baseQuery(fullArgs, api, extraOptions);
+      } else {
+        // Refresh failed, logout
+        api.dispatch(logout());
+      }
+    } else {
+      // No refresh token available, logout
+      api.dispatch(logout());
+    }
   }
   return result;
 };

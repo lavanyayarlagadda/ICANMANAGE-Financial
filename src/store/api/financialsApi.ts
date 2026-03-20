@@ -1,5 +1,5 @@
 import { baseApi } from './baseApi';
-import { PaymentTransaction, CollectionAccount, BankDepositEntity } from '@/types/financials';
+import { PaymentTransaction, CollectionAccount, BankDepositEntity, PipRecord } from '@/types/financials';
 
 export interface PaymentSearchRequest {
   page: number;
@@ -19,6 +19,23 @@ export interface PaymentSearchResponse {
   number: number;
 }
 
+export interface PipSearchRequest {
+  page: number;
+  size: number;
+  sort: string;
+  desc: boolean;
+  fromDate: string;
+  toDate: string;
+}
+
+export interface PipSearchResponse {
+  content: PipRecord[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
 /**
  * Financials API using RTK Query.
  * Injects endpoints into the base API.
@@ -30,14 +47,22 @@ export const financialsApi = baseApi.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Financials' as const, id })),
-              { type: 'Financials', id: 'LIST' },
-            ]
+            ...result.map(({ id }) => ({ type: 'Financials' as const, id })),
+            { type: 'Financials', id: 'LIST' },
+          ]
           : [{ type: 'Financials', id: 'LIST' }],
     }),
     searchPayments: builder.query<PaymentSearchResponse, PaymentSearchRequest>({
       query: (body) => ({
         url: 'financials/payments/search',
+        method: 'POST',
+        body,
+      }),
+      providesTags: ['Financials'],
+    }),
+    searchPip: builder.query<PipSearchResponse, PipSearchRequest>({
+      query: (body) => ({
+        url: 'financials/pip/search',
         method: 'POST',
         body,
       }),
@@ -52,23 +77,14 @@ export const financialsApi = baseApi.injectEndpoints({
       providesTags: ['Financials'],
     }),
     // Example mutation
-    deletePayment: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `payments/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: (result, error, id) => [
-        { type: 'Financials', id },
-        { type: 'Financials', id: 'LIST' },
-      ],
-    }),
+
   }),
 });
 
 export const {
   useGetPaymentsQuery,
   useSearchPaymentsQuery,
+  useSearchPipQuery,
   useGetCollectionsQuery,
   useGetBankDepositsQuery,
-  useDeletePaymentMutation,
 } = financialsApi;

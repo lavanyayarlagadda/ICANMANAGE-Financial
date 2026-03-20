@@ -32,9 +32,9 @@ const PaymentsScreen: React.FC = () => {
   const [status, setStatus] = React.useState<string | null>(null);
   const [fromDate, setFromDate] = React.useState(format(defaultFrom, 'yyyy-MM-dd'));
   const [toDate, setToDate] = React.useState(format(defaultTo, 'yyyy-MM-dd'));
-  const [searchQuery, setSearchQuery] = React.useState('');
+  // const [searchQuery, setSearchQuery] = React.useState('');
 
-  const { data, isLoading, isError, isFetching, refetch } = useSearchPaymentsQuery({
+  const { data, isLoading, isError, isFetching } = useSearchPaymentsQuery({
     page: page + 1, // API is 1-indexed
     size: size,
     sort: sortField,
@@ -155,7 +155,7 @@ const PaymentsScreen: React.FC = () => {
         onRowsPerPageChange={setSize}
         onSortChange={handleSortChange}
         onFilterChange={handleFilterChange}
-        onSearchChange={setSearchQuery}
+        // onSearchChange={setSearchQuery}
       />
     </Box>
   );
