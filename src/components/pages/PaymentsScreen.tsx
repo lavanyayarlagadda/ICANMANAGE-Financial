@@ -12,25 +12,67 @@ import { setShowRemittanceDetail, setSelectedPaymentId } from '@/store/slices/fi
 import PrintIcon from '@mui/icons-material/Print';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
+import { subMonths, format } from 'date-fns';
 import { useSearchPaymentsQuery } from '@/store/api/financialsApi';
+import { CircularProgress } from '@mui/material';
 
 const PaymentsScreen: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { data, isLoading, isError } = useSearchPaymentsQuery({
-    page: 1,
-    size: 10,
-    sort: 'amount',
-    desc: true,
-    status: null,
-    fromDate: '2026-01-01',
-    toDate: '2026-01-31'
+  const theme = useTheme();
+
+  // Default to 6 months ago for better dynamic initial state
+  const defaultTo = new Date();
+  const defaultFrom = subMonths(defaultTo, 6);
+
+  // API Payload State
+  const [page, setPage] = React.useState(0);
+  const [size, setSize] = React.useState(10);
+  const [sortField, setSortField] = React.useState('');
+  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('desc');
+  const [status, setStatus] = React.useState<string | null>(null);
+  const [fromDate, setFromDate] = React.useState(format(defaultFrom, 'yyyy-MM-dd'));
+  const [toDate, setToDate] = React.useState(format(defaultTo, 'yyyy-MM-dd'));
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const { data, isLoading, isError, isFetching, refetch } = useSearchPaymentsQuery({
+    page: page + 1, // API is 1-indexed
+    size: size,
+    sort: sortField,
+    desc: sortOrder === 'desc',
+    status: status === 'All' ? null : status,
+    fromDate,
+    toDate
   });
 
   const payments = data?.content ?? [];
+  const totalElements = data?.totalElements ?? 0;
 
   const handleDrillDown = (row: PaymentTransaction) => {
     dispatch(setSelectedPaymentId(row.id));
     dispatch(setShowRemittanceDetail(true));
+  };
+
+  const handleRangeChange = (range: string) => {
+    // Range format: "yyyy-MM-dd to yyyy-MM-dd"
+    if (range.includes(' to ')) {
+      const [from, to] = range.split(' to ');
+      setFromDate(from);
+      setToDate(to);
+      setPage(0);
+    }
+  };
+
+  const handleFilterChange = (filters: Record<string, string>) => {
+    if (filters.status !== undefined) {
+      setStatus(filters.status || null);
+      setPage(0);
+    }
+  };
+
+  const handleSortChange = (colId: string, direction: 'asc' | 'desc') => {
+    setSortField(colId);
+    setSortOrder(direction);
+    setPage(0);
   };
 
   const columns: DataColumn<PaymentTransaction>[] = [
@@ -70,23 +112,52 @@ const PaymentsScreen: React.FC = () => {
     { id: 'sourceProvider', label: 'Payer', minWidth: 180, accessor: (r) => r.sourceProvider, render: (r) => r.sourceProvider },
     { id: 'amount', label: 'Amount', minWidth: 110, align: 'right', accessor: (r) => r.amount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount)}</Box> },
     { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'right', accessor: (r) => r.openBalance ?? 0, render: (r) => r.openBalance != null ? formatCurrency(r.openBalance) : 'N/A' },
-    { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
+    { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
   ];
 
 
-  if (isLoading) return <Box sx={{ p: 4, textAlign: 'center' }}>Loading payments...</Box>;
+  if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
   if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments. Please ensure the backend is running at http://localhost:8281</Box>;
 
   return (
-    <DataTable
-      columns={columns}
-      data={payments}
-      rowKey={(r) => r.id}
-      exportTitle="Payments"
-      // selectable
-      customToolbarContent={<RangeDropdown />}
-      dictionaryId="all-transactions"
-    />
+    <Box sx={{ position: 'relative' }}>
+      {isFetching && (
+        <Box sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 10,
+          backgroundColor: 'rgba(255,255,255,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <CircularProgress size={40} thickness={4} />
+        </Box>
+      )}
+      <DataTable
+        columns={columns}
+        data={payments}
+        rowKey={(r) => r.id}
+        exportTitle="Payments"
+        // selectable
+        customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
+        dictionaryId="all-transactions"
+        serverSide
+        totalElements={totalElements}
+        page={page}
+        rowsPerPage={size}
+        sortCol={sortField}
+        sortDir={sortOrder}
+        onPageChange={setPage}
+        onRowsPerPageChange={setSize}
+        onSortChange={handleSortChange}
+        onFilterChange={handleFilterChange}
+        onSearchChange={setSearchQuery}
+      />
+    </Box>
   );
 };
 

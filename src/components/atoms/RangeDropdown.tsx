@@ -30,7 +30,7 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
             case '3 months': from = subMonths(to, 3); break;
             case '6 months': from = subMonths(to, 6); break;
             case '1 year': from = subYears(to, 1); break;
-            case 'All Time': from = startOfMonth(to); break;
+            case 'All Time': from = new Date(2020, 0, 1); break; // Default to 2020 for all time
             default: return null;
         }
         return { from, to };
@@ -42,6 +42,8 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
             if (dates) {
                 setFromDate(dates.from);
                 setToDate(dates.to);
+                // Important: Notify parent of initial values
+                onChange?.(`${format(dates.from, 'yyyy-MM-dd')} to ${format(dates.to, 'yyyy-MM-dd')}`);
             }
         }
     }, []);
@@ -54,8 +56,10 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
             setFromDate(dates.from);
             setToDate(dates.to);
             onChange?.(`${format(dates.from, 'yyyy-MM-dd')} to ${format(dates.to, 'yyyy-MM-dd')}`);
-        } else if (val !== 'Custom') {
-            onChange?.(val);
+        } else {
+            // If custom or unknown, we don't necessarily call onChange with dates here 
+            // unless the date pickers are also updated.
+            if (val !== 'Custom') onChange?.(val);
         }
     };
 

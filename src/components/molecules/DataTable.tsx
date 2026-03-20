@@ -82,6 +82,18 @@ interface DataTableProps<T> {
   customToolbarContent?: React.ReactNode;
   /** ID for dictionary lookups. If provided, headers will show a dictionary icon. */
   dictionaryId?: string;
+  /** Server-side support props */
+  serverSide?: boolean;
+  totalElements?: number;
+  page?: number;
+  rowsPerPage?: number;
+  sortCol?: string;
+  sortDir?: 'asc' | 'desc';
+  onPageChange?: (newPage: number) => void;
+  onRowsPerPageChange?: (newRowsPerPage: number) => void;
+  onSortChange?: (colId: string, direction: 'asc' | 'desc') => void;
+  onFilterChange?: (filters: Record<string, string>) => void;
+  onSearchChange?: (query: string) => void;
 }
 
 
@@ -102,13 +114,24 @@ function DataTable<T>({
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
-  const [sortCol, setSortCol] = React.useState<string | null>(null);
-  const [sortDir, setSortDir] = React.useState<SortDirection>('asc');
-  const [search, setSearch] = React.useState('');
+  
+  // Internal state
+  const [internalPage, setInternalPage] = React.useState(0);
+  const [internalRowsPerPage, setInternalRowsPerPage] = React.useState(rowsPerPageOptions[0]);
+  const [internalSortCol, setInternalSortCol] = React.useState<string | null>(null);
+  const [internalSortDir, setInternalSortDir] = React.useState<SortDirection>('asc');
+  const [internalSearch, setInternalSearch] = React.useState('');
+  const [internalColumnFilters, setInternalColumnFilters] = React.useState<Record<string, string>>({});
+  
+  // Use props if provided (for server-side control), otherwise use internal state
+  const page = props.page !== undefined ? props.page : internalPage;
+  const rowsPerPage = props.rowsPerPage !== undefined ? props.rowsPerPage : internalRowsPerPage;
+  const sortCol = props.sortCol !== undefined ? props.sortCol : internalSortCol;
+  const sortDir = (props.sortDir !== undefined ? props.sortDir : internalSortDir) as SortDirection;
+  const search = internalSearch; // Search is always internal but notifies
+  const columnFilters = internalColumnFilters;
+
   const [showFilters, setShowFilters] = React.useState(false);
-  const [columnFilters, setColumnFilters] = React.useState<Record<string, string>>({});
   const [downloadAnchor, setDownloadAnchor] = React.useState<null | HTMLElement>(null);
   const [descriptions, setDescriptions] = React.useState<TableDescriptions | null>(null);
   const [dictionaryOpen, setDictionaryOpen] = React.useState(false);
@@ -141,13 +164,18 @@ function DataTable<T>({
   const exportableColumns = columns.filter((c) => c.id !== 'actions' && c.accessor);
 
   const handleSort = (colId: string) => {
+    let newDir: SortDirection = 'asc';
     if (sortCol === colId) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortCol(colId);
-      setSortDir('asc');
+      newDir = sortDir === 'asc' ? 'desc' : 'asc';
     }
-    setPage(0);
+
+    if (props.onSortChange) {
+      props.onSortChange(colId, newDir);
+    } else {
+      setInternalSortCol(colId);
+      setInternalSortDir(newDir);
+      setInternalPage(0);
+    }
   };
 
   const isSortable = (col: DataColumn<T>) => col.accessor && !col.disableSort;
@@ -155,7 +183,7 @@ function DataTable<T>({
   // Filter data
   let filteredData = data;
 
-  if (search.trim()) {
+  if (search.trim() && !props.serverSide) {
     const q = search.toLowerCase();
     filteredData = filteredData.filter((row) =>
       columns.some((col) => {
@@ -166,17 +194,19 @@ function DataTable<T>({
     );
   }
 
-  Object.entries(columnFilters).forEach(([colId, filterVal]) => {
-    if (!filterVal) return;
-    const col = columns.find((c) => c.id === colId);
-    if (!col?.accessor) return;
-    filteredData = filteredData.filter((row) => {
-      const val = String(col.accessor!(row));
-      return val === filterVal;
+  if (!props.serverSide) {
+    Object.entries(columnFilters).forEach(([colId, filterVal]) => {
+      if (!filterVal) return;
+      const col = columns.find((c) => c.id === colId);
+      if (!col?.accessor) return;
+      filteredData = filteredData.filter((row) => {
+        const val = String(col.accessor!(row));
+        return val === filterVal;
+      });
     });
-  });
+  }
 
-  if (sortCol) {
+  if (sortCol && !props.serverSide) {
     const col = columns.find((c) => c.id === sortCol);
     if (col?.accessor) {
       filteredData = [...filteredData].sort((a, b) => {
@@ -191,15 +221,20 @@ function DataTable<T>({
     }
   }
 
-  const paginatedData = paginated ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : filteredData;
+  const paginatedData = paginated && !props.serverSide ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : filteredData;
+
+  const totalCount = props.serverSide ? (props.totalElements ?? data.length) : filteredData.length;
 
   const activeFilterCount = Object.values(columnFilters).filter(Boolean).length + (search ? 1 : 0);
 
   const clearAllFilters = () => {
-    setSearch('');
-    setColumnFilters({});
-    setSortCol(null);
-    setPage(0);
+    setInternalSearch('');
+    setInternalColumnFilters({});
+    setInternalSortCol(null);
+    setInternalPage(0);
+    props.onSearchChange?.('');
+    props.onFilterChange?.({});
+    if (props.onSortChange) props.onSortChange('', 'asc');
   };
 
   const handleSelectAll = (checked: boolean) => {
@@ -355,7 +390,12 @@ function DataTable<T>({
               size="small"
               placeholder="Search…"
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              onChange={(e) => { 
+                const val = e.target.value;
+                setInternalSearch(val); 
+                setInternalPage(0);
+                props.onSearchChange?.(val);
+              }}
               sx={{ 
                 flex: isMobile ? 1 : 'unset', 
                 minWidth: isMobile ? '100%' : 180, 
@@ -370,7 +410,11 @@ function DataTable<T>({
                 ),
                 endAdornment: search ? (
                   <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => { setSearch(''); setPage(0); }}>
+                    <IconButton size="small" onClick={() => { 
+                      setInternalSearch(''); 
+                      setInternalPage(0); 
+                      props.onSearchChange?.('');
+                    }}>
                       <ClearIcon fontSize="small" />
                     </IconButton>
                   </InputAdornment>
@@ -437,8 +481,11 @@ function DataTable<T>({
                 displayEmpty
                 value={columnFilters[col.id] || ''}
                 onChange={(e) => {
-                  setColumnFilters((prev) => ({ ...prev, [col.id]: e.target.value as string }));
-                  setPage(0);
+                  const newVal = e.target.value as string;
+                  const newFilters = { ...columnFilters, [col.id]: newVal };
+                  setInternalColumnFilters(newFilters);
+                  setInternalPage(0);
+                  props.onFilterChange?.(newFilters);
                 }}
                 sx={{ fontSize: '0.8rem' }}
                 renderValue={(v) => v || <Typography variant="caption" color="text.secondary">{col.label}</Typography>}
@@ -528,13 +575,24 @@ function DataTable<T>({
           <TablePagination
             rowsPerPageOptions={rowsPerPageOptions}
             component="div"
-            count={filteredData.length}
+            count={totalCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            onPageChange={(_, p) => setPage(p)}
+            onPageChange={(_, p) => {
+              if (props.onPageChange) {
+                props.onPageChange(p);
+              } else {
+                setInternalPage(p);
+              }
+            }}
             onRowsPerPageChange={(e) => {
-              setRowsPerPage(parseInt(e.target.value, 10));
-              setPage(0);
+              const rpp = parseInt(e.target.value, 10);
+              if (props.onRowsPerPageChange) {
+                props.onRowsPerPageChange(rpp);
+              } else {
+                setInternalRowsPerPage(rpp);
+                setInternalPage(0);
+              }
             }}
           />
         )}
@@ -698,13 +756,24 @@ function DataTable<T>({
         <TablePagination
           rowsPerPageOptions={rowsPerPageOptions}
           component="div"
-          count={filteredData.length}
+          count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
-          onPageChange={(_, p) => setPage(p)}
+          onPageChange={(_, p) => {
+            if (props.onPageChange) {
+              props.onPageChange(p);
+            } else {
+              setInternalPage(p);
+            }
+          }}
           onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
+            const rpp = parseInt(e.target.value, 10);
+            if (props.onRowsPerPageChange) {
+              props.onRowsPerPageChange(rpp);
+            } else {
+              setInternalRowsPerPage(rpp);
+              setInternalPage(0);
+            }
           }}
           sx={{ flexShrink: 0, borderTop: (t) => `1px solid ${t.palette.divider}`, overflow: 'hidden !important', '& .MuiTablePagination-toolbar': { minHeight: 40, p: 0, px: 2, overflow: 'hidden !important' }, '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': { m: 0 } }}
         />
