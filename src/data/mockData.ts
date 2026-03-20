@@ -26,31 +26,57 @@ export const mockPayments: PaymentTransaction[] = [
 
 export const mockPipRecords: PipRecord[] = [
   {
-    id: 'pip1', ptan: 'PTAN12345', paymentDate: '01/15/2026', checkEftNumber: 'EFT998877', paymentAmount: 150000.00, suspenseBalance: 138648.96, status: 'Completed',
-    npiAllocations: [
-      { npi: '1987191887', name: 'CRESCENT HOSPICE INC', allocatedAmount: 90000.00, allocatedPercent: 60.00, claims: [
-          { claimId: 'MC10677', patientName: 'ELLIS, MARTHA', allowedAmt: 3729.12, appliedToPipBalance: -3729.12 },
-          { claimId: '1894716', patientName: 'GRANTHAM, ELISE', allowedAmt: 6999.16, appliedToPipBalance: -4421.92 },
+    "id": "pip0",
+    "ptan": "11-1513",
+    "paymentDate": "2026-01-30",
+    "checkEftNumber": "eft2342793, remit01947",
+    "paymentAmount": "3859527.00",
+    "suspenseBalance": "-269264.37",
+    "status": "Applied",
+    "npiDetails": [
+      {
+        "npiPayerName": "1821077017 - jm mac sc/hhh-palmetto gba #11001",
+        "totalPayment": "4128791.37",
+        "allocatedPercent": null,
+        "claims": [
+          {
+            "claimId": "1410527",
+            "patientName": "glenda mathis",
+            "allowedAmt": "4633.28",
+            "appliedToPipBalance": "5206.71"
+          },
+          {
+            "claimId": "1428749",
+            "patientName": "marie h steier",
+            "allowedAmt": "4819.30",
+            "appliedToPipBalance": "7556.20"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'pip1', ptan: 'PTAN12345', paymentDate: '01/15/2026', checkEftNumber: 'EFT998877', paymentAmount: '150000.00', suspenseBalance: '138648.96', status: 'Posted',
+    npiDetails: [
+      { npiPayerName: '1987191887 - CRESCENT HOSPICE INC', totalPayment: '90000.00', allocatedPercent: 60.00, claims: [
+          { claimId: 'MC10677', patientName: 'ELLIS, MARTHA', allowedAmt: '3729.12', appliedToPipBalance: '3729.12' },
+          { claimId: '1894716', patientName: 'GRANTHAM, ELISE', allowedAmt: '6999.16', appliedToPipBalance: '4421.92' },
       ]},
-      { npi: '1234567890', name: 'SUNCOAST HOSPICE CARE', allocatedAmount: 60000.00, allocatedPercent: 40.00, claims: [
-          { claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', allowedAmt: 3850.00, appliedToPipBalance: -3200.00 },
+      { npiPayerName: '1234567890 - SUNCOAST HOSPICE CARE', totalPayment: '60000.00', allocatedPercent: 40.00, claims: [
+          { claimId: 'MC20451', patientName: 'WILLIAMS, JAMES', allowedAmt: '3850.00', appliedToPipBalance: '3200.00' },
       ]},
     ],
   },
   {
-    id: 'pip2', ptan: 'PTAN10030', paymentDate: '12/31/2025', checkEftNumber: 'EFT998830', paymentAmount: 130636.78, suspenseBalance: 88305.27, status: 'Pending Review',
-    npiAllocations: [
-      { npi: '1000000030', name: 'HOSPICE FACILITY 30', allocatedAmount: 130636.78, allocatedPercent: 100.00, claims: [
-        { claimId: 'MC80030', patientName: 'PATIENT, TEST 30', allowedAmt: 42331.51, appliedToPipBalance: -42331.51 },
+    id: 'pip2', ptan: 'PTAN10030', paymentDate: '12/31/2025', checkEftNumber: 'EFT998830', paymentAmount: '130636.78', suspenseBalance: '88305.27', status: 'Pending Review',
+    npiDetails: [
+      { npiPayerName: '1000000030 - HOSPICE FACILITY 30', totalPayment: '130636.78', allocatedPercent: 100.00, claims: [
+        { claimId: 'MC80030', patientName: 'PATIENT, TEST 30', allowedAmt: '42331.51', appliedToPipBalance: '42331.51' },
       ]},
     ],
   },
-  { id: 'pip3', ptan: 'PTAN10029', paymentDate: '12/30/2025', checkEftNumber: 'EFT998829', paymentAmount: 192001.70, suspenseBalance: 94564.81, status: 'Completed', npiAllocations: [] },
-  { id: 'pip4', ptan: 'PTAN10028', paymentDate: '12/29/2025', checkEftNumber: 'EFT998828', paymentAmount: 194769.70, suspenseBalance: 162505.99, status: 'Completed', npiAllocations: [] },
-  { id: 'pip5', ptan: 'PTAN10027', paymentDate: '12/28/2025', checkEftNumber: 'EFT998827', paymentAmount: 103860.80, suspenseBalance: 44188.10, status: 'Completed', npiAllocations: [] },
-  { id: 'pip6', ptan: 'PTAN10026', paymentDate: '12/27/2025', checkEftNumber: 'EFT998826', paymentAmount: 144018.34, suspenseBalance: 46807.84, status: 'Completed', npiAllocations: [] },
-  { id: 'pip7', ptan: 'PTAN10025', paymentDate: '12/26/2025', checkEftNumber: 'EFT998825', paymentAmount: 158927.08, suspenseBalance: 84226.32, status: 'Pending Review', npiAllocations: [] },
-  { id: 'pip8', ptan: 'PTAN10024', paymentDate: '12/25/2025', checkEftNumber: 'EFT998824', paymentAmount: 196723.10, suspenseBalance: 32951.45, status: 'Completed', npiAllocations: [] },
+  { id: 'pip3', ptan: 'PTAN10029', paymentDate: '12/30/2025', checkEftNumber: 'EFT998829', paymentAmount: '192001.70', suspenseBalance: '94564.81', status: 'Posted', npiDetails: [] },
+  { id: 'pip4', ptan: 'PTAN10028', paymentDate: '12/29/2025', checkEftNumber: 'EFT998828', paymentAmount: '194769.70', suspenseBalance: '162505.99', status: 'Posted', npiDetails: [] },
 ];
 
 

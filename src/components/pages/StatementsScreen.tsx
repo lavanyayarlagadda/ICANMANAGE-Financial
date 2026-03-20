@@ -191,8 +191,8 @@ const StatementsScreen: React.FC = () => {
   const { activeSubTab } = useAppSelector((s) => s.ui);
   const { forwardBalanceNotices, pipRecords } = useAppSelector((s) => s.financials);
 
-  const totalPipAmount = pipRecords.reduce((sum, r) => sum + r.paymentAmount, 0);
-  const totalSuspenseBalance = pipRecords.reduce((sum, r) => sum + r.suspenseBalance, 0);
+  const totalPipAmount = pipRecords.reduce((sum, r) => sum + Number(r.paymentAmount), 0);
+  const totalSuspenseBalance = pipRecords.reduce((sum, r) => sum + Number(r.suspenseBalance), 0);
 
   const totalOriginalAmount = forwardBalanceNotices.reduce((sum, r) => sum + r.originalAmount, 0);
   const totalRemainingBalance = forwardBalanceNotices.reduce((sum, r) => sum + r.remainingBalance, 0);

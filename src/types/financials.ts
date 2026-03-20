@@ -34,27 +34,26 @@ export interface PaymentTransaction {
 export interface ClaimAllocation {
   claimId: string;
   patientName: string;
-  allowedAmt: number;
-  appliedToPipBalance: number;
+  allowedAmt: string | number;
+  appliedToPipBalance: string | number;
 }
 
 export interface NpiAllocation {
-  npi: string;
-  name: string;
-  allocatedAmount: number;
-  allocatedPercent: number;
+  npiPayerName: string;
+  totalPayment: string | number;
+  allocatedPercent: number | null;
   claims: ClaimAllocation[];
 }
 
 export interface PipRecord {
-  id: string;
+  id?: string;
   ptan: string;
   paymentDate: string;
   checkEftNumber: string;
-  paymentAmount: number;
-  suspenseBalance: number;
+  paymentAmount: string | number;
+  suspenseBalance: string | number;
   status: TransactionStatus;
-  npiAllocations: NpiAllocation[];
+  npiDetails: NpiAllocation[];
 }
 
 export interface ServiceLine {

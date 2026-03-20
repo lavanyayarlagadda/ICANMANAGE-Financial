@@ -35,17 +35,17 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
             }}
           >
             <Typography fontSize={13} fontWeight={600} sx={{ flex: 1, wordBreak: "break-word" }}>
-              NPI {allocation.npi} – {allocation.name}
+              {allocation.npiPayerName}
             </Typography>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: { xs: 'space-between', sm: 'flex-end' }, width: { xs: '100%', sm: 'auto' } }}>
               <Typography textAlign="right" fontSize={13} fontWeight={600}>
-                {formatCurrency(allocation.allocatedAmount)}
+                {formatCurrency(Number(allocation.totalPayment))}
               </Typography>
 
               <Box sx={{ textAlign: "right", pr: 1 }}>
                 <Chip
-                  label={`${formatPercent(allocation.allocatedPercent, 2)} Allocated`}
+                  label={`${formatPercent(Number(allocation.allocatedPercent ?? 0), 2)} Allocated`}
                   size="small"
                   variant="outlined"
                   color="primary"
@@ -102,11 +102,11 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
               <Typography fontSize={13}>{claim.patientName}</Typography>
 
               <Typography fontSize={13} textAlign="right">
-                {formatCurrency(claim.allowedAmt)}
+                {formatCurrency(Number(claim.allowedAmt))}
               </Typography>
 
               <Typography fontSize={13} textAlign="right" color="success.main">
-                {formatCurrency(claim.appliedToPipBalance)}
+                {formatCurrency(Number(claim.appliedToPipBalance))}
               </Typography>
             </Box>
           ))}
@@ -160,6 +160,8 @@ const PipScreen: React.FC = () => {
     });
   };
 
+  const getRowId = (row: PipRecord) => row.id || row.ptan;
+
   const handleRangeChange = (range: string) => {
     if (range.includes(' to ')) {
       const [from, to] = range.split(' to ');
@@ -180,15 +182,15 @@ const PipScreen: React.FC = () => {
       id: "expand",
       label: "",
       render: (row) =>
-        row.npiAllocations.length > 0 ? (
+        (row.npiDetails?.length ?? 0) > 0 ? (
           <IconButton
             size="small"
             onClick={(e) => {
               e.stopPropagation();
-              toggleRow(row.id);
+              toggleRow(getRowId(row));
             }}
           >
-            {expandedRows.has(row.id) ? (
+            {expandedRows.has(getRowId(row)) ? (
               <KeyboardArrowDownIcon fontSize="small" />
             ) : (
               <KeyboardArrowRightIcon fontSize="small" />
@@ -199,17 +201,17 @@ const PipScreen: React.FC = () => {
     { id: "ptan", label: "PTAN", accessor: (row) => row.ptan, render: (row) => row.ptan },
     { id: "paymentDate", label: "PAYMENT DATE", accessor: (row) => row.paymentDate, render: (row) => row.paymentDate },
     { id: "checkEftNumber", label: "CHECK/EFT NUMBER", accessor: (row) => row.checkEftNumber, render: (row) => row.checkEftNumber },
-    { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "right", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(row.paymentAmount) },
-    { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "right", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(row.suspenseBalance) },
+    { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "right", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
+    { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "right", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
     { id: "status", label: "STATUS", accessor: (row) => row.status, render: (row) => <StatusBadge status={row.status} /> },
   ];
 
   const renderExpandedContent = (row: PipRecord) => {
-    if (!row.npiAllocations?.length) return null;
+    if (!row.npiDetails?.length) return null;
     return (
       <Box>
-        {row.npiAllocations.map((allocation) => (
-          <NpiSection key={allocation.npi} allocation={allocation} />
+        {row.npiDetails.map((allocation) => (
+          <NpiSection key={allocation.npiPayerName} allocation={allocation} />
         ))}
       </Box>
     );
@@ -239,7 +241,7 @@ const PipScreen: React.FC = () => {
       <DataTable
         columns={columns}
         data={pipRecords}
-        rowKey={(row) => row.id}
+        rowKey={getRowId}
         expandedRows={expandedRows}
         expandedContent={renderExpandedContent}
         exportTitle="PIP Records"
