@@ -12,7 +12,7 @@ import { formatCurrency, formatPercent } from "@/utils/formatters";
 import { useSearchPipQuery, useLazyExportPipQuery } from "@/store/api/financialsApi";
 import { subMonths, format } from 'date-fns';
 import { useAppSelector, useAppDispatch } from "@/store";
-import { setActiveExportType, setIsReloading } from "@/store/slices/uiSlice";
+import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
 import { useRef } from 'react';
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
 
