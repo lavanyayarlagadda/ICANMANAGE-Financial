@@ -14,6 +14,7 @@ import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import DetailCard from '@/components/molecules/DetailCard';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import { ServiceLine } from '@/types/financials';
+import MultiValueDisplay from '@/components/atoms/MultiValueDisplay';
 
 
 
@@ -78,7 +79,7 @@ const RemittanceDetailScreen: React.FC = () => {
           {
             fields: [
               { label: "Payment Date", value: detail.paymentDate },
-              { label: "Check/EFT Number", value: detail.checkEftNumber },
+              { label: "Check/EFT Number", value: <MultiValueDisplay value={detail.checkEftNumber} displayCount={3} /> },
               { label: "Payment Amount", value: formatCurrency(detail.paymentAmount) },
               { label: "Payer Name", value: detail.payerName },
               { label: "Patient Name", value: detail.patientName },

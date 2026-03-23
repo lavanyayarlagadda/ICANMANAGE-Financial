@@ -19,6 +19,7 @@ import StatusBadge from '@/components/atoms/StatusBadge';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import Accordion from '@/components/atoms/Accordion';
 import SummaryCard from '@/components/atoms/SummaryCard';
+import MultiValueDisplay from '@/components/atoms/MultiValueDisplay';
 
 const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => {
   const theme = useTheme();
@@ -28,8 +29,8 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => {
         defaultExpanded={false}
         summary={
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 2 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, flex: 1 }}>
-              Offset EFT: <span style={{ color: theme.palette.primary.main }}>{offset.eftNumber}</span> &nbsp; {offset.date}
+            <Typography variant="body2" sx={{ fontWeight: 600, flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+              Offset EFT: <MultiValueDisplay value={offset.eftNumber} displayCount={1} /> &nbsp; {offset.date}
             </Typography>
             <Typography variant="body2" sx={{ fontWeight: 700, mr: 4 }}>
               {formatCurrency(offset.amount)}
