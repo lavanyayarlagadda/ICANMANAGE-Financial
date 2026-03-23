@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Box, Typography, Chip, useTheme } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
@@ -7,7 +7,7 @@ import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { OtherAdjustmentRecord } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
-import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
+import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
 
 const adjustmentTypeColors: Record<string, string> = {
   'WRITE-OFF': '#C62828',
@@ -24,6 +24,45 @@ const OtherAdjustmentsScreen: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const otherAdjustments = useAppSelector((s) => s.financials.otherAdjustments);
+  const { actionTriggers } = useAppSelector(s => s.ui);
+
+  const exportCount = useRef(actionTriggers.export);
+  const printCount = useRef(actionTriggers.print);
+  const reloadCount = useRef(actionTriggers.reload);
+
+  const handleExport = (format: 'pdf' | 'xlsx') => {
+    dispatch(setActiveExportType(format));
+    setTimeout(() => {
+      dispatch(setActiveExportType(null));
+      alert(`Exporting Other Adjustments as ${format.toUpperCase()}... (Endpoint pending)`);
+    }, 1200);
+  };
+
+  useEffect(() => {
+    if (actionTriggers.export > exportCount.current) {
+      handleExport('xlsx');
+      exportCount.current = actionTriggers.export;
+    }
+  }, [actionTriggers.export]);
+
+  useEffect(() => {
+    if (actionTriggers.print > printCount.current) {
+      handleExport('pdf');
+      printCount.current = actionTriggers.print;
+    }
+  }, [actionTriggers.print]);
+
+  useEffect(() => {
+    if (actionTriggers.reload > reloadCount.current) {
+      const doReload = async () => {
+        dispatch(setIsReloading(true));
+        await new Promise(r => setTimeout(r, 800)); // Simulate fetch
+        dispatch(setIsReloading(false));
+      };
+      doReload();
+      reloadCount.current = actionTriggers.reload;
+    }
+  }, [actionTriggers.reload]);
 
   const columns: DataColumn<OtherAdjustmentRecord>[] = [
     {

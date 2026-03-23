@@ -40,6 +40,8 @@ interface FinancialsState {
   collections: CollectionAccount[];
   bankDeposits: BankDepositEntity[];
   forwardBalanceNotices: ForwardBalanceNotice[];
+  remittanceClaims: any[];
+  selectedClaimIndex: number;
   loading: boolean;
 
   error: string | null;
@@ -61,6 +63,8 @@ const initialState: FinancialsState = {
   collections: mockCollections,
   bankDeposits: mockBankDeposits,
   forwardBalanceNotices: mockForwardBalanceNotices,
+  remittanceClaims: [],
+  selectedClaimIndex: 0,
   loading: false,
   error: null,
   selectedPaymentId: null,
@@ -87,6 +91,15 @@ const financialsSlice = createSlice({
     },
     setShowRemittanceDetail: (state, action: PayloadAction<boolean>) => {
       state.showRemittanceDetail = action.payload;
+    },
+    setRemittanceDetail: (state, action: PayloadAction<RemittanceDetail | null>) => {
+      state.remittanceDetail = action.payload;
+    },
+    setRemittanceClaims: (state, action: PayloadAction<any[]>) => {
+      state.remittanceClaims = action.payload;
+    },
+    setSelectedClaimIndex: (state, action: PayloadAction<number>) => {
+      state.selectedClaimIndex = action.payload;
     },
     openAddDialog: (state, action: PayloadAction<string>) => {
       state.addDialogOpen = true;
@@ -126,6 +139,9 @@ export const {
   setSelectedPaymentId,
   setPayments,
   setShowRemittanceDetail,
+  setRemittanceDetail,
+  setRemittanceClaims,
+  setSelectedClaimIndex,
   openAddDialog,
   closeAddDialog,
   deletePayment,

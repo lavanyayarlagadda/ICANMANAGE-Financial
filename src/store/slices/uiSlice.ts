@@ -17,6 +17,15 @@ interface UiState {
   snackbarOpen: boolean;
   snackbarMessage: string;
   snackbarSeverity: 'success' | 'error' | 'info' | 'warning';
+  activeExportType: 'pdf' | 'xlsx' | null;
+  isReloading: boolean;
+  isDrillingDown: boolean;
+  isGlobalFetching: boolean;
+  actionTriggers: {
+    print: number;
+    reload: number;
+    export: number;
+  };
 }
 
 const initialState: UiState = {
@@ -36,6 +45,15 @@ const initialState: UiState = {
   snackbarOpen: false,
   snackbarMessage: '',
   snackbarSeverity: 'success',
+  activeExportType: null,
+  isReloading: false,
+  isDrillingDown: false,
+  isGlobalFetching: false,
+  actionTriggers: {
+    print: 0,
+    reload: 0,
+    export: 0,
+  },
 };
 
 const uiSlice = createSlice({
@@ -97,6 +115,27 @@ const uiSlice = createSlice({
     closeSnackbar: (state) => {
       state.snackbarOpen = false;
     },
+    triggerPrint: (state) => {
+      state.actionTriggers.print += 1;
+    },
+    triggerReload: (state) => {
+      state.actionTriggers.reload += 1;
+    },
+    triggerExport: (state) => {
+      state.actionTriggers.export += 1;
+    },
+    setActiveExportType: (state, action: PayloadAction<'pdf' | 'xlsx' | null>) => {
+      state.activeExportType = action.payload;
+    },
+    setIsReloading: (state, action: PayloadAction<boolean>) => {
+      state.isReloading = action.payload;
+    },
+    setIsDrillingDown: (state, action: PayloadAction<boolean>) => {
+      state.isDrillingDown = action.payload;
+    },
+    setIsGlobalFetching: (state, action: PayloadAction<boolean>) => {
+      state.isGlobalFetching = action.payload;
+    },
   },
 });
 
@@ -116,5 +155,12 @@ export const {
   closeConfirmDelete,
   showSnackbar,
   closeSnackbar,
+  triggerPrint,
+  triggerReload,
+  triggerExport,
+  setActiveExportType,
+  setIsReloading,
+  setIsDrillingDown,
+  setIsGlobalFetching,
 } = uiSlice.actions;
 export default uiSlice.reducer;

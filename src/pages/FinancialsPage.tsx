@@ -29,6 +29,9 @@ import {
   setActivePage,
   setActiveTab,
   setActiveSubTab,
+  triggerExport,
+  triggerPrint,
+  triggerReload,
 } from '@/store/slices/uiSlice';
 import {
   setShowRemittanceDetail,
@@ -141,7 +144,11 @@ const FinancialsPage: React.FC = () => {
 
     return (
       <>
-        <FinancialsTabs onAddNew={() => setAddDialogOpen(true)} />
+        <FinancialsTabs 
+          onPrint={() => dispatch(triggerPrint())}
+          onReload={() => dispatch(triggerReload())}
+          onExportWizard={() => dispatch(triggerExport())}
+        />
         {renderTabContent()}
       </>
     );

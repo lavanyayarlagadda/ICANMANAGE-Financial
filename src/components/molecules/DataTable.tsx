@@ -94,6 +94,8 @@ interface DataTableProps<T> {
   onSortChange?: (colId: string, direction: 'asc' | 'desc') => void;
   onFilterChange?: (filters: Record<string, string>) => void;
   onSearchChange?: (query: string) => void;
+  download?:boolean;
+  onDownload?: () => void;
 }
 
 
@@ -102,6 +104,7 @@ function DataTable<T>({
   data,
   rowKey,
   paginated = true,
+  download=true,
   rowsPerPageOptions = [10, 25, 50],
   onRowClick,
   expandedContent,
@@ -436,7 +439,8 @@ function DataTable<T>({
             )}
 
             {/* Download button */}
-            {exportableColumns.length > 0 && (
+            
+            {download &&  exportableColumns.length > 0 && (
               <>
                 <Button
                   size="small"
@@ -458,10 +462,17 @@ function DataTable<T>({
                   open={Boolean(downloadAnchor)}
                   onClose={() => setDownloadAnchor(null)}
                 >
-                  <MenuItem onClick={handleCSVExport}>
-                    <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText>Download CSV</ListItemText>
-                  </MenuItem>
+                  {props.onDownload ? (
+                    <MenuItem onClick={() => { setDownloadAnchor(null); props.onDownload?.(); }}>
+                      <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Download Excel</ListItemText>
+                    </MenuItem>
+                  ) : (
+                    <MenuItem onClick={handleCSVExport}>
+                      <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Download CSV</ListItemText>
+                    </MenuItem>
+                  )}
                   <MenuItem onClick={handlePDFExport}>
                     <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
                     <ListItemText>Download PDF</ListItemText>

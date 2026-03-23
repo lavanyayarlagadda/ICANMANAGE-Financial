@@ -17,6 +17,7 @@ import {
   Alert,
   IconButton,
   Tooltip,
+  CircularProgress,
 } from '@mui/material';
 import PaymentIcon from '@mui/icons-material/Payment';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -47,15 +48,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const dispatch = useAppDispatch();
-  const { mobileMenuOpen, activePage, activeTab, sidebarCollapsed, snackbarOpen, snackbarMessage, snackbarSeverity } = useAppSelector((s) => s.ui);
+  const { mobileMenuOpen, activePage, activeTab, sidebarCollapsed, snackbarOpen, snackbarMessage, snackbarSeverity,
+    activeExportType, isReloading, isDrillingDown, isGlobalFetching } = useAppSelector((s) => s.ui);
+  const { loading: financialsLoading } = useAppSelector((s) => s.financials);
 
   const user = useAppSelector((state) => state.auth.user);
   const menus = user?.menus || [];
 
   const getMenuStatus = (label: string) => {
-    const findStatus = (menusArray: typeof menus): string | null => {
+    const findStatus = (menusArray: any[]): string | null => {
       for (const m of menusArray) {
-        if (m.menuName === label) return m.status;
+        if (m.menuName?.toLowerCase() === label.toLowerCase()) return m.status;
         if (m.subModules) {
           const sub = findStatus(m.subModules);
           if (sub) return sub;
@@ -63,7 +66,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       }
       return null;
     };
-    return findStatus(menus) || 'Hidden';
+    const status = findStatus(menus);
+    // If user has no menus defined, default to 'Visible' for base menus
+    if (!menus || menus.length === 0) return 'Visible';
+    return status || 'Hidden';
   };
 
   const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
@@ -157,6 +163,34 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: theme.palette.background.default }}>
+      {/* Global Interaction Blocker */}
+      {(activeExportType || isReloading || isDrillingDown || isGlobalFetching || financialsLoading) && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(255, 255, 255, 0.7)', // Stronger backdrop
+            zIndex: 99999, // Above everything
+            cursor: 'wait',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2
+          }}
+        >
+          <CircularProgress size={60} thickness={4} />
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
+            {isReloading ? 'Refreshing Data...' : 
+            (activeExportType ? 'Preparing Report...' : 
+            (isGlobalFetching ? 'Please Wait...' : 'Processing...'))}
+          </Typography>
+        </Box>
+      )}
+
       <CssBaseline />
       <TopNavBar onMenuToggle={() => dispatch(toggleMobileMenu())} />
 

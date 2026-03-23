@@ -1,17 +1,57 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Box, Typography, useTheme, IconButton, Grid } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { useAppSelector } from '@/store';
+import { useAppSelector, useAppDispatch } from '@/store';
 import { VarianceRecord } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import SummaryCard from '@/components/atoms/SummaryCard';
+import { setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
 
 const VarianceScreen: React.FC = () => {
   const theme = useTheme();
+  const dispatch = useAppDispatch();
   const varianceRecords = useAppSelector((s) => s.financials.varianceRecords);
-  const { activeSubTab } = useAppSelector((s) => s.ui);
+  const { activeSubTab, actionTriggers } = useAppSelector((s) => s.ui);
+
+  const exportCount = useRef(actionTriggers.export);
+  const printCount = useRef(actionTriggers.print);
+  const reloadCount = useRef(actionTriggers.reload);
+
+  const handleExport = (format: 'pdf' | 'xlsx') => {
+    dispatch(setActiveExportType(format));
+    setTimeout(() => {
+      dispatch(setActiveExportType(null));
+      alert(`Exporting Variance Analysis as ${format.toUpperCase()}... (Endpoint pending)`);
+    }, 1200);
+  };
+
+  useEffect(() => {
+    if (actionTriggers.export > exportCount.current) {
+      handleExport('xlsx');
+      exportCount.current = actionTriggers.export;
+    }
+  }, [actionTriggers.export]);
+
+  useEffect(() => {
+    if (actionTriggers.print > printCount.current) {
+      handleExport('pdf');
+      printCount.current = actionTriggers.print;
+    }
+  }, [actionTriggers.print]);
+
+  useEffect(() => {
+    if (actionTriggers.reload > reloadCount.current) {
+      const doReload = async () => {
+        dispatch(setIsReloading(true));
+        await new Promise(r => setTimeout(r, 800)); // Simulate fetch
+        dispatch(setIsReloading(false));
+      };
+      doReload();
+      reloadCount.current = actionTriggers.reload;
+    }
+  }, [actionTriggers.reload]);
 
 
   const totalExpected = varianceRecords.reduce((sum, r) => sum + r.expectedAllowed, 0);

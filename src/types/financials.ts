@@ -24,8 +24,8 @@ export interface PaymentTransaction {
   id: string;
   effectiveDate: string;
   type: string;
-  description: string;
-  sourceProvider: string;
+  transactionNo: string;
+  payer: string;
   amount: number;
   openBalance: number | null;
   status: TransactionStatus;
@@ -75,7 +75,7 @@ export interface ServiceLine {
 
 export interface RemittanceDetail {
   paymentDate: string;
-  checkEftNumber: string;
+  transactionNo: string;
   paymentAmount: number;
   payerName: string;
   patientName: string;

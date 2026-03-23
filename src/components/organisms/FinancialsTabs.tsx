@@ -8,7 +8,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
-import { Select, MenuItem, SelectChangeEvent, FormControl } from '@mui/material';
+import { Select, MenuItem, SelectChangeEvent, FormControl, CircularProgress } from '@mui/material';
 
 const mainTabs = [
   { id: 0, label: 'Transactions', path: '/financials/all-transactions' },
@@ -46,7 +46,10 @@ const trendsSubTabs = [
 
 
 interface FinancialsTabsProps {
-  onAddNew: () => void;
+  onAddNew?: () => void;
+  onPrint?: () => void;
+  onReload?: () => void;
+  onExportWizard?: () => void;
   showPrint?: boolean;
   showReload?: boolean;
   showExportWizard?: boolean;
@@ -54,6 +57,9 @@ interface FinancialsTabsProps {
 
 const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   onAddNew,
+  onPrint,
+  onReload,
+  onExportWizard,
   showPrint,
   showReload,
   showExportWizard
@@ -63,11 +69,11 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const { activeTab, activeSubTab } = useAppSelector((s) => s.ui);
+  const { activeTab, activeSubTab, activeExportType, isReloading } = useAppSelector((s) => s.ui);
   const menus = useAppSelector((s) => s.auth.user?.menus || []);
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const canShowActions = activeTab === 0 || activeTab === 5;
+  const canShowActions = activeTab === 0 || activeTab === 2 || activeTab === 5;
   const shouldShowPrint = showPrint ?? canShowActions;
   const shouldShowReload = showReload ?? canShowActions;
   const shouldShowExport = showExportWizard ?? canShowActions;
@@ -331,7 +337,8 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
               <Button
                 size="small"
                 variant="outlined"
-                startIcon={<PrintIcon sx={{ fontSize: 18, color: '#94a3b8' }} />}
+                onClick={onPrint}
+                startIcon={activeExportType === 'pdf' ? <CircularProgress size={16} /> : <PrintIcon sx={{ fontSize: 18, color: '#94a3b8' }} />}
                 sx={{
                   color: 'rgb(71, 85, 105)',
                   borderColor: '#e2e8f0',
@@ -355,7 +362,9 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
               <Button
                 size="small"
                 variant="outlined"
-                startIcon={<RefreshIcon sx={{ fontSize: 18 }} />}
+                onClick={onReload}
+                disabled={isReloading}
+                startIcon={isReloading ? <CircularProgress size={16} /> : <RefreshIcon sx={{ fontSize: 18 }} />}
                 sx={{
                   color: '#000',
                   borderColor: '#000',
@@ -379,6 +388,8 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
               <Button
                 size="small"
                 variant="contained"
+                onClick={onExportWizard}
+                startIcon={activeExportType === 'xlsx' ? <CircularProgress size={16} color="inherit" /> : null}
                 sx={{
                   bgcolor: '#d97706', // Orange color from image
                   color: '#fff',

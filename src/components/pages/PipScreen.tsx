@@ -1,19 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import Accordion from "@/components/atoms/Accordion";
-
 import StatusBadge from "@/components/atoms/StatusBadge";
-
-import { PipRecord } from "@/types/financials";
+import { PipRecord, NpiAllocation } from "@/types/financials";
 import DataTable, { DataColumn } from "../molecules/DataTable";
 import RangeDropdown from "@/components/atoms/RangeDropdown";
-import { Box, Typography, IconButton, Chip } from "@mui/material";
+import { Box, Typography, IconButton, Chip, CircularProgress } from "@mui/material";
 import MultiValueDisplay from "@/components/atoms/MultiValueDisplay";
-
-
-import { NpiAllocation } from "@/types/financials";
 import { formatCurrency, formatPercent } from "@/utils/formatters";
+import { useSearchPipQuery, useLazyExportPipQuery } from "@/store/api/financialsApi";
+import { subMonths, format } from 'date-fns';
+import { useAppSelector, useAppDispatch } from "@/store";
+import { setActiveExportType, setIsReloading } from "@/store/slices/uiSlice";
+import { useRef } from 'react';
+import { downloadFileFromBlob } from "@/utils/downloadHelper";
 
 interface Props {
   allocation: NpiAllocation;
@@ -25,25 +26,21 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
       <Accordion
         defaultExpanded={false}
         summary={
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
-              alignItems: { xs: "flex-start", sm: "center" },
-              justifyContent: "space-between",
-              width: "100%",
-              gap: { xs: 1, sm: 2 },
-            }}
-          >
+          <Box sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "flex-start", sm: "center" },
+            justifyContent: "space-between",
+            width: "100%",
+            gap: { xs: 1, sm: 2 },
+          }}>
             <Typography fontSize={13} fontWeight={600} sx={{ flex: 1, wordBreak: "break-word" }}>
               {allocation.npiPayerName}
             </Typography>
-
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: { xs: 'space-between', sm: 'flex-end' }, width: { xs: '100%', sm: 'auto' } }}>
               <Typography textAlign="right" fontSize={13} fontWeight={600}>
                 {formatCurrency(Number(allocation.totalPayment))}
               </Typography>
-
               <Box sx={{ textAlign: "right", pr: 1 }}>
                 <Chip
                   label={`${formatPercent(Number(allocation.allocatedPercent ?? 0), 2)} Allocated`}
@@ -57,58 +54,28 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
         }
       >
         <Box sx={{ border: "1px solid #eee", borderTop: "none", overflowX: "auto" }}>
-          {/* Header */}
-          <Box
-            sx={{
+          <Box sx={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 2fr 1fr 1fr",
+            minWidth: 500, px: 2, py: 1,
+            background: "#fafafa", borderBottom: "1px solid #eee",
+          }}>
+            <Typography fontSize={12} fontWeight={600}>CLAIM ID</Typography>
+            <Typography fontSize={12} fontWeight={600}>PATIENT NAME</Typography>
+            <Typography textAlign="right" fontSize={12} fontWeight={600}>ALLOWED AMT</Typography>
+            <Typography textAlign="right" fontSize={12} fontWeight={600}>APPLIED TO PIP BALANCE</Typography>
+          </Box>
+          {allocation.claims.map((claim) => (
+            <Box key={claim.claimId} sx={{
               display: "grid",
               gridTemplateColumns: "1.2fr 2fr 1fr 1fr",
-              minWidth: 500,
-              px: 2,
-              py: 1,
-              background: "#fafafa",
-              borderBottom: "1px solid #eee",
-            }}
-          >
-            <Typography fontSize={12} fontWeight={600}>
-              CLAIM ID
-            </Typography>
-            <Typography fontSize={12} fontWeight={600}>
-              PATIENT NAME
-            </Typography>
-            <Typography textAlign="right" fontSize={12} fontWeight={600}>
-              ALLOWED AMT
-            </Typography>
-            <Typography textAlign="right" fontSize={12} fontWeight={600}>
-              APPLIED TO PIP BALANCE
-            </Typography>
-          </Box>
-
-          {/* Claims */}
-          {allocation.claims.map((claim) => (
-            <Box
-              key={claim.claimId}
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "1.2fr 2fr 1fr 1fr",
-                minWidth: 500,
-                px: 2,
-                py: 1,
-                borderBottom: "1px solid #f1f1f1",
-              }}
-            >
-              <Typography fontSize={13} color="primary">
-                {claim.claimId}
-              </Typography>
-
+              minWidth: 500, px: 2, py: 1,
+              borderBottom: "1px solid #f1f1f1",
+            }}>
+              <Typography fontSize={13} color="primary">{claim.claimId}</Typography>
               <Typography fontSize={13}>{claim.patientName}</Typography>
-
-              <Typography fontSize={13} textAlign="right">
-                {formatCurrency(Number(claim.allowedAmt))}
-              </Typography>
-
-              <Typography fontSize={13} textAlign="right" color="success.main">
-                {formatCurrency(Number(claim.appliedToPipBalance))}
-              </Typography>
+              <Typography fontSize={13} textAlign="right">{formatCurrency(Number(claim.allowedAmt))}</Typography>
+              <Typography fontSize={13} textAlign="right" color="success.main">{formatCurrency(Number(claim.appliedToPipBalance))}</Typography>
             </Box>
           ))}
         </Box>
@@ -117,42 +84,103 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
   );
 };
 
-
-
-
-
-import { useSearchPipQuery } from "@/store/api/financialsApi";
-import { CircularProgress } from "@mui/material";
-import { subMonths, format } from 'date-fns';
-
 const PipScreen: React.FC = () => {
-  // Default to 4 months ago for PIP as per user example range
-  const defaultTo = new Date();
-  const defaultFrom = subMonths(defaultTo, 4);
+  const dispatch = useAppDispatch();
+  const { actionTriggers, activeExportType, isReloading } = useAppSelector(s => s.ui);
 
-  // API Payload State
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
-  const [sortField, setSortField] = useState('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [fromDate, setFromDate] = useState(format(defaultFrom, 'yyyy-MM-dd'));
-  const [toDate, setToDate] = useState(format(defaultTo, 'yyyy-MM-dd'));
+  // Refs to prevent mount calls
+  const exportCount = useRef(actionTriggers.export);
+  const printCount = useRef(actionTriggers.print);
+  const reloadCount = useRef(actionTriggers.reload);
 
-  const { data, isLoading, isError, isFetching } = useSearchPipQuery({
-    page: page, // API appears to be 0-indexed for PIP based on request example
-    size: size,
-    sort: sortField,
-    desc: sortOrder === 'desc',
-    fromDate,
-    toDate
+  // Search parameters state
+  const [queryParams, setQueryParams] = useState({
+    page: 0,
+    size: 10,
+    sortField: '',
+    sortOrder: 'desc' as 'asc' | 'desc',
+    fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
+    toDate: format(new Date(), 'yyyy-MM-dd'),
   });
 
-  const pipRecords = data?.content ?? [];
-  const totalElements = data?.totalElements ?? 0;
+  const { data, isLoading, isError, isFetching, refetch } = useSearchPipQuery({
+    page: queryParams.page,
+    size: queryParams.size,
+    sort: queryParams.sortField,
+    desc: queryParams.sortOrder === 'desc',
+    fromDate: queryParams.fromDate,
+    toDate: queryParams.toDate
+  });
+
+  const pipRecords = data?.data?.content ?? [];
+  const totalElements = data?.data?.totalElements ?? 0;
+
+  const [triggerExport] = useLazyExportPipQuery();
+
+  const handleExport = async (formatType: 'pdf' | 'xlsx') => {
+    try {
+      dispatch(setActiveExportType(formatType));
+      const result = await triggerExport({
+        fromDate: queryParams.fromDate,
+        toDate: queryParams.toDate,
+        format: formatType
+      }).unwrap();
+
+      if (result !== undefined) {
+        downloadFileFromBlob(
+          result as unknown as Blob,
+          `PIP_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
+        );
+      }
+    } catch (err) {
+      console.error('Export failed:', err);
+    } finally {
+      dispatch(setActiveExportType(null));
+    }
+  };
+
+  // Sync isFetching to global store
+  useEffect(() => {
+    dispatch(setIsGlobalFetching(isFetching));
+    return () => {
+      dispatch(setIsGlobalFetching(false));
+    };
+  }, [isFetching, dispatch]);
+
+  // Global triggers
+  useEffect(() => {
+    if (actionTriggers.export > exportCount.current) {
+      handleExport('xlsx');
+      exportCount.current = actionTriggers.export;
+    }
+  }, [actionTriggers.export]);
+
+  useEffect(() => {
+    if (actionTriggers.print > printCount.current) {
+      handleExport('pdf');
+      printCount.current = actionTriggers.print;
+    }
+  }, [actionTriggers.print]);
+
+  useEffect(() => {
+    if (actionTriggers.reload > reloadCount.current) {
+      const doReload = async () => {
+        try {
+          dispatch(setIsReloading(true));
+          await refetch();
+        } finally {
+          dispatch(setIsReloading(false));
+        }
+      };
+      doReload();
+      reloadCount.current = actionTriggers.reload;
+    }
+  }, [actionTriggers.reload, refetch, dispatch]);
 
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
-  const toggleRow = (id: string) => {
+  const toggleRow = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     setExpandedRows((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(id)) newSet.delete(id);
@@ -166,16 +194,18 @@ const PipScreen: React.FC = () => {
   const handleRangeChange = (range: string) => {
     if (range.includes(' to ')) {
       const [from, to] = range.split(' to ');
-      setFromDate(from);
-      setToDate(to);
-      setPage(0);
+      setQueryParams(prev => {
+        if (prev.fromDate === from && prev.toDate === to) return prev;
+        return { ...prev, fromDate: from, toDate: to, page: 0 };
+      });
     }
   };
 
   const handleSortChange = (colId: string, direction: 'asc' | 'desc') => {
-    setSortField(colId);
-    setSortOrder(direction);
-    setPage(0);
+    setQueryParams(prev => {
+      if (prev.sortField === colId && prev.sortOrder === direction) return prev;
+      return { ...prev, sortField: colId, sortOrder: direction, page: 0 };
+    });
   };
 
   const columns: DataColumn<PipRecord>[] = [
@@ -184,18 +214,8 @@ const PipScreen: React.FC = () => {
       label: "",
       render: (row) =>
         (row.npiDetails?.length ?? 0) > 0 ? (
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleRow(getRowId(row));
-            }}
-          >
-            {expandedRows.has(getRowId(row)) ? (
-              <KeyboardArrowDownIcon fontSize="small" />
-            ) : (
-              <KeyboardArrowRightIcon fontSize="small" />
-            )}
+          <IconButton size="small" onClick={(e) => toggleRow(getRowId(row), e)}>
+            {expandedRows.has(getRowId(row)) ? <KeyboardArrowDownIcon fontSize="small" /> : <KeyboardArrowRightIcon fontSize="small" />}
           </IconButton>
         ) : null,
     },
@@ -219,44 +239,20 @@ const PipScreen: React.FC = () => {
   };
 
   if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
-  if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading PIP records. Please try again later.</Box>;
+  if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading PIP records.</Box>;
 
   return (
     <Box sx={{ position: 'relative' }}>
-      {isFetching && (
-        <Box sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 10,
-          backgroundColor: 'rgba(255,255,255,0.6)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <CircularProgress size={40} thickness={4} />
-        </Box>
-      )}
       <DataTable
-        columns={columns}
-        data={pipRecords}
-        rowKey={getRowId}
-        expandedRows={expandedRows}
-        expandedContent={renderExpandedContent}
-        exportTitle="PIP Records"
-        dictionaryId="statements"
-        serverSide
-        totalElements={totalElements}
-        page={page}
-        rowsPerPage={size}
-        sortCol={sortField}
-        sortDir={sortOrder}
-        onPageChange={setPage}
-        onRowsPerPageChange={setSize}
-        onSortChange={handleSortChange}
-        customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
+        columns={columns} data={pipRecords} rowKey={getRowId} expandedRows={expandedRows}
+        expandedContent={renderExpandedContent} exportTitle="PIP Records" dictionaryId="statements"
+        serverSide totalElements={totalElements} page={queryParams.page} rowsPerPage={queryParams.size}
+        sortCol={queryParams.sortField} sortDir={queryParams.sortOrder}
+        onPageChange={(p) => setQueryParams(prev => prev.page === p ? prev : ({ ...prev, page: p }))}
+        onRowsPerPageChange={(s) => setQueryParams(prev => prev.size === s ? prev : ({ ...prev, size: s, page: 0 }))}
+        onSortChange={handleSortChange} customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
+        download={false}
+        onDownload={() => handleExport('xlsx')}
       />
     </Box>
   );

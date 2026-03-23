@@ -1,6 +1,5 @@
-import React from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import React, { useRef, useEffect } from 'react';
+import { Box, Typography, useTheme, Grid } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
@@ -9,12 +8,51 @@ import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { RecoupmentRecord } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
-import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
+import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
 
 const RecoupmentsScreen: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
   const recoupments = useAppSelector((s) => s.financials.recoupments);
+  const { actionTriggers } = useAppSelector(s => s.ui);
+
+  const exportCount = useRef(actionTriggers.export);
+  const printCount = useRef(actionTriggers.print);
+  const reloadCount = useRef(actionTriggers.reload);
+
+  const handleExport = (format: 'pdf' | 'xlsx') => {
+    dispatch(setActiveExportType(format));
+    setTimeout(() => {
+      dispatch(setActiveExportType(null));
+      alert(`Exporting Recoupments as ${format.toUpperCase()}... (Endpoint pending)`);
+    }, 1200);
+  };
+
+  useEffect(() => {
+    if (actionTriggers.export > exportCount.current) {
+      handleExport('xlsx');
+      exportCount.current = actionTriggers.export;
+    }
+  }, [actionTriggers.export]);
+
+  useEffect(() => {
+    if (actionTriggers.print > printCount.current) {
+      handleExport('pdf');
+      printCount.current = actionTriggers.print;
+    }
+  }, [actionTriggers.print]);
+
+  useEffect(() => {
+    if (actionTriggers.reload > reloadCount.current) {
+      const doReload = async () => {
+        dispatch(setIsReloading(true));
+        await new Promise(r => setTimeout(r, 800)); // Simulate fetch
+        dispatch(setIsReloading(false));
+      };
+      doReload();
+      reloadCount.current = actionTriggers.reload;
+    }
+  }, [actionTriggers.reload]);
 
   const totalRecouped = recoupments.reduce((sum, r) => sum + Math.abs(r.recoupmentAmount), 0);
   const totalOriginal = recoupments.reduce((sum, r) => sum + r.originalPaymentAmount, 0);
@@ -74,7 +112,7 @@ const RecoupmentsScreen: React.FC = () => {
 
   return (
     <Box>
-      {/* <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 4 }}>
           <SummaryCard title="Total Original Payments" value={formatCurrency(totalOriginal)} variant="highlight" />
         </Grid>
@@ -84,7 +122,7 @@ const RecoupmentsScreen: React.FC = () => {
         <Grid size={{ xs: 12, sm: 4 }}>
           <SummaryCard title="Total Records" value={String(recoupments.length)} />
         </Grid>
-      </Grid> */}
+      </Grid>
       <DataTable columns={columns} data={recoupments} rowKey={(r) => r.id} exportTitle="Recoupments" customToolbarContent={<RangeDropdown />} dictionaryId="recoupments" />
     </Box>
   );

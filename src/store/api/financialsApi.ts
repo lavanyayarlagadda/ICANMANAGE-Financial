@@ -12,11 +12,13 @@ export interface PaymentSearchRequest {
 }
 
 export interface PaymentSearchResponse {
+  data:{
   content: PaymentTransaction[];
   totalElements: number;
   totalPages: number;
   size: number;
   number: number;
+  }
 }
 
 export interface PipSearchRequest {
@@ -29,11 +31,21 @@ export interface PipSearchRequest {
 }
 
 export interface PipSearchResponse {
+  data:{
   content: PipRecord[];
   totalElements: number;
   totalPages: number;
   size: number;
   number: number;
+  }
+}
+
+export interface ServiceLineSearchRequest {
+  page: number;
+  size: number;
+  sort: string;
+  desc: boolean;
+  check: string;
 }
 
 /**
@@ -76,7 +88,32 @@ export const financialsApi = baseApi.injectEndpoints({
       query: () => 'bank-deposits',
       providesTags: ['Financials'],
     }),
-    // Example mutation
+    getRemittanceClaims: builder.query<any, string>({
+      query: (claimId) => `financials/payments/remittance-claims/${claimId}`,
+      providesTags: ['Financials'],
+    }),
+    searchServiceLines: builder.query<any, ServiceLineSearchRequest>({
+      query: (body) => ({
+        url: 'financials/payments/service-lines/search',
+        method: 'POST',
+        body,
+      }),
+      providesTags: ['Financials'],
+    }),
+    exportPayments: builder.query<any, { fromDate: string; toDate: string; format: 'pdf' | 'xlsx' }>({
+      query: (params) => ({
+        url: `financials/export/payments`,
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    exportPip: builder.query<any, { fromDate: string; toDate: string; format: 'pdf' | 'xlsx' }>({
+      query: (params) => ({
+        url: `financials/export/pip`,
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
 
   }),
 });
@@ -87,4 +124,10 @@ export const {
   useSearchPipQuery,
   useGetCollectionsQuery,
   useGetBankDepositsQuery,
+  useGetRemittanceClaimsQuery,
+  useLazyGetRemittanceClaimsQuery,
+  useSearchServiceLinesQuery,
+  useLazySearchServiceLinesQuery,
+  useLazyExportPaymentsQuery,
+  useLazyExportPipQuery,
 } = financialsApi;
