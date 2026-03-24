@@ -201,46 +201,46 @@ const StatementsScreen: React.FC = () => {
 
   return (
     <Box sx={{}}>
-       {activeSubTab !== 2 && (
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {activeSubTab === 0 ? 'PIP Statements' : 'Forward Balance Notices'}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {activeSubTab === 0
-            ? 'Periodic Interim Payment (PIP) records with NPI-level claim allocations.'
-            : 'Overpayment notices with offset events and affected claims.'}
-        </Typography>
-      </Box>)}
+      {activeSubTab !== 2 && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700 }}>
+            {activeSubTab === 0 ? 'PIP Statements' : 'Forward Balance Notices'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {activeSubTab === 0
+              ? 'Periodic Interim Payment (PIP) records with NPI-level claim allocations.'
+              : 'Overpayment notices with offset events and affected claims.'}
+          </Typography>
+        </Box>)}
 
 
 
 
       {activeSubTab !== 2 && (
-      <Grid container spacing={2} sx={{ mb: 4 }}>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <SummaryCard
-            title={activeSubTab === 0 ? "TOTAL PAID AMOUNT" : "TOTAL ORIGINAL AMOUNT"}
-            value={formatCurrency(activeSubTab === 0 ? totalPipAmount : totalOriginalAmount)}
-            backgroundColor="#fff"
-          />
+        <Grid container spacing={2} sx={{ mb: 4 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SummaryCard
+              title={activeSubTab === 0 ? "TOTAL PAID AMOUNT" : "TOTAL ORIGINAL AMOUNT"}
+              value={formatCurrency(activeSubTab === 0 ? totalPipAmount : totalOriginalAmount)}
+              backgroundColor="#fff"
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SummaryCard
+              title={activeSubTab === 0 ? "TOTAL SUSPENSE BALANCE" : "TOTAL REMAINING BALANCE"}
+              value={formatCurrency(activeSubTab === 0 ? totalSuspenseBalance : totalRemainingBalance)}
+              variant={activeSubTab === 1 ? "negative" : "default"}
+              backgroundColor="#fff"
+            />
+          </Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <SummaryCard
+              title="ACTION REQUIRED"
+              value={activeSubTab === 0 ? "2" : "1"}
+              backgroundColor="#fff"
+            />
+          </Grid>
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <SummaryCard
-            title={activeSubTab === 0 ? "TOTAL SUSPENSE BALANCE" : "TOTAL REMAINING BALANCE"}
-            value={formatCurrency(activeSubTab === 0 ? totalSuspenseBalance : totalRemainingBalance)}
-            variant={activeSubTab === 1 ? "negative" : "default"}
-            backgroundColor="#fff"
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <SummaryCard
-            title="ACTION REQUIRED"
-            value={activeSubTab === 0 ? "2" : "1"}
-            backgroundColor="#fff"
-          />
-        </Grid>
-      </Grid>
       )}
 
 
