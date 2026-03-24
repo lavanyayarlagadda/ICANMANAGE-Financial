@@ -3,6 +3,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import financialsReducer from './slices/financialsSlice';
 import uiReducer from './slices/uiSlice';
 import authReducer from './slices/authSlice';
+import tenantReducer from './slices/tenantSlice';
 import { baseApi } from './api/baseApi';
 
 export const store = configureStore({
@@ -10,6 +11,7 @@ export const store = configureStore({
     financials: financialsReducer,
     ui: uiReducer,
     auth: authReducer,
+    tenant: tenantReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

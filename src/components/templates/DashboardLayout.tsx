@@ -30,6 +30,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TopNavBar from '@/components/organisms/TopNavBar';
 import Footer from '@/components/organisms/Footer';
 import { useAppDispatch, useAppSelector } from '@/store';
+import { financialsApi } from '@/store/api/financialsApi';
 import {
   toggleMobileMenu,
   closeMobileMenu,
@@ -53,6 +54,19 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { loading: financialsLoading } = useAppSelector((s) => s.financials);
 
   const user = useAppSelector((state) => state.auth.user);
+  const { selectedTenantId, isLoading: tenantLoading } = useAppSelector((s) => s.tenant);
+
+  const isCognitiveUser = user?.company?.toLowerCase() === 'mindpath';
+  const isWaitingForTenants = isCognitiveUser && !selectedTenantId;
+
+  // Invalidate all financials tags when tenant changes to force refetch
+  React.useEffect(() => {
+    if (selectedTenantId) {
+      dispatch(financialsApi.util.invalidateTags(['Financials']));
+    }
+  }, [selectedTenantId, dispatch]);
+
+
   const menus = user?.menus || [];
 
   const getMenuStatus = (label: string) => {
@@ -164,7 +178,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   return (
     <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: theme.palette.background.default }}>
       {/* Global Interaction Blocker */}
-      {(activeExportType || isReloading || isDrillingDown || isGlobalFetching || financialsLoading) && (
+      {(activeExportType || isReloading || isDrillingDown || isGlobalFetching || financialsLoading || tenantLoading || isWaitingForTenants) && (
         <Box
           sx={{
             position: 'fixed',
@@ -184,9 +198,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         >
           <CircularProgress size={60} thickness={4} />
           <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
-            {isReloading ? 'Refreshing Data...' : 
-            (activeExportType ? 'Preparing Report...' : 
-            (isGlobalFetching ? 'Please Wait...' : 'Processing...'))}
+            {tenantLoading || isWaitingForTenants ? 'Initializing Organization...' : (isReloading ? 'Refreshing Data...' :
+              (activeExportType ? 'Preparing Report...' :
+                (isGlobalFetching ? 'Please Wait...' : 'Processing...')))}
           </Typography>
         </Box>
       )}
@@ -231,7 +245,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100vh', minWidth: 0, overflow: 'hidden' }}>
         <Toolbar />
         <Box component="main" sx={{ flex: 1, minHeight: 0, p: { xs: 2, md: 3 }, overflow: 'auto', minWidth: 0 }}>
-          {children}
+          {!isWaitingForTenants && children}
         </Box>
         <Footer />
       </Box>

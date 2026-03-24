@@ -29,6 +29,7 @@ const transactionSubTabs = [
 const statementsSubTabs = [
   { id: 0, label: 'PIP Statements', path: '/financials/statements/pip' },
   { id: 1, label: 'Forward Balance', path: '/financials/statements/forward-balance' },
+  { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts' },
 ];
 
 const varianceSubTabs = [
@@ -93,6 +94,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
       dispatch(setActiveTab(2));
       if (path.includes('/pip')) dispatch(setActiveSubTab(0));
       else if (path.includes('/forward-balance')) dispatch(setActiveSubTab(1));
+      else if (path.includes('/suspense-accounts')) dispatch(setActiveSubTab(2));
     } else if (path.includes('/variance-analysis')) {
       dispatch(setActiveTab(3));
       if (path.includes('/fee-schedule')) dispatch(setActiveSubTab(0));
@@ -338,7 +340,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                 size="small"
                 variant="outlined"
                 onClick={onPrint}
-                startIcon={activeExportType === 'pdf' ? <CircularProgress size={16} /> : <PrintIcon sx={{ fontSize: 18, color: '#94a3b8' }} />}
+                startIcon={<PrintIcon sx={{ fontSize: 18, color: '#94a3b8' }} />}
                 sx={{
                   color: 'rgb(71, 85, 105)',
                   borderColor: '#e2e8f0',
@@ -364,7 +366,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                 variant="outlined"
                 onClick={onReload}
                 disabled={isReloading}
-                startIcon={isReloading ? <CircularProgress size={16} /> : <RefreshIcon sx={{ fontSize: 18 }} />}
+                startIcon={<RefreshIcon sx={{ fontSize: 18 }} />}
                 sx={{
                   color: '#000',
                   borderColor: '#000',
@@ -389,7 +391,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                 size="small"
                 variant="contained"
                 onClick={onExportWizard}
-                startIcon={activeExportType === 'xlsx' ? <CircularProgress size={16} color="inherit" /> : null}
+                startIcon={null}
                 sx={{
                   bgcolor: '#d97706', // Orange color from image
                   color: '#fff',

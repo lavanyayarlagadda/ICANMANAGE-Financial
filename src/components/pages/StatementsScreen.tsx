@@ -14,6 +14,7 @@ import { useAppSelector } from '@/store';
 import { formatCurrency } from '@/utils/formatters';
 import { ForwardBalanceNotice, OffsetEvent } from '@/types/financials';
 import PipScreen from './PipScreen';
+import SuspenseAccountsScreen from './SuspenseAccountsScreen';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
@@ -200,6 +201,7 @@ const StatementsScreen: React.FC = () => {
 
   return (
     <Box sx={{}}>
+       {activeSubTab !== 2 && (
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
           {activeSubTab === 0 ? 'PIP Statements' : 'Forward Balance Notices'}
@@ -209,11 +211,12 @@ const StatementsScreen: React.FC = () => {
             ? 'Periodic Interim Payment (PIP) records with NPI-level claim allocations.'
             : 'Overpayment notices with offset events and affected claims.'}
         </Typography>
-      </Box>
+      </Box>)}
 
 
 
 
+      {activeSubTab !== 2 && (
       <Grid container spacing={2} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, md: 4 }}>
           <SummaryCard
@@ -238,12 +241,15 @@ const StatementsScreen: React.FC = () => {
           />
         </Grid>
       </Grid>
+      )}
 
 
       {activeSubTab === 0 ? (
         <PipScreen />
-      ) : (
+      ) : activeSubTab === 1 ? (
         <ForwardBalanceNoticesTable data={forwardBalanceNotices} />
+      ) : (
+        <SuspenseAccountsScreen />
       )}
     </Box>
   );

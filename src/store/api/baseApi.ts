@@ -8,11 +8,20 @@ export const FINANCIALS_BASE_URL = 'http://localhost:8281/api/v1';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: '/', // Will be overridden in the custom base query
-  prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.accessToken;
+  prepareHeaders: (headers, { getState, endpoint }) => {
+    const state = getState() as RootState;
+    const token = state.auth.accessToken;
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
+    
+    // Add tenant ID header, but ONLY for MindPath company users and NOT for getTenants call
+    const isMindPathUser = (state.auth.user as any)?.company?.toLowerCase() === 'mindpath';
+    const selectedTenantId = state.tenant?.selectedTenantId;
+    if (isMindPathUser && selectedTenantId && endpoint !== 'getTenants') {
+      headers.set('x-tenant-id', selectedTenantId);
+    }
+    
     return headers;
   },
 });

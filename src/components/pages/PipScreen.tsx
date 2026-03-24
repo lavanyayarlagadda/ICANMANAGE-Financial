@@ -238,7 +238,7 @@ const PipScreen: React.FC = () => {
     );
   };
 
-  if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
+  // if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
   if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading PIP records.</Box>;
 
   return (

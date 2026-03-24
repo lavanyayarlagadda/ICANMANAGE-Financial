@@ -228,8 +228,8 @@ const PaymentsScreen: React.FC = () => {
     { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
   ];
 
-  if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
-  if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments. Please ensure the backend is running at http://localhost:8281</Box>;
+  // if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
+  if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments.</Box>;
 
   return (
     <Box sx={{ position: 'relative' }}>
