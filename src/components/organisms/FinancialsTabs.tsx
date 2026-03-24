@@ -29,6 +29,7 @@ const transactionSubTabs = [
 const statementsSubTabs = [
   { id: 0, label: 'PIP Statements', path: '/financials/statements/pip' },
   { id: 1, label: 'Forward Balance', path: '/financials/statements/forward-balance' },
+  { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts' },
 ];
 
 const varianceSubTabs = [
@@ -67,7 +68,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   const menus = useAppSelector((s) => s.auth.user?.menus || []);
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const canShowActions = activeTab === 0 || activeTab === 5;
+  const canShowActions = activeTab === 0 || activeTab === 2 || activeTab === 5;
   const shouldShowPrint = showPrint ?? canShowActions;
   const shouldShowReload = showReload ?? canShowActions;
   const shouldShowExport = showExportWizard ?? canShowActions;
@@ -87,6 +88,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
       dispatch(setActiveTab(2));
       if (path.includes('/pip')) dispatch(setActiveSubTab(0));
       else if (path.includes('/forward-balance')) dispatch(setActiveSubTab(1));
+      else if (path.includes('/suspense-accounts')) dispatch(setActiveSubTab(2));
     } else if (path.includes('/variance-analysis')) {
       dispatch(setActiveTab(3));
       if (path.includes('/fee-schedule')) dispatch(setActiveSubTab(0));

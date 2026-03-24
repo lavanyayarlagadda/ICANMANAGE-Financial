@@ -4,11 +4,12 @@ import { Card, CardContent, Typography, Box, useTheme } from '@mui/material';
 interface SummaryCardProps {
   title: string;
   value: string;
+  subtitle?: string;
   variant?: 'default' | 'highlight' | 'negative';
   backgroundColor?: string;
 }
 
-const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, variant = 'default', backgroundColor }) => {
+const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, subtitle, variant = 'default', backgroundColor }) => {
   const theme = useTheme();
 
   const defaultBg =
@@ -28,9 +29,14 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, variant = 'defa
         <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, mb: 1, display: 'block' }}>
           {title}
         </Typography>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: valueColor }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: valueColor, mb: subtitle ? 0.5 : 0 }}>
           {value}
         </Typography>
+        {subtitle && (
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+            {subtitle}
+          </Typography>
+        )}
       </CardContent>
     </Card>
   );
