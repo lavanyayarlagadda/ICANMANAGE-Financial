@@ -49,7 +49,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
   const user = useAppSelector((state: RootState) => state.auth.user);
   const { selectedTenantId, tenants, isLoading: isTenantsGlobalLoading } = useAppSelector((state: RootState) => state.tenant);
 
-  const isCognitiveUser = user?.company?.toLowerCase() === 'mindpath';
+  const isCognitiveUser = user?.company?.toLowerCase() === 'cognitivehealthit';
 
   const { data: tenantData, isLoading: isTenantsLoading } = useGetTenantsQuery(undefined, {
     skip: !isCognitiveUser,

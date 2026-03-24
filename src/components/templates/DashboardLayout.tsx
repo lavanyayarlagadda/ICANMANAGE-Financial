@@ -56,7 +56,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const user = useAppSelector((state) => state.auth.user);
   const { selectedTenantId, isLoading: tenantLoading } = useAppSelector((s) => s.tenant);
 
-  const isCognitiveUser = user?.company?.toLowerCase() === 'mindpath';
+  const isCognitiveUser = user?.company?.toLowerCase() === 'cognitivehealthit';
   const isWaitingForTenants = isCognitiveUser && !selectedTenantId;
 
   // Invalidate all financials tags when tenant changes to force refetch

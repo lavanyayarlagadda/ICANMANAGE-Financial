@@ -42,45 +42,45 @@ const RemittanceDetailScreen: React.FC = () => {
 
   const totals = detail.serviceLines.reduce(
     (acc, sl) => ({
-      charge: acc.charge + sl.chargeAmount,
-      allowed: acc.allowed + sl.allowedAmount,
-      paid: acc.paid + sl.paidAmount,
-      adjustment: acc.adjustment + sl.adjustmentAmount,
+      charge: acc.charge + sl.charge,
+      allowed: acc.allowed + sl.allowed,
+      paid: acc.paid + sl.paid,
+      adjustment: acc.adjustment + sl.adjAmt,
     }),
     { charge: 0, allowed: 0, paid: 0, adjustment: 0 }
   );
 
   const serviceLineColumns: DataColumn<ServiceLine>[] = [
-    { id: 'lineNumber', label: 'Line #', minWidth: 60, render: (r) => r.lineNumber, accessor: (r) => r.lineNumber },
-    { id: 'procedureCode', label: 'Proc Code', render: (r) => r.procedureCode, accessor: (r) => r.procedureCode },
+    { id: 'lineNo', label: 'Line #', minWidth: 60, render: (r) => r.lineNo, accessor: (r) => r.lineNo },
+    { id: 'procCode', label: 'Proc Code', render: (r) => r.procCode, accessor: (r) => r.procCode },
     { id: 'modifiers', label: 'Modifiers', render: (r) => r.modifiers || '–', accessor: (r) => r.modifiers || '' },
-    { id: 'revenueCode', label: 'Rev Code', render: (r) => r.revenueCode, accessor: (r) => r.revenueCode },
-    { id: 'dosStart', label: 'DOS Start', render: (r) => r.dateOfServiceStart, accessor: (r) => r.dateOfServiceStart },
-    { id: 'dosEnd', label: 'DOS End', render: (r) => r.dateOfServiceEnd, accessor: (r) => r.dateOfServiceEnd },
+    { id: 'revCode', label: 'Rev Code', render: (r) => r.revCode, accessor: (r) => r.revCode },
+    { id: 'dosStart', label: 'DOS Start', render: (r) => r.dosStart, accessor: (r) => r.dosStart },
+    { id: 'dosEnd', label: 'DOS End', render: (r) => r.dosEnd, accessor: (r) => r.dosEnd },
     { id: 'units', label: 'Units', align: 'right', render: (r) => r.units, accessor: (r) => r.units },
     {
-      id: 'chargeAmount', label: 'Charge', align: 'right',
-      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.chargeAmount)}</Typography>,
-      accessor: (r) => r.chargeAmount,
+      id: 'charge', label: 'Charge', align: 'right',
+      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.charge)}</Typography>,
+      accessor: (r) => r.charge,
     },
     {
-      id: 'allowedAmount', label: 'Allowed', align: 'right',
-      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.allowedAmount)}</Typography>,
-      accessor: (r) => r.allowedAmount,
+      id: 'allowed', label: 'Allowed', align: 'right',
+      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.allowed)}</Typography>,
+      accessor: (r) => r.allowed,
     },
     {
-      id: 'paidAmount', label: 'Paid', align: 'right',
-      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.paidAmount)}</Typography>,
-      accessor: (r) => r.paidAmount,
+      id: 'paid', label: 'Paid', align: 'right',
+      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.paid)}</Typography>,
+      accessor: (r) => r.paid,
     },
     {
-      id: 'adjustmentAmount', label: 'Adj Amt', align: 'right',
-      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.adjustmentAmount)}</Typography>,
-      accessor: (r) => r.adjustmentAmount,
+      id: 'adjAmt', label: 'Adj Amt', align: 'right',
+      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.adjAmt)}</Typography>,
+      accessor: (r) => r.adjAmt,
     },
-    { id: 'adjGroup', label: 'Adj Grp', render: (r) => r.adjGroup, accessor: (r) => r.adjGroup },
-    { id: 'adjReasonCode', label: 'Reason', render: (r) => r.adjReasonCode, accessor: (r) => r.adjReasonCode },
-    { id: 'remarkCode', label: 'Remark', render: (r) => r.remarkCode, accessor: (r) => r.remarkCode },
+    { id: 'adjGrp', label: 'Adj Grp', render: (r) => r.adjGrp, accessor: (r) => r.adjGrp },
+    { id: 'reason', label: 'Reason', render: (r) => r.reason, accessor: (r) => r.reason },
+    { id: 'remark', label: 'Remark', render: (r) => r.remark, accessor: (r) => r.remark },
   ];
 
   return (
@@ -97,7 +97,7 @@ const RemittanceDetailScreen: React.FC = () => {
           <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <List disablePadding>
               {claims.map((claim: any, idx: number) => (
-                <ListItemButton 
+                <ListItemButton
                   key={claim.payerIcn || idx}
                   selected={selectedIndex === idx}
                   onClick={() => handleClaimSelect(idx)}
@@ -112,8 +112,8 @@ const RemittanceDetailScreen: React.FC = () => {
                       <AssignmentIcon fontSize="small" />
                     </Avatar>
                   </ListItemAvatar>
-                  <ListItemText 
-                    primary={`ICN: ${claim.payerIcn}`} 
+                  <ListItemText
+                    primary={`ICN: ${claim.payerIcn}`}
                     secondary={`Charge: ${formatCurrency(claim.claimCharge)} | Status: ${claim.claimStatusCode}`}
                     primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
                   />
@@ -168,7 +168,7 @@ const RemittanceDetailScreen: React.FC = () => {
       <DataTable
         columns={serviceLineColumns}
         data={detail?.serviceLines || []}
-        rowKey={(r) => String(r.lineNumber)}
+        rowKey={(r) => String(r.lineNo)}
         paginated={false}
         exportTitle="Service Line Details"
         customToolbarContent={<RangeDropdown />}

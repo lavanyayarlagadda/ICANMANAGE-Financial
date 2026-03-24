@@ -101,9 +101,9 @@ export const mockRemittanceDetail: RemittanceDetail = {
   providerNpi: '1538040900',
   claimStatusCode: '4',
   serviceLines: [
-    { lineNumber: 1, procedureCode: '99801', modifiers: 'GW', revenueCode: '0650', dateOfServiceStart: '2025-07-01', dateOfServiceEnd: '2025-07-12', units: 1, chargeAmount: 1243.04, allowedAmount: 0.00, paidAmount: 0.00, adjustmentAmount: 1243.04, adjGroup: 'CO', adjReasonCode: '45', remarkCode: 'N211' },
-    { lineNumber: 2, procedureCode: '99802', modifiers: 'OV', revenueCode: '0651', dateOfServiceStart: '2025-07-01', dateOfServiceEnd: '2025-07-12', units: 2, chargeAmount: 1243.04, allowedAmount: 0.00, paidAmount: 0.00, adjustmentAmount: 1243.04, adjGroup: 'PR', adjReasonCode: '253', remarkCode: 'N381' },
-    { lineNumber: 3, procedureCode: 'T2042', modifiers: '', revenueCode: '0652', dateOfServiceStart: '2025-07-01', dateOfServiceEnd: '2025-07-12', units: 3, chargeAmount: 1243.04, allowedAmount: 0.00, paidAmount: 0.00, adjustmentAmount: 1243.04, adjGroup: 'OA', adjReasonCode: '97', remarkCode: 'N153' },
+    { lineNo: 1, procCode: '99801', modifiers: 'GW', revCode: '0650', dosStart: '2025-07-01', dosEnd: '2025-07-12', units: 1, charge: 1243.04, allowed: 0.00, paid: 0.00, adjAmt: 1243.04, adjGrp: 'CO', reason: '45', remark: 'N211' },
+    { lineNo: 2, procCode: '99802', modifiers: 'OV', revCode: '0651', dosStart: '2025-07-01', dosEnd: '2025-07-12', units: 2, charge: 1243.04, allowed: 0.00, paid: 0.00, adjAmt: 1243.04, adjGrp: 'PR', reason: '253', remark: 'N381' },
+    { lineNo: 3, procCode: 'T2042', modifiers: '', revCode: '0652', dosStart: '2025-07-01', dosEnd: '2025-07-12', units: 3, charge: 1243.04, allowed: 0.00, paid: 0.00, adjAmt: 1243.04, adjGrp: 'OA', reason: '97', remark: 'N153' },
   ],
 };
 

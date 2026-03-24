@@ -12,12 +12,12 @@ export interface PaymentSearchRequest {
 }
 
 export interface PaymentSearchResponse {
-  data:{
-  content: PaymentTransaction[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
+  data: {
+    content: PaymentTransaction[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
   }
 }
 
@@ -31,12 +31,12 @@ export interface PipSearchRequest {
 }
 
 export interface PipSearchResponse {
-  data:{
-  content: PipRecord[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
+  data: {
+    content: PipRecord[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
   }
 }
 
@@ -94,7 +94,7 @@ export const financialsApi = baseApi.injectEndpoints({
     }),
     searchServiceLines: builder.query<any, ServiceLineSearchRequest>({
       query: (body) => ({
-        url: 'financials/payments/service-lines/search',
+        url: '/financials/payments/service-lines/search ',
         method: 'POST',
         body,
       }),

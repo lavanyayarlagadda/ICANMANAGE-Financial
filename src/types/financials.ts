@@ -57,20 +57,20 @@ export interface PipRecord {
 }
 
 export interface ServiceLine {
-  lineNumber: number;
-  procedureCode: string;
+  lineNo: number;
+  procCode: string;
   modifiers: string;
-  revenueCode: string;
-  dateOfServiceStart: string;
-  dateOfServiceEnd: string;
+  revCode: string;
+  dosStart: string;
+  dosEnd: string;
   units: number;
-  chargeAmount: number;
-  allowedAmount: number;
-  paidAmount: number;
-  adjustmentAmount: number;
-  adjGroup: string;
-  adjReasonCode: string;
-  remarkCode: string;
+  charge: number;
+  allowed: number;
+  paid: number;
+  adjAmt: number;
+  adjGrp: string;
+  reason: string;
+  remark: string;
 }
 
 export interface RemittanceDetail {

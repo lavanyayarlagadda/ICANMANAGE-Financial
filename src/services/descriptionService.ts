@@ -281,15 +281,15 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
     }
   },
   'service-lines': {
-    lineNumber: {
+    lineNo: {
       heading: 'Line #',
       description: 'The index or line number of the specific service item within the claim.',
     },
-    procedureCode: {
+    procCode: {
       heading: 'Proc Code',
       description: 'The standardized code (e.g., CPT or HCPCS) used to identify the medical service provided.',
     },
-    revenueCode: {
+    revCode: {
       heading: 'Rev Code',
       description: 'A code used in hospital billing to identify specific departments or service locations.',
     },
@@ -305,19 +305,19 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
       heading: 'Units',
       description: 'The total number of units or hours for the specific procedure code on this line.',
     },
-    chargeAmount: {
+    charge: {
       heading: 'Charge',
       description: 'The total dollar amount billed for this specific service line.',
     },
-    allowedAmount: {
+    allowed: {
       heading: 'Allowed',
       description: 'The maximum amount the insurance company covers for this specific service line.',
     },
-    paidAmount: {
+    paid: {
       heading: 'Paid',
       description: 'The dollar amount actually paid by the insurer for this service line.',
     },
-    adjustmentAmount: {
+    adjAmt: {
       heading: 'Adj Amt',
       description: 'The difference between the charged amount and the allowed/paid amount.',
     }

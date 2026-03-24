@@ -57,9 +57,9 @@ const LoginPage = () => {
                 refreshToken: result.refreshToken,
             }));
 
-            // Map the default landing page or use the redirect location
-            const landingPageRoute = result.user.role === 'Admin' ? '/financials' : '/collections';
-            const redirectTo = location.state?.from?.pathname || landingPageRoute;
+            // Always land on the default landing page regardless of where we came from
+            const landingPageRoute = result.user.role === 'Admin' ? '/financials/all-transactions' : '/collections';
+            const redirectTo = landingPageRoute;
 
             navigate(redirectTo, { replace: true });
         } catch (err: any) {

@@ -14,14 +14,14 @@ const baseQuery = fetchBaseQuery({
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
     }
-    
+
     // Add tenant ID header, but ONLY for MindPath company users and NOT for getTenants call
-    const isMindPathUser = (state.auth.user as any)?.company?.toLowerCase() === 'mindpath';
+    const isMindPathUser = (state.auth.user as any)?.company?.toLowerCase() === 'cognitivehealthit';
     const selectedTenantId = state.tenant?.selectedTenantId;
     if (isMindPathUser && selectedTenantId && endpoint !== 'getTenants') {
       headers.set('x-tenant-id', selectedTenantId);
     }
-    
+
     return headers;
   },
 });
@@ -44,7 +44,7 @@ const baseQueryWithReauth: BaseQueryFn<
 
   if (result.error && result.error.status === 401) {
     const refreshToken = (api.getState() as RootState).auth.refreshToken;
-    
+
     if (refreshToken) {
       // Try to refresh the token
       const refreshResult = await baseQuery(
@@ -60,10 +60,10 @@ const baseQueryWithReauth: BaseQueryFn<
       if (refreshResult.data) {
         // Successful refresh
         const { accessToken, refreshToken: newRefreshToken } = refreshResult.data as { accessToken: string; refreshToken: string };
-        
+
         // Update the token in the store
         api.dispatch(updateToken({ accessToken, refreshToken: newRefreshToken }));
-        
+
         // Retry the original query with the new token
         result = await baseQuery(fullArgs, api, extraOptions);
       } else {
