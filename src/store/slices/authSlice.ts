@@ -18,6 +18,10 @@ export interface User {
     company: string;
     roleId: string;
     role: string;
+    accessibleModules: string[];
+    defaultLandingPage: string;
+    inactivityTimeout?: string;
+    passwordPolicy?: string;
 }
 
 interface AuthState {

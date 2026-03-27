@@ -19,6 +19,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
+import { MenuAccess } from '@/store/slices/authSlice';
 import { themeConfig } from '@/theme';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -53,7 +54,7 @@ const UserProfilePage: React.FC = () => {
     const [tabIndex, setTabIndex] = useState(0);
 
     const getMenuStatus = (label: string) => {
-        const findStatus = (menusArray: any[]): string | null => {
+        const findStatus = (menusArray: MenuAccess[]): string | null => {
             for (const m of menusArray) {
                 if (m.menuName === label) return m.status;
                 if (m.subModules) {
