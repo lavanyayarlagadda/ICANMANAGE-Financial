@@ -1,25 +1,33 @@
-import React from 'react';
-import { Box, IconButton, Typography, useTheme } from '@mui/material';
+import React, { Suspense, lazy, useMemo, useCallback } from 'react';
+import { Box, IconButton, Typography, useTheme, CircularProgress } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout';
 import FinancialsTabs from '@/components/organisms/FinancialsTabs';
-import AllTransactionsScreen from '@/components/pages/AllTransactionsScreen';
-import PaymentsScreen from '@/components/pages/PaymentsScreen';
-import PipScreen from '@/components/pages/PipScreen';
-import RemittanceDetailScreen from '@/components/pages/RemittanceDetailScreen';
-import TrendsScreen from '@/components/pages/TrendsScreen';
-import VarianceScreen from '@/components/pages/VarianceScreen';
-import BankDepositsScreen from '@/components/pages/BankDepositsScreen';
-import StatementsScreen from '@/components/pages/StatementsScreen';
-import RecoupmentsScreen from '@/components/pages/RecoupmentsScreen';
-import OtherAdjustmentsScreen from '@/components/pages/OtherAdjustmentsScreen';
-import CollectionsScreen from '@/components/pages/CollectionsScreen';
-import CalendarScreen from '@/components/pages/CalendarScreen';
 import ViewDialog from '@/components/molecules/ViewDialog';
 import EditDialog from '@/components/molecules/EditDialog';
 import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog';
 import AddNewDialog from '@/components/molecules/AddNewDialog';
+import { PageWrapper, BackButtonWrapper, BackText } from './FinancialsPage.styles';
+
+const AllTransactionsScreen = lazy(() => import('@/components/pages/AllTransactionsScreen'));
+const PaymentsScreen = lazy(() => import('@/components/pages/PaymentsScreen'));
+const PipScreen = lazy(() => import('@/components/pages/PipScreen'));
+const RemittanceDetailScreen = lazy(() => import('@/components/pages/RemittanceDetailScreen'));
+const TrendsScreen = lazy(() => import('@/components/pages/TrendsScreen'));
+const VarianceScreen = lazy(() => import('@/components/pages/VarianceScreen'));
+const BankDepositsScreen = lazy(() => import('@/components/pages/BankDepositsScreen'));
+const StatementsScreen = lazy(() => import('@/components/pages/StatementsScreen'));
+const RecoupmentsScreen = lazy(() => import('@/components/pages/RecoupmentsScreen'));
+const OtherAdjustmentsScreen = lazy(() => import('@/components/pages/OtherAdjustmentsScreen'));
+const CollectionsScreen = lazy(() => import('@/components/pages/CollectionsScreen'));
+const CalendarScreen = lazy(() => import('@/components/pages/CalendarScreen'));
+
+const TabLoadingFallback = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+    <CircularProgress size={32} />
+  </Box>
+);
 import { useAppSelector, useAppDispatch } from '@/store';
 import {
   closeViewDialog,
@@ -41,14 +49,25 @@ import {
   deleteAllTransaction,
   deleteCollection,
 } from '@/store/slices/financialsSlice';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 const FinancialsPage: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
-  const { activeTab, activeSubTab, activePage, viewDialogOpen, viewDialogData, editDialogOpen, editDialogData, confirmDeleteOpen, confirmDeleteId, confirmDeleteType } = useAppSelector((s) => s.ui);
+  const { 
+    activeTab, 
+    activeSubTab, 
+    activePage, 
+    viewDialogOpen, 
+    viewDialogData, 
+    editDialogOpen, 
+    editDialogData, 
+    confirmDeleteOpen, 
+    confirmDeleteId, 
+    confirmDeleteType 
+  } = useAppSelector((s) => s.ui);
   const { showRemittanceDetail } = useAppSelector((s) => s.financials);
-  const user = useAppSelector((s) => s.auth.user);
-  const isMindPath = user?.company?.toLowerCase() === 'mindpath';
+  const { canViewPip } = useUserPermissions();
   const [addDialogOpen, setAddDialogOpen] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -76,7 +95,7 @@ const FinancialsPage: React.FC = () => {
 
       const match = pathMap[pathPart];
 
-      if (isMindPath && (pathPart === 'pip' || pathPart === 'statements/pip' || pathPart === 'statements')) {
+      if (!canViewPip && (pathPart === 'pip' || pathPart === 'statements/pip' || pathPart === 'statements')) {
         const target = pathPart.startsWith('statements') 
           ? '/financials/statements/forward-balance' 
           : '/financials/all-transactions';
@@ -91,9 +110,9 @@ const FinancialsPage: React.FC = () => {
         navigate('/financials/all-transactions', { replace: true });
       }
     }
-  }, [location.pathname, dispatch, navigate, activeTab, activeSubTab, isMindPath]);
+  }, [location.pathname, dispatch, navigate, activeTab, activeSubTab, canViewPip]);
 
-  const renderTabContent = () => {
+  const tabContent = useMemo(() => {
     if (activeTab === 0) {
       const subMap: Record<number, React.ReactNode> = {
         0: <AllTransactionsScreen />,
@@ -111,9 +130,9 @@ const FinancialsPage: React.FC = () => {
     if (activeTab === 5) return <CalendarScreen />;
 
     return <AllTransactionsScreen />;
-  };
+  }, [activeTab, activeSubTab]);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     if (!confirmDeleteId) return;
     const deleteMap: Record<string, () => void> = {
       payment: () => dispatch(deletePayment(confirmDeleteId)),
@@ -125,14 +144,14 @@ const FinancialsPage: React.FC = () => {
     deleteMap[confirmDeleteType]?.();
     dispatch(closeConfirmDelete());
     dispatch(showSnackbar({ message: `${confirmDeleteType} deleted successfully.`, severity: 'success' }));
-  };
+  }, [confirmDeleteId, confirmDeleteType, dispatch]);
 
-  const handleEditSave = () => {
+  const handleEditSave = useCallback(() => {
     dispatch(closeEditDialog());
     dispatch(showSnackbar({ message: 'Record updated successfully.', severity: 'success' }));
-  };
+  }, [dispatch]);
 
-  const renderContent = () => {
+  const mainContent = useMemo(() => {
     if (activePage === 'collections') {
       return <CollectionsScreen />;
     }
@@ -140,14 +159,14 @@ const FinancialsPage: React.FC = () => {
     if (showRemittanceDetail) {
       return (
         <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+          <BackButtonWrapper>
             <IconButton onClick={() => dispatch(setShowRemittanceDetail(false))} size="small" sx={{ border: `1px solid ${theme.palette.divider}` }}>
               <ArrowBackIcon fontSize="small" />
             </IconButton>
-            <Typography variant="body2" color="text.secondary">
+            <BackText>
               Back to Payments
-            </Typography>
-          </Box>
+            </BackText>
+          </BackButtonWrapper>
           <RemittanceDetailScreen />
         </Box>
       );
@@ -160,14 +179,16 @@ const FinancialsPage: React.FC = () => {
           onReload={() => dispatch(triggerReload())}
           onExportWizard={() => dispatch(triggerExport())}
         />
-        {renderTabContent()}
+        {tabContent}
       </>
     );
-  };
+  }, [activePage, showRemittanceDetail, theme, dispatch, tabContent]);
 
   return (
     <DashboardLayout>
-      {renderContent()}
+      <Suspense fallback={<TabLoadingFallback />}>
+        {mainContent}
+      </Suspense>
 
       {/* Global Dialogs */}
       <ViewDialog

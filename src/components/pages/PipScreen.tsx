@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import Accordion from "@/components/atoms/Accordion";
@@ -17,6 +17,8 @@ import { useAppSelector, useAppDispatch } from "@/store";
 import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
 import { useRef } from 'react';
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
+import { NpiSectionWrapper, NpiHeaderRow, NpiDataRow } from "./PipScreen.styles";
+import { useUserPermissions } from "@/hooks/useUserPermissions";
 
 interface Props {
   allocation: NpiAllocation;
@@ -55,32 +57,22 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
           </Box>
         }
       >
-        <Box sx={{ border: "1px solid #eee", borderTop: "none", overflowX: "auto" }}>
-          <Box sx={{
-            display: "grid",
-            gridTemplateColumns: "1.2fr 2fr 1fr 1fr",
-            minWidth: 500, px: 2, py: 1,
-            background: "#fafafa", borderBottom: "1px solid #eee",
-          }}>
+        <NpiSectionWrapper>
+          <NpiHeaderRow>
             <Typography fontSize={12} fontWeight={600}>CLAIM ID</Typography>
             <Typography fontSize={12} fontWeight={600}>PATIENT NAME</Typography>
             <Typography textAlign="right" fontSize={12} fontWeight={600}>ALLOWED AMT</Typography>
             <Typography textAlign="right" fontSize={12} fontWeight={600}>APPLIED TO PIP BALANCE</Typography>
-          </Box>
+          </NpiHeaderRow>
           {allocation.claims.map((claim) => (
-            <Box key={claim.claimId} sx={{
-              display: "grid",
-              gridTemplateColumns: "1.2fr 2fr 1fr 1fr",
-              minWidth: 500, px: 2, py: 1,
-              borderBottom: "1px solid #f1f1f1",
-            }}>
+            <NpiDataRow key={claim.claimId}>
               <Typography fontSize={13} color="primary">{claim.claimId}</Typography>
               <Typography fontSize={13}>{claim.patientName}</Typography>
               <Typography fontSize={13} textAlign="right">{formatCurrency(Number(claim.allowedAmt))}</Typography>
               <Typography fontSize={13} textAlign="right" color="success.main">{formatCurrency(Number(claim.appliedToPipBalance))}</Typography>
-            </Box>
+            </NpiDataRow>
           ))}
-        </Box>
+        </NpiSectionWrapper>
       </Accordion>
     </Box>
   );
@@ -89,8 +81,7 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
 const PipScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const { actionTriggers, activeExportType, isReloading } = useAppSelector(s => s.ui);
-  const user = useAppSelector(s => s.auth.user);
-  const isMindPath = user?.company?.toLowerCase() === 'mindpath';
+  const { canViewPip } = useUserPermissions();
 
   // Refs to prevent mount calls
   const exportCount = useRef(actionTriggers.export);
@@ -114,12 +105,12 @@ const PipScreen: React.FC = () => {
     desc: queryParams.sortOrder === 'desc',
     fromDate: queryParams.fromDate,
     toDate: queryParams.toDate
-  }, { skip: isMindPath });
+  }, { skip: !canViewPip });
 
   const { data: pipSummaryData } = useGetPipSummaryQuery({
     fromDate: queryParams.fromDate,
     toDate: queryParams.toDate
-  }, { skip: isMindPath });
+  }, { skip: !canViewPip });
 
   const pipSummary = pipSummaryData?.data;
 
@@ -128,7 +119,7 @@ const PipScreen: React.FC = () => {
 
   const [triggerExport] = useLazyExportPipQuery();
 
-  const handleExport = async (formatType: 'pdf' | 'xlsx') => {
+  const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
     try {
       dispatch(setActiveExportType(formatType));
       const result = await triggerExport({
@@ -148,7 +139,7 @@ const PipScreen: React.FC = () => {
     } finally {
       dispatch(setActiveExportType(null));
     }
-  };
+  }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
 
   // Sync isFetching to global store
   useEffect(() => {
@@ -190,7 +181,7 @@ const PipScreen: React.FC = () => {
 
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
-  const toggleRow = (id: string, e: React.MouseEvent) => {
+  const toggleRow = useCallback((id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedRows((prev) => {
       const newSet = new Set(prev);
@@ -198,11 +189,11 @@ const PipScreen: React.FC = () => {
       else newSet.add(id);
       return newSet;
     });
-  };
+  }, []);
 
   const getRowId = (row: PipRecord) => row.id || row.ptan;
 
-  const handleRangeChange = (range: string) => {
+  const handleRangeChange = useCallback((range: string) => {
     if (range.includes(' to ')) {
       const [from, to] = range.split(' to ');
       setQueryParams(prev => {
@@ -210,16 +201,24 @@ const PipScreen: React.FC = () => {
         return { ...prev, fromDate: from, toDate: to, page: 0 };
       });
     }
-  };
+  }, []);
 
-  const handleSortChange = (colId: string, direction: 'asc' | 'desc') => {
+  const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
     setQueryParams(prev => {
       if (prev.sortField === colId && prev.sortOrder === direction) return prev;
       return { ...prev, sortField: colId, sortOrder: direction, page: 0 };
     });
-  };
+  }, []);
 
-  const columns: DataColumn<PipRecord>[] = [
+  const handlePageChange = useCallback((p: number) => {
+    setQueryParams(prev => prev.page === p ? prev : ({ ...prev, page: p }));
+  }, []);
+
+  const handleRowsPerPageChange = useCallback((s: number) => {
+    setQueryParams(prev => prev.size === s ? prev : ({ ...prev, size: s, page: 0 }));
+  }, []);
+
+  const columns = useMemo<DataColumn<PipRecord>[]>(() => [
     {
       id: "expand",
       label: "",
@@ -230,15 +229,15 @@ const PipScreen: React.FC = () => {
           </IconButton>
         ) : null,
     },
-    { id: "ptan", label: "PTAN", accessor: (row) => row.ptan, render: (row) => row.ptan },
-    { id: "paymentDate", label: "PAYMENT DATE", accessor: (row) => row.paymentDate, render: (row) => row.paymentDate },
+    { id: "ptan", label: "PTAN", accessor: (row) => row.ptan },
+    { id: "paymentDate", label: "PAYMENT DATE", accessor: (row) => row.paymentDate },
     { id: "checkEftNumber", label: "CHECK/EFT NUMBER", accessor: (row) => row.checkEftNumber, render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
     { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "right", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
     { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "right", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
     { id: "status", label: "STATUS", accessor: (row) => row.status, render: (row) => <StatusBadge status={row.status} /> },
-  ];
+  ], [expandedRows, toggleRow]);
 
-  const renderExpandedContent = (row: PipRecord) => {
+  const renderExpandedContent = useCallback((row: PipRecord) => {
     if (!row.npiDetails?.length) return null;
     return (
       <Box>
@@ -247,10 +246,9 @@ const PipScreen: React.FC = () => {
         ))}
       </Box>
     );
-  };
+  }, []);
 
-  // if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
-  if (isMindPath) return null;
+  if (!canViewPip) return null;
   if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading PIP records.</Box>;
 
   return (
@@ -271,8 +269,8 @@ const PipScreen: React.FC = () => {
         expandedContent={renderExpandedContent} exportTitle="PIP Records" dictionaryId="statements"
         serverSide totalElements={totalElements} page={queryParams.page} rowsPerPage={queryParams.size}
         sortCol={queryParams.sortField} sortDir={queryParams.sortOrder}
-        onPageChange={(p) => setQueryParams(prev => prev.page === p ? prev : ({ ...prev, page: p }))}
-        onRowsPerPageChange={(s) => setQueryParams(prev => prev.size === s ? prev : ({ ...prev, size: s, page: 0 }))}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
         onSortChange={handleSortChange} customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
         download={false}
         onDownload={() => handleExport('xlsx')}

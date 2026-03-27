@@ -30,6 +30,7 @@ import {
   useMediaQuery,
   Checkbox,
   Link,
+  Tooltip,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -42,6 +43,13 @@ import autoTable from 'jspdf-autotable';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import DictionaryDrawer from './DictionaryDrawer';
 import { getDescriptionsForTable, TableDescription, TableDescriptions } from '@/services/descriptionService';
+import {
+  MainContainer,
+  ToolbarContainer,
+  ScrollableTableContainer,
+  CustomTableRow,
+  FilterCollapseContainer,
+} from './DataTable.styles';
 
 
 export interface DataColumn<T> {
@@ -49,7 +57,7 @@ export interface DataColumn<T> {
   label: React.ReactNode;
   minWidth?: number;
   align?: 'left' | 'center' | 'right';
-  render: (row: T) => React.ReactNode;
+  render?: (row: T) => React.ReactNode;
   hideOnMobile?: boolean;
   primary?: boolean;
   /** Accessor for sorting & filtering — return a string or number from the row */
@@ -323,182 +331,132 @@ function DataTable<T>({
   };
 
   const toolbar = (
-    <Box sx={{ px: 1.5, py: 0.5, display: 'flex', flexDirection: 'column', gap: 0.5, borderBottom: `1px solid ${theme.palette.divider}` }}>
-      {props.selectable && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
-          {selectedKeys.size > 0 && (
-            <>
-              <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-                ({selectedKeys.size}) Rows Selected
-              </Typography>
-              <Typography variant="body2" color="text.secondary">·</Typography>
-              <Link component="button" variant="body2" onClick={() => handleSelectionChange(new Set())} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
-                Deselect All
-              </Link>
-              <Typography variant="body2" color="text.secondary">·</Typography>
-              <Link component="button" variant="body2" onClick={() => {
-                const maxSelection = new Set(filteredData.map(rowKey));
-                handleSelectionChange(maxSelection);
-              }} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
-                Select Max
-              </Link>
-
-              {(activeFilterCount > 0 || props.customToolbarContent) && (
-                <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-              )}
-            </>
-          )}
-        </Box>
-      )}
-
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: isMobile ? 'column' : 'row',
-        alignItems: isMobile ? 'flex-start' : 'center', 
-        gap: 1.5, 
-        width: '100%', 
-        justifyContent: 'space-between' 
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-          <Typography variant="caption" color="text.secondary">
-            {filteredData.length} record{filteredData.length !== 1 ? 's' : ''}
-          </Typography>
-
-          {activeFilterCount > 0 && (
-            <Chip
-              label={`${activeFilterCount} active filter${activeFilterCount > 1 ? 's' : ''}`}
-              size="small"
-              onDelete={clearAllFilters}
-              color="primary"
-              variant="outlined"
-            />
-          )}
-        </Box>
-
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 1, 
-          ml: isMobile ? 0 : 'auto',
-          width: isMobile ? '100%' : 'auto',
-          flexWrap: 'wrap'
-        }}>
-          {props.customToolbarContent && (
-            <Box sx={{ width: isMobile ? '100%' : 'auto' }}>
-              {props.customToolbarContent}
-            </Box>
-          )}
-          {searchable && (
-            <TextField
-              size="small"
-              placeholder="Search…"
-              value={search}
-              onChange={(e) => { 
-                const val = e.target.value;
-                setInternalSearch(val); 
-                setInternalPage(0);
-                props.onSearchChange?.(val);
-              }}
-              sx={{ 
-                flex: isMobile ? 1 : 'unset', 
-                minWidth: isMobile ? '100%' : 180, 
-                maxWidth: isMobile ? '100%' : 320,
-                order: isMobile ? 1 : 0
-              }}
-              InputProps={{
+    <ToolbarContainer>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', flex: 1 }}>
+        {searchable && (
+          <TextField
+            placeholder="Search..."
+            size="small"
+            value={search}
+            onChange={(e) => {
+              setInternalSearch(e.target.value);
+              props.onSearchChange?.(e.target.value);
+              setInternalPage(0);
+            }}
+            slotProps={{
+              input: {
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon fontSize="small" color="action" />
                   </InputAdornment>
                 ),
-                endAdornment: search ? (
+                endAdornment: search && (
                   <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => { 
-                      setInternalSearch(''); 
-                      setInternalPage(0); 
+                    <IconButton size="small" onClick={() => {
+                      setInternalSearch('');
                       props.onSearchChange?.('');
                     }}>
                       <ClearIcon fontSize="small" />
                     </IconButton>
                   </InputAdornment>
-                ) : null,
-              }}
-            />
-          )}
-
-          <Box sx={{ display: 'flex', gap: 1, ml: isMobile ? 0 : 0, width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'flex-end' : 'flex-start' }}>
-            {filterableColumns.length > 0 && (
-              <IconButton
-                size="small"
-                onClick={() => setShowFilters((p) => !p)}
-                color={showFilters ? 'primary' : 'default'}
-                sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}
-              >
-                <FilterListIcon fontSize="small" />
-              </IconButton>
-            )}
-
-            {/* Download button */}
-            
-            {download &&  exportableColumns.length > 0 && (
-              <>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<FileDownloadIcon fontSize="small" />}
-                  onClick={(e) => setDownloadAnchor(e.currentTarget)}
-                  sx={{ 
-                    textTransform: 'none', 
-                    minWidth: 'auto',
-                    border: `1px solid ${theme.palette.divider}`,
-                    color: 'text.secondary',
-                    px: 1.5
-                  }}
-                >
-                  Export
-                </Button>
-                <Menu
-                  anchorEl={downloadAnchor}
-                  open={Boolean(downloadAnchor)}
-                  onClose={() => setDownloadAnchor(null)}
-                >
-                  {props.onDownload ? (
-                    <MenuItem onClick={() => { setDownloadAnchor(null); props.onDownload?.(); }}>
-                      <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
-                      <ListItemText>Download Excel</ListItemText>
-                    </MenuItem>
-                  ) : (
-                    <MenuItem onClick={handleCSVExport}>
-                      <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
-                      <ListItemText>Download CSV</ListItemText>
-                    </MenuItem>
-                  )}
-                  <MenuItem onClick={handlePDFExport}>
-                    <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText>Download PDF</ListItemText>
-                  </MenuItem>
-                </Menu>
-              </>
-            )}
-          </Box>
-        </Box>
+                ),
+              }
+            }}
+            sx={{ 
+              minWidth: { xs: '100%', sm: 240 }, 
+              '& .MuiOutlinedInput-root': { 
+                borderRadius: 2, 
+                backgroundColor: theme.palette.inputBackground 
+              } 
+            }}
+          />
+        )}
+        {props.customToolbarContent}
       </Box>
 
-      <Collapse in={showFilters}>
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', pt: 0.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {filterableColumns.length > 0 && (
+          <Button
+            startIcon={<FilterListIcon fontSize="small" />}
+            variant={showFilters ? "contained" : "outlined"}
+            size="small"
+            onClick={() => setShowFilters(!showFilters)}
+            sx={{ borderRadius: 2, textTransform: 'none' }}
+          >
+            Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+          </Button>
+        )}
+        
+        {download && (
+          <>
+            <Button
+              startIcon={<FileDownloadIcon fontSize="small" />}
+              variant="outlined"
+              size="small"
+              onClick={(e) => props.onDownload ? props.onDownload() : setDownloadAnchor(e.currentTarget)}
+              sx={{ borderRadius: 2, textTransform: 'none' }}
+            >
+              Export
+            </Button>
+            <Menu
+              anchorEl={downloadAnchor}
+              open={Boolean(downloadAnchor)}
+              onClose={() => setDownloadAnchor(null)}
+            >
+              {props.onDownload ? (
+                <MenuItem onClick={() => { setDownloadAnchor(null); props.onDownload?.(); }}>
+                  <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText>Export to Excel</ListItemText>
+                </MenuItem>
+              ) : (
+                <MenuItem onClick={handleCSVExport}>
+                  <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText>Export as CSV</ListItemText>
+                </MenuItem>
+              )}
+              <MenuItem onClick={handlePDFExport}>
+                <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
+                <ListItemText>Export as PDF</ListItemText>
+              </MenuItem>
+            </Menu>
+          </>
+        )}
+
+        {activeFilterCount > 0 && (
+          <IconButton 
+            size="small" 
+            onClick={clearAllFilters} 
+            sx={{ 
+              color: theme.palette.error.main,
+              backgroundColor: `${theme.palette.error.main}10`,
+              '&:hover': { backgroundColor: `${theme.palette.error.main}20` }
+            }}
+            title="Clear all filters"
+          >
+            <ClearIcon fontSize="small" />
+          </IconButton>
+        )}
+      </Box>
+
+      <Collapse in={showFilters} sx={{ width: '100%' }}>
+        <FilterCollapseContainer sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2 }}>
           {filterableColumns.map((col) => (
-            <FormControl key={col.id} size="small" sx={{ minWidth: 140 }}>
+            <FormControl key={col.id} size="small" sx={{ minWidth: 150 }}>
               <Select
                 displayEmpty
                 value={columnFilters[col.id] || ''}
                 onChange={(e) => {
-                  const newVal = e.target.value as string;
-                  const newFilters = { ...columnFilters, [col.id]: newVal };
-                  setInternalColumnFilters(newFilters);
+                  const val = e.target.value as string;
+                  const next = { ...columnFilters, [col.id]: val };
+                  setInternalColumnFilters(next);
+                  props.onFilterChange?.(next);
                   setInternalPage(0);
-                  props.onFilterChange?.(newFilters);
                 }}
-                sx={{ fontSize: '0.8rem' }}
+                sx={{ 
+                  fontSize: '0.8rem', 
+                  borderRadius: 2, 
+                  backgroundColor: theme.palette.inputBackground 
+                }}
                 renderValue={(v) => v || <Typography variant="caption" color="text.secondary">{col.label}</Typography>}
               >
                 <MenuItem value="">
@@ -510,9 +468,9 @@ function DataTable<T>({
               </Select>
             </FormControl>
           ))}
-        </Box>
+        </FilterCollapseContainer>
       </Collapse>
-    </Box>
+    </ToolbarContainer>
   );
 
   // Mobile: render as cards
@@ -531,7 +489,9 @@ function DataTable<T>({
               sx={{
                 mb: 1.5,
                 cursor: onRowClick ? 'pointer' : 'default',
-                ...(selectedKeys.has(key) && { backgroundColor: '#F4F9FF' }),
+                ...(selectedKeys.has(key) && { backgroundColor: `${theme.palette.selectionBackground} !important` }),
+                border: `1px solid ${theme.palette.divider}`,
+                boxShadow: 'none',
               }}
               onClick={() => onRowClick?.(row)}
             >
@@ -546,7 +506,7 @@ function DataTable<T>({
                         onClick={(e) => e.stopPropagation()}
                       />
                     ) : <Box />}
-                    {actionsCol && actionsCol.render(row)}
+                    {actionsCol && actionsCol.render?.(row)}
                   </Box>
                 )}
                 {visibleColumns.map((col, idx) => (
@@ -567,7 +527,7 @@ function DataTable<T>({
                         )}
                       </Box>
                       <Box sx={{ textAlign: 'right', flex: 1 }}>
-                        {col.render(row)}
+                        {col.render ? col.render(row) : (col.accessor ? col.accessor(row) : null)}
                       </Box>
                     </Box>
                     {idx < visibleColumns.length - 1 && <Divider sx={{ my: 0.25 }} />}
@@ -618,32 +578,9 @@ function DataTable<T>({
 
   // Desktop: regular table
   return (
-    <Paper sx={{ width: '100%', maxWidth: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <MainContainer>
       {toolbar}
-      <TableContainer
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          maxHeight: 'calc(100vh - 240px)',
-          overflowX: 'auto',
-          overflowY: 'auto',
-          overscrollBehavior: 'contain',
-          '&::-webkit-scrollbar': {
-            width: '0px',
-            height: '0px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: 'transparent',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#bdbdbd',
-            borderRadius: '10px',
-            '&:hover': {
-              background: '#9e9e9e',
-            },
-          },
-        }}
-      >
+      <ScrollableTableContainer>
         <Table stickyHeader size="small" sx={{ '& .MuiTableCell-root': { p: 1, minHeight: 40 }, '& .MuiTableHead-root .MuiTableCell-root': { py: 1, minHeight: 48 } }}>
           <TableHead>
             <TableRow>
@@ -711,7 +648,7 @@ function DataTable<T>({
           <TableBody>
             {paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} align="center" sx={{ py: 4 }}>
+                <TableCell colSpan={columns.length + (props.selectable ? 1 : 0)} align="center" sx={{ py: 4 }}>
                   <Typography variant="body2" color="text.secondary">
                     No records found
                   </Typography>
@@ -722,14 +659,11 @@ function DataTable<T>({
                 const key = rowKey(row);
                 return (
                   <React.Fragment key={key}>
-                    <TableRow
+                    <CustomTableRow
                       hover
                       onClick={() => onRowClick?.(row)}
-                      sx={{
-                        cursor: onRowClick ? 'pointer' : 'default',
-                        ...(selectedKeys.has(key) && { backgroundColor: '#F4F9FF !important' }),
-                      }}
-                      selected={selectedKeys.has(key)}
+                      clickable={!!onRowClick}
+                      isSelected={selectedKeys.has(key)}
                     >
                       {props.selectable && (
                         <TableCell padding="checkbox">
@@ -743,16 +677,14 @@ function DataTable<T>({
                       )}
                       {columns.map((col) => (
                         <TableCell key={col.id} align={col.align || 'left'}>
-                          {col.render(row)}
+                          {col.render ? col.render(row) : (col.accessor ? col.accessor(row) : null)}
                         </TableCell>
                       ))}
-                    </TableRow>
+                    </CustomTableRow>
                     {expandedContent && expandedRows?.has(key) && (
                       <TableRow>
-                        <TableCell colSpan={columns.length} sx={{ p: 0, border: 0 }}>
-                          <Box sx={{ p: 2, backgroundColor: 'action.hover' }}>
-                            {expandedContent(row)}
-                          </Box>
+                        <TableCell colSpan={columns.length + (props.selectable ? 1 : 0)} sx={{ p: 0, border: 0 }}>
+                          <Box sx={{ p: 2, backgroundColor: 'action.hover' }}>{expandedContent(row)}</Box>
                         </TableCell>
                       </TableRow>
                     )}
@@ -762,7 +694,7 @@ function DataTable<T>({
             )}
           </TableBody>
         </Table>
-      </TableContainer>
+      </ScrollableTableContainer>
       {paginated && (
         <TablePagination
           rowsPerPageOptions={rowsPerPageOptions}
@@ -794,7 +726,7 @@ function DataTable<T>({
         onClose={() => setDictionaryOpen(false)} 
         selectedField={selectedField} 
       />
-    </Paper>
+    </MainContainer>
   );
 }
 

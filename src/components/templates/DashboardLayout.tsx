@@ -35,8 +35,9 @@ import {
   toggleMobileMenu,
   closeMobileMenu,
   closeSnackbar,
-  toggleSidebarCollapse,
 } from '@/store/slices/uiSlice';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { MENU_STATUS } from '@/config/constants';
 
 const DRAWER_WIDTH = 240;
 const DRAWER_COLLAPSED_WIDTH = 64;
@@ -53,10 +54,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     activeExportType, isReloading, isDrillingDown, isGlobalFetching } = useAppSelector((s) => s.ui);
   const { loading: financialsLoading } = useAppSelector((s) => s.financials);
 
-  const user = useAppSelector((state) => state.auth.user);
   const { selectedTenantId, isLoading: tenantLoading } = useAppSelector((s) => s.tenant);
 
-  const isCognitiveUser = user?.company?.toLowerCase() === 'mindpath';
+  const { 
+    isMindPath, 
+    isCognitiveUser, 
+    canViewPip, 
+    canViewCollections, 
+    canViewFinancials, 
+    getMenuStatus 
+  } = useUserPermissions();
+
   const isWaitingForTenants = isCognitiveUser && !selectedTenantId;
 
   // Invalidate all financials tags when tenant changes to force refetch
@@ -65,26 +73,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       dispatch(financialsApi.util.invalidateTags(['Financials']));
     }
   }, [selectedTenantId, dispatch]);
-
-
-  const menus = user?.menus || [];
-
-  const getMenuStatus = (label: string) => {
-    const findStatus = (menusArray: any[]): string | null => {
-      for (const m of menusArray) {
-        if (m.menuName?.toLowerCase() === label.toLowerCase()) return m.status;
-        if (m.subModules) {
-          const sub = findStatus(m.subModules);
-          if (sub) return sub;
-        }
-      }
-      return null;
-    };
-    const status = findStatus(menus);
-    // If user has no menus defined, default to 'Visible' for base menus
-    if (!menus || menus.length === 0) return 'Visible';
-    return status || 'Hidden';
-  };
 
   const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
 
@@ -109,13 +97,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     { label: 'Variance Analysis', tab: 6, path: '/financials/variance-analysis', icon: <CompareArrowsIcon fontSize="small" /> },
     { label: 'Trends & Forecast', tab: 7, path: '/financials/trends-forecast', icon: <TrendingUpIcon fontSize="small" /> },
   ].filter(item => {
-    const isMindPath = user?.company?.toLowerCase() === 'mindpath';
     if (isMindPath && item.label === 'PIP') return false;
-    return getMenuStatus(item.label) !== 'Hidden';
+    return getMenuStatus(item.label) !== MENU_STATUS.HIDDEN;
   });
 
-  const hasCollections = getMenuStatus('Collections') !== 'Hidden';
-  const hasFinancials = getMenuStatus('Financials') !== 'Hidden';
+  const hasCollections = canViewCollections;
+  const hasFinancials = canViewFinancials;
 
   const drawerContent = (
     <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -124,9 +111,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <List disablePadding>
           <Tooltip title={sidebarCollapsed ? 'Collections' : ''} placement="right">
             <ListItemButton
-              disabled={getMenuStatus('Collections') === 'Disabled'}
+              disabled={getMenuStatus('Collections') === MENU_STATUS.DISABLED}
               selected={activePage === 'collections'}
-              onClick={() => getMenuStatus('Collections') !== 'Disabled' && handleNavClick('collections')}
+              onClick={() => getMenuStatus('Collections') !== MENU_STATUS.DISABLED && handleNavClick('collections')}
               sx={{
                 mx: sidebarCollapsed ? 0.5 : 1,
                 borderRadius: 1,
@@ -154,9 +141,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <List disablePadding>
           <Tooltip title={sidebarCollapsed ? 'Financials' : ''} placement="right">
             <ListItemButton
-              disabled={getMenuStatus('Financials') === 'Disabled'}
+              disabled={getMenuStatus('Financials') === MENU_STATUS.DISABLED}
               selected={activePage === 'financials'}
-              onClick={() => getMenuStatus('Financials') !== 'Disabled' && handleNavClick('financials', '/financials/all-transactions')}
+              onClick={() => getMenuStatus('Financials') !== MENU_STATUS.DISABLED && handleNavClick('financials', '/financials/all-transactions')}
               sx={{
                 mx: sidebarCollapsed ? 0.5 : 1,
                 borderRadius: 1,

@@ -1,32 +1,32 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
   Box,
-  Card,
-  CardContent,
   Typography,
-  Divider,
-  useTheme,
+  Paper,
+  List,
+  ListItemText,
+  ListItemAvatar,
+  CircularProgress,
 } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import { useAppSelector } from '@/store';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import { useAppSelector, useAppDispatch } from '@/store';
 import { formatCurrency } from '@/utils/formatters';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import DetailCard from '@/components/molecules/DetailCard';
-import RangeDropdown from '@/components/atoms/RangeDropdown';
 import { ServiceLine } from '@/types/financials';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay';
-import { useAppDispatch } from '@/store';
 import { setRemittanceDetail, setSelectedClaimIndex } from '@/store/slices/financialsSlice';
-import { Paper, List, ListItemButton, ListItemText, ListItemAvatar, Avatar } from '@mui/material';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-
-
-
 import { useSearchServiceLinesQuery } from '@/store/api/financialsApi';
-import { CircularProgress } from '@mui/material';
+import { 
+  ScreenWrapper, 
+  SectionHeader, 
+  PatientNameHeader, 
+  StyledListItemButton, 
+  StyledAvatar, 
+  MonospaceAmount 
+} from './RemittanceDetailScreen.styles';
 
 const RemittanceDetailScreen: React.FC = () => {
-  const theme = useTheme();
   const dispatch = useAppDispatch();
   const detail = useAppSelector((s) => s.financials.remittanceDetail);
   const claims = useAppSelector((s) => s.financials.remittanceClaims);
@@ -37,7 +37,7 @@ const RemittanceDetailScreen: React.FC = () => {
     page: 0,
     size: 10,
     sort: 'lineNumber',
-    desc: false as boolean,
+    desc: false,
   });
 
   const { data: slData, isFetching: isSlFetching, isLoading: isSlLoading } = useSearchServiceLinesQuery({
@@ -50,56 +50,51 @@ const RemittanceDetailScreen: React.FC = () => {
 
   if (!detail && (!claims || claims.length === 0)) return <Typography>No remittance detail selected.</Typography>;
 
-  const handleClaimSelect = (index: number) => {
+  const handleClaimSelect = useCallback((index: number) => {
     const selectedClaim = claims[index];
     dispatch(setSelectedClaimIndex(index));
     dispatch(setRemittanceDetail(selectedClaim));
-    // Reset queryParams for the new claim's service lines
     setSlQueryParams(prev => ({ ...prev, page: 0 }));
-  };
+  }, [dispatch, claims]);
 
   const serviceLines = slData?.data?.content || [];
   const totalElements = slData?.data?.totalElements || 0;
 
-  const serviceLineColumns: DataColumn<ServiceLine>[] = [
-    { id: 'lineNo', label: 'Line #', minWidth: 60, render: (r) => r.lineNo, accessor: (r) => r.lineNo },
-    { id: 'procCode', label: 'Proc Code', render: (r) => r.procCode, accessor: (r) => r.procCode },
-    { id: 'modifiers', label: 'Modifiers', render: (r) => r.modifiers || '–', accessor: (r) => r.modifiers || '' },
-    { id: 'revCode', label: 'Rev Code', render: (r) => r.revCode, accessor: (r) => r.revCode },
-    { id: 'dosStart', label: 'DOS Start', render: (r) => r.dosStart, accessor: (r) => r.dosStart },
-    { id: 'dosEnd', label: 'DOS End', render: (r) => r.dosEnd, accessor: (r) => r.dosEnd },
-    { id: 'units', label: 'Units', align: 'right', render: (r) => r.units, accessor: (r) => r.units },
+  const serviceLineColumns = useMemo<DataColumn<ServiceLine>[]>(() => [
+    { id: 'lineNo', label: 'Line #', minWidth: 60 },
+    { id: 'procCode', label: 'Proc Code' },
+    { id: 'modifiers', label: 'Modifiers', render: (r) => r.modifiers || '–' },
+    { id: 'revCode', label: 'Rev Code' },
+    { id: 'dosStart', label: 'DOS Start' },
+    { id: 'dosEnd', label: 'DOS End' },
+    { id: 'units', label: 'Units', align: 'right' },
     {
       id: 'charge', label: 'Charge', align: 'right',
-      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.charge)}</Typography>,
-      accessor: (r) => r.charge,
+      render: (r) => <MonospaceAmount variant="body2">{formatCurrency(r.charge)}</MonospaceAmount>
     },
     {
       id: 'allowed', label: 'Allowed', align: 'right',
-      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.allowed)}</Typography>,
-      accessor: (r) => r.allowed,
+      render: (r) => <MonospaceAmount variant="body2">{formatCurrency(r.allowed)}</MonospaceAmount>
     },
     {
       id: 'paid', label: 'Paid', align: 'right',
-      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.paid)}</Typography>,
-      accessor: (r) => r.paid,
+      render: (r) => <MonospaceAmount variant="body2">{formatCurrency(r.paid)}</MonospaceAmount>
     },
     {
       id: 'adjAmt', label: 'Adj Amt', align: 'right',
-      render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.adjAmt)}</Typography>,
-      accessor: (r) => r.adjAmt,
+      render: (r) => <MonospaceAmount variant="body2">{formatCurrency(r.adjAmt)}</MonospaceAmount>
     },
-    { id: 'adjGrp', label: 'Adj Grp', render: (r) => r.adjGrp, accessor: (r) => r.adjGrp },
-    { id: 'reason', label: 'Reason', render: (r) => r.reason, accessor: (r) => r.reason },
-    { id: 'remark', label: 'Remark', render: (r) => r.remark, accessor: (r) => r.remark },
-  ];
+    { id: 'adjGrp', label: 'Adj Grp' },
+    { id: 'reason', label: 'Reason' },
+    { id: 'remark', label: 'Remark' },
+  ], []);
 
   return (
-    <Box>
-      <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Remittance Detail (Claims)</Typography>
-      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, color: theme.palette.primary.main }}>
+    <ScreenWrapper>
+      <SectionHeader variant="h6">Remittance Detail (Claims)</SectionHeader>
+      <PatientNameHeader variant="subtitle1">
         Claim Detail – {detail?.patientName || 'N/A'}
-      </Typography>
+      </PatientNameHeader>
 
       {/* Claims List */}
       {claims && claims.length > 1 && (
@@ -108,27 +103,23 @@ const RemittanceDetailScreen: React.FC = () => {
           <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <List disablePadding>
               {claims.map((claim: any, idx: number) => (
-                <ListItemButton
+                <StyledListItemButton
                   key={claim.payerIcn || idx}
                   selected={selectedIndex === idx}
                   onClick={() => handleClaimSelect(idx)}
                   divider={idx < claims.length - 1}
-                  sx={{
-                    '&.Mui-selected': { bgcolor: 'rgba(25, 118, 210, 0.08)' },
-                    '&:hover': { bgcolor: 'rgba(25, 118, 210, 0.04)' }
-                  }}
                 >
                   <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: selectedIndex === idx ? 'primary.main' : 'grey.300', width: 32, height: 32 }}>
+                    <StyledAvatar isSelected={selectedIndex === idx}>
                       <AssignmentIcon fontSize="small" />
-                    </Avatar>
+                    </StyledAvatar>
                   </ListItemAvatar>
                   <ListItemText
                     primary={`ICN: ${claim.payerIcn}`}
                     secondary={`Charge: ${formatCurrency(claim.claimCharge)} | Status: ${claim.claimStatusCode}`}
                     primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
                   />
-                </ListItemButton>
+                </StyledListItemButton>
               ))}
             </List>
           </Paper>
@@ -196,7 +187,7 @@ const RemittanceDetailScreen: React.FC = () => {
         onRowsPerPageChange={(s) => setSlQueryParams(prev => ({ ...prev, size: s, page: 0 }))}
         onSortChange={(col, dir) => setSlQueryParams(prev => ({ ...prev, sort: col, desc: dir === 'desc', page: 0 }))}
       />
-    </Box>
+    </ScreenWrapper>
   );
 };
 

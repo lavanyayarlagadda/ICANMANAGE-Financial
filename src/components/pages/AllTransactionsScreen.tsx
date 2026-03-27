@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Typography, Chip, useTheme } from '@mui/material';
+import React, { useMemo, useCallback, useRef, useEffect } from 'react';
+import { Typography, Chip, useTheme } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
@@ -8,15 +8,7 @@ import { useAppSelector, useAppDispatch } from '@/store';
 import { AllTransaction } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType } from '@/store/slices/uiSlice';
-import { useRef, useEffect } from 'react';
-
-const transactionTypeColors: Record<string, { bg: string; text: string }> = {
-  PAYMENT: { bg: '#E3F2FD', text: '#1565C0' },
-  RECOUPMENT: { bg: '#FFEBEE', text: '#C62828' },
-  FORWARD_BALANCE: { bg: '#FFF3E0', text: '#E65100' },
-  ADJUSTMENT: { bg: '#F3E5F5', text: '#7B1FA2' },
-  PIP: { bg: '#E8F5E9', text: '#2E7D32' },
-};
+import { AmountText, BalanceText, transactionTypeColors } from './AllTransactionsScreen.styles';
 
 const AllTransactionsScreen: React.FC = () => {
   const theme = useTheme();
@@ -26,25 +18,22 @@ const AllTransactionsScreen: React.FC = () => {
   const isMindPath = user?.company?.toLowerCase() === 'mindpath';
   const { actionTriggers } = useAppSelector(s => s.ui);
 
-  const filteredTransactions = isMindPath 
+  const filteredTransactions = useMemo(() => isMindPath 
     ? allTransactions.filter(t => t.transactionType !== 'PIP') 
-    : allTransactions;
+    : allTransactions, [allTransactions, isMindPath]);
 
   // Refs to prevent mount calls
   const exportCount = useRef(actionTriggers.export);
   const printCount = useRef(actionTriggers.print);
   const reloadCount = useRef(actionTriggers.reload);
 
-  const handleExport = (format: 'pdf' | 'xlsx') => {
-    // For now, since AllTransactions might not have a server-side endpoint yet,
-    // we'll just simulate a brief loader or tell the user.
-    // If there was an endpoint, we'd call triggerExport here.
-    dispatch(setActiveExportType(format));
+  const handleExport = useCallback((formatType: 'pdf' | 'xlsx') => {
+    dispatch(setActiveExportType(formatType));
     setTimeout(() => {
       dispatch(setActiveExportType(null));
-      alert(`Exporting All Transactions as ${format.toUpperCase()}... (Endpoint pending)`);
+      alert(`Exporting All Transactions as ${formatType.toUpperCase()}... (Endpoint pending)`);
     }, 1500);
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     if (actionTriggers.export > exportCount.current) {
@@ -67,7 +56,7 @@ const AllTransactionsScreen: React.FC = () => {
     }
   }, [actionTriggers.reload]);
 
-  const columns: DataColumn<AllTransaction>[] = [
+  const columns = useMemo<DataColumn<AllTransaction>[]>(() => [
     {
       id: 'actions',
       label: 'Actions',
@@ -80,12 +69,11 @@ const AllTransactionsScreen: React.FC = () => {
         />
       ),
     },
-    { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
+    { id: 'effectiveDate', label: 'Effective Date', minWidth: 120 },
     {
       id: 'transactionType',
       label: 'Category',
       minWidth: 140,
-      accessor: (r) => r.transactionType,
       filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', ...(!isMindPath ? ['PIP'] : [])],
       render: (r) => {
         const colors = transactionTypeColors[r.transactionType] || { bg: '#F5F5F5', text: '#616161' };
@@ -98,26 +86,18 @@ const AllTransactionsScreen: React.FC = () => {
         );
       },
     },
-    { id: 'type', label: 'Type', minWidth: 100, accessor: (r) => r.type, render: (r) => r.type },
-    { id: 'description', label: 'Description', minWidth: 240, accessor: (r) => r.description, render: (r) => r.description },
-    { id: 'sourceProvider', label: 'Source / Provider', minWidth: 180, accessor: (r) => r.sourceProvider, render: (r) => r.sourceProvider },
+    { id: 'type', label: 'Type', minWidth: 100 },
+    { id: 'description', label: 'Description', minWidth: 240 },
+    { id: 'sourceProvider', label: 'Source / Provider', minWidth: 180 },
     {
       id: 'amount',
       label: 'Amount',
       minWidth: 120,
       align: 'right',
-      accessor: (r) => r.amount,
       render: (r) => (
-        <Typography
-          variant="body2"
-          sx={{
-            fontFamily: 'monospace',
-            fontWeight: 600,
-            color: r.amount < 0 ? theme.palette.error.main : theme.palette.text.primary,
-          }}
-        >
+        <AmountText variant="body2" amount={r.amount}>
           {formatCurrency(r.amount)}
-        </Typography>
+        </AmountText>
       ),
     },
     {
@@ -125,13 +105,18 @@ const AllTransactionsScreen: React.FC = () => {
       label: 'Open Balance',
       minWidth: 120,
       align: 'right',
-      accessor: (r) => r.openBalance ?? 0,
       render: (r) => r.openBalance != null ? (
-        <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.openBalance)}</Typography>
+        <BalanceText variant="body2">{formatCurrency(r.openBalance)}</BalanceText>
       ) : '–',
     },
-    { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Open', 'Pending', 'Partially Applied', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
-  ];
+    { 
+      id: 'status', 
+      label: 'Status', 
+      minWidth: 120, 
+      filterOptions: ['Reconciled', 'Open', 'Pending', 'Partially Applied', 'Disputed'], 
+      render: (r) => <StatusBadge status={r.status} /> 
+    },
+  ], [dispatch, isMindPath]);
 
   return (
     <DataTable

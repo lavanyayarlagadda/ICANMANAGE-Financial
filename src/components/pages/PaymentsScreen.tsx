@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Typography, useTheme, CircularProgress } from '@mui/material';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { Box, Typography } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
@@ -12,16 +12,16 @@ import { setShowRemittanceDetail, setSelectedPaymentId, setRemittanceDetail, set
 import { setActiveExportType, setIsReloading, setIsDrillingDown as setGlobalDrillingDown, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { subMonths, format } from 'date-fns';
-import { useSearchPaymentsQuery, useLazyExportPaymentsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery } from '@/store/api/financialsApi';
+import { useSearchPaymentsQuery, useLazyExportPaymentsQuery, useLazyGetRemittanceClaimsQuery } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
-import { useRef } from 'react';
+import { ScreenWrapper, TransactionNumber, MonospaceBox } from './PaymentsScreen.styles';
 
 const PaymentsScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const { actionTriggers, isDrillingDown, activeExportType, isReloading } = useAppSelector(s => s.ui);
 
   // Unified search state
-  const [queryParams, setQueryParams] = React.useState({
+  const [queryParams, setQueryParams] = useState({
     page: 0,
     size: 10,
     sortField: '',
@@ -45,7 +45,6 @@ const PaymentsScreen: React.FC = () => {
 
   const [triggerExport] = useLazyExportPaymentsQuery();
   const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
-  const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
 
   // Refs to prevent mount calls
   const exportCount = useRef(actionTriggers.export);
@@ -53,14 +52,14 @@ const PaymentsScreen: React.FC = () => {
   const reloadCount = useRef(actionTriggers.reload);
 
   // Sync isFetching to global store
-  React.useEffect(() => {
+  useEffect(() => {
     dispatch(setIsGlobalFetching(isFetching));
     return () => {
       dispatch(setIsGlobalFetching(false));
     };
   }, [isFetching, dispatch]);
 
-  const handleExport = async (formatType: 'pdf' | 'xlsx') => {
+  const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
     try {
       dispatch(setActiveExportType(formatType));
       const result = await triggerExport({
@@ -80,24 +79,24 @@ const PaymentsScreen: React.FC = () => {
     } finally {
       dispatch(setActiveExportType(null));
     }
-  };
+  }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
 
   // Handle Global Action Triggers from FinancialsTabs
-  React.useEffect(() => {
+  useEffect(() => {
     if (actionTriggers.export > exportCount.current) {
       handleExport('xlsx');
       exportCount.current = actionTriggers.export;
     }
-  }, [actionTriggers.export]);
+  }, [actionTriggers.export, handleExport]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (actionTriggers.print > printCount.current) {
       handleExport('pdf');
       printCount.current = actionTriggers.print;
     }
-  }, [actionTriggers.print]);
+  }, [actionTriggers.print, handleExport]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {
       const doReload = async () => {
         try {
@@ -112,17 +111,14 @@ const PaymentsScreen: React.FC = () => {
     }
   }, [actionTriggers.reload, refetch, dispatch]);
 
-  const handleDrillDown = async (row: PaymentTransaction) => {
-    console.log(row, "row")
+  const handleDrillDown = useCallback(async (row: PaymentTransaction) => {
     try {
       dispatch(setGlobalDrillingDown(true));
       dispatch(setSelectedPaymentId(row.transactionNo));
 
-      // Fetch remittance claim details
       const claimResult = await triggerGetRemittance(row.transactionNo).unwrap() as any;
       const claimsArr = Array.isArray(claimResult?.data) ? claimResult.data : (Array.isArray(claimResult) ? claimResult : (claimResult ? [claimResult] : []));
 
-      // If no claims, just show empty
       if (claimsArr.length === 0) {
         dispatch(setRemittanceClaims([]));
         dispatch(setRemittanceDetail(null));
@@ -130,7 +126,6 @@ const PaymentsScreen: React.FC = () => {
         return;
       }
 
-      // Update state
       dispatch(setRemittanceClaims(claimsArr));
       dispatch(setSelectedClaimIndex(0));
       dispatch(setRemittanceDetail(claimsArr[0]));
@@ -140,9 +135,9 @@ const PaymentsScreen: React.FC = () => {
     } finally {
       dispatch(setGlobalDrillingDown(false));
     }
-  };
+  }, [dispatch, triggerGetRemittance]);
 
-  const handleRangeChange = (range: string) => {
+  const handleRangeChange = useCallback((range: string) => {
     if (range.includes(' to ')) {
       const [from, to] = range.split(' to ');
       setQueryParams(prev => {
@@ -150,23 +145,23 @@ const PaymentsScreen: React.FC = () => {
         return { ...prev, fromDate: from, toDate: to, page: 0 };
       });
     }
-  };
+  }, []);
 
-  const handleFilterChange = (filters: Record<string, string>) => {
+  const handleFilterChange = useCallback((filters: Record<string, string>) => {
     if (filters.status !== undefined) {
       const newStatus = filters.status || null;
       setQueryParams(prev => prev.status === newStatus ? prev : { ...prev, status: newStatus, page: 0 });
     }
-  };
+  }, []);
 
-  const handleSortChange = (colId: string, direction: 'asc' | 'desc') => {
+  const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
     setQueryParams(prev => {
       if (prev.sortField === colId && prev.sortOrder === direction) return prev;
       return { ...prev, sortField: colId, sortOrder: direction, page: 0 };
     });
-  };
+  }, []);
 
-  const columns: DataColumn<PaymentTransaction>[] = [
+  const columns = useMemo<DataColumn<PaymentTransaction>[]>(() => [
     {
       id: 'actions',
       label: 'Actions',
@@ -182,34 +177,32 @@ const PaymentsScreen: React.FC = () => {
         />
       ),
     },
-    { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
-    { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type, render: (r) => r.type },
+    { id: 'effectiveDate', label: 'Effective Date', minWidth: 120 },
+    { id: 'type', label: 'Type', minWidth: 90 },
     {
       id: 'transactionNo',
       label: 'Transaction Number',
       minWidth: 220,
-      accessor: (r) => r.transactionNo,
       render: (r) => (
-        <Typography
-          variant="body2"
-          sx={{ cursor: 'pointer', '&:hover': { color: 'primary.main', textDecoration: 'underline' } }}
-        // onClick={() => handleDrillDown(r)}
-        >
+        <TransactionNumber variant="body2" onClick={() => handleDrillDown(r)}>
           {r.transactionNo}
-        </Typography>
+        </TransactionNumber>
       ),
     },
-    { id: 'payer', label: 'Payer', minWidth: 180, accessor: (r) => r.payer, render: (r) => r.payer },
-    { id: 'amount', label: 'Amount', minWidth: 110, align: 'right', accessor: (r) => r.amount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount)}</Box> },
-    { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'right', accessor: (r) => r.openBalance ?? 0, render: (r) => r.openBalance != null ? formatCurrency(r.openBalance) : 'N/A' },
-    { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
-  ];
+    { id: 'payer', label: 'Payer', minWidth: 180 },
+    { id: 'amount', label: 'Amount', minWidth: 110, align: 'right', render: (r) => <MonospaceBox>{formatCurrency(r.amount)}</MonospaceBox> },
+    { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'right', render: (r) => r.openBalance != null ? formatCurrency(r.openBalance) : 'N/A' },
+    { id: 'status', label: 'Status', minWidth: 120, filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
+  ], [dispatch, handleDrillDown]);
+
+  const onPageChange = useCallback((p: number) => setQueryParams(prev => prev.page === p ? prev : { ...prev, page: p }), []);
+  const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => prev.size === s ? prev : { ...prev, size: s, page: 0 }), []);
 
   // if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
   if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments.</Box>;
 
   return (
-    <Box sx={{ position: 'relative' }}>
+    <ScreenWrapper>
       <DataTable
         columns={columns}
         data={payments}
@@ -223,13 +216,13 @@ const PaymentsScreen: React.FC = () => {
         rowsPerPage={queryParams.size}
         sortCol={queryParams.sortField}
         sortDir={queryParams.sortOrder}
-        onPageChange={(p) => setQueryParams(prev => prev.page === p ? prev : { ...prev, page: p })}
-        onRowsPerPageChange={(s) => setQueryParams(prev => prev.size === s ? prev : { ...prev, size: s, page: 0 })}
+        onPageChange={onPageChange}
+        onRowsPerPageChange={onRowsPerPageChange}
         onSortChange={handleSortChange}
         onFilterChange={handleFilterChange}
         download={false}
       />
-    </Box>
+    </ScreenWrapper>
   );
 };
 

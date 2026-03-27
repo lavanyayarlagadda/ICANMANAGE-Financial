@@ -29,6 +29,11 @@ export const themeConfig = {
     },
     border: '#dde3ec',
     divider: '#dde3ec',
+    cardBorder: '#E2E8F0',
+    selectionBackground: '#F4F9FF',
+    inputBackground: '#F8FAFC',
+    tabActive: 'rgba(107, 153, 196, 0.6)',
+    tabHover: 'rgba(226, 232, 240, 1)',
   },
 
   logoColor: '#6B99C4',

@@ -1,6 +1,5 @@
-import React from 'react';
-import { Box, Typography, Chip, useTheme } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import React, { useMemo } from 'react';
+import { Box, Typography, Chip, Grid } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
@@ -10,24 +9,28 @@ import { useAppSelector, useAppDispatch } from '@/store';
 import { CollectionAccount } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
 import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
-
-const priorityColors: Record<string, { bg: string; text: string }> = {
-  High: { bg: '#FFEBEE', text: '#C62828' },
-  Medium: { bg: '#FFF3E0', text: '#E65100' },
-  Low: { bg: '#E8F5E9', text: '#2E7D32' },
-};
+import { 
+  ScreenWrapper, 
+  HeaderBox, 
+  AccountNumberText, 
+  MonospaceBox, 
+  BalanceText, 
+  priorityColors 
+} from './CollectionsScreen.styles';
 
 const CollectionsScreen: React.FC = () => {
-  const theme = useTheme();
   const dispatch = useAppDispatch();
   const collections = useAppSelector((s) => s.financials.collections);
 
-  const totalDue = collections.reduce((sum, r) => sum + r.totalDue, 0);
-  const totalCollected = collections.reduce((sum, r) => sum + r.amountCollected, 0);
-  const totalBalance = collections.reduce((sum, r) => sum + r.balance, 0);
-  const openAccounts = collections.filter((c) => c.status === 'Open').length;
+  const stats = useMemo(() => {
+    const totalDue = collections.reduce((sum, r) => sum + r.totalDue, 0);
+    const totalCollected = collections.reduce((sum, r) => sum + r.amountCollected, 0);
+    const totalBalance = collections.reduce((sum, r) => sum + r.balance, 0);
+    const openAccounts = collections.filter((c) => c.status === 'Open').length;
+    return { totalDue, totalCollected, totalBalance, openAccounts };
+  }, [collections]);
 
-  const columns: DataColumn<CollectionAccount>[] = [
+  const columns = useMemo<DataColumn<CollectionAccount>[]>(() => [
     {
       id: 'actions',
       label: 'Actions',
@@ -40,30 +43,28 @@ const CollectionsScreen: React.FC = () => {
         />
       ),
     },
-    { id: 'accountNumber', label: 'Account #', minWidth: 140, accessor: (r) => r.accountNumber, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.accountNumber}</Typography> },
-    { id: 'patientName', label: 'Patient Name', minWidth: 160, accessor: (r) => r.patientName, render: (r) => r.patientName },
-    { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, render: (r) => r.payer },
-    { id: 'totalDue', label: 'Total Due', minWidth: 110, align: 'right', accessor: (r) => r.totalDue, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.totalDue)}</Box> },
-    { id: 'amountCollected', label: 'Collected', minWidth: 110, align: 'right', accessor: (r) => r.amountCollected, render: (r) => <Box sx={{ fontFamily: 'monospace', color: 'success.main' }}>{formatCurrency(r.amountCollected)}</Box> },
+    { id: 'accountNumber', label: 'Account #', minWidth: 140, render: (r) => <AccountNumberText variant="body2">{r.accountNumber}</AccountNumberText> },
+    { id: 'patientName', label: 'Patient Name', minWidth: 160 },
+    { id: 'payer', label: 'Payer', minWidth: 140 },
+    { id: 'totalDue', label: 'Total Due', minWidth: 110, align: 'right', render: (r) => <MonospaceBox>{formatCurrency(r.totalDue)}</MonospaceBox> },
+    { id: 'amountCollected', label: 'Collected', minWidth: 110, align: 'right', render: (r) => <MonospaceBox sx={{ color: 'success.main' }}>{formatCurrency(r.amountCollected)}</MonospaceBox> },
     {
       id: 'balance',
       label: 'Balance',
       minWidth: 110,
       align: 'right',
-      accessor: (r) => r.balance,
       render: (r) => (
-        <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600, color: r.balance > 0 ? theme.palette.error.main : theme.palette.success.main }}>
+        <BalanceText variant="body2" balance={r.balance}>
           {formatCurrency(r.balance)}
-        </Typography>
+        </BalanceText>
       ),
     },
-    { id: 'lastActivityDate', label: 'Last Activity', minWidth: 110, accessor: (r) => r.lastActivityDate, render: (r) => r.lastActivityDate },
-    { id: 'assignedTo', label: 'Assigned To', minWidth: 110, accessor: (r) => r.assignedTo, render: (r) => r.assignedTo },
+    { id: 'lastActivityDate', label: 'Last Activity', minWidth: 110 },
+    { id: 'assignedTo', label: 'Assigned To', minWidth: 110 },
     {
       id: 'aging',
       label: 'Aging',
       minWidth: 100,
-      accessor: (r) => r.aging,
       filterOptions: ['0-30', '31-60', '61-90', '91-120', '120+', 'N/A'],
       render: (r) => r.aging !== 'N/A' ? <Chip label={r.aging} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} /> : '–',
     },
@@ -71,40 +72,47 @@ const CollectionsScreen: React.FC = () => {
       id: 'priority',
       label: 'Priority',
       minWidth: 90,
-      accessor: (r) => r.priority,
       filterOptions: ['High', 'Medium', 'Low'],
       render: (r) => {
         const colors = priorityColors[r.priority];
         return <Chip label={r.priority} size="small" sx={{ backgroundColor: colors.bg, color: colors.text, fontWeight: 600, fontSize: '0.7rem' }} />;
       },
     },
-    { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Open', 'In Progress', 'Closed', 'Settled'], render: (r) => <StatusBadge status={r.status} /> },
-  ];
+    { id: 'status', label: 'Status', minWidth: 120, filterOptions: ['Open', 'In Progress', 'Closed', 'Settled'], render: (r) => <StatusBadge status={r.status} /> },
+  ], [dispatch]);
 
   return (
-    <Box>
-      <Box sx={{ mb: 3 }}>
+    <ScreenWrapper>
+      <HeaderBox>
         <Typography variant="h5" sx={{ fontWeight: 700 }}>Collections</Typography>
         <Typography variant="body2" color="text.secondary">Manage collection accounts, track balances, and monitor recovery efforts.</Typography>
-      </Box>
+      </HeaderBox>
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <SummaryCard title="Total Due" value={formatCurrency(totalDue)} variant="highlight" />
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <SummaryCard title="Total Due" value={formatCurrency(stats.totalDue)} variant="highlight" />
         </Grid>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <SummaryCard title="Total Collected" value={formatCurrency(totalCollected)} />
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <SummaryCard title="Total Collected" value={formatCurrency(stats.totalCollected)} />
         </Grid>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <SummaryCard title="Outstanding Balance" value={formatCurrency(totalBalance)} variant="negative" />
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <SummaryCard title="Outstanding Balance" value={formatCurrency(stats.totalBalance)} variant="negative" />
         </Grid>
-        <Grid size={{ xs: 6, md: 3 }}>
-          <SummaryCard title="Open Accounts" value={String(openAccounts)} />
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <SummaryCard title="Open Accounts" value={String(stats.openAccounts)} />
         </Grid>
       </Grid>
 
-      <DataTable columns={columns} data={collections} rowKey={(r) => r.id} exportTitle="Collections" selectable customToolbarContent={<RangeDropdown />} dictionaryId="collections" />
-    </Box>
+      <DataTable 
+        columns={columns} 
+        data={collections} 
+        rowKey={(r) => r.id} 
+        exportTitle="Collections" 
+        selectable 
+        customToolbarContent={<RangeDropdown />} 
+        dictionaryId="collections" 
+      />
+    </ScreenWrapper>
   );
 };
 
