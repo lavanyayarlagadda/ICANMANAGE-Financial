@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Typography, useTheme, CircularProgress } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
@@ -7,18 +7,163 @@ import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { PaymentTransaction } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
-import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
-import { setShowRemittanceDetail, setSelectedPaymentId } from '@/store/slices/financialsSlice';
-import PrintIcon from '@mui/icons-material/Print';
+import { openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
+import { setShowRemittanceDetail, setSelectedPaymentId, setRemittanceDetail, setRemittanceClaims, setSelectedClaimIndex } from '@/store/slices/financialsSlice';
+import { setActiveExportType, setIsReloading, setIsDrillingDown as setGlobalDrillingDown, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { subMonths, format } from 'date-fns';
+import { useSearchPaymentsQuery, useLazyExportPaymentsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery } from '@/store/api/financialsApi';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { useRef } from 'react';
 
 const PaymentsScreen: React.FC = () => {
   const dispatch = useAppDispatch();
-  const payments = useAppSelector((s) => s.financials.payments);
+  const { actionTriggers, isDrillingDown, activeExportType, isReloading } = useAppSelector(s => s.ui);
 
-  const handleDrillDown = (row: PaymentTransaction) => {
-    dispatch(setSelectedPaymentId(row.id));
-    dispatch(setShowRemittanceDetail(true));
+  // Unified search state
+  const [queryParams, setQueryParams] = React.useState({
+    page: 0,
+    size: 10,
+    sortField: '',
+    sortOrder: 'desc' as 'asc' | 'desc',
+    status: null as string | null,
+    fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
+    toDate: format(new Date(), 'yyyy-MM-dd'),
+  });
+  const { data, isLoading, isError, isFetching, refetch } = useSearchPaymentsQuery({
+    page: queryParams.page + 1, // API is 1-indexed
+    size: queryParams.size,
+    sort: queryParams.sortField,
+    desc: queryParams.sortOrder === 'desc',
+    status: queryParams.status === 'All' ? null : queryParams.status,
+    fromDate: queryParams.fromDate,
+    toDate: queryParams.toDate
+  });
+
+  const payments = data?.data?.content ?? [];
+  const totalElements = data?.data?.totalElements ?? 0;
+
+  const [triggerExport] = useLazyExportPaymentsQuery();
+  const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
+  const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
+
+  // Refs to prevent mount calls
+  const exportCount = useRef(actionTriggers.export);
+  const printCount = useRef(actionTriggers.print);
+  const reloadCount = useRef(actionTriggers.reload);
+
+  // Sync isFetching to global store
+  React.useEffect(() => {
+    dispatch(setIsGlobalFetching(isFetching));
+    return () => {
+      dispatch(setIsGlobalFetching(false));
+    };
+  }, [isFetching, dispatch]);
+
+  const handleExport = async (formatType: 'pdf' | 'xlsx') => {
+    try {
+      dispatch(setActiveExportType(formatType));
+      const result = await triggerExport({
+        fromDate: queryParams.fromDate,
+        toDate: queryParams.toDate,
+        format: formatType
+      }).unwrap();
+
+      if (result !== undefined) {
+        downloadFileFromBlob(
+          result as unknown as Blob,
+          `Payments_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
+        );
+      }
+    } catch (err) {
+      console.error('Export failed:', err);
+    } finally {
+      dispatch(setActiveExportType(null));
+    }
+  };
+
+  // Handle Global Action Triggers from FinancialsTabs
+  React.useEffect(() => {
+    if (actionTriggers.export > exportCount.current) {
+      handleExport('xlsx');
+      exportCount.current = actionTriggers.export;
+    }
+  }, [actionTriggers.export]);
+
+  React.useEffect(() => {
+    if (actionTriggers.print > printCount.current) {
+      handleExport('pdf');
+      printCount.current = actionTriggers.print;
+    }
+  }, [actionTriggers.print]);
+
+  React.useEffect(() => {
+    if (actionTriggers.reload > reloadCount.current) {
+      const doReload = async () => {
+        try {
+          dispatch(setIsReloading(true));
+          await refetch();
+        } finally {
+          dispatch(setIsReloading(false));
+        }
+      };
+      doReload();
+      reloadCount.current = actionTriggers.reload;
+    }
+  }, [actionTriggers.reload, refetch, dispatch]);
+
+  const handleDrillDown = async (row: PaymentTransaction) => {
+    console.log(row, "row")
+    try {
+      dispatch(setGlobalDrillingDown(true));
+      dispatch(setSelectedPaymentId(row.transactionNo));
+
+      // Fetch remittance claim details
+      const claimResult = await triggerGetRemittance(row.transactionNo).unwrap() as any;
+      const claimsArr = Array.isArray(claimResult?.data) ? claimResult.data : (Array.isArray(claimResult) ? claimResult : (claimResult ? [claimResult] : []));
+
+      // If no claims, just show empty
+      if (claimsArr.length === 0) {
+        dispatch(setRemittanceClaims([]));
+        dispatch(setRemittanceDetail(null));
+        dispatch(setShowRemittanceDetail(true));
+        return;
+      }
+
+      // Update state
+      dispatch(setRemittanceClaims(claimsArr));
+      dispatch(setSelectedClaimIndex(0));
+      dispatch(setRemittanceDetail(claimsArr[0]));
+      dispatch(setShowRemittanceDetail(true));
+    } catch (err) {
+      console.error('Failed to fetch primary remittance details:', err);
+    } finally {
+      dispatch(setGlobalDrillingDown(false));
+    }
+  };
+
+  const handleRangeChange = (range: string) => {
+    if (range.includes(' to ')) {
+      const [from, to] = range.split(' to ');
+      setQueryParams(prev => {
+        if (prev.fromDate === from && prev.toDate === to) return prev;
+        return { ...prev, fromDate: from, toDate: to, page: 0 };
+      });
+    }
+  };
+
+  const handleFilterChange = (filters: Record<string, string>) => {
+    if (filters.status !== undefined) {
+      const newStatus = filters.status || null;
+      setQueryParams(prev => prev.status === newStatus ? prev : { ...prev, status: newStatus, page: 0 });
+    }
+  };
+
+  const handleSortChange = (colId: string, direction: 'asc' | 'desc') => {
+    setQueryParams(prev => {
+      if (prev.sortField === colId && prev.sortOrder === direction) return prev;
+      return { ...prev, sortField: colId, sortOrder: direction, page: 0 };
+    });
   };
 
   const columns: DataColumn<PaymentTransaction>[] = [
@@ -28,11 +173,10 @@ const PaymentsScreen: React.FC = () => {
       minWidth: 60,
       render: (r) => (
         <RowActionMenu
-          onView={() => dispatch(openViewDialog(r as unknown as Record<string, unknown>))}
+          onView={() => handleDrillDown(r)}
           onEdit={() => dispatch(openEditDialog(r as unknown as Record<string, unknown>))}
           onDelete={() => dispatch(openConfirmDelete({ id: r.id, type: 'payment' }))}
           extraActions={[
-            { label: 'Remittance Detail', icon: <PrintIcon fontSize="small" />, onClick: () => handleDrillDown(r) },
             { label: 'Copy ID', icon: <ContentCopyIcon fontSize="small" />, onClick: () => navigator.clipboard.writeText(r.id) },
           ]}
         />
@@ -41,36 +185,51 @@ const PaymentsScreen: React.FC = () => {
     { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
     { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type, render: (r) => r.type },
     {
-      id: 'description',
+      id: 'transactionNo',
       label: 'Transaction Number',
       minWidth: 220,
-      accessor: (r) => r.description,
+      accessor: (r) => r.transactionNo,
       render: (r) => (
         <Typography
           variant="body2"
           sx={{ cursor: 'pointer', '&:hover': { color: 'primary.main', textDecoration: 'underline' } }}
-          onClick={() => handleDrillDown(r)}
+        // onClick={() => handleDrillDown(r)}
         >
-          {r.description}
+          {r.transactionNo}
         </Typography>
       ),
     },
-    { id: 'sourceProvider', label: 'Payer', minWidth: 180, accessor: (r) => r.sourceProvider, render: (r) => r.sourceProvider },
+    { id: 'payer', label: 'Payer', minWidth: 180, accessor: (r) => r.payer, render: (r) => r.payer },
     { id: 'amount', label: 'Amount', minWidth: 110, align: 'right', accessor: (r) => r.amount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount)}</Box> },
     { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'right', accessor: (r) => r.openBalance ?? 0, render: (r) => r.openBalance != null ? formatCurrency(r.openBalance) : 'N/A' },
-    { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
+    { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
   ];
 
+  // if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
+  if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments.</Box>;
+
   return (
-    <DataTable
-      columns={columns}
-      data={payments}
-      rowKey={(r) => r.id}
-      exportTitle="Payments"
-      // selectable
-      customToolbarContent={<RangeDropdown />}
-      dictionaryId="all-transactions"
-    />
+    <Box sx={{ position: 'relative' }}>
+      <DataTable
+        columns={columns}
+        data={payments}
+        rowKey={(r) => r.id}
+        exportTitle="Payments"
+        customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
+        dictionaryId="all-transactions"
+        serverSide
+        totalElements={totalElements}
+        page={queryParams.page}
+        rowsPerPage={queryParams.size}
+        sortCol={queryParams.sortField}
+        sortDir={queryParams.sortOrder}
+        onPageChange={(p) => setQueryParams(prev => prev.page === p ? prev : { ...prev, page: p })}
+        onRowsPerPageChange={(s) => setQueryParams(prev => prev.size === s ? prev : { ...prev, size: s, page: 0 })}
+        onSortChange={handleSortChange}
+        onFilterChange={handleFilterChange}
+        download={false}
+      />
+    </Box>
   );
 };
 

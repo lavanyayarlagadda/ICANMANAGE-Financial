@@ -7,7 +7,8 @@ import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { AllTransaction } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
-import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
+import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType } from '@/store/slices/uiSlice';
+import { useRef, useEffect } from 'react';
 
 const transactionTypeColors: Record<string, { bg: string; text: string }> = {
   PAYMENT: { bg: '#E3F2FD', text: '#1565C0' },
@@ -20,7 +21,51 @@ const transactionTypeColors: Record<string, { bg: string; text: string }> = {
 const AllTransactionsScreen: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
-  const allTransactions = useAppSelector((s) => s.financials.allTransactions);
+  const { allTransactions } = useAppSelector((s) => s.financials);
+  const user = useAppSelector((s) => s.auth.user);
+  const isMindPath = user?.company?.toLowerCase() === 'mindpath';
+  const { actionTriggers } = useAppSelector(s => s.ui);
+
+  const filteredTransactions = isMindPath 
+    ? allTransactions.filter(t => t.transactionType !== 'PIP') 
+    : allTransactions;
+
+  // Refs to prevent mount calls
+  const exportCount = useRef(actionTriggers.export);
+  const printCount = useRef(actionTriggers.print);
+  const reloadCount = useRef(actionTriggers.reload);
+
+  const handleExport = (format: 'pdf' | 'xlsx') => {
+    // For now, since AllTransactions might not have a server-side endpoint yet,
+    // we'll just simulate a brief loader or tell the user.
+    // If there was an endpoint, we'd call triggerExport here.
+    dispatch(setActiveExportType(format));
+    setTimeout(() => {
+      dispatch(setActiveExportType(null));
+      alert(`Exporting All Transactions as ${format.toUpperCase()}... (Endpoint pending)`);
+    }, 1500);
+  };
+
+  useEffect(() => {
+    if (actionTriggers.export > exportCount.current) {
+      handleExport('xlsx');
+      exportCount.current = actionTriggers.export;
+    }
+  }, [actionTriggers.export]);
+
+  useEffect(() => {
+    if (actionTriggers.print > printCount.current) {
+      handleExport('pdf');
+      printCount.current = actionTriggers.print;
+    }
+  }, [actionTriggers.print]);
+
+  useEffect(() => {
+    if (actionTriggers.reload > reloadCount.current) {
+      // Simulate reload or fetch if using RTK Query
+      reloadCount.current = actionTriggers.reload;
+    }
+  }, [actionTriggers.reload]);
 
   const columns: DataColumn<AllTransaction>[] = [
     {
@@ -41,7 +86,7 @@ const AllTransactionsScreen: React.FC = () => {
       label: 'Category',
       minWidth: 140,
       accessor: (r) => r.transactionType,
-      filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', 'PIP'],
+      filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', ...(!isMindPath ? ['PIP'] : [])],
       render: (r) => {
         const colors = transactionTypeColors[r.transactionType] || { bg: '#F5F5F5', text: '#616161' };
         return (
@@ -91,7 +136,7 @@ const AllTransactionsScreen: React.FC = () => {
   return (
     <DataTable
       columns={columns}
-      data={allTransactions}
+      data={filteredTransactions}
       rowKey={(r) => r.id}
       exportTitle="All Transactions"
       // selectable

@@ -24,8 +24,8 @@ export interface PaymentTransaction {
   id: string;
   effectiveDate: string;
   type: string;
-  description: string;
-  sourceProvider: string;
+  transactionNo: string;
+  payer: string;
   amount: number;
   openBalance: number | null;
   status: TransactionStatus;
@@ -34,49 +34,48 @@ export interface PaymentTransaction {
 export interface ClaimAllocation {
   claimId: string;
   patientName: string;
-  allowedAmt: number;
-  appliedToPipBalance: number;
+  allowedAmt: string | number;
+  appliedToPipBalance: string | number;
 }
 
 export interface NpiAllocation {
-  npi: string;
-  name: string;
-  allocatedAmount: number;
-  allocatedPercent: number;
+  npiPayerName: string;
+  totalPayment: string | number;
+  allocatedPercent: number | null;
   claims: ClaimAllocation[];
 }
 
 export interface PipRecord {
-  id: string;
+  id?: string;
   ptan: string;
   paymentDate: string;
   checkEftNumber: string;
-  paymentAmount: number;
-  suspenseBalance: number;
+  paymentAmount: string | number;
+  suspenseBalance: string | number;
   status: TransactionStatus;
-  npiAllocations: NpiAllocation[];
+  npiDetails: NpiAllocation[];
 }
 
 export interface ServiceLine {
-  lineNumber: number;
-  procedureCode: string;
+  lineNo: number;
+  procCode: string;
   modifiers: string;
-  revenueCode: string;
-  dateOfServiceStart: string;
-  dateOfServiceEnd: string;
+  revCode: string;
+  dosStart: string;
+  dosEnd: string;
   units: number;
-  chargeAmount: number;
-  allowedAmount: number;
-  paidAmount: number;
-  adjustmentAmount: number;
-  adjGroup: string;
-  adjReasonCode: string;
-  remarkCode: string;
+  charge: number;
+  allowed: number;
+  paid: number;
+  adjAmt: number;
+  adjGrp: string;
+  reason: string;
+  remark: string;
 }
 
 export interface RemittanceDetail {
   paymentDate: string;
-  checkEftNumber: string;
+  transactionNo: string;
   paymentAmount: number;
   payerName: string;
   patientName: string;
@@ -265,6 +264,40 @@ export interface ForwardBalanceNotice {
   remainingBalance: number;
   status: TransactionStatus;
   offsets: OffsetEvent[];
+}
+
+export interface FeeScheduleVariance {
+  id?: string;
+  paymentDate: string;
+  patientName: string;
+  payerName?: string;
+  expectedAllowed: string | number;
+  actualAllowed: string | number;
+  variance: string | number;
+  adjustmentCode?: string;
+}
+
+export interface PaymentVariance {
+  id?: string;
+  paymentDate?: string;
+  patientName: string;
+  payerName?: string;
+  expectedAllowed: string | number;
+  actualAllowed: string | number;
+  variance: string | number;
+  adjustmentCode?: string;
+}
+
+export interface FeeScheduleVarianceSummary {
+  totalExpected: number;
+  totalActualAllowed: number;
+  totalLeakage: number;
+}
+
+export interface PaymentVarianceSummary {
+  totalExpected: number;
+  totalActualPaid: number;
+  totalLeakage: number;
 }
 
 

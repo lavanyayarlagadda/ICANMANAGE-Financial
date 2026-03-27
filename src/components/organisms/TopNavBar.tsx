@@ -12,6 +12,10 @@ import {
   MenuItem,
   ListItemIcon,
   Divider,
+  FormControl,
+  Select,
+  InputLabel,
+  SelectChangeEvent,
 } from '@mui/material';
 import Button from '@/components/atoms/Button';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -22,13 +26,15 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import Logo from '@/components/atoms/Logo';
-import { RootState } from '@/store';
+import { RootState, useAppSelector, useAppDispatch } from '@/store';
 import { logout } from '@/store/slices/authSlice';
 import { toggleSidebarCollapse } from '@/store/slices/uiSlice';
+import { setSelectedTenantId, setTenants, setTenantLoading } from '@/store/slices/tenantSlice';
+import { useGetTenantsQuery } from '@/store/api/tenantApi';
 import DemoSecurityModal from './DemoSecurityModal';
+import CorporateFareIcon from '@mui/icons-material/CorporateFare';
+import { useNavigate } from 'react-router-dom';
+import Logo from '@/components/atoms/Logo';
 
 interface TopNavBarProps {
   onMenuToggle: () => void;
@@ -38,9 +44,34 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useAppSelector((state: RootState) => state.auth.user);
+  const { selectedTenantId, tenants, isLoading: isTenantsGlobalLoading } = useAppSelector((state: RootState) => state.tenant);
+
+  const isCognitiveUser = user?.company?.toLowerCase() === 'cognitivehealthit';
+
+  const { data: tenantData, isLoading: isTenantsLoading } = useGetTenantsQuery(undefined, {
+    skip: !isCognitiveUser,
+  });
+
+  React.useEffect(() => {
+    dispatch(setTenantLoading(isTenantsLoading));
+  }, [isTenantsLoading, dispatch]);
+
+  React.useEffect(() => {
+    if (tenantData && tenantData.length > 0) {
+      dispatch(setTenants(tenantData));
+      // ALWAYS select the first tenant if one isn't explicitly chosen from storage
+      if (!selectedTenantId) {
+        dispatch(setSelectedTenantId(tenantData[0].tenantId));
+      }
+    }
+  }, [tenantData, dispatch, selectedTenantId]);
+
+  const handleTenantChange = (event: SelectChangeEvent) => {
+    dispatch(setSelectedTenantId(event.target.value));
+  };
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
@@ -102,6 +133,42 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
                   sx={{ textTransform: 'none' }}
                 /> */}
               </>
+            )}
+            {!isMobile && isCognitiveUser && (
+              <FormControl size="small" sx={{ minWidth: 160, ml: 2 }}>
+                <Select
+                  value={selectedTenantId || ''}
+                  onChange={handleTenantChange}
+                  displayEmpty
+                  startAdornment={
+                    <ListItemIcon sx={{ minWidth: 28, color: 'primary.main' }}>
+                      <CorporateFareIcon fontSize="small" />
+                    </ListItemIcon>
+                  }
+                  sx={{
+                    borderRadius: 2,
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    bgcolor: 'rgba(25, 118, 210, 0.04)',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(25, 118, 210, 0.2)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'rgba(25, 118, 210, 0.4)',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: theme.palette.primary.main,
+                    }
+                  }}
+                >
+                  {tenantData?.map((t) => (
+                    <MenuItem key={t.tenantId} value={t.tenantId}>
+                      {t.displayName}
+                    </MenuItem>
+                  ))}
+                  {isTenantsLoading && <MenuItem disabled>Loading...</MenuItem>}
+                </Select>
+              </FormControl>
             )}
             <Box
               sx={{
