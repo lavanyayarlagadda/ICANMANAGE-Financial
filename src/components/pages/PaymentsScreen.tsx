@@ -14,7 +14,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 const PaymentsScreen: React.FC = () => {
   const dispatch = useAppDispatch();
-  const payments = useAppSelector((s) => s.financials.payments);
+  const payments = useAppSelector((s) => s.financials.payments); 
 
   const handleDrillDown = (row: PaymentTransaction) => {
     dispatch(setSelectedPaymentId(row.id));
