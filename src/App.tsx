@@ -10,10 +10,10 @@ import { store } from '@/store';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { GlobalHooksWrapper } from '@/components/GlobalHooksWrapper';
 
-const FinancialsPage = lazy(() => import('@/pages/FinancialsPage'));
-const LoginPage = lazy(() => import('@/pages/LoginPage'));
-const UserProfilePage = lazy(() => import('@/pages/UserProfilePage'));
-const NotFound = lazy(() => import('@/pages/NotFound'));
+const FinancialsPage = lazy(() => import('@/pages/Financials/FinancialsPage'));
+const LoginPage = lazy(() => import('@/pages/Login/LoginPage'));
+const UserProfilePage = lazy(() => import('@/pages/UserProfile/UserProfilePage'));
+const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 
 const LoadingFallback = () => (
   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw' }}>
