@@ -56,11 +56,13 @@ const BankDepositsScreen: React.FC = () => {
                 <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleRow(row.id); }}>
                     {expandedRows.has(row.id) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
                 </IconButton>
+
             ),
         },
         {
             id: 'reference',
             label: 'REF / DATE',
+            accessor: (row) => row.reference,
             render: (row) => (
                 <Box>
                     <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>{row.reference}</Typography>
@@ -68,23 +70,31 @@ const BankDepositsScreen: React.FC = () => {
                 </Box>
             ),
         },
-        { id: 'payerName', label: 'PAYER NAME' },
+        {
+            id: 'payerName',
+            label: 'PAYER NAME',
+            accessor: (row) => row.payerName,
+            render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
+        },
         {
             id: 'bankAmt',
             label: 'BANK AMT',
             align: 'right',
+            accessor: (row) => row.bankAmt,
             render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.bankAmt)}</Typography>,
         },
         {
             id: 'remitAmt',
             label: 'REMIT AMT',
             align: 'right',
+            accessor: (row) => row.remitAmt,
             render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.remitAmt)}</Typography>,
         },
         {
             id: 'variance',
             label: 'VARIANCE',
             align: 'right',
+            accessor: (row) => row.variance,
             render: (row) => (
                 <Typography
                     variant="body2"
@@ -101,17 +111,18 @@ const BankDepositsScreen: React.FC = () => {
             id: 'status',
             label: 'STATUS',
             align: 'right',
+            accessor: (row) => row.status,
             render: (row) => (
                 <Chip
                     label={row.status}
                     size="small"
                     icon={row.status === 'Matched' ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />}
                     sx={{
-                        backgroundColor: row.status === 'Matched' ? `${theme.palette.success.main}10` : `${theme.palette.error.main}10`,
-                        color: row.status === 'Matched' ? theme.palette.success.main : theme.palette.error.main,
+                        backgroundColor: row.status === 'Matched' ? '#f0fdf4' : '#fef2f2',
+                        color: row.status === 'Matched' ? '#166534' : '#991b1b',
                         fontWeight: 600,
                         fontSize: '11px',
-                        border: `1px solid ${row.status === 'Matched' ? `${theme.palette.success.main}40` : `${theme.palette.error.main}40`}`
+                        border: `1px solid ${row.status === 'Matched' ? '#bbf7d0' : '#fecaca'}`
                     }}
                 />
             ),

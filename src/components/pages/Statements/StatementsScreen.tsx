@@ -5,7 +5,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { formatCurrency } from '@/utils/formatters';
 import { ForwardBalanceNotice, OffsetEvent } from '@/interfaces/financials';
 import PipScreen from '../Pip/PipScreen';
-import SuspenseAccountsScreen from '../Suspense/SuspenseAccountsScreen';
+// import SuspenseAccountsScreen from '../Suspense/SuspenseAccountsScreen';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
@@ -15,6 +15,7 @@ import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
 import { useStatementsScreen, useForwardBalanceNoticesTable } from './StatementsScreen.hook';
 import * as styles from './StatementsScreen.styles';
+import SuspenseAccountsScreen from '../Suspense/SuspenseAccountsScreen';
 
 const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
     <Box sx={{ mb: 1 }}>
@@ -58,13 +59,51 @@ const ForwardBalanceNoticesTable = ({ data }: { data: ForwardBalanceNotice[] }) 
                     {expandedRows.has(row.id) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
                 </IconButton>
             ) : null,
+
         },
-        { id: 'noticeId', label: 'NOTICE ID', render: (row) => <Typography variant="body2" sx={styles.noticeIdStyles}>{row.noticeId}</Typography> },
-        { id: 'notificationDate', label: 'NOTIFICATION DATE', render: (row) => <Typography variant="body2" sx={styles.boldStyles}>{row.notificationDate}</Typography> },
-        { id: 'provider', label: 'PROVIDER / NPI', render: (row) => <Box><Typography variant="body2" sx={styles.boldStyles}>{row.providerName}</Typography><Typography variant="caption" color="text.secondary">NPI: {row.npi}</Typography></Box> },
-        { id: 'originalAmount', label: 'ORIGINAL AMOUNT', align: 'right', render: (row) => <Typography variant="body2" sx={styles.errorAmountStyles}>{formatCurrency(row.originalAmount)}</Typography> },
-        { id: 'remainingBalance', label: 'REMAINING BALANCE', align: 'right', render: (row) => <Typography variant="body2" sx={styles.errorAmountStyles}>{formatCurrency(row.remainingBalance)}</Typography> },
-        { id: 'status', label: 'STATUS', render: (row) => <StatusBadge status={row.status} /> },
+        {
+            id: 'noticeId',
+            label: 'NOTICE ID',
+            accessor: (row) => row.noticeId,
+            render: (row) => <Typography variant="body2" sx={{ fontWeight: 700, color: '#b45309' }}>{row.noticeId}</Typography>,
+        },
+        {
+            id: 'notificationDate',
+            label: 'NOTIFICATION DATE',
+            accessor: (row) => row.notificationDate,
+            render: (row) => <Typography variant="body2" sx={{ fontWeight: 700 }}>{row.notificationDate}</Typography>,
+        },
+        {
+            id: 'provider',
+            label: 'PROVIDER / NPI',
+            accessor: (row) => `${row.providerName} ${row.npi}`,
+            render: (row) => (
+                <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{row.providerName}</Typography>
+                    <Typography variant="caption" color="text.secondary">NPI: {row.npi}</Typography>
+                </Box>
+            ),
+        },
+        {
+            id: 'originalAmount',
+            label: 'ORIGINAL AMOUNT',
+            align: 'right',
+            accessor: (row) => row.originalAmount,
+            render: (row) => <Typography variant="body2" sx={{ fontWeight: 700, color: 'error.main' }}>{formatCurrency(row.originalAmount)}</Typography>,
+        },
+        {
+            id: 'remainingBalance',
+            label: 'REMAINING BALANCE',
+            align: 'right',
+            accessor: (row) => row.remainingBalance,
+            render: (row) => <Typography variant="body2" sx={{ fontWeight: 700, color: 'error.main' }}>{formatCurrency(row.remainingBalance)}</Typography>,
+        },
+        {
+            id: 'status',
+            label: 'STATUS',
+            accessor: (row) => row.status,
+            render: (row) => <StatusBadge status={row.status} />,
+        },
     ], [expandedRows, toggleRow]);
 
     return <DataTable columns={columns} data={data} rowKey={(row) => row.id} expandedRows={expandedRows} expandedContent={(row) => <Box sx={{ p: 1 }}>{row.offsets.map((offset, idx) => <OffsetSection key={idx} offset={offset} />)}</Box>} exportTitle="Forward Balance Notices" paginated customToolbarContent={<RangeDropdown />} dictionaryId="statements" />;

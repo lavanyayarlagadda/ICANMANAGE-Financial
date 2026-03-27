@@ -1,31 +1,107 @@
 import React, { useMemo, useCallback } from 'react';
-import { Box, Typography, IconButton, Grid } from '@mui/material';
+import { Box, Typography, IconButton, Grid, useTheme } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { formatCurrency } from '@/utils/formatters';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
-import { 
-  ScreenWrapper, 
-  HeaderSection, 
-  PatientNameText, 
-  BoldAmount, 
-  VarianceText 
+import {
+    ScreenWrapper,
+    HeaderSection,
+    PatientNameText,
+    BoldAmount,
+    VarianceText
 } from './VarianceScreen.styles';
 import { useVarianceScreen } from './VarianceScreen.hook';
 
 const VarianceScreen: React.FC = () => {
     const { activeSubTab, queryParams, feeData, feeSummaryData, paymentData, paymentSummaryData, handleDrillDown, handleRangeChange, handleSortChange, handlePageChange, handleRowsPerPageChange } = useVarianceScreen();
-
+    const theme = useTheme();
     const feeColumns = useMemo<DataColumn<any>[]>(() => [
-        { id: 'paymentDate', label: 'PAYMENT DATE', minWidth: 120 },
-        { id: 'patientName', label: 'PATIENT NAME', minWidth: 150, render: (r) => <PatientNameText variant="body2">{r.patientName}</PatientNameText> },
-        { id: 'payerName', label: 'PAYER NAME', minWidth: 180 },
-        { id: 'expectedAllowed', label: 'EXPECTED', minWidth: 140, align: 'right', render: (r) => <BoldAmount variant="body2">{formatCurrency(Number(r.expectedAllowed))}</BoldAmount> },
-        { id: 'actualAllowed', label: 'ACTUAL', minWidth: 140, align: 'right', render: (r) => <BoldAmount variant="body2">{formatCurrency(Number(r.actualAllowed))}</BoldAmount> },
-        { id: 'variance', label: 'VARIANCE', minWidth: 110, align: 'right', render: (r) => <VarianceText variant="body2" amount={Number(r.variance)}>{formatCurrency(Number(r.variance))}</VarianceText> },
-        { id: 'action', label: 'ACTION', minWidth: 80, align: 'center', render: (r) => <IconButton size="small" onClick={() => handleDrillDown(r)}><VisibilityIcon sx={{ fontSize: 18 }} /></IconButton> },
+        {
+            id: 'paymentDate',
+            label: 'PAYMENT DATE',
+            minWidth: 120,
+            accessor: (r) => r.paymentDate,
+            render: (r) => <Typography variant="body2">{r.paymentDate}</Typography>
+        },
+        {
+            id: 'patientName',
+            label: 'PATIENT NAME',
+            minWidth: 150,
+            accessor: (r) => r.patientName,
+            render: (r) => (
+                <Typography variant="body2" sx={{ color: theme.palette.primary.main, fontWeight: 500, textTransform: 'uppercase' }}>
+                    {r.patientName}
+                </Typography>
+            )
+        },
+        {
+            id: 'payerName',
+            label: 'PAYER NAME',
+            minWidth: 180,
+            accessor: (r) => r.payerName || '',
+            render: (r) => <Typography variant="body2">{r.payerName}</Typography>
+        },
+        {
+            id: 'expectedAllowed',
+            label: 'EXPECTED ALLOWED',
+            minWidth: 140,
+            align: 'right',
+            accessor: (r) => Number(r.expectedAllowed),
+            render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(Number(r.expectedAllowed))}</Typography>
+        },
+        {
+            id: 'actualAllowed',
+            label: 'ACTUAL ALLOWED',
+            minWidth: 140,
+            align: 'right',
+            accessor: (r) => Number(r.actualAllowed),
+            render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(Number(r.actualAllowed))}</Typography>
+        },
+        {
+            id: 'variance',
+            label: 'VARIANCE',
+            minWidth: 110,
+            align: 'right',
+            accessor: (r) => Number(r.variance),
+            render: (r) => (
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontWeight: 700,
+                        color: Number(r.variance) > 0 ? theme.palette.error.main : theme.palette.text.primary,
+                    }}
+                >
+                    {formatCurrency(Number(r.variance))}
+                </Typography>
+            ),
+        },
+        {
+            id: 'adjustmentCode',
+            label: 'ADJUSTMENT CODES',
+            minWidth: 150,
+            align: 'right',
+            accessor: (r) => r.adjustmentCode || '',
+            render: (r) => <Typography variant="body2">{r.adjustmentCode}</Typography>
+        },
+
+        {
+            id: 'action',
+            label: 'ACTION',
+            minWidth: 80,
+            align: 'center',
+            render: (r) => (
+                <IconButton
+                    size="small"
+                    sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}
+                    onClick={() => handleDrillDown(r)}
+                >
+                    <VisibilityIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
+                </IconButton>
+            ),
+        },
     ], [handleDrillDown]);
 
     const summaryValues = useMemo(() => {

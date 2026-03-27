@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Chip } from '@mui/material';
+import { Chip, Typography, useTheme } from '@mui/material';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -15,10 +15,10 @@ const AllTransactionsScreen: React.FC = () => {
         filteredTransactions,
         isMindPath,
         handleView,
-        handleEdit,
-        handleDelete,
+        // handleEdit,
+        // handleDelete,
     } = useAllTransactionsScreen();
-
+    const theme = useTheme();
     const columns = useMemo<DataColumn<AllTransaction>[]>(() => [
         {
             id: 'actions',
@@ -27,16 +27,15 @@ const AllTransactionsScreen: React.FC = () => {
             render: (r) => (
                 <RowActionMenu
                     onView={() => handleView(r as unknown as Record<string, unknown>)}
-                    onEdit={() => handleEdit(r as unknown as Record<string, unknown>)}
-                    onDelete={() => handleDelete(r.id)}
                 />
             ),
         },
-        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120 },
+        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
         {
             id: 'transactionType',
             label: 'Category',
             minWidth: 140,
+            accessor: (r) => r.transactionType,
             filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', ...(!isMindPath ? ['PIP'] : [])],
             render: (r) => {
                 const colors = transactionTypeColors[r.transactionType] || { bg: '#F5F5F5', text: '#616161' };
@@ -49,18 +48,26 @@ const AllTransactionsScreen: React.FC = () => {
                 );
             },
         },
-        { id: 'type', label: 'Type', minWidth: 100 },
-        { id: 'description', label: 'Description', minWidth: 240 },
-        { id: 'sourceProvider', label: 'Source / Provider', minWidth: 180 },
+        { id: 'type', label: 'Type', minWidth: 100, accessor: (r) => r.type, render: (r) => r.type },
+        { id: 'description', label: 'Description', minWidth: 240, accessor: (r) => r.description, render: (r) => r.description },
+        { id: 'sourceProvider', label: 'Source / Provider', minWidth: 180, accessor: (r) => r.sourceProvider, render: (r) => r.sourceProvider },
         {
             id: 'amount',
             label: 'Amount',
             minWidth: 120,
             align: 'right',
+            accessor: (r) => r.amount,
             render: (r) => (
-                <AmountText variant="body2" amount={r.amount}>
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontFamily: 'monospace',
+                        fontWeight: 600,
+                        color: r.amount < 0 ? theme.palette.error.main : theme.palette.text.primary,
+                    }}
+                >
                     {formatCurrency(r.amount)}
-                </AmountText>
+                </Typography>
             ),
         },
         {
@@ -68,18 +75,13 @@ const AllTransactionsScreen: React.FC = () => {
             label: 'Open Balance',
             minWidth: 120,
             align: 'right',
+            accessor: (r) => r.openBalance ?? 0,
             render: (r) => r.openBalance != null ? (
-                <BalanceText variant="body2">{formatCurrency(r.openBalance)}</BalanceText>
+                <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.openBalance)}</Typography>
             ) : '–',
         },
-        { 
-            id: 'status', 
-            label: 'Status', 
-            minWidth: 120, 
-            filterOptions: ['Reconciled', 'Open', 'Pending', 'Partially Applied', 'Disputed'], 
-            render: (r) => <StatusBadge status={r.status} /> 
-        },
-    ], [isMindPath, handleView, handleEdit, handleDelete]);
+        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Open', 'Pending', 'Partially Applied', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
+    ], [isMindPath, handleView]);
 
     return (
         <DataTable

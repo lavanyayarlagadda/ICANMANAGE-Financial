@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
 import {
-  Box,
-  Typography,
-  Paper,
-  List,
-  ListItemText,
-  ListItemAvatar,
-  CircularProgress,
+    Box,
+    Typography,
+    Paper,
+    List,
+    ListItemText,
+    ListItemAvatar,
+    CircularProgress,
 } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { formatCurrency } from '@/utils/formatters';
@@ -15,13 +15,13 @@ import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import DetailCard from '@/components/molecules/DetailCard/DetailCard';
 import { ServiceLine } from '@/interfaces/financials';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
-import { 
-  ScreenWrapper, 
-  SectionHeader, 
-  PatientNameHeader, 
-  StyledListItemButton, 
-  StyledAvatar, 
-  MonospaceAmount 
+import {
+    ScreenWrapper,
+    SectionHeader,
+    PatientNameHeader,
+    StyledListItemButton,
+    StyledAvatar,
+    MonospaceAmount
 } from './RemittanceDetailScreen.styles';
 import { useRemittanceDetailScreen } from './RemittanceDetailScreen.hook';
 
@@ -42,20 +42,36 @@ const RemittanceDetailScreen: React.FC = () => {
     } = useRemittanceDetailScreen();
 
     const serviceLineColumns = useMemo<DataColumn<ServiceLine>[]>(() => [
-        { id: 'lineNo', label: 'Line #', minWidth: 60 },
-        { id: 'procCode', label: 'Proc Code' },
-        { id: 'modifiers', label: 'Modifiers', render: (r) => r.modifiers || '–' },
-        { id: 'revCode', label: 'Rev Code' },
-        { id: 'dosStart', label: 'DOS Start' },
-        { id: 'dosEnd', label: 'DOS End' },
-        { id: 'units', label: 'Units', align: 'right' },
-        { id: 'charge', label: 'Charge', align: 'right', render: (r) => <MonospaceAmount variant="body2">{formatCurrency(r.charge)}</MonospaceAmount> },
-        { id: 'allowed', label: 'Allowed', align: 'right', render: (r) => <MonospaceAmount variant="body2">{formatCurrency(r.allowed)}</MonospaceAmount> },
-        { id: 'paid', label: 'Paid', align: 'right', render: (r) => <MonospaceAmount variant="body2">{formatCurrency(r.paid)}</MonospaceAmount> },
-        { id: 'adjAmt', label: 'Adj Amt', align: 'right', render: (r) => <MonospaceAmount variant="body2">{formatCurrency(r.adjAmt)}</MonospaceAmount> },
-        { id: 'adjGrp', label: 'Adj Grp' },
-        { id: 'reason', label: 'Reason' },
-        { id: 'remark', label: 'Remark' },
+        { id: 'lineNo', label: 'Line #', minWidth: 60, render: (r) => r.lineNo, accessor: (r) => r.lineNo },
+        { id: 'procCode', label: 'Proc Code', render: (r) => r.procCode, accessor: (r) => r.procCode },
+        { id: 'modifiers', label: 'Modifiers', render: (r) => r.modifiers || '–', accessor: (r) => r.modifiers || '' },
+        { id: 'revCode', label: 'Rev Code', render: (r) => r.revCode, accessor: (r) => r.revCode },
+        { id: 'dosStart', label: 'DOS Start', render: (r) => r.dosStart, accessor: (r) => r.dosStart },
+        { id: 'dosEnd', label: 'DOS End', render: (r) => r.dosEnd, accessor: (r) => r.dosEnd },
+        { id: 'units', label: 'Units', align: 'right', render: (r) => r.units, accessor: (r) => r.units },
+        {
+            id: 'charge', label: 'Charge', align: 'right',
+            render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.charge)}</Typography>,
+            accessor: (r) => r.charge,
+        },
+        {
+            id: 'allowed', label: 'Allowed', align: 'right',
+            render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.allowed)}</Typography>,
+            accessor: (r) => r.allowed,
+        },
+        {
+            id: 'paid', label: 'Paid', align: 'right',
+            render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.paid)}</Typography>,
+            accessor: (r) => r.paid,
+        },
+        {
+            id: 'adjAmt', label: 'Adj Amt', align: 'right',
+            render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.adjAmt)}</Typography>,
+            accessor: (r) => r.adjAmt,
+        },
+        { id: 'adjGrp', label: 'Adj Grp', render: (r) => r.adjGrp, accessor: (r) => r.adjGrp },
+        { id: 'reason', label: 'Reason', render: (r) => r.reason, accessor: (r) => r.reason },
+        { id: 'remark', label: 'Remark', render: (r) => r.remark, accessor: (r) => r.remark },
     ], []);
 
     if (!detail && (!claims || claims.length === 0)) return <Typography>No remittance detail selected.</Typography>;

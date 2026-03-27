@@ -17,8 +17,8 @@ export interface ActionMenuItem {
 
 interface RowActionMenuProps {
   onView: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
   extraActions?: ActionMenuItem[];
 }
 

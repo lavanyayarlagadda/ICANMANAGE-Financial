@@ -6,7 +6,7 @@ export interface DataColumn<T> {
   label: React.ReactNode;
   minWidth?: number;
   align?: 'left' | 'center' | 'right';
-  render?: (row: T) => React.ReactNode;
+  render: (row: T) => React.ReactNode;
   hideOnMobile?: boolean;
   primary?: boolean;
   accessor?: (row: T) => string | number;
@@ -134,7 +134,7 @@ export function useDataTable<T>({
   }, [filteredData, sortCol, sortDir, columns, serverSide]);
 
   const totalCount = serverSide ? (totalElements ?? data.length) : filteredData.length;
-  
+
   const clearAllFilters = useCallback(() => {
     setInternalSearch('');
     setInternalColumnFilters({});

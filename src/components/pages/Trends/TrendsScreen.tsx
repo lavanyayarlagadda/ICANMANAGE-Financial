@@ -25,7 +25,30 @@ const TrendsScreen: React.FC = () => {
     const { activeSubTab, isMindPath, trendsData, forecastSummary, reconPerformance, dashboardData, execSummary, paymentMix, adjBreakdown, handleRangeChange } = useTrendsScreen();
     const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
-
+    const teamColumns = useMemo<DataColumn<any>[]>(() => [
+        {
+            id: 'team',
+            label: 'TEAM',
+            minWidth: 150,
+            render: (row) => (
+                <Typography variant="body2" sx={{ fontWeight: row.team === 'OVERALL' ? 700 : 500 }}>
+                    {row.team}
+                </Typography>
+            ),
+            accessor: (row) => row.team,
+        },
+        { id: 'reconciledCheckCountPct', label: 'RECONCILED CHECK COUNT %', align: 'right', render: (row) => `${row.reconciledCheckCountPct}%`, accessor: (row) => row.reconciledCheckCountPct },
+        { id: 'unreconciledCheckCountPct', label: 'UNRECONCILED CHECK COUNT %', align: 'right', render: (row) => `${row.unreconciledCheckCountPct}%`, accessor: (row) => row.unreconciledCheckCountPct },
+        { id: 'checkCountPctByTeam', label: 'CHECK COUNT % BY TEAM', align: 'right', render: (row) => `${row.checkCountPctByTeam}%`, accessor: (row) => row.checkCountPctByTeam },
+        { id: 'reconciledCheckCount', label: 'RECONCILED CHECK COUNT', align: 'right', render: (row) => row.reconciledCheckCount, accessor: (row) => row.reconciledCheckCount },
+        { id: 'unreconciledCheckCount', label: 'UNRECONCILED CHECK COUNT', align: 'right', render: (row) => row.unreconciledCheckCount, accessor: (row) => row.unreconciledCheckCount },
+        { id: 'reconciledAmountPct', label: 'RECONCILED AMOUNT %', align: 'right', render: (row) => `${row.reconciledAmountPct}%`, accessor: (row) => row.reconciledAmountPct },
+        { id: 'unreconciledAmountPct', label: 'UNRECONCILED AMOUNT %', align: 'right', render: (row) => `${row.unreconciledAmountPct}%`, accessor: (row) => row.unreconciledAmountPct },
+        { id: 'amountPctByTeam', label: 'AMOUNT % BY TEAM', align: 'right', render: (row) => `${row.amountPctByTeam}%`, accessor: (row) => row.amountPctByTeam },
+        { id: 'totalAmountPosted', label: 'TOTAL AMOUNT POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountPosted)), accessor: (row) => row.totalAmountPosted },
+        { id: 'totalAmountNotPosted', label: 'TOTAL AMOUNT NOT POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountNotPosted)), accessor: (row) => row.totalAmountNotPosted },
+        { id: 'avgDaysToReconcile', label: 'AVG DAYS TO RECONCILE', align: 'right', render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile },
+    ], []);
     const forecastTrendsContent = useMemo(() => (
         <>
             <SectionHeader><TitleText variant="h6">Reconciliation Trends & Forecast</TitleText><Typography variant="body2" color="text.secondary">Monthly reconciliation performance summary.</Typography></SectionHeader>
@@ -44,7 +67,9 @@ const TrendsScreen: React.FC = () => {
                     </ComposedChart>
                 </ResponsiveContainer>
             </ChartContainer>
-            <DataTable columns={[{ id: 'team', label: 'TEAM', render: (row) => <Typography variant="body2" sx={{ fontWeight: row.team === 'OVERALL' ? 700 : 500 }}>{row.team}</Typography> }, { id: 'reconciledCheckCountPct', label: 'RECON %', align: 'right', render: (row) => `${row.reconciledCheckCountPct}%` }, { id: 'totalAmountPosted', label: 'POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountPosted)) }, { id: 'avgDaysToReconcile', label: 'AVG DAYS', align: 'right' }]} data={dashboardData?.data || []} rowKey={(r) => r.team} paginated={false} searchable={false} dictionaryId="forecast-trends" />
+            <DataTable
+                columns={teamColumns}
+                data={dashboardData?.data || []} rowKey={(r) => r.team} paginated={false} searchable={false} dictionaryId="forecast-trends" />
         </>
     ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme]);
 

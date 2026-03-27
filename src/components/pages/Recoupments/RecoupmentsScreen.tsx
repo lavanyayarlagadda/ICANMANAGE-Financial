@@ -35,39 +35,44 @@ const RecoupmentsScreen: React.FC = () => {
                 />
             ),
         },
-        { id: 'recoupmentId', label: 'Recoupment ID', minWidth: 140, render: (r) => <Typography variant="body2" sx={styles.boldStyles}>{r.recoupmentId}</Typography> },
-        { id: 'payer', label: 'Payer', minWidth: 140 },
+        { id: 'recoupmentId', label: 'Recoupment ID', minWidth: 140, accessor: (r) => r.recoupmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.recoupmentId}</Typography> },
+        { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, render: (r) => r.payer },
         {
             id: 'claim',
             label: 'Claim / Patient',
             minWidth: 180,
+            accessor: (r) => r.patientName,
             render: (r) => (
                 <Box>
-                    <Typography variant="body2" sx={styles.boldStyles}>{r.claimId}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.claimId}</Typography>
                     <Typography variant="caption" color="text.secondary">{r.patientName}</Typography>
                 </Box>
             ),
         },
-        { id: 'originalPaymentAmount', label: 'Orig. Payment', minWidth: 120, align: 'right', render: (r) => <Box sx={styles.monospaceStyles}>{formatCurrency(r.originalPaymentAmount)}</Box> },
+        { id: 'originalPaymentAmount', label: 'Orig. Payment', minWidth: 120, align: 'right', accessor: (r) => r.originalPaymentAmount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.originalPaymentAmount)}</Box> },
         {
             id: 'recoupmentAmount',
             label: 'Recoupment Amt',
             minWidth: 130,
             align: 'right',
+            accessor: (r) => r.recoupmentAmount,
             render: (r) => (
-                <Typography variant="body2" sx={styles.amountStyles(theme)}>
+                <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600, color: theme.palette.error.main }}>
                     {formatCurrency(r.recoupmentAmount)}
                 </Typography>
             ),
         },
-        { id: 'recoupmentDate', label: 'Date', minWidth: 110 },
+        { id: 'recoupmentDate', label: 'Date', minWidth: 110, accessor: (r) => r.recoupmentDate, render: (r) => r.recoupmentDate },
         {
             id: 'reason',
             label: 'Reason',
             minWidth: 200,
-            render: (r) => <Typography variant="body2" sx={styles.reasonStyles}>{r.reason}</Typography>,
+            accessor: (r) => r.reason,
+            render: (r) => (
+                <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{r.reason}</Typography>
+            ),
         },
-        { id: 'status', label: 'Status', minWidth: 120, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
+        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleView, handleEdit, handleDelete]);
 
     return (

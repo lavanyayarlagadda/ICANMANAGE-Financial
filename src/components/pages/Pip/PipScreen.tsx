@@ -75,18 +75,19 @@ const PipScreen: React.FC = () => {
     {
       id: "expand",
       label: "",
-      render: (row) => (row.npiDetails?.length ?? 0) > 0 ? (
-        <IconButton size="small" onClick={(e) => toggleRow(getRowId(row), e)}>
-          {expandedRows.has(getRowId(row)) ? <KeyboardArrowDownIcon fontSize="small" /> : <KeyboardArrowRightIcon fontSize="small" />}
-        </IconButton>
-      ) : null,
+      render: (row) =>
+        (row.npiDetails?.length ?? 0) > 0 ? (
+          <IconButton size="small" onClick={(e) => toggleRow(getRowId(row), e)}>
+            {expandedRows.has(getRowId(row)) ? <KeyboardArrowDownIcon fontSize="small" /> : <KeyboardArrowRightIcon fontSize="small" />}
+          </IconButton>
+        ) : null,
     },
-    { id: "ptan", label: "PTAN" },
-    { id: "paymentDate", label: "PAYMENT DATE" },
-    { id: "checkEftNumber", label: "CHECK/EFT NUMBER", render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
-    { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "right", render: (row) => formatCurrency(Number(row.paymentAmount)) },
-    { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "right", render: (row) => formatCurrency(Number(row.suspenseBalance)) },
-    { id: "status", label: "STATUS", render: (row) => <StatusBadge status={row.status} /> },
+    { id: "ptan", label: "PTAN", accessor: (row) => row.ptan, render: (row) => row.ptan },
+    { id: "paymentDate", label: "PAYMENT DATE", accessor: (row) => row.paymentDate, render: (row) => row.paymentDate },
+    { id: "checkEftNumber", label: "CHECK/EFT NUMBER", accessor: (row) => row.checkEftNumber, render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
+    { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "right", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
+    { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "right", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
+    { id: "status", label: "STATUS", accessor: (row) => row.status, render: (row) => <StatusBadge status={row.status} /> },
   ], [expandedRows, toggleRow, getRowId]);
 
   const renderExpandedContent = useCallback((row: PipRecord) => {
