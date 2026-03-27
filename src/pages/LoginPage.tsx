@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import {
     Box,
-    Card,
     Typography,
-    TextField,
-    Button,
     Link,
     IconButton,
     InputAdornment,
@@ -12,11 +9,23 @@ import {
     Alert,
 } from '@mui/material';
 import { Visibility, VisibilityOff, LockOutlined } from '@mui/icons-material';
-import { themeConfig } from '@/theme';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { MOCK_CREDENTIALS, LOGIN_API_RESPONSE, USER_DETAILS_API_RESPONSE } from '@/utils/dummyData';
+import {
+    LoginWrapper,
+    LoginCard,
+    LogoImage,
+    LoginTitle,
+    LoginSubtitle,
+    FormLabel,
+    StyledTextField,
+    PasswordTextField,
+    SignInButton,
+    FooterContainer,
+    CopyrightText,
+} from './LoginPage.styles';
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -28,8 +37,8 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // Get the redirect location if we came from a protected route
-    const from = location.state?.from?.pathname || '/financials';
+    // Determine target redirect after login
+    const targetPath = location.state?.from?.pathname;
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -37,36 +46,28 @@ const LoginPage = () => {
         event.preventDefault();
     };
 
-    const handleLogin = () => {
+    const handleLogin = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
         setErrorMsg('');
+        
         const validCredential = MOCK_CREDENTIALS.find(
             (c) => c.username === username && c.password === password
         );
 
         if (validCredential) {
             const loginUser = LOGIN_API_RESPONSE.find(u => u.id === validCredential.userId);
+            const userDetails = loginUser ? USER_DETAILS_API_RESPONSE.find(d => d.userId === loginUser.id) : null;
 
-            if (loginUser) {
-                const userDetails = USER_DETAILS_API_RESPONSE.find(d => d.userId === loginUser.id);
+            if (loginUser && userDetails) {
+                const fullUser = { ...loginUser, ...userDetails };
+                dispatch(loginSuccess(fullUser));
 
-                if (userDetails) {
-                    const fullUser = {
-                        ...loginUser,
-                        ...userDetails
-                    };
+                const landingPageRoute = fullUser.defaultLandingPage?.toLowerCase() === 'collections' ? '/collections' : '/financials';
+                const redirectTo = targetPath || landingPageRoute;
 
-                    dispatch(loginSuccess(fullUser));
-
-                    // Map the default landing page string to a route
-                    const landingPageRoute = fullUser.defaultLandingPage.toLowerCase() === 'collections' ? '/collections' : '/financials';
-                    const redirectTo = location.state?.from?.pathname || landingPageRoute;
-
-                    navigate(redirectTo, { replace: true });
-                } else {
-                    setErrorMsg('User details not found');
-                }
+                navigate(redirectTo, { replace: true });
             } else {
-                setErrorMsg('User profile not found');
+                setErrorMsg('User profile or details not found');
             }
         } else {
             setErrorMsg('Invalid username or password');
@@ -74,64 +75,21 @@ const LoginPage = () => {
     };
 
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: themeConfig.colors.background,
-                padding: 2,
-            }}
-        >
+        <LoginWrapper>
             <Container maxWidth="sm" sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Card
-                    sx={{
-                        width: '100%',
-                        maxWidth: 420,
-                        padding: { xs: 3, md: 5 },
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        borderRadius: 3,
-                        boxShadow: themeConfig.shadows.card,
-                        backgroundColor: themeConfig.colors.surface,
-                    }}
-                >
-                    {/* Logo Section */}
-                    <Box
+                <LoginCard elevation={0}>
+                    <LogoImage
                         component="img"
                         src="/cognitiveLogo.svg"
                         alt="CognitiveHealth Logo"
-                        sx={{
-                            height: 48,
-                            marginBottom: 3,
-                        }}
                     />
 
-                    {/* Title and Subtitle */}
-                    <Typography
-                        variant="h4"
-                        component="h1"
-                        sx={{
-                            fontWeight: 700,
-                            color: '#000000',
-                            marginBottom: 1,
-                            fontFamily: themeConfig.typography.fontFamily.primary,
-                        }}
-                    >
+                    <LoginTitle variant="h4" component="h1">
                         iCAN Manage
-                    </Typography>
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            color: themeConfig.colors.text.secondary,
-                            marginBottom: errorMsg ? 2 : 4,
-                            textAlign: 'center',
-                        }}
-                    >
+                    </LoginTitle>
+                    <LoginSubtitle variant="body1">
                         Enter your credentials to access your account.
-                    </Typography>
+                    </LoginSubtitle>
 
                     {errorMsg && (
                         <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
@@ -139,62 +97,21 @@ const LoginPage = () => {
                         </Alert>
                     )}
 
-                    {/* Form */}
-                    <Box component="form" sx={{ width: '100%' }} noValidate>
-                        {/* Username Field */}
-                        <Typography
-                            variant="subtitle2"
-                            sx={{
-                                fontWeight: 600,
-                                color: '#000000',
-                                marginBottom: 0.5,
-                            }}
-                        >
-                            Username
-                        </Typography>
-                        <TextField
+                    <Box component="form" sx={{ width: '100%' }} noValidate onSubmit={handleLogin}>
+                        <FormLabel variant="subtitle2">Username</FormLabel>
+                        <StyledTextField
                             fullWidth
                             variant="outlined"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            sx={{
-                                marginBottom: 2,
-                                '& .MuiOutlinedInput-root': {
-                                    backgroundColor: '#F0F4F8',
-                                    borderRadius: 2,
-                                    '& fieldset': {
-                                        borderColor: '#E2E8F0',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: themeConfig.colors.primaryLight,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: themeConfig.colors.primary,
-                                    },
-                                },
-                                '& .MuiInputBase-input': {
-                                    padding: '12px 14px',
-                                },
-                            }}
                         />
 
-                        {/* Password Field */}
-                        <Typography
-                            variant="subtitle2"
-                            sx={{
-                                fontWeight: 600,
-                                color: '#000000',
-                                marginBottom: 0.5,
-                            }}
-                        >
-                            Password
-                        </Typography>
-                        <TextField
+                        <FormLabel variant="subtitle2">Password</FormLabel>
+                        <PasswordTextField
                             fullWidth
                             type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            variant="outlined"
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
@@ -204,99 +121,43 @@ const LoginPage = () => {
                                             onMouseDown={handleMouseDownPassword}
                                             edge="end"
                                             size="small"
-                                            sx={{ color: themeConfig.colors.primary }}
+                                            color="primary"
                                         >
                                             {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                                         </IconButton>
                                     </InputAdornment>
                                 ),
                             }}
-                            sx={{
-                                marginBottom: 1,
-                                '& .MuiOutlinedInput-root': {
-                                    backgroundColor: '#F0F4F8',
-                                    borderRadius: 2,
-                                    '& fieldset': {
-                                        borderColor: '#E2E8F0',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: themeConfig.colors.primaryLight,
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: themeConfig.colors.primary,
-                                    },
-                                },
-                                '& .MuiInputBase-input': {
-                                    padding: '12px 14px',
-                                    letterSpacing: '0.2em',
-                                },
-                            }}
                         />
 
-                        {/* Forgot Password Link */}
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 3 }}>
-                            <Link
-                                href="#"
-                                underline="hover"
-                                sx={{
-                                    color: themeConfig.colors.primary,
-                                    fontSize: '0.875rem',
-                                    fontWeight: 500,
-                                }}
-                            >
+                            <Link href="#" underline="hover" sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                                 Forgot password?
                             </Link>
                         </Box>
 
-                        {/* Sign In Button */}
-                        <Button
+                        <SignInButton
                             fullWidth
                             variant="contained"
                             size="large"
-                            onClick={handleLogin}
+                            type="submit"
                             startIcon={<LockOutlined />}
-                            sx={{
-                                backgroundColor: themeConfig.colors.primary,
-                                color: '#ffffff',
-                                padding: '10px 0',
-                                borderRadius: 2,
-                                textTransform: 'none',
-                                fontWeight: 600,
-                                fontSize: '1rem',
-                                marginBottom: 4,
-                                '&:hover': {
-                                    backgroundColor: themeConfig.colors.primaryDark,
-                                },
-                            }}
                         >
                             Sign In
-                        </Button>
+                        </SignInButton>
                     </Box>
 
-                    {/* Footer Links */}
-                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', marginBottom: 1 }}>
-                        <Link href="#" underline="hover" sx={{ color: themeConfig.colors.primary, fontSize: '0.8125rem' }}>
-                            Terms of Service
-                        </Link>
-                        <Typography sx={{ color: themeConfig.colors.text.secondary, fontSize: '0.8125rem' }}>
-                            •
-                        </Typography>
-                        <Link href="#" underline="hover" sx={{ color: themeConfig.colors.primary, fontSize: '0.8125rem' }}>
-                            Privacy Policy
-                        </Link>
-                    </Box>
-                    <Typography
-                        sx={{
-                            color: themeConfig.colors.text.secondary,
-                            fontSize: '0.8125rem',
-                            textAlign: 'center',
-                        }}
-                    >
+                    <FooterContainer>
+                        <Link href="#" underline="hover" sx={{ fontSize: '0.8125rem' }}>Terms of Service</Link>
+                        <Typography sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>•</Typography>
+                        <Link href="#" underline="hover" sx={{ fontSize: '0.8125rem' }}>Privacy Policy</Link>
+                    </FooterContainer>
+                    <CopyrightText>
                         © 2026 CognitiveHealth LLC. | v16.9.6
-                    </Typography>
-                </Card>
+                    </CopyrightText>
+                </LoginCard>
             </Container>
-        </Box>
+        </LoginWrapper>
     );
 };
 

@@ -22,6 +22,7 @@ export const themeConfig = {
     background: '#f5f7fa',
     surface: '#ffffff',
     surfaceAlt: '#eef1f5',
+    inputBackground: '#F0F4F8',
     text: {
       primary: '#0a1628',
       secondary: '#5c7a96',
@@ -29,6 +30,10 @@ export const themeConfig = {
     },
     border: '#dde3ec',
     divider: '#dde3ec',
+    cardBorder: '#E2E8F0',
+    selectionBackground: '#F4F9FF',
+    tabActive: 'rgba(107, 153, 196, 0.6)',
+    tabHover: 'rgba(226, 232, 240, 1)',
   },
 
   logoColor: '#6B99C4',

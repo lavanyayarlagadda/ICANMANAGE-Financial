@@ -1,5 +1,4 @@
-import React from 'react';
-import { Box, Typography, Chip, useTheme } from '@mui/material';
+import React, { useMemo } from 'react';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
@@ -8,8 +7,9 @@ import { useAppSelector, useAppDispatch } from '@/store';
 import { AllTransaction } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
 import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
+import { CategoryChip, AmountText, BalanceText } from './TransactionScreens.styles';
 
-const transactionTypeColors: Record<string, { bg: string; text: string }> = {
+const TRANSACTION_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   PAYMENT: { bg: '#E3F2FD', text: '#1565C0' },
   RECOUPMENT: { bg: '#FFEBEE', text: '#C62828' },
   FORWARD_BALANCE: { bg: '#FFF3E0', text: '#E65100' },
@@ -18,11 +18,10 @@ const transactionTypeColors: Record<string, { bg: string; text: string }> = {
 };
 
 const AllTransactionsScreen: React.FC = () => {
-  const theme = useTheme();
   const dispatch = useAppDispatch();
   const allTransactions = useAppSelector((s) => s.financials.allTransactions);
 
-  const columns: DataColumn<AllTransaction>[] = [
+  const columns: DataColumn<AllTransaction>[] = useMemo(() => [
     {
       id: 'actions',
       label: 'Actions',
@@ -42,16 +41,13 @@ const AllTransactionsScreen: React.FC = () => {
       minWidth: 140,
       accessor: (r) => r.transactionType,
       filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', 'PIP'],
-      render: (r) => {
-        const colors = transactionTypeColors[r.transactionType] || { bg: '#F5F5F5', text: '#616161' };
-        return (
-          <Chip
-            label={r.transactionType.replace('_', ' ')}
-            size="small"
-            sx={{ backgroundColor: colors.bg, color: colors.text, fontWeight: 600, fontSize: '0.7rem' }}
-          />
-        );
-      },
+      render: (r) => (
+        <CategoryChip
+          label={r.transactionType.replace('_', ' ')}
+          size="small"
+          customColors={TRANSACTION_TYPE_COLORS[r.transactionType]}
+        />
+      ),
     },
     { id: 'type', label: 'Type', minWidth: 100, accessor: (r) => r.type, render: (r) => r.type },
     { id: 'description', label: 'Description', minWidth: 240, accessor: (r) => r.description, render: (r) => r.description },
@@ -63,16 +59,9 @@ const AllTransactionsScreen: React.FC = () => {
       align: 'right',
       accessor: (r) => r.amount,
       render: (r) => (
-        <Typography
-          variant="body2"
-          sx={{
-            fontFamily: 'monospace',
-            fontWeight: 600,
-            color: r.amount < 0 ? theme.palette.error.main : theme.palette.text.primary,
-          }}
-        >
+        <AmountText variant="body2" isNegative={r.amount < 0}>
           {formatCurrency(r.amount)}
-        </Typography>
+        </AmountText>
       ),
     },
     {
@@ -82,11 +71,11 @@ const AllTransactionsScreen: React.FC = () => {
       align: 'right',
       accessor: (r) => r.openBalance ?? 0,
       render: (r) => r.openBalance != null ? (
-        <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.openBalance)}</Typography>
+        <BalanceText variant="body2">{formatCurrency(r.openBalance)}</BalanceText>
       ) : '–',
     },
     { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Open', 'Pending', 'Partially Applied', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
-  ];
+  ], [dispatch]);
 
   return (
     <DataTable
@@ -94,7 +83,6 @@ const AllTransactionsScreen: React.FC = () => {
       data={allTransactions}
       rowKey={(r) => r.id}
       exportTitle="All Transactions"
-      // selectable
       customToolbarContent={<RangeDropdown />}
       dictionaryId="all-transactions"
     />

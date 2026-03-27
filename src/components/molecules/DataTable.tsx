@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-  Paper,
   TablePagination,
   TableSortLabel,
   Box,
@@ -42,23 +40,28 @@ import autoTable from 'jspdf-autotable';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import DictionaryDrawer from './DictionaryDrawer';
 import { getDescriptionsForTable, TableDescription, TableDescriptions } from '@/services/descriptionService';
-
+import {
+  MainContainer,
+  ToolbarContainer,
+  SelectionToolbar,
+  MainToolbarActions,
+  SearchFieldContainer,
+  ScrollableTableContainer,
+  CustomTableRow,
+  FilterCollapseContainer,
+} from './DataTable.styles';
 
 export interface DataColumn<T> {
   id: string;
   label: React.ReactNode;
   minWidth?: number;
   align?: 'left' | 'center' | 'right';
-  render: (row: T) => React.ReactNode;
+  render?: (row: T) => React.ReactNode;
   hideOnMobile?: boolean;
   primary?: boolean;
-  /** Accessor for sorting & filtering — return a string or number from the row */
   accessor?: (row: T) => string | number;
-  /** If true, sorting is disabled for this column */
   disableSort?: boolean;
-  /** Provide an array of filter options for a dropdown filter on this column */
   filterOptions?: string[];
-  /** Label used for export columns. Defaults to label. */
   exportLabel?: string;
 }
 
@@ -74,16 +77,13 @@ interface DataTableProps<T> {
   expandedContent?: (row: T) => React.ReactNode;
   expandedRows?: Set<string>;
   searchable?: boolean;
-  /** Title used for PDF export header */
   exportTitle?: string;
   selectable?: boolean;
   onSelectionChange?: (selectedKeys: Set<string>) => void;
   selectedKeys?: Set<string>;
   customToolbarContent?: React.ReactNode;
-  /** ID for dictionary lookups. If provided, headers will show a dictionary icon. */
   dictionaryId?: string;
 }
-
 
 function DataTable<T>({
   columns,
@@ -99,46 +99,94 @@ function DataTable<T>({
   dictionaryId,
   ...props
 }: DataTableProps<T>) {
-
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(rowsPerPageOptions[0]);
-  const [sortCol, setSortCol] = React.useState<string | null>(null);
-  const [sortDir, setSortDir] = React.useState<SortDirection>('asc');
-  const [search, setSearch] = React.useState('');
-  const [showFilters, setShowFilters] = React.useState(false);
-  const [columnFilters, setColumnFilters] = React.useState<Record<string, string>>({});
-  const [downloadAnchor, setDownloadAnchor] = React.useState<null | HTMLElement>(null);
-  const [descriptions, setDescriptions] = React.useState<TableDescriptions | null>(null);
-  const [dictionaryOpen, setDictionaryOpen] = React.useState(false);
-  const [selectedField, setSelectedField] = React.useState<TableDescription | null>(null);
+  
+  // State
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions?.[0] || 10);
+  const [sortCol, setSortCol] = useState<string | null>(null);
+  const [sortDir, setSortDir] = useState<SortDirection>('asc');
+  const [search, setSearch] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
+  const [downloadAnchor, setDownloadAnchor] = useState<null | HTMLElement>(null);
+  const [descriptions, setDescriptions] = useState<TableDescriptions | null>(null);
+  const [dictionaryOpen, setDictionaryOpen] = useState(false);
+  const [selectedField, setSelectedField] = useState<TableDescription | null>(null);
+  const [internalSelected, setInternalSelected] = useState<Set<string>>(new Set());
 
-  React.useEffect(() => {
+  const selectedKeys = props.selectedKeys ?? internalSelected;
+
+  // Effects
+  useEffect(() => {
     if (dictionaryId) {
       getDescriptionsForTable(dictionaryId).then(setDescriptions);
     }
   }, [dictionaryId]);
 
-  const handleHeaderClick = (colId: string, label: string) => {
+  // Performance Memoization
+  const filteredData = useMemo(() => {
+    let result = data;
+
+    // Search filter
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((row) =>
+        columns.some((col) => {
+          if (!col.accessor) return false;
+          const val = col.accessor(row);
+          return String(val).toLowerCase().includes(q);
+        })
+      );
+    }
+
+    // Column filters
+    Object.entries(columnFilters).forEach(([colId, filterVal]) => {
+      if (!filterVal) return;
+      const col = columns.find((c) => c.id === colId);
+      if (!col?.accessor) return;
+      result = result.filter((row) => {
+        const val = String(col.accessor!(row));
+        return val === filterVal;
+      });
+    });
+
+    // Sorting
+    if (sortCol) {
+      const col = columns.find((c) => c.id === sortCol);
+      if (col?.accessor) {
+        result = [...result].sort((a, b) => {
+          const aVal = col.accessor!(a);
+          const bVal = col.accessor!(b);
+          if (typeof aVal === 'number' && typeof bVal === 'number') {
+            return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
+          }
+          const cmp = String(aVal).localeCompare(String(bVal));
+          return sortDir === 'asc' ? cmp : -cmp;
+        });
+      }
+    }
+
+    return result;
+  }, [data, search, columnFilters, sortCol, sortDir, columns]);
+
+  const paginatedData = useMemo(() => {
+    return paginated ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : filteredData;
+  }, [filteredData, paginated, page, rowsPerPage]);
+
+  // Handlers
+  const handleHeaderClick = (colId: string) => {
     if (descriptions && descriptions[colId]) {
       setSelectedField(descriptions[colId]);
       setDictionaryOpen(true);
     }
   };
 
-
-  const [internalSelected, setInternalSelected] = React.useState<Set<string>>(new Set());
-  const selectedKeys = props.selectedKeys ?? internalSelected;
-
   const handleSelectionChange = (newSelection: Set<string>) => {
     setInternalSelected(newSelection);
     props.onSelectionChange?.(newSelection);
   };
-
-  const filterableColumns = columns.filter((c) => c.filterOptions && c.filterOptions.length > 0);
-  // All columns with accessor are sortable (unless disableSort). Columns without accessor but not 'actions' get text-based sorting.
-  const exportableColumns = columns.filter((c) => c.id !== 'actions' && c.accessor);
 
   const handleSort = (colId: string) => {
     if (sortCol === colId) {
@@ -150,104 +198,14 @@ function DataTable<T>({
     setPage(0);
   };
 
-  const isSortable = (col: DataColumn<T>) => col.accessor && !col.disableSort;
-
-  // Filter data
-  let filteredData = data;
-
-  if (search.trim()) {
-    const q = search.toLowerCase();
-    filteredData = filteredData.filter((row) =>
-      columns.some((col) => {
-        if (!col.accessor) return false;
-        const val = col.accessor(row);
-        return String(val).toLowerCase().includes(q);
-      })
-    );
-  }
-
-  Object.entries(columnFilters).forEach(([colId, filterVal]) => {
-    if (!filterVal) return;
-    const col = columns.find((c) => c.id === colId);
-    if (!col?.accessor) return;
-    filteredData = filteredData.filter((row) => {
-      const val = String(col.accessor!(row));
-      return val === filterVal;
-    });
-  });
-
-  if (sortCol) {
-    const col = columns.find((c) => c.id === sortCol);
-    if (col?.accessor) {
-      filteredData = [...filteredData].sort((a, b) => {
-        const aVal = col.accessor!(a);
-        const bVal = col.accessor!(b);
-        if (typeof aVal === 'number' && typeof bVal === 'number') {
-          return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-        }
-        const cmp = String(aVal).localeCompare(String(bVal));
-        return sortDir === 'asc' ? cmp : -cmp;
-      });
-    }
-  }
-
-  const paginatedData = paginated ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : filteredData;
-
-  const activeFilterCount = Object.values(columnFilters).filter(Boolean).length + (search ? 1 : 0);
-
-  const clearAllFilters = () => {
-    setSearch('');
-    setColumnFilters({});
-    setSortCol(null);
-    setPage(0);
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      const allPaginatedKeys = paginatedData.map(rowKey);
-      const newSelection = new Set(selectedKeys);
-      allPaginatedKeys.forEach(k => newSelection.add(k));
-      handleSelectionChange(newSelection);
-    } else {
-      const allPaginatedKeys = paginatedData.map(rowKey);
-      const newSelection = new Set(selectedKeys);
-      allPaginatedKeys.forEach(k => newSelection.delete(k));
-      handleSelectionChange(newSelection);
-    }
-  };
-
-  const handleSelectOne = (key: string, checked: boolean) => {
-    const newSelection = new Set(selectedKeys);
-    if (checked) newSelection.add(key);
-    else newSelection.delete(key);
-    handleSelectionChange(newSelection);
-  };
-
-  const isAllSelected = paginatedData.length > 0 && paginatedData.every(row => selectedKeys.has(rowKey(row)));
-  const isIndeterminate = paginatedData.some(row => selectedKeys.has(rowKey(row))) && !isAllSelected;
-
-  // --- Export functions ---
-  const getExportData = () => {
-    const headers: string[] = exportableColumns.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
-    const rows: string[][] = filteredData.map((row) =>
-      exportableColumns.map((col) => {
-        const val = col.accessor!(row);
-        return String(val);
-      })
-    );
-    return { headers, rows };
-  };
-
   const handleCSVExport = () => {
-    const { headers, rows } = getExportData();
+    const exportableCols = columns.filter((c) => c.id !== 'actions' && c.accessor);
+    const headers = exportableCols.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
+    const rows = filteredData.map((row) => exportableCols.map((col) => String(col.accessor!(row))));
+
     const csvContent = [
       headers.join(','),
-      ...rows.map((row) =>
-        row.map((cell) => {
-          const escaped = cell.replace(/"/g, '""');
-          return `"${escaped}"`;
-        }).join(',')
-      ),
+      ...rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -261,9 +219,11 @@ function DataTable<T>({
   };
 
   const handlePDFExport = () => {
-    const { headers, rows } = getExportData();
+    const exportableCols = columns.filter((c) => c.id !== 'actions' && c.accessor);
+    const headers = exportableCols.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
+    const rows = filteredData.map((row) => exportableCols.map((col) => String(col.accessor!(row))));
+    
     const doc = new jsPDF({ orientation: headers.length > 6 ? 'landscape' : 'portrait' });
-
     doc.setFontSize(14);
     doc.text(exportTitle, 14, 18);
     doc.setFontSize(9);
@@ -284,10 +244,27 @@ function DataTable<T>({
     setDownloadAnchor(null);
   };
 
+  const clearAllFilters = () => {
+    setSearch('');
+    setColumnFilters({});
+    setSortCol(null);
+    setPage(0);
+  };
+
+  const activeFilterCount = useMemo(() => {
+    return Object.values(columnFilters).filter(Boolean).length + (search ? 1 : 0);
+  }, [columnFilters, search]);
+
+  const isAllSelected = paginatedData.length > 0 && paginatedData.every(row => selectedKeys.has(rowKey(row)));
+  const isIndeterminate = paginatedData.some(row => selectedKeys.has(rowKey(row))) && !isAllSelected;
+
+  const filterableColumns = columns.filter((c) => c.filterOptions && c.filterOptions.length > 0);
+  const exportableCols = columns.filter((c) => c.id !== 'actions' && c.accessor);
+
   const toolbar = (
-    <Box sx={{ px: 1.5, py: 0.5, display: 'flex', flexDirection: 'column', gap: 0.5, borderBottom: `1px solid ${theme.palette.divider}` }}>
+    <ToolbarContainer>
       {props.selectable && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+        <SelectionToolbar>
           {selectedKeys.size > 0 && (
             <>
               <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
@@ -297,38 +274,19 @@ function DataTable<T>({
               <Link component="button" variant="body2" onClick={() => handleSelectionChange(new Set())} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
                 Deselect All
               </Link>
-              <Typography variant="body2" color="text.secondary">·</Typography>
-              <Link component="button" variant="body2" onClick={() => {
-                const maxSelection = new Set(filteredData.map(rowKey));
-                handleSelectionChange(maxSelection);
-              }} sx={{ cursor: 'pointer', textDecoration: 'none' }}>
-                Select Max
-              </Link>
-
-              {(activeFilterCount > 0 || props.customToolbarContent) && (
-                <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
-              )}
             </>
           )}
-        </Box>
+        </SelectionToolbar>
       )}
 
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: isMobile ? 'column' : 'row',
-        alignItems: isMobile ? 'flex-start' : 'center', 
-        gap: 1.5, 
-        width: '100%', 
-        justifyContent: 'space-between' 
-      }}>
+      <MainToolbarActions isMobile={isMobile}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
           <Typography variant="caption" color="text.secondary">
             {filteredData.length} record{filteredData.length !== 1 ? 's' : ''}
           </Typography>
-
           {activeFilterCount > 0 && (
             <Chip
-              label={`${activeFilterCount} active filter${activeFilterCount > 1 ? 's' : ''}`}
+              label={`${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''}`}
               size="small"
               onDelete={clearAllFilters}
               color="primary"
@@ -337,31 +295,15 @@ function DataTable<T>({
           )}
         </Box>
 
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 1, 
-          ml: isMobile ? 0 : 'auto',
-          width: isMobile ? '100%' : 'auto',
-          flexWrap: 'wrap'
-        }}>
-          {props.customToolbarContent && (
-            <Box sx={{ width: isMobile ? '100%' : 'auto' }}>
-              {props.customToolbarContent}
-            </Box>
-          )}
+        <SearchFieldContainer isMobile={isMobile}>
+          {props.customToolbarContent}
           {searchable && (
             <TextField
               size="small"
               placeholder="Search…"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-              sx={{ 
-                flex: isMobile ? 1 : 'unset', 
-                minWidth: isMobile ? '100%' : 180, 
-                maxWidth: isMobile ? '100%' : 320,
-                order: isMobile ? 1 : 0
-              }}
+              sx={{ minWidth: isMobile ? '100%' : 180 }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -379,7 +321,7 @@ function DataTable<T>({
             />
           )}
 
-          <Box sx={{ display: 'flex', gap: 1, ml: isMobile ? 0 : 0, width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'flex-end' : 'flex-start' }}>
+          <Box sx={{ display: 'flex', gap: 1 }}>
             {filterableColumns.length > 0 && (
               <IconButton
                 size="small"
@@ -391,46 +333,35 @@ function DataTable<T>({
               </IconButton>
             )}
 
-            {/* Download button */}
-            {exportableColumns.length > 0 && (
+            {exportableCols.length > 0 && (
               <>
                 <Button
                   size="small"
                   variant="outlined"
                   startIcon={<FileDownloadIcon fontSize="small" />}
                   onClick={(e) => setDownloadAnchor(e.currentTarget)}
-                  sx={{ 
-                    textTransform: 'none', 
-                    minWidth: 'auto',
-                    border: `1px solid ${theme.palette.divider}`,
-                    color: 'text.secondary',
-                    px: 1.5
-                  }}
+                  sx={{ textTransform: 'none', border: `1px solid ${theme.palette.divider}` }}
                 >
                   Export
                 </Button>
-                <Menu
-                  anchorEl={downloadAnchor}
-                  open={Boolean(downloadAnchor)}
-                  onClose={() => setDownloadAnchor(null)}
-                >
+                <Menu anchorEl={downloadAnchor} open={Boolean(downloadAnchor)} onClose={() => setDownloadAnchor(null)}>
                   <MenuItem onClick={handleCSVExport}>
                     <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText>Download CSV</ListItemText>
+                    <ListItemText>CSV</ListItemText>
                   </MenuItem>
                   <MenuItem onClick={handlePDFExport}>
                     <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText>Download PDF</ListItemText>
+                    <ListItemText>PDF</ListItemText>
                   </MenuItem>
                 </Menu>
               </>
             )}
           </Box>
-        </Box>
-      </Box>
+        </SearchFieldContainer>
+      </MainToolbarActions>
 
       <Collapse in={showFilters}>
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', pt: 0.5 }}>
+        <FilterCollapseContainer>
           {filterableColumns.map((col) => (
             <FormControl key={col.id} size="small" sx={{ minWidth: 140 }}>
               <Select
@@ -440,26 +371,20 @@ function DataTable<T>({
                   setColumnFilters((prev) => ({ ...prev, [col.id]: e.target.value as string }));
                   setPage(0);
                 }}
-                sx={{ fontSize: '0.8rem' }}
                 renderValue={(v) => v || <Typography variant="caption" color="text.secondary">{col.label}</Typography>}
               >
-                <MenuItem value="">
-                  <em>All {col.label}</em>
-                </MenuItem>
-                {col.filterOptions!.map((opt) => (
-                  <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-                ))}
+                <MenuItem value=""><em>All</em></MenuItem>
+                {col.filterOptions!.map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
               </Select>
             </FormControl>
           ))}
-        </Box>
+        </FilterCollapseContainer>
       </Collapse>
-    </Box>
+    </ToolbarContainer>
   );
 
-  // Mobile: render as cards
   if (isMobile) {
-    const visibleColumns = columns.filter((c) => c.id !== 'actions' && !c.hideOnMobile);
+    const visibleCols = columns.filter((c) => c.id !== 'actions' && !c.hideOnMobile);
     const actionsCol = columns.find((c) => c.id === 'actions');
 
     return (
@@ -468,114 +393,55 @@ function DataTable<T>({
         {paginatedData.map((row) => {
           const key = rowKey(row);
           return (
-            <Card
-              key={key}
-              sx={{
-                mb: 1.5,
-                cursor: onRowClick ? 'pointer' : 'default',
-                ...(selectedKeys.has(key) && { backgroundColor: '#F4F9FF' }),
-              }}
-              onClick={() => onRowClick?.(row)}
-            >
-              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-                {(actionsCol || props.selectable) && (
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    {props.selectable ? (
-                      <Checkbox
-                        size="small"
-                        checked={selectedKeys.has(key)}
-                        onChange={(e) => handleSelectOne(key, e.target.checked)}
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : <Box />}
-                    {actionsCol && actionsCol.render(row)}
-                  </Box>
-                )}
-                {visibleColumns.map((col, idx) => (
+            <Card key={key} sx={{ mb: 1.5, ...(selectedKeys.has(key) && { backgroundColor: '#F4F9FF' }) }} onClick={() => onRowClick?.(row)}>
+              <CardContent sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  {props.selectable && (
+                    <Checkbox
+                      size="small"
+                      checked={selectedKeys.has(key)}
+                      onChange={(e) => {
+                        const next = new Set(selectedKeys);
+                        if (e.target.checked) next.add(key); else next.delete(key);
+                        handleSelectionChange(next);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
+                  {actionsCol && actionsCol.render?.(row)}
+                </Box>
+                {visibleCols.map((col, idx) => (
                   <Box key={col.id}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', py: 0.5, gap: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.2, minWidth: 100, flexShrink: 0 }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-                          {col.label}
-                        </Typography>
-                        {descriptions && descriptions[col.id] && (
-                          <IconButton 
-                            size="small" 
-                            sx={{ p: 0.1 }} 
-                            onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id, String(col.label)); }}
-                          >
-                            <MenuBookIcon sx={{ fontSize: 11, color: theme.palette.primary.main, opacity: 0.7 }} />
-                          </IconButton>
-                        )}
-                      </Box>
-                      <Box sx={{ textAlign: 'right', flex: 1 }}>
-                        {col.render(row)}
-                      </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>{col.label}</Typography>
+                      <Box sx={{ textAlign: 'right' }}>{col.render ? col.render(row) : (col.accessor ? col.accessor(row) : null)}</Box>
                     </Box>
-                    {idx < visibleColumns.length - 1 && <Divider sx={{ my: 0.25 }} />}
+                    {idx < visibleCols.length - 1 && <Divider sx={{ my: 0.25 }} />}
                   </Box>
                 ))}
-                {expandedContent && expandedRows?.has(key) && (
-                  <Box sx={{ mt: 1, pt: 1, borderTop: `1px solid ${theme.palette.divider}` }}>
-                    {expandedContent(row)}
-                  </Box>
-                )}
               </CardContent>
             </Card>
           );
         })}
-        {paginated && (
-          <TablePagination
-            rowsPerPageOptions={rowsPerPageOptions}
-            component="div"
-            count={filteredData.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={(_, p) => setPage(p)}
-            onRowsPerPageChange={(e) => {
-              setRowsPerPage(parseInt(e.target.value, 10));
-              setPage(0);
-            }}
-          />
-        )}
-        <DictionaryDrawer 
-          open={dictionaryOpen} 
-          onClose={() => setDictionaryOpen(false)} 
-          selectedField={selectedField} 
+        <TablePagination
+          count={filteredData.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(_, p) => setPage(p)}
+          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+          rowsPerPageOptions={rowsPerPageOptions}
+          component="div"
         />
+        <DictionaryDrawer open={dictionaryOpen} onClose={() => setDictionaryOpen(false)} selectedField={selectedField} />
       </Box>
     );
   }
 
-  // Desktop: regular table
   return (
-    <Paper sx={{ width: '100%', maxWidth: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <MainContainer>
       {toolbar}
-      <TableContainer
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          maxHeight: 'calc(100vh - 240px)',
-          overflowX: 'auto',
-          overflowY: 'auto',
-          overscrollBehavior: 'contain',
-          '&::-webkit-scrollbar': {
-            width: '0px',
-            height: '0px',
-          },
-          '&::-webkit-scrollbar-track': {
-            background: 'transparent',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            background: '#bdbdbd',
-            borderRadius: '10px',
-            '&:hover': {
-              background: '#9e9e9e',
-            },
-          },
-        }}
-      >
-        <Table stickyHeader size="small" sx={{ '& .MuiTableCell-root': { p: 1, minHeight: 40 }, '& .MuiTableHead-root .MuiTableCell-root': { py: 1, minHeight: 48 } }}>
+      <ScrollableTableContainer>
+        <Table stickyHeader size="small">
           <TableHead>
             <TableRow>
               {props.selectable && (
@@ -584,106 +450,96 @@ function DataTable<T>({
                     size="small"
                     indeterminate={isIndeterminate}
                     checked={isAllSelected}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    onChange={(e) => {
+                      const next = new Set(selectedKeys);
+                      paginatedData.forEach(r => e.target.checked ? next.add(rowKey(r)) : next.delete(rowKey(r)));
+                      handleSelectionChange(next);
+                    }}
                   />
                 </TableCell>
               )}
-              {columns.map((col) => (
-                <TableCell
-                  key={col.id}
-                  align={col.align || 'left'}
-                  sx={{ minWidth: col.minWidth, whiteSpace: 'nowrap' }}
-                  sortDirection={sortCol === col.id ? sortDir : false}
-                >
-                  {isSortable(col) ? (
-                    <TableSortLabel
-                      active={sortCol === col.id}
-                      direction={sortCol === col.id ? sortDir : 'asc'}
-                      onClick={() => handleSort(col.id)}
-                      sx={{
-                        '& .MuiTableSortLabel-icon': {
-                          opacity: sortCol === col.id ? 1 : 0.3,
-                        },
-                      }}
-                      hideSortIcon={false}
-                    >
+              {columns.map((col) => {
+                const isSortable = col.accessor && !col.disableSort;
+                return (
+                  <TableCell
+                    key={col.id}
+                    align={col.align || 'left'}
+                    sortDirection={sortCol === col.id ? sortDir : false}
+                    sx={{ minWidth: col.minWidth }}
+                  >
+                    {isSortable ? (
+                      <TableSortLabel
+                        active={sortCol === col.id}
+                        direction={sortCol === col.id ? sortDir : 'asc'}
+                        onClick={() => handleSort(col.id)}
+                      >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          {col.label}
+                          {descriptions && descriptions[col.id] && (
+                            <IconButton size="small" sx={{ p: 0.2 }} onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id); }}>
+                              <MenuBookIcon sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }} />
+                            </IconButton>
+                          )}
+                        </Box>
+                      </TableSortLabel>
+                    ) : (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         {col.label}
                         {descriptions && descriptions[col.id] && (
-                          <IconButton 
-                            size="small" 
-                            sx={{ p: 0.2, ml: 0.5 }} 
-                            onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id, String(col.label)); }}
-                          >
+                          <IconButton size="small" sx={{ p: 0.2 }} onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id); }}>
                             <MenuBookIcon sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }} />
                           </IconButton>
                         )}
                       </Box>
-                    </TableSortLabel>
-                  ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      {col.label}
-                      {descriptions && descriptions[col.id] && (
-                        <IconButton 
-                          size="small" 
-                          sx={{ p: 0.2, ml: 0.5 }} 
-                          onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id, String(col.label)); }}
-                        >
-                          <MenuBookIcon sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }} />
-                        </IconButton>
-                      )}
-                    </Box>
-                  )}
-
-                </TableCell>
-              ))}
+                    )}
+                  </TableCell>
+                );
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
             {paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} align="center" sx={{ py: 4 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    No records found
-                  </Typography>
+                <TableCell colSpan={columns.length + (props.selectable ? 1 : 0)} align="center" sx={{ py: 4 }}>
+                  <Typography variant="body2" color="text.secondary">No records found</Typography>
                 </TableCell>
               </TableRow>
             ) : (
               paginatedData.map((row) => {
                 const key = rowKey(row);
+                const isSelected = selectedKeys.has(key);
                 return (
                   <React.Fragment key={key}>
-                    <TableRow
+                    <CustomTableRow
                       hover
                       onClick={() => onRowClick?.(row)}
-                      sx={{
-                        cursor: onRowClick ? 'pointer' : 'default',
-                        ...(selectedKeys.has(key) && { backgroundColor: '#F4F9FF !important' }),
-                      }}
-                      selected={selectedKeys.has(key)}
+                      clickable={!!onRowClick}
+                      isSelected={isSelected}
                     >
                       {props.selectable && (
                         <TableCell padding="checkbox">
                           <Checkbox
                             size="small"
-                            checked={selectedKeys.has(key)}
-                            onChange={(e) => handleSelectOne(key, e.target.checked)}
+                            checked={isSelected}
+                            onChange={(e) => {
+                              const next = new Set(selectedKeys);
+                              if (e.target.checked) next.add(key); else next.delete(key);
+                              handleSelectionChange(next);
+                            }}
                             onClick={(e) => e.stopPropagation()}
                           />
                         </TableCell>
                       )}
                       {columns.map((col) => (
                         <TableCell key={col.id} align={col.align || 'left'}>
-                          {col.render(row)}
+                          {col.render ? col.render(row) : (col.accessor ? col.accessor(row) : null)}
                         </TableCell>
                       ))}
-                    </TableRow>
+                    </CustomTableRow>
                     {expandedContent && expandedRows?.has(key) && (
                       <TableRow>
-                        <TableCell colSpan={columns.length} sx={{ p: 0, border: 0 }}>
-                          <Box sx={{ p: 2, backgroundColor: 'action.hover' }}>
-                            {expandedContent(row)}
-                          </Box>
+                        <TableCell colSpan={columns.length + (props.selectable ? 1 : 0)} sx={{ p: 0, border: 0 }}>
+                          <Box sx={{ p: 2, backgroundColor: 'action.hover' }}>{expandedContent(row)}</Box>
                         </TableCell>
                       </TableRow>
                     )}
@@ -693,30 +549,22 @@ function DataTable<T>({
             )}
           </TableBody>
         </Table>
-      </TableContainer>
+      </ScrollableTableContainer>
       {paginated && (
         <TablePagination
-          rowsPerPageOptions={rowsPerPageOptions}
-          component="div"
           count={filteredData.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={(_, p) => setPage(p)}
-          onRowsPerPageChange={(e) => {
-            setRowsPerPage(parseInt(e.target.value, 10));
-            setPage(0);
-          }}
-          sx={{ flexShrink: 0, borderTop: (t) => `1px solid ${t.palette.divider}`, overflow: 'hidden !important', '& .MuiTablePagination-toolbar': { minHeight: 40, p: 0, px: 2, overflow: 'hidden !important' }, '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': { m: 0 } }}
+          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+          rowsPerPageOptions={rowsPerPageOptions}
+          component="div"
+          sx={{ borderTop: `1px solid ${theme.palette.divider}` }}
         />
       )}
-      <DictionaryDrawer 
-        open={dictionaryOpen} 
-        onClose={() => setDictionaryOpen(false)} 
-        selectedField={selectedField} 
-      />
-    </Paper>
+      <DictionaryDrawer open={dictionaryOpen} onClose={() => setDictionaryOpen(false)} selectedField={selectedField} />
+    </MainContainer>
   );
 }
-
 
 export default DataTable;

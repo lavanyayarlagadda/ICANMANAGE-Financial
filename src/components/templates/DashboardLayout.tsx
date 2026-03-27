@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -52,8 +52,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const user = useAppSelector((state) => state.auth.user);
   const menus = user?.menus || [];
 
-  const getMenuStatus = (label: string) => {
-    const findStatus = (menusArray: typeof menus): string | null => {
+
+  const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
+
+  const navigate = useNavigate();
+
+  const getMenuStatus = useCallback((label: string) => {
+    if (!menus.length) return 'Hidden';
+    const findStatus = (menusArray: any[]): string | null => {
       for (const m of menusArray) {
         if (m.menuName === label) return m.status;
         if (m.subModules) {
@@ -64,22 +70,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       return null;
     };
     return findStatus(menus) || 'Hidden';
-  };
+  }, [menus]);
 
-  const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
-
-  const navigate = useNavigate();
-
-  const handleNavClick = (page: 'financials' | 'collections', path?: string) => {
+  const handleNavClick = useCallback((page: 'financials' | 'collections', path?: string) => {
     dispatch(closeMobileMenu());
     if (page === 'collections') {
       navigate('/collections');
     } else if (path) {
       navigate(path);
     }
-  };
+  }, [dispatch, navigate]);
 
-  const financialsSubItems = [
+  const financialsSubItems = useMemo(() => [
     { label: 'All Transactions', tab: 0, path: '/financials/all-transactions', icon: <DashboardIcon fontSize="small" /> },
     { label: 'Payments', tab: 1, path: '/financials/payments', icon: <PaymentIcon fontSize="small" /> },
     { label: 'PIP', tab: 2, path: '/financials/pip', icon: <AccountBalanceIcon fontSize="small" /> },
@@ -88,12 +90,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     { label: 'Other Adjustments', tab: 5, path: '/financials/other-adjustments', icon: <CompareArrowsIcon fontSize="small" /> },
     { label: 'Variance Analysis', tab: 6, path: '/financials/variance-analysis', icon: <CompareArrowsIcon fontSize="small" /> },
     { label: 'Trends & Forecast', tab: 7, path: '/financials/trends-forecast', icon: <TrendingUpIcon fontSize="small" /> },
-  ].filter(item => getMenuStatus(item.label) !== 'Hidden');
+  ].filter(item => getMenuStatus(item.label) !== 'Hidden'), [getMenuStatus]);
 
-  const hasCollections = getMenuStatus('Collections') !== 'Hidden';
-  const hasFinancials = getMenuStatus('Financials') !== 'Hidden';
+  const hasCollections = useMemo(() => getMenuStatus('Collections') !== 'Hidden', [getMenuStatus]);
+  const hasFinancials = useMemo(() => getMenuStatus('Financials') !== 'Hidden', [getMenuStatus]);
 
-  const drawerContent = (
+  const drawerContent = useMemo(() => (
     <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Collections Section */}
       {hasCollections && (
@@ -153,7 +155,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </List>
       )}
     </Box>
-  );
+  ), [hasCollections, hasFinancials, sidebarCollapsed, activePage, getMenuStatus, handleNavClick, theme.palette.primary.main]);
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: theme.palette.background.default }}>

@@ -1,21 +1,9 @@
-import React from 'react';
-import { Box, IconButton, Typography, useTheme } from '@mui/material';
+import React, { lazy, Suspense } from 'react';
+import { IconButton, Typography, useTheme, Box, CircularProgress } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout';
 import FinancialsTabs from '@/components/organisms/FinancialsTabs';
-import AllTransactionsScreen from '@/components/pages/AllTransactionsScreen';
-import PaymentsScreen from '@/components/pages/PaymentsScreen';
-import PipScreen from '@/components/pages/PipScreen';
-import RemittanceDetailScreen from '@/components/pages/RemittanceDetailScreen';
-import TrendsScreen from '@/components/pages/TrendsScreen';
-import VarianceScreen from '@/components/pages/VarianceScreen';
-import BankDepositsScreen from '@/components/pages/BankDepositsScreen';
-import StatementsScreen from '@/components/pages/StatementsScreen';
-import RecoupmentsScreen from '@/components/pages/RecoupmentsScreen';
-import OtherAdjustmentsScreen from '@/components/pages/OtherAdjustmentsScreen';
-import CollectionsScreen from '@/components/pages/CollectionsScreen';
-import CalendarScreen from '@/components/pages/CalendarScreen';
 import ViewDialog from '@/components/molecules/ViewDialog';
 import EditDialog from '@/components/molecules/EditDialog';
 import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog';
@@ -38,38 +26,72 @@ import {
   deleteAllTransaction,
   deleteCollection,
 } from '@/store/slices/financialsSlice';
+import { BackButtonContainer } from './FinancialsPage.styles';
+
+// Lazy load screens to improve bundle size and initial load time
+const AllTransactionsScreen = lazy(() => import('@/components/pages/AllTransactionsScreen'));
+const PaymentsScreen = lazy(() => import('@/components/pages/PaymentsScreen'));
+const RecoupmentsScreen = lazy(() => import('@/components/pages/RecoupmentsScreen'));
+const OtherAdjustmentsScreen = lazy(() => import('@/components/pages/OtherAdjustmentsScreen'));
+const BankDepositsScreen = lazy(() => import('@/components/pages/BankDepositsScreen'));
+const StatementsScreen = lazy(() => import('@/components/pages/StatementsScreen'));
+const VarianceScreen = lazy(() => import('@/components/pages/VarianceScreen'));
+const TrendsScreen = lazy(() => import('@/components/pages/TrendsScreen'));
+const CalendarScreen = lazy(() => import('@/components/pages/CalendarScreen'));
+const CollectionsScreen = lazy(() => import('@/components/pages/CollectionsScreen'));
+const RemittanceDetailScreen = lazy(() => import('@/components/pages/RemittanceDetailScreen'));
+
+// Static path mapping outside component to prevent recreation on every render
+const PATH_MAP: Record<string, { tab: number; subTab: number }> = {
+  'all-transactions': { tab: 0, subTab: 0 },
+  'payments': { tab: 0, subTab: 1 },
+  'recoupments': { tab: 0, subTab: 2 },
+  'other-adjustments': { tab: 0, subTab: 3 },
+  'pip': { tab: 0, subTab: 3 }, 
+  'bank-deposits': { tab: 1, subTab: 0 },
+  'statements': { tab: 2, subTab: 0 },
+  'statements/pip': { tab: 2, subTab: 0 },
+  'statements/forward-balance': { tab: 2, subTab: 1 },
+  'variance-analysis': { tab: 3, subTab: 0 },
+  'trends-forecast': { tab: 4, subTab: 0 },
+  'calendar': { tab: 5, subTab: 0 },
+};
+
+const LoadingFallback: React.FC = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
+    <CircularProgress size={32} />
+  </Box>
+);
 
 const FinancialsPage: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
-  const { activeTab, activeSubTab, activePage, viewDialogOpen, viewDialogData, editDialogOpen, editDialogData, confirmDeleteOpen, confirmDeleteId, confirmDeleteType } = useAppSelector((s) => s.ui);
+  const { 
+    activeTab, 
+    activeSubTab, 
+    activePage, 
+    viewDialogOpen, 
+    viewDialogData, 
+    editDialogOpen, 
+    editDialogData, 
+    confirmDeleteOpen, 
+    confirmDeleteId, 
+    confirmDeleteType 
+  } = useAppSelector((s) => s.ui);
   const { showRemittanceDetail } = useAppSelector((s) => s.financials);
   const [addDialogOpen, setAddDialogOpen] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Sync tab state with URL path
   React.useEffect(() => {
     if (location.pathname.startsWith('/collections')) {
       dispatch(setActivePage('collections'));
     } else if (location.pathname.startsWith('/financials')) {
       dispatch(setActivePage('financials'));
       const pathPart = location.pathname.split('/financials/')[1] || '';
-      const pathMap: Record<string, { tab: number; subTab: number }> = {
-        'all-transactions': { tab: 0, subTab: 0 },
-        'payments': { tab: 0, subTab: 1 },
-        'recoupments': { tab: 0, subTab: 2 },
-        'other-adjustments': { tab: 0, subTab: 3 },
-        'pip': { tab: 0, subTab: 3 }, // Map PIP to Adjustments for now
-        'bank-deposits': { tab: 1, subTab: 0 },
-        'statements': { tab: 2, subTab: 0 },
-        'statements/pip': { tab: 2, subTab: 0 },
-        'statements/forward-balance': { tab: 2, subTab: 1 },
-        'variance-analysis': { tab: 3, subTab: 0 },
-        'trends-forecast': { tab: 4, subTab: 0 },
-        'calendar': { tab: 5, subTab: 0 },
-      };
-
-      const match = pathMap[pathPart];
+      const match = PATH_MAP[pathPart];
+      
       if (match) {
         if (activeTab !== match.tab) dispatch(setActiveTab(match.tab));
         if (activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
@@ -81,36 +103,39 @@ const FinancialsPage: React.FC = () => {
 
   const renderTabContent = () => {
     if (activeTab === 0) {
-      const subMap: Record<number, React.ReactNode> = {
-        0: <AllTransactionsScreen />,
-        1: <PaymentsScreen />,
-        2: <RecoupmentsScreen />,
-        3: <OtherAdjustmentsScreen />,
-      };
-      return subMap[activeSubTab] ?? <AllTransactionsScreen />;
+      switch (activeSubTab) {
+        case 1: return <PaymentsScreen />;
+        case 2: return <RecoupmentsScreen />;
+        case 3: return <OtherAdjustmentsScreen />;
+        default: return <AllTransactionsScreen />;
+      }
     }
 
-    if (activeTab === 1) return <BankDepositsScreen />;
-    if (activeTab === 2) return <StatementsScreen />;
-    if (activeTab === 3) return <VarianceScreen />;
-    if (activeTab === 4) return <TrendsScreen />;
-    if (activeTab === 5) return <CalendarScreen />;
-
-    return <AllTransactionsScreen />;
+    switch (activeTab) {
+      case 1: return <BankDepositsScreen />;
+      case 2: return <StatementsScreen />;
+      case 3: return <VarianceScreen />;
+      case 4: return <TrendsScreen />;
+      case 5: return <CalendarScreen />;
+      default: return <AllTransactionsScreen />;
+    }
   };
 
   const handleDelete = () => {
     if (!confirmDeleteId) return;
-    const deleteMap: Record<string, () => void> = {
-      payment: () => dispatch(deletePayment(confirmDeleteId)),
-      recoupment: () => dispatch(deleteRecoupment(confirmDeleteId)),
-      adjustment: () => dispatch(deleteAdjustment(confirmDeleteId)),
-      transaction: () => dispatch(deleteAllTransaction(confirmDeleteId)),
-      collection: () => dispatch(deleteCollection(confirmDeleteId)),
-    };
-    deleteMap[confirmDeleteType]?.();
-    dispatch(closeConfirmDelete());
-    dispatch(showSnackbar({ message: `${confirmDeleteType} deleted successfully.`, severity: 'success' }));
+    const deleteAction = {
+      payment: deletePayment,
+      recoupment: deleteRecoupment,
+      adjustment: deleteAdjustment,
+      transaction: deleteAllTransaction,
+      collection: deleteCollection,
+    }[confirmDeleteType as keyof { payment: any; recoupment: any; adjustment: any; transaction: any; collection: any }];
+
+    if (deleteAction) {
+      dispatch(deleteAction(confirmDeleteId));
+      dispatch(closeConfirmDelete());
+      dispatch(showSnackbar({ message: `${confirmDeleteType} deleted successfully.`, severity: 'success' }));
+    }
   };
 
   const handleEditSave = () => {
@@ -126,14 +151,18 @@ const FinancialsPage: React.FC = () => {
     if (showRemittanceDetail) {
       return (
         <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <IconButton onClick={() => dispatch(setShowRemittanceDetail(false))} size="small" sx={{ border: `1px solid ${theme.palette.divider}` }}>
+          <BackButtonContainer>
+            <IconButton 
+              onClick={() => dispatch(setShowRemittanceDetail(false))} 
+              size="small" 
+              sx={{ border: `1px solid ${theme.palette.divider}` }}
+            >
               <ArrowBackIcon fontSize="small" />
             </IconButton>
             <Typography variant="body2" color="text.secondary">
               Back to Payments
             </Typography>
-          </Box>
+          </BackButtonContainer>
           <RemittanceDetailScreen />
         </Box>
       );
@@ -142,7 +171,9 @@ const FinancialsPage: React.FC = () => {
     return (
       <>
         <FinancialsTabs onAddNew={() => setAddDialogOpen(true)} />
-        {renderTabContent()}
+        <Suspense fallback={<LoadingFallback />}>
+          {renderTabContent()}
+        </Suspense>
       </>
     );
   };

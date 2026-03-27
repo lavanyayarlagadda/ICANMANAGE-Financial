@@ -3,6 +3,23 @@ import { themeConfig } from './themeConfig';
 
 const { colors, typography, spacing } = themeConfig;
 
+declare module '@mui/material/styles' {
+  interface Palette {
+    inputBackground: string;
+    cardBorder: string;
+    selectionBackground: string;
+    tabActive: string;
+    tabHover: string;
+  }
+  interface PaletteOptions {
+    inputBackground?: string;
+    cardBorder?: string;
+    selectionBackground?: string;
+    tabActive?: string;
+    tabHover?: string;
+  }
+}
+
 export const muiTheme = createTheme({
   palette: {
     primary: {
@@ -36,6 +53,12 @@ export const muiTheme = createTheme({
       disabled: colors.text.disabled,
     },
     divider: colors.divider,
+    // Custom tokens
+    inputBackground: (colors as any).inputBackground,
+    cardBorder: (colors as any).cardBorder,
+    selectionBackground: (colors as any).selectionBackground,
+    tabActive: (colors as any).tabActive,
+    tabHover: (colors as any).tabHover,
   },
   typography: {
     fontFamily: typography.fontFamily.primary,
