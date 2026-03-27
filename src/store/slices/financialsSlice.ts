@@ -40,7 +40,7 @@ interface FinancialsState {
   collections: CollectionAccount[];
   bankDeposits: BankDepositEntity[];
   forwardBalanceNotices: ForwardBalanceNotice[];
-  remittanceClaims: any[];
+  remittanceClaims: RemittanceDetail[];
   selectedClaimIndex: number;
   loading: boolean;
 
@@ -95,7 +95,7 @@ const financialsSlice = createSlice({
     setRemittanceDetail: (state, action: PayloadAction<RemittanceDetail | null>) => {
       state.remittanceDetail = action.payload;
     },
-    setRemittanceClaims: (state, action: PayloadAction<any[]>) => {
+    setRemittanceClaims: (state, action: PayloadAction<RemittanceDetail[]>) => {
       state.remittanceClaims = action.payload;
     },
     setSelectedClaimIndex: (state, action: PayloadAction<number>) => {

@@ -9,7 +9,9 @@ import RangeDropdown from "@/components/atoms/RangeDropdown";
 import { Box, Typography, IconButton, Chip, CircularProgress } from "@mui/material";
 import MultiValueDisplay from "@/components/atoms/MultiValueDisplay";
 import { formatCurrency, formatPercent } from "@/utils/formatters";
-import { useSearchPipQuery, useLazyExportPipQuery } from "@/store/api/financialsApi";
+import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery } from "@/store/api/financialsApi";
+import { Grid } from "@mui/material";
+import SummaryCard from "@/components/atoms/SummaryCard";
 import { subMonths, format } from 'date-fns';
 import { useAppSelector, useAppDispatch } from "@/store";
 import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
@@ -87,6 +89,8 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
 const PipScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const { actionTriggers, activeExportType, isReloading } = useAppSelector(s => s.ui);
+  const user = useAppSelector(s => s.auth.user);
+  const isMindPath = user?.company?.toLowerCase() === 'mindpath';
 
   // Refs to prevent mount calls
   const exportCount = useRef(actionTriggers.export);
@@ -104,13 +108,20 @@ const PipScreen: React.FC = () => {
   });
 
   const { data, isLoading, isError, isFetching, refetch } = useSearchPipQuery({
-    page: queryParams.page,
+    page: queryParams.page + 1, // API is 1-indexed
     size: queryParams.size,
     sort: queryParams.sortField,
     desc: queryParams.sortOrder === 'desc',
     fromDate: queryParams.fromDate,
     toDate: queryParams.toDate
-  });
+  }, { skip: isMindPath });
+
+  const { data: pipSummaryData } = useGetPipSummaryQuery({
+    fromDate: queryParams.fromDate,
+    toDate: queryParams.toDate
+  }, { skip: isMindPath });
+
+  const pipSummary = pipSummaryData?.data;
 
   const pipRecords = data?.data?.content ?? [];
   const totalElements = data?.data?.totalElements ?? 0;
@@ -239,10 +250,22 @@ const PipScreen: React.FC = () => {
   };
 
   // if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4, height: '60vh' }}><CircularProgress /></Box>;
+  if (isMindPath) return null;
   if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading PIP records.</Box>;
 
   return (
     <Box sx={{ position: 'relative' }}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard title="TOTAL PAID AMOUNT" value={formatCurrency(pipSummary?.totalPaidAmount ?? 0)} backgroundColor="#fff" />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard title="TOTAL SUSPENSE BALANCE" value={formatCurrency(pipSummary?.totalSuspenseBalance ?? 0)} backgroundColor="#fff" />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard title="ACTION REQUIRED" value={pipSummary?.actionRequired?.toString() || '0'} variant="default" backgroundColor="#fff" />
+        </Grid>
+      </Grid>
       <DataTable
         columns={columns} data={pipRecords} rowKey={getRowId} expandedRows={expandedRows}
         expandedContent={renderExpandedContent} exportTitle="PIP Records" dictionaryId="statements"

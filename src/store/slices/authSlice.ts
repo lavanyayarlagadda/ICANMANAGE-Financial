@@ -1,7 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export type MenuStatus = 'Active' | 'Hidden' | 'Disabled';
+
+export interface MenuAccess {
+    menuName: string;
+    status: MenuStatus;
+    subModules?: MenuAccess[];
+}
+
 export interface User {
-    menus: any[];
+    menus: MenuAccess[];
     id: string;
     username: string;
     email: string;

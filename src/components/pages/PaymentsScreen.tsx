@@ -30,7 +30,6 @@ const PaymentsScreen: React.FC = () => {
     fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
     toDate: format(new Date(), 'yyyy-MM-dd'),
   });
-
   const { data, isLoading, isError, isFetching, refetch } = useSearchPaymentsQuery({
     page: queryParams.page + 1, // API is 1-indexed
     size: queryParams.size,
@@ -120,8 +119,8 @@ const PaymentsScreen: React.FC = () => {
       dispatch(setSelectedPaymentId(row.transactionNo));
 
       // Fetch remittance claim details
-      const claimResult = await triggerGetRemittance(row.transactionNo).unwrap();
-      const claimsArr = claimResult.data || (Array.isArray(claimResult) ? claimResult : [claimResult]);
+      const claimResult = await triggerGetRemittance(row.transactionNo).unwrap() as any;
+      const claimsArr = Array.isArray(claimResult?.data) ? claimResult.data : (Array.isArray(claimResult) ? claimResult : (claimResult ? [claimResult] : []));
 
       // If no claims, just show empty
       if (claimsArr.length === 0) {
@@ -131,32 +130,10 @@ const PaymentsScreen: React.FC = () => {
         return;
       }
 
-      let serviceLines = [];
-      try {
-        // Fetch service lines using transactionNo or row.checkEftNumber
-        const serviceLineResult = await triggerSearchServiceLines({
-          page: 1,
-          size: 100,
-          sort: 'lineNumber',
-          desc: false,
-          check: row.transactionNo
-        }).unwrap();
-        serviceLines = serviceLineResult.data?.content || [];
-      } catch (slErr) {
-        console.warn('Service lines fetch failed, showing claim info only:', slErr);
-      }
-
       // Update state
       dispatch(setRemittanceClaims(claimsArr));
       dispatch(setSelectedClaimIndex(0));
-      
-      const firstClaim = claimsArr[0];
-      const combinedDetail = {
-        ...firstClaim,
-        serviceLines
-      };
-
-      dispatch(setRemittanceDetail(combinedDetail));
+      dispatch(setRemittanceDetail(claimsArr[0]));
       dispatch(setShowRemittanceDetail(true));
     } catch (err) {
       console.error('Failed to fetch primary remittance details:', err);

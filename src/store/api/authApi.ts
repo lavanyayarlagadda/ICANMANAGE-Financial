@@ -10,9 +10,14 @@ export interface LoginResponse {
   user: User;
 }
 
+export interface LoginRequest {
+  username?: string;
+  password?: string;
+}
+
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    login: builder.mutation<LoginResponse, any>({
+    login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({
         url: 'auth/login',
         method: 'POST',

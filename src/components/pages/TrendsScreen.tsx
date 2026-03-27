@@ -4,8 +4,9 @@ import SummaryCard from '@/components/atoms/SummaryCard';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
-import { useAppSelector } from '@/store';
+import { useAppSelector, useAppDispatch } from '@/store';
 import { TeamPerformance, PayerPerformanceRecord } from '@/types/financials';
+import { setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { formatPercent, formatCurrency } from '@/utils/formatters';
 import {
   ResponsiveContainer,
@@ -21,81 +22,116 @@ import {
   Pie,
   Cell,
 } from 'recharts';
+import {
+  useGetForecastSummaryQuery,
+  useGetReconciliationPerformanceQuery,
+  useGetForecastDashboardQuery,
+  useGetExecutiveSummaryQuery,
+  useGetPaymentMixQuery,
+  useGetAdjustmentBreakdownQuery,
+  // useGetPayerPerformanceQuery,
+} from '@/store/api/financialsApi';
+import { format, subMonths } from 'date-fns';
 
 const TrendsScreen: React.FC = () => {
   const theme = useTheme();
+  const dispatch = useAppDispatch();
+  // We'll keep trendsData for now as a fallback but we'll prioritize API data
   const trendsData = useAppSelector((s) => s.financials.trendsData);
+  const user = useAppSelector((s) => s.auth.user);
+  const isMindPath = user?.company?.toLowerCase() === 'mindpath';
   const { activeSubTab } = useAppSelector((s) => s.ui);
+
+  const [queryParams, setQueryParams] = React.useState({
+    fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
+    toDate: format(new Date(), 'yyyy-MM-dd'),
+  });
+
+  // API Queries
+  const { data: forecastSummary, isFetching: isFetchingForecast } = useGetForecastSummaryQuery(queryParams, { skip: activeSubTab !== 0 });
+  const { data: reconPerformance, isFetching: isFetchingRecon } = useGetReconciliationPerformanceQuery(queryParams, { skip: activeSubTab !== 0 });
+  const { data: dashboardData, isFetching: isFetchingDashboard } = useGetForecastDashboardQuery(queryParams, { skip: activeSubTab !== 0 });
+
+  const { data: execSummary, isFetching: isFetchingExec } = useGetExecutiveSummaryQuery(queryParams, { skip: activeSubTab !== 1 });
+  const { data: paymentMix, isFetching: isFetchingMix } = useGetPaymentMixQuery(queryParams, { skip: activeSubTab !== 1 });
+  const { data: adjBreakdown, isFetching: isFetchingAdj } = useGetAdjustmentBreakdownQuery(queryParams, { skip: activeSubTab !== 1 });
+
+  // const { data: payerPerformance, isFetching: isFetchingPayer } = useGetPayerPerformanceQuery(queryParams, { skip: activeSubTab !== 2 });
+
+  const isFetching = isFetchingForecast || isFetchingRecon || isFetchingDashboard || isFetchingExec || isFetchingMix || isFetchingAdj;
+
+  React.useEffect(() => {
+    dispatch(setIsGlobalFetching(isFetching));
+    return () => {
+      dispatch(setIsGlobalFetching(false));
+    };
+  }, [isFetching, dispatch]);
+
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('lg')); // Covers 1024px
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  if (!trendsData) return <Typography>No trends data.</Typography>;
+  const handleRangeChange = (range: string) => {
+    if (range.includes(' to ')) {
+      const [from, to] = range.split(' to ');
+      setQueryParams({ fromDate: from, toDate: to });
+    }
+  };
+
+  // if (!trendsData) return <Typography>No trends data.</Typography>;
+
 
   // --- RENDERING FORECAST TRENDS (activeSubTab === 0) ---
   const renderForecastTrends = () => {
-    const combinedChartData = [
-      ...trendsData.reconRateTrend.map(d => ({ ...d, actual: d.rate, forecast: null })),
-      // Connect the last actual to the first forecast for a smooth line
-      {
-        month: trendsData.reconRateTrend[trendsData.reconRateTrend.length - 1].month,
-        actual: trendsData.reconRateTrend[trendsData.reconRateTrend.length - 1].rate,
-        forecast: trendsData.reconRateTrend[trendsData.reconRateTrend.length - 1].rate
-      },
-      ...trendsData.avgDaysTrend.map(d => ({ month: d.month, actual: null, forecast: d.days }))
-    ];
+    // Map reconPerformance to chart data
+    const chartData = (reconPerformance?.data || []).map(d => ({
+      month: format(new Date(d.month), 'MMM yyyy'),
+      actual: d.actualReconciledAmount ? parseFloat(d.actualReconciledAmount) / 1000000 : null,
+      forecast: d.forecastAmount ? parseFloat(d.forecastAmount) / 1000000 : null,
+    }));
 
-    const teamColumns: DataColumn<TeamPerformance>[] = [
+    const teamColumns: DataColumn<any>[] = [
       {
-        id: 'teamName',
+        id: 'team',
         label: 'TEAM',
         minWidth: 150,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: row.teamName === 'Total' ? 700 : 500 }}>
-            {row.teamName}
+          <Typography variant="body2" sx={{ fontWeight: row.team === 'OVERALL' ? 700 : 500 }}>
+            {row.team}
           </Typography>
         ),
-        accessor: (row) => row.teamName,
+        accessor: (row) => row.team,
       },
-      { id: 'reconCheckPercent', label: 'RECONCILED CHECK COUNT %', align: 'right', render: (row) => formatPercent(row.reconCheckPercent), accessor: (row) => row.reconCheckPercent },
-      { id: 'unreconCheckPercent', label: 'UNRECONCILED CHECK COUNT %', align: 'right', render: (row) => formatPercent(row.unreconCheckPercent), accessor: (row) => row.unreconCheckPercent },
-      { id: 'checkCountPercentByTeam', label: 'CHECK COUNT % BY TEAM', align: 'right', render: (row) => formatPercent(row.checkCountPercentByTeam), accessor: (row) => row.checkCountPercentByTeam },
-      { id: 'reconCheckCount', label: 'RECONCILED CHECK COUNT', align: 'right', render: (row) => row.reconCheckCount, accessor: (row) => row.reconCheckCount },
-      { id: 'unreconCheckCount', label: 'UNRECONCILED CHECK COUNT', align: 'right', render: (row) => row.unreconCheckCount, accessor: (row) => row.unreconCheckCount },
-      { id: 'reconAmountPercent', label: 'RECONCILED AMOUNT %', align: 'right', render: (row) => formatPercent(row.reconAmountPercent), accessor: (row) => row.reconAmountPercent },
-      { id: 'unreconAmountPercent', label: 'UNRECONCILED AMOUNT %', align: 'right', render: (row) => formatPercent(row.unreconAmountPercent), accessor: (row) => row.unreconAmountPercent },
-      { id: 'amountPercentByTeam', label: 'AMOUNT % BY TEAM', align: 'right', render: (row) => formatPercent(row.amountPercentByTeam), accessor: (row) => row.amountPercentByTeam },
-      { id: 'totalAmountPosted', label: 'TOTAL AMOUNT POSTED', align: 'right', render: (row) => formatCurrency(row.totalAmountPosted), accessor: (row) => row.totalAmountPosted },
-      { id: 'totalAmountNotPosted', label: 'TOTAL AMOUNT NOT POSTED', align: 'right', render: (row) => formatCurrency(row.totalAmountNotPosted), accessor: (row) => row.totalAmountNotPosted },
-      { id: 'avgDaysToReconcile', label: 'AVG DAYS TO RECONCILE', align: 'right', render: (row) => row.avgDaysToReconcile, accessor: (row) => row.avgDaysToReconcile },
+      { id: 'reconciledCheckCountPct', label: 'RECONCILED CHECK COUNT %', align: 'right', render: (row) => `${row.reconciledCheckCountPct}%`, accessor: (row) => row.reconciledCheckCountPct },
+      { id: 'unreconciledCheckCountPct', label: 'UNRECONCILED CHECK COUNT %', align: 'right', render: (row) => `${row.unreconciledCheckCountPct}%`, accessor: (row) => row.unreconciledCheckCountPct },
+      { id: 'checkCountPctByTeam', label: 'CHECK COUNT % BY TEAM', align: 'right', render: (row) => `${row.checkCountPctByTeam}%`, accessor: (row) => row.checkCountPctByTeam },
+      { id: 'reconciledCheckCount', label: 'RECONCILED CHECK COUNT', align: 'right', render: (row) => row.reconciledCheckCount, accessor: (row) => row.reconciledCheckCount },
+      { id: 'unreconciledCheckCount', label: 'UNRECONCILED CHECK COUNT', align: 'right', render: (row) => row.unreconciledCheckCount, accessor: (row) => row.unreconciledCheckCount },
+      { id: 'reconciledAmountPct', label: 'RECONCILED AMOUNT %', align: 'right', render: (row) => `${row.reconciledAmountPct}%`, accessor: (row) => row.reconciledAmountPct },
+      { id: 'unreconciledAmountPct', label: 'UNRECONCILED AMOUNT %', align: 'right', render: (row) => `${row.unreconciledAmountPct}%`, accessor: (row) => row.unreconciledAmountPct },
+      { id: 'amountPctByTeam', label: 'AMOUNT % BY TEAM', align: 'right', render: (row) => `${row.amountPctByTeam}%`, accessor: (row) => row.amountPctByTeam },
+      { id: 'totalAmountPosted', label: 'TOTAL AMOUNT POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountPosted)), accessor: (row) => row.totalAmountPosted },
+      { id: 'totalAmountNotPosted', label: 'TOTAL AMOUNT NOT POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountNotPosted)), accessor: (row) => row.totalAmountNotPosted },
+      { id: 'avgDaysToReconcile', label: 'AVG DAYS TO RECONCILE', align: 'right', render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile },
     ];
 
-    const teamTableData = [
-      ...trendsData.teams,
-      {
-        teamName: 'Total',
-        reconCheckPercent: 99.54,
-        unreconCheckPercent: 0.46,
-        checkCountPercentByTeam: 100.00,
-        reconCheckCount: 432,
-        unreconCheckCount: 2,
-        reconAmountPercent: 99.73,
-        unreconAmountPercent: 0.27,
-        amountPercentByTeam: 100.00,
-        totalAmountPosted: 9766405.93,
-        totalAmountNotPosted: 26872.02,
-        avgDaysToReconcile: 5.39
-      }
+    const teamTableData = dashboardData?.data || [];
+
+    const kpis = [
+      { label: 'TOTAL AMOUNT RECONCILED', value: formatCurrency(forecastSummary?.data?.totalAmountReconciled ?? 0) },
+      { label: 'TOTAL AMOUNT UNRECONCILED', value: formatCurrency(forecastSummary?.data?.totalAmountUnreconciled ?? 0) },
+      { label: 'GLOBAL RECONCILIATION RATE', value: `${forecastSummary?.data?.globalReconciliationRate ?? 0}%` },
+      { label: 'AVG DAYS TO RECONCILE', value: (forecastSummary?.data?.avgDaysToReconcile ?? 0).toString() },
     ];
 
     return (
       <>
-         <Box sx={{ mb: 3 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: 'rgb(10, 22, 40)' }}>      Reconciliation Trends & Forecast (December 2025 Reference)</Typography>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'rgb(10, 22, 40)' }}>Reconciliation Trends & Forecast</Typography>
           <Typography variant="body2" color="text.secondary">Monthly reconciliation performance summary by team. Tracks check counts, amounts, and average processing time.</Typography>
         </Box>
         <Grid container spacing={2} sx={{ mb: 3 }}>
-          {trendsData.kpis.map((kpi) => (
+          {kpis.map((kpi) => (
             <Grid size={{ xs: 12, md: 3 }} key={kpi.label}>
               <SummaryCard title={kpi.label} value={kpi.value} backgroundColor="#fff" />
             </Grid>
@@ -104,20 +140,20 @@ const TrendsScreen: React.FC = () => {
 
         <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            Reconciliation Performance (6M History + 3M S-Curve Forecast)
+            Reconciliation Performance
           </Typography>
-          <RangeDropdown />
+          <RangeDropdown onChange={handleRangeChange} />
         </Box>
 
         <Box sx={{ p: 3, backgroundColor: '#fff', borderRadius: 2, mb: 3, border: `1px solid ${theme.palette.divider}` }}>
           <ResponsiveContainer width="100%" height={350}>
-            <ComposedChart data={combinedChartData}>
+            <ComposedChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme.palette.divider} />
-              <XAxis 
-                dataKey="month" 
-                tick={{ fontSize: 10, fill: theme.palette.text.secondary }} 
-                axisLine={false} 
-                tickLine={false} 
+              <XAxis
+                dataKey="month"
+                tick={{ fontSize: 10, fill: theme.palette.text.secondary }}
+                axisLine={false}
+                tickLine={false}
                 dy={10}
                 interval={isSmallMobile ? 0 : 'preserveStartEnd'}
                 angle={isSmallMobile ? -45 : 0}
@@ -147,7 +183,7 @@ const TrendsScreen: React.FC = () => {
           <DataTable
             columns={teamColumns}
             data={teamTableData}
-            rowKey={(r) => r.teamName}
+            rowKey={(r) => r.team}
             paginated={false}
             searchable={false}
             dictionaryId="forecast-trends"
@@ -210,16 +246,16 @@ const TrendsScreen: React.FC = () => {
 
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, md: 3 }}>
-            <SummaryCardRich title="Total Collections (MTD)" value="$487,250.00" subtext="+8.3% vs prior month" />
+            <SummaryCardRich title="Total Collections (MTD)" value={formatCurrency(execSummary?.data.totalCollectionsMtd ?? 0)} subtext={execSummary?.data.collectionsSubtext || ''} />
           </Grid>
           <Grid size={{ xs: 12, md: 3 }}>
-            <SummaryCardRich title="Reconciliation Rate" value="99.54%" subtext="Target: 99.0%" />
+            <SummaryCardRich title="Reconciliation Rate" value={`${execSummary?.data.reconciliationRate ?? 0}%`} subtext={execSummary?.data.reconSubtext || ''} />
           </Grid>
           <Grid size={{ xs: 12, md: 3 }}>
-            <SummaryCardRich title="Open Suspense" value="$26,872.02" subtext="2 unreconciled checks" subtextColor="#DC2626" />
+            <SummaryCardRich title="Open Suspense" value={formatCurrency(execSummary?.data.openSuspense ?? 0)} subtext={execSummary?.data.suspenseSubtext || ''} subtextColor="#DC2626" />
           </Grid>
           <Grid size={{ xs: 12, md: 3 }}>
-            <SummaryCardRich title="Avg Days to Reconcile" value="5.39" subtext="Target: < 7 days" />
+            <SummaryCardRich title="Avg Days to Reconcile" value={execSummary?.data.avgDaysToReconcile?.toString() || '0'} subtext={execSummary?.data.avgDaysSubtext || ''} />
           </Grid>
         </Grid>
 
@@ -233,10 +269,8 @@ const TrendsScreen: React.FC = () => {
                     <PieChart>
                       <Pie
                         data={[
-                          { name: 'EFT Payments', value: 60 },
-                          { name: 'Check Payments', value: 20 },
-                          { name: 'Patient Pay', value: 14 },
-                          { name: 'Other', value: 6 },
+                          { name: 'EFT Payments', value: paymentMix?.data.eftCount ?? 0 },
+                          { name: 'Other Payments', value: paymentMix?.data.otherCount ?? 0 },
                         ]}
                         innerRadius={isSmallMobile ? 45 : (isTablet ? 50 : 60)}
                         outerRadius={isSmallMobile ? 70 : (isTablet ? 80 : 100)}
@@ -245,15 +279,15 @@ const TrendsScreen: React.FC = () => {
                         cx="50%"
                         cy="50%"
                       >
-                        {[0, 1, 2, 3].map((entry, index) => (
+                        {[0, 1].map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={paymentColors[index % paymentColors.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
-                      <Legend 
-                        layout={isTablet ? "horizontal" : "vertical"} 
-                        align={isTablet ? "center" : "right"} 
-                        verticalAlign={isTablet ? "bottom" : "middle"} 
+                      <Legend
+                        layout={isTablet ? "horizontal" : "vertical"}
+                        align={isTablet ? "center" : "right"}
+                        verticalAlign={isTablet ? "bottom" : "middle"}
                         wrapperStyle={{ paddingTop: isTablet ? 30 : 0 }}
                       />
                     </PieChart>
@@ -271,10 +305,10 @@ const TrendsScreen: React.FC = () => {
                     <PieChart>
                       <Pie
                         data={[
-                          { name: 'Contractual (CO)', value: 50 },
-                          { name: 'Patient Resp (PR)', value: 25 },
-                          { name: 'Denials', value: 15 },
-                          { name: 'Other Adj', value: 10 },
+                          { name: 'Contractual (CO)', value: adjBreakdown?.data.contractualCount ?? 0 },
+                          { name: 'Patient Resp (PR)', value: adjBreakdown?.data.patientRespCount ?? 0 },
+                          { name: 'Denials', value: adjBreakdown?.data.denialCount ?? 0 },
+                          { name: 'Other Adj', value: adjBreakdown?.data.otherAdjCount ?? 0 },
                         ]}
                         innerRadius={isSmallMobile ? 45 : (isTablet ? 50 : 60)}
                         outerRadius={isSmallMobile ? 70 : (isTablet ? 80 : 100)}
@@ -288,10 +322,10 @@ const TrendsScreen: React.FC = () => {
                         ))}
                       </Pie>
                       <Tooltip />
-                      <Legend 
-                        layout={isTablet ? "horizontal" : "vertical"} 
-                        align={isTablet ? "center" : "right"} 
-                        verticalAlign={isTablet ? "bottom" : "middle"} 
+                      <Legend
+                        layout={isTablet ? "horizontal" : "vertical"}
+                        align={isTablet ? "center" : "right"}
+                        verticalAlign={isTablet ? "bottom" : "middle"}
                         wrapperStyle={{ paddingTop: isTablet ? 30 : 0 }}
                       />
                     </PieChart>
@@ -310,13 +344,15 @@ const TrendsScreen: React.FC = () => {
               action="Review FB-2025-9981A for potential dispute filing before the 60-day window closes."
             />
           </Grid>
-          <Grid size={{ xs: 12, md: 6 }}>
-            <RiskCard
-              title="PIP Suspense Accumulation"
-              description="Periodic Interim Payment suspense balances are growing. Current open suspense across all PTANs indicates claims are not being applied at the expected rate."
-              action="Accelerate claim submission for PTAN12345 to draw down the $138,648.96 suspense balance."
-            />
-          </Grid>
+          {!isMindPath && (
+            <Grid size={{ xs: 12, md: 6 }}>
+              <RiskCard
+                title="PIP Suspense Accumulation"
+                description="Periodic Interim Payment suspense balances are growing. Current open suspense across all PTANs indicates claims are not being applied at the expected rate."
+                action="Accelerate claim submission for PTAN12345 to draw down the $138,648.96 suspense balance."
+              />
+            </Grid>
+          )}
         </Grid>
       </Box>
     );
@@ -324,7 +360,8 @@ const TrendsScreen: React.FC = () => {
 
   // --- RENDERING PAYER PERFORMANCE (activeSubTab === 2) ---
   const renderPayerPerformance = () => {
-    if (!trendsData.payerPerformance) return <Typography>No payer performance data.</Typography>;
+    const data = trendsData?.payerPerformance || [];
+    if (data.length === 0) return <Typography sx={{ p: 3 }}>No payer performance data available for this range.</Typography>;
 
     const columns: DataColumn<PayerPerformanceRecord>[] = [
       {
@@ -359,7 +396,7 @@ const TrendsScreen: React.FC = () => {
 
         <DataTable
           columns={columns}
-          data={trendsData.payerPerformance}
+          data={data}
           rowKey={(r) => r.payerName}
           paginated={false}
           searchable={false}

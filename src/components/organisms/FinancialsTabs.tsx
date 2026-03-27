@@ -13,7 +13,7 @@ import { Select, MenuItem, SelectChangeEvent, FormControl, CircularProgress } fr
 const mainTabs = [
   { id: 0, label: 'Transactions', path: '/financials/all-transactions' },
   { id: 1, label: 'Bank Deposits', path: '/financials/bank-deposits' },
-  { id: 2, label: 'Statements', path: '/financials/statements' },
+  { id: 2, label: 'Statements', path: '/financials/statements/forward-balance' },
   { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis' },
   { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast' },
   // { id: 5, label: 'Calendar', path: '/financials/calendar' },
@@ -71,7 +71,9 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { activeTab, activeSubTab, activeExportType, isReloading } = useAppSelector((s) => s.ui);
-  const menus = useAppSelector((s) => s.auth.user?.menus || []);
+  const user = useAppSelector((s) => s.auth.user);
+  const isMindPath = user?.company?.toLowerCase() === 'mindpath';
+  const menus = user?.menus || [];
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
 
   const canShowActions = activeTab === 0 || activeTab === 2 || activeTab === 5;
@@ -111,11 +113,15 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
 
 
     // Add logic for others if needed
-  }, [location.pathname, dispatch]);
+  }, [location.pathname, dispatch, isMindPath]);
 
   const handleMainTabChange = (index: number, path: string) => {
     dispatch(setActiveTab(index));
-    navigate(path);
+    let finalPath = path;
+    if (index === 2 && isMindPath) {
+      finalPath = '/financials/statements/forward-balance';
+    }
+    navigate(finalPath);
   };
 
   const handleSubTabChange = (index: number, path: string) => {
@@ -164,21 +170,31 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                   '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider }
                 }}
               >
-                {mainTabs.map((tab) => (
-                  <MenuItem key={tab.id} value={tab.id} sx={{ fontWeight: 500, fontSize: '14px' }}>
-                    {tab.label}
-                  </MenuItem>
-                ))}
+                {mainTabs.map((tab) => {
+                  let path = tab.path;
+                  if (tab.id === 2 && !isMindPath) {
+                    path = '/financials/statements';
+                  }
+                  return (
+                    <MenuItem key={tab.id} value={tab.id} sx={{ fontWeight: 500, fontSize: '14px' }}>
+                      {tab.label}
+                    </MenuItem>
+                  );
+                })}
               </Select>
             </FormControl>
           ) : (
             <Box sx={{ display: 'flex', gap: 0.5 }}>
               {mainTabs.map((tab) => {
                 const isActive = activeTab === tab.id;
+                let path = tab.path;
+                if (tab.id === 2 && !isMindPath) {
+                  path = '/financials/statements';
+                }
                 return (
                   <Box
                     key={tab.id}
-                    onClick={() => handleMainTabChange(tab.id, tab.path)}
+                    onClick={() => handleMainTabChange(tab.id, path)}
                     sx={{
                       px: 2,
                       py: 1,
@@ -248,32 +264,34 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                 </Box>
               );
             })}
-            {activeTab === 2 && statementsSubTabs.map((subTab) => {
-              const isActive = activeSubTab === subTab.id;
-              return (
-                <Box
-                  key={subTab.id}
-                  onClick={() => handleSubTabChange(subTab.id, subTab.path)}
-                  sx={{
-                    px: 1.5,
-                    py: 0.5,
-                    borderRadius: '16px',
-                    cursor: 'pointer',
-                    backgroundColor: isActive ? 'rgba(107, 153, 196, 0.7)' : 'transparent',
-                    color: isActive ? '#fff' : 'rgb(100, 116, 139)',
-                    fontWeight: 500,
-                    fontSize: '13px',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.2s',
-                    '&:hover': {
-                      backgroundColor: isActive ? 'rgba(107, 153, 196, 0.8)' : 'rgba(241, 245, 249, 1)',
-                    }
-                  }}
-                >
-                  {subTab.label}
-                </Box>
-              );
-            })}
+            {activeTab === 2 && statementsSubTabs
+              .filter(subTab => !(subTab.label === 'PIP Statements' && isMindPath))
+              .map((subTab) => {
+                const isActive = activeSubTab === subTab.id;
+                return (
+                  <Box
+                    key={subTab.id}
+                    onClick={() => handleSubTabChange(subTab.id, subTab.path)}
+                    sx={{
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: '16px',
+                      cursor: 'pointer',
+                      backgroundColor: isActive ? 'rgba(107, 153, 196, 0.7)' : 'transparent',
+                      color: isActive ? '#fff' : 'rgb(100, 116, 139)',
+                      fontWeight: 500,
+                      fontSize: '13px',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        backgroundColor: isActive ? 'rgba(107, 153, 196, 0.8)' : 'rgba(241, 245, 249, 1)',
+                      }
+                    }}
+                  >
+                    {subTab.label}
+                  </Box>
+                );
+              })}
             {activeTab === 3 && varianceSubTabs.map((subTab) => {
               const isActive = activeSubTab === subTab.id;
               return (

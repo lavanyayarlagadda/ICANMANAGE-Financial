@@ -22,6 +22,9 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 
 
 
+import { useSearchServiceLinesQuery } from '@/store/api/financialsApi';
+import { CircularProgress } from '@mui/material';
+
 const RemittanceDetailScreen: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
@@ -29,26 +32,34 @@ const RemittanceDetailScreen: React.FC = () => {
   const claims = useAppSelector((s) => s.financials.remittanceClaims);
   const selectedIndex = useAppSelector((s) => s.financials.selectedClaimIndex);
 
+  // Dynamic Query Params for Service Lines
+  const [slQueryParams, setSlQueryParams] = React.useState({
+    page: 0,
+    size: 10,
+    sort: 'lineNumber',
+    desc: false as boolean,
+  });
+
+  const { data: slData, isFetching: isSlFetching, isLoading: isSlLoading } = useSearchServiceLinesQuery({
+    page: slQueryParams.page + 1,
+    size: slQueryParams.size,
+    sort: slQueryParams.sort,
+    desc: slQueryParams.desc,
+    check: detail?.transactionNo || '',
+  }, { skip: !detail?.transactionNo });
+
   if (!detail && (!claims || claims.length === 0)) return <Typography>No remittance detail selected.</Typography>;
 
   const handleClaimSelect = (index: number) => {
     const selectedClaim = claims[index];
     dispatch(setSelectedClaimIndex(index));
-    dispatch(setRemittanceDetail({
-      ...selectedClaim,
-      serviceLines: detail?.serviceLines || [] // Keep service lines unless we re-fetch them
-    }));
+    dispatch(setRemittanceDetail(selectedClaim));
+    // Reset queryParams for the new claim's service lines
+    setSlQueryParams(prev => ({ ...prev, page: 0 }));
   };
 
-  const totals = detail.serviceLines.reduce(
-    (acc, sl) => ({
-      charge: acc.charge + sl.charge,
-      allowed: acc.allowed + sl.allowed,
-      paid: acc.paid + sl.paid,
-      adjustment: acc.adjustment + sl.adjAmt,
-    }),
-    { charge: 0, allowed: 0, paid: 0, adjustment: 0 }
-  );
+  const serviceLines = slData?.data?.content || [];
+  const totalElements = slData?.data?.totalElements || 0;
 
   const serviceLineColumns: DataColumn<ServiceLine>[] = [
     { id: 'lineNo', label: 'Line #', minWidth: 60, render: (r) => r.lineNo, accessor: (r) => r.lineNo },
@@ -164,15 +175,26 @@ const RemittanceDetailScreen: React.FC = () => {
         />
       )}
 
-      <Typography variant="subtitle1" sx={{ fontWeight: 700, mt: 4, mb: 2 }}>Service Line Details</Typography>
+      <Box sx={{ mt: 4, mb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Service Line Details</Typography>
+        {(isSlFetching || isSlLoading) && <CircularProgress size={20} />}
+      </Box>
+
       <DataTable
         columns={serviceLineColumns}
-        data={detail?.serviceLines || []}
+        data={serviceLines}
         rowKey={(r) => String(r.lineNo)}
-        paginated={false}
         exportTitle="Service Line Details"
-        customToolbarContent={<RangeDropdown />}
         dictionaryId="service-lines"
+        serverSide
+        page={slQueryParams.page}
+        rowsPerPage={slQueryParams.size}
+        sortCol={slQueryParams.sort}
+        sortDir={slQueryParams.desc ? 'desc' : 'asc'}
+        totalElements={totalElements}
+        onPageChange={(p) => setSlQueryParams(prev => ({ ...prev, page: p }))}
+        onRowsPerPageChange={(s) => setSlQueryParams(prev => ({ ...prev, size: s, page: 0 }))}
+        onSortChange={(col, dir) => setSlQueryParams(prev => ({ ...prev, sort: col, desc: dir === 'desc', page: 0 }))}
       />
     </Box>
   );

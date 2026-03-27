@@ -191,7 +191,11 @@ const ForwardBalanceNoticesTable = ({ data }: { data: ForwardBalanceNotice[] }) 
 
 const StatementsScreen: React.FC = () => {
   const { activeSubTab } = useAppSelector((s) => s.ui);
+  const user = useAppSelector((s) => s.auth.user);
+  const isMindPath = user?.company?.toLowerCase() === 'mindpath';
   const { forwardBalanceNotices, pipRecords } = useAppSelector((s) => s.financials);
+
+  const finalActiveSubTab = (isMindPath && activeSubTab === 0) ? 1 : activeSubTab;
 
   const totalPipAmount = pipRecords.reduce((sum, r) => sum + Number(r.paymentAmount), 0);
   const totalSuspenseBalance = pipRecords.reduce((sum, r) => sum + Number(r.suspenseBalance), 0);
@@ -201,42 +205,43 @@ const StatementsScreen: React.FC = () => {
 
   return (
     <Box sx={{}}>
-      {activeSubTab !== 2 && (
+      {finalActiveSubTab !== 2 && (
         <Box sx={{ mb: 3 }}>
           <Typography variant="h5" sx={{ fontWeight: 700 }}>
-            {activeSubTab === 0 ? 'PIP Statements' : 'Forward Balance Notices'}
+            {finalActiveSubTab === 0 ? 'PIP Statements' : 'Forward Balance Notices'}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {activeSubTab === 0
+            {finalActiveSubTab === 0
               ? 'Periodic Interim Payment (PIP) records with NPI-level claim allocations.'
               : 'Overpayment notices with offset events and affected claims.'}
           </Typography>
-        </Box>)}
+        </Box>
+      )}
 
 
 
 
-      {activeSubTab !== 2 && (
+      {activeSubTab == 1 && (
         <Grid container spacing={2} sx={{ mb: 4 }}>
           <Grid size={{ xs: 12, md: 4 }}>
             <SummaryCard
-              title={activeSubTab === 0 ? "TOTAL PAID AMOUNT" : "TOTAL ORIGINAL AMOUNT"}
-              value={formatCurrency(activeSubTab === 0 ? totalPipAmount : totalOriginalAmount)}
+              title={"TOTAL ORIGINAL AMOUNT"}
+              value={formatCurrency(totalOriginalAmount)}
               backgroundColor="#fff"
             />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <SummaryCard
-              title={activeSubTab === 0 ? "TOTAL SUSPENSE BALANCE" : "TOTAL REMAINING BALANCE"}
-              value={formatCurrency(activeSubTab === 0 ? totalSuspenseBalance : totalRemainingBalance)}
-              variant={activeSubTab === 1 ? "negative" : "default"}
+              title={"TOTAL REMAINING BALANCE"}
+              value={formatCurrency(totalRemainingBalance)}
+              variant={"negative"}
               backgroundColor="#fff"
             />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <SummaryCard
               title="ACTION REQUIRED"
-              value={activeSubTab === 0 ? "2" : "1"}
+              value={"1"}
               backgroundColor="#fff"
             />
           </Grid>
@@ -244,9 +249,9 @@ const StatementsScreen: React.FC = () => {
       )}
 
 
-      {activeSubTab === 0 ? (
+      {finalActiveSubTab === 0 ? (
         <PipScreen />
-      ) : activeSubTab === 1 ? (
+      ) : finalActiveSubTab === 1 ? (
         <ForwardBalanceNoticesTable data={forwardBalanceNotices} />
       ) : (
         <SuspenseAccountsScreen />

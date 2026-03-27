@@ -1,10 +1,13 @@
-import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError, BaseQueryApi } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../index';
 import { logout, updateToken } from '../slices/authSlice';
 
-// Base URLs for different services
-export const AUTH_BASE_URL = 'http://localhost:9000/api/v1';
-export const FINANCIALS_BASE_URL = 'http://localhost:8281/api/v1';
+
+export const BASE_URL = import.meta.env.PROD
+  ? import.meta.env.VITE_API_URL_PROD
+  : import.meta.env.VITE_API_URL_TEST || 'http://10.0.1.48:8181/platform/api/v1';
+
+console.log(`Using API Base URL (${import.meta.env.MODE}):`, BASE_URL);
 
 const baseQuery = fetchBaseQuery({
   baseUrl: '/', // Will be overridden in the custom base query
@@ -16,7 +19,7 @@ const baseQuery = fetchBaseQuery({
     }
 
     // Add tenant ID header, but ONLY for MindPath company users and NOT for getTenants call
-    const isMindPathUser = (state.auth.user as any)?.company?.toLowerCase() === 'cognitivehealthit';
+    const isMindPathUser = state.auth.user?.company?.toLowerCase() === 'cognitivehealthit';
     const selectedTenantId = state.tenant?.selectedTenantId;
     if (isMindPathUser && selectedTenantId && endpoint !== 'getTenants') {
       headers.set('x-tenant-id', selectedTenantId);
@@ -26,18 +29,23 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
+export interface DefinitionExtraOptions {
+  service?: 'auth' | 'financials';
+}
+
 const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,
-  FetchBaseQueryError
-> = async (args, api, extraOptions) => {
+  FetchBaseQueryError,
+  DefinitionExtraOptions
+> = async (args, api: BaseQueryApi, extraOptions: DefinitionExtraOptions) => {
   // Determine the base URL based on a custom property or a naming convention
-  let url = typeof args === 'string' ? args : args.url;
-  let fullArgs = typeof args === 'string' ? { url: args } : { ...args };
+  const url = typeof args === 'string' ? args : args.url;
+  const fullArgs = typeof args === 'string' ? { url: args } : { ...args };
 
   // Logic to switch between AUTH and FINANCIALS
   // Default to FINANCIALS if not specified
-  const baseUrl = (extraOptions as any)?.service === 'auth' ? AUTH_BASE_URL : FINANCIALS_BASE_URL;
+  const baseUrl = BASE_URL;
   fullArgs.url = `${baseUrl}/${url.startsWith('/') ? url.slice(1) : url}`;
 
   let result = await baseQuery(fullArgs, api, extraOptions);
@@ -49,7 +57,7 @@ const baseQueryWithReauth: BaseQueryFn<
       // Try to refresh the token
       const refreshResult = await baseQuery(
         {
-          url: `${AUTH_BASE_URL}/auth/refresh`,
+          url: `${BASE_URL}/auth/refresh`,
           method: 'POST',
           body: { refreshToken },
         },

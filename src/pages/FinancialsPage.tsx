@@ -47,6 +47,8 @@ const FinancialsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const { activeTab, activeSubTab, activePage, viewDialogOpen, viewDialogData, editDialogOpen, editDialogData, confirmDeleteOpen, confirmDeleteId, confirmDeleteType } = useAppSelector((s) => s.ui);
   const { showRemittanceDetail } = useAppSelector((s) => s.financials);
+  const user = useAppSelector((s) => s.auth.user);
+  const isMindPath = user?.company?.toLowerCase() === 'mindpath';
   const [addDialogOpen, setAddDialogOpen] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -73,6 +75,15 @@ const FinancialsPage: React.FC = () => {
       };
 
       const match = pathMap[pathPart];
+
+      if (isMindPath && (pathPart === 'pip' || pathPart === 'statements/pip' || pathPart === 'statements')) {
+        const target = pathPart.startsWith('statements') 
+          ? '/financials/statements/forward-balance' 
+          : '/financials/all-transactions';
+        navigate(target, { replace: true });
+        return;
+      }
+
       if (match) {
         if (activeTab !== match.tab) dispatch(setActiveTab(match.tab));
         if (activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
@@ -80,7 +91,7 @@ const FinancialsPage: React.FC = () => {
         navigate('/financials/all-transactions', { replace: true });
       }
     }
-  }, [location.pathname, dispatch, navigate, activeTab, activeSubTab]);
+  }, [location.pathname, dispatch, navigate, activeTab, activeSubTab, isMindPath]);
 
   const renderTabContent = () => {
     if (activeTab === 0) {
@@ -144,7 +155,7 @@ const FinancialsPage: React.FC = () => {
 
     return (
       <>
-        <FinancialsTabs 
+        <FinancialsTabs
           onPrint={() => dispatch(triggerPrint())}
           onReload={() => dispatch(triggerReload())}
           onExportWizard={() => dispatch(triggerExport())}

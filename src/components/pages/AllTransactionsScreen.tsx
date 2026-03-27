@@ -21,8 +21,14 @@ const transactionTypeColors: Record<string, { bg: string; text: string }> = {
 const AllTransactionsScreen: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
-  const allTransactions = useAppSelector((s) => s.financials.allTransactions);
+  const { allTransactions } = useAppSelector((s) => s.financials);
+  const user = useAppSelector((s) => s.auth.user);
+  const isMindPath = user?.company?.toLowerCase() === 'mindpath';
   const { actionTriggers } = useAppSelector(s => s.ui);
+
+  const filteredTransactions = isMindPath 
+    ? allTransactions.filter(t => t.transactionType !== 'PIP') 
+    : allTransactions;
 
   // Refs to prevent mount calls
   const exportCount = useRef(actionTriggers.export);
@@ -80,7 +86,7 @@ const AllTransactionsScreen: React.FC = () => {
       label: 'Category',
       minWidth: 140,
       accessor: (r) => r.transactionType,
-      filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', 'PIP'],
+      filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', ...(!isMindPath ? ['PIP'] : [])],
       render: (r) => {
         const colors = transactionTypeColors[r.transactionType] || { bg: '#F5F5F5', text: '#616161' };
         return (
@@ -130,7 +136,7 @@ const AllTransactionsScreen: React.FC = () => {
   return (
     <DataTable
       columns={columns}
-      data={allTransactions}
+      data={filteredTransactions}
       rowKey={(r) => r.id}
       exportTitle="All Transactions"
       // selectable

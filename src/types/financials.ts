@@ -266,4 +266,38 @@ export interface ForwardBalanceNotice {
   offsets: OffsetEvent[];
 }
 
+export interface FeeScheduleVariance {
+  id?: string;
+  paymentDate: string;
+  patientName: string;
+  payerName?: string;
+  expectedAllowed: string | number;
+  actualAllowed: string | number;
+  variance: string | number;
+  adjustmentCode?: string;
+}
+
+export interface PaymentVariance {
+  id?: string;
+  paymentDate?: string;
+  patientName: string;
+  payerName?: string;
+  expectedAllowed: string | number;
+  actualAllowed: string | number;
+  variance: string | number;
+  adjustmentCode?: string;
+}
+
+export interface FeeScheduleVarianceSummary {
+  totalExpected: number;
+  totalActualAllowed: number;
+  totalLeakage: number;
+}
+
+export interface PaymentVarianceSummary {
+  totalExpected: number;
+  totalActualPaid: number;
+  totalLeakage: number;
+}
+
 

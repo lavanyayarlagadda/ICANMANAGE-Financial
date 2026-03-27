@@ -56,7 +56,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const user = useAppSelector((state) => state.auth.user);
   const { selectedTenantId, isLoading: tenantLoading } = useAppSelector((s) => s.tenant);
 
-  const isCognitiveUser = user?.company?.toLowerCase() === 'cognitivehealthit';
+  const isCognitiveUser = user?.company?.toLowerCase() === 'mindpath';
   const isWaitingForTenants = isCognitiveUser && !selectedTenantId;
 
   // Invalidate all financials tags when tenant changes to force refetch
@@ -108,7 +108,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     { label: 'Other Adjustments', tab: 5, path: '/financials/other-adjustments', icon: <CompareArrowsIcon fontSize="small" /> },
     { label: 'Variance Analysis', tab: 6, path: '/financials/variance-analysis', icon: <CompareArrowsIcon fontSize="small" /> },
     { label: 'Trends & Forecast', tab: 7, path: '/financials/trends-forecast', icon: <TrendingUpIcon fontSize="small" /> },
-  ].filter(item => getMenuStatus(item.label) !== 'Hidden');
+  ].filter(item => {
+    const isMindPath = user?.company?.toLowerCase() === 'mindpath';
+    if (isMindPath && item.label === 'PIP') return false;
+    return getMenuStatus(item.label) !== 'Hidden';
+  });
 
   const hasCollections = getMenuStatus('Collections') !== 'Hidden';
   const hasFinancials = getMenuStatus('Financials') !== 'Hidden';
