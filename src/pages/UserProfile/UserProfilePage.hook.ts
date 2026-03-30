@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '@/store';
+import { MenuAccess } from '@/store/slices/authSlice';
 
 export const useUserProfilePage = () => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export const useUserProfilePage = () => {
   const [successMessage, setSuccessMessage] = useState('');
 
   const getMenuStatus = useCallback((label: string) => {
-    const findStatus = (menusArray: any[]): string | null => {
+    const findStatus = (menusArray: MenuAccess[]): string | null => {
       for (const m of menusArray) {
         if (m.menuName === label) return m.status;
         if (m.subModules) {

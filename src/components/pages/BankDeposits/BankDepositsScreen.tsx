@@ -9,6 +9,7 @@ import {
     Grid,
     IconButton,
     Chip,
+    alpha
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -21,6 +22,7 @@ import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
+import { themeConfig } from '@/theme/themeConfig';
 import {
     ScreenWrapper,
     ScreenHeader,
@@ -112,20 +114,25 @@ const BankDepositsScreen: React.FC = () => {
             label: 'STATUS',
             align: 'right',
             accessor: (row) => row.status,
-            render: (row) => (
-                <Chip
-                    label={row.status}
-                    size="small"
-                    icon={row.status === 'Matched' ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />}
-                    sx={{
-                        backgroundColor: row.status === 'Matched' ? '#f0fdf4' : '#fef2f2',
-                        color: row.status === 'Matched' ? '#166534' : '#991b1b',
-                        fontWeight: 600,
-                        fontSize: '11px',
-                        border: `1px solid ${row.status === 'Matched' ? '#bbf7d0' : '#fecaca'}`
-                    }}
-                />
-            ),
+            render: (row) => {
+                const isMatched = row.status === 'Matched';
+                const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
+                
+                return (
+                    <Chip
+                        label={row.status}
+                        size="small"
+                        icon={isMatched ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />}
+                        sx={{
+                            backgroundColor: statusColors.bg,
+                            color: statusColors.text,
+                            fontWeight: 600,
+                            fontSize: '11px',
+                            border: `1px solid ${alpha(statusColors.text, 0.2)}`
+                        }}
+                    />
+                );
+            },
         },
     ], [expandedRows, theme, toggleRow]);
 
@@ -178,7 +185,7 @@ const BankDepositsScreen: React.FC = () => {
                                                 height: 20,
                                                 fontSize: '10px',
                                                 fontWeight: 700,
-                                                backgroundColor: pa.status === 'Posted' ? `${theme.palette.success.main}10` : pa.status === 'Pending' ? theme.palette.action.hover : `${theme.palette.warning.main}10`,
+                                                backgroundColor: pa.status === 'Posted' ? alpha(theme.palette.success.main, 0.1) : pa.status === 'Pending' ? theme.palette.action.hover : alpha(theme.palette.warning.main, 0.1),
                                                 color: pa.status === 'Posted' ? theme.palette.success.main : pa.status === 'Pending' ? theme.palette.text.secondary : theme.palette.warning.main
                                             }}
                                         />
@@ -229,20 +236,20 @@ const BankDepositsScreen: React.FC = () => {
 
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="Total Collections" value={formatCurrency(84007.08)} variant="highlight" backgroundColor="#fff" />
+                    <SummaryCard title="Total Collections" value={formatCurrency(84007.08)} variant="highlight" backgroundColor={theme.palette.background.paper} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="Reconciliation Rate" value="99.95%" variant="negative" backgroundColor="#fff" />
+                    <SummaryCard title="Reconciliation Rate" value="99.95%" variant="negative" backgroundColor={theme.palette.background.paper} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="Action Required" value="1" backgroundColor="#fff" />
+                    <SummaryCard title="Action Required" value="1" backgroundColor={theme.palette.background.paper} />
                 </Grid>
             </Grid>
 
             {filteredDeposits.map((entity) => (
                 <Box key={entity.id} sx={{ mb: 4 }}>
                     <EntitySectionHeader>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: 'rgb(10, 22, 40)' }}>{entity.name} — {entity.items.length} Items</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>{entity.name} — {entity.items.length} Items</Typography>
                     </EntitySectionHeader>
                     <DataTable
                         columns={columns}
@@ -262,4 +269,3 @@ const BankDepositsScreen: React.FC = () => {
 };
 
 export default BankDepositsScreen;
-

@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
+import { OtherAdjustmentRecord } from '@/interfaces/financials';
 
 export const useOtherAdjustmentsScreen = () => {
     const dispatch = useAppDispatch();
@@ -44,8 +45,8 @@ export const useOtherAdjustmentsScreen = () => {
         }
     }, [actionTriggers.reload, dispatch]);
 
-    const handleView = useCallback((r: any) => dispatch(openViewDialog(r)), [dispatch]);
-    const handleEdit = useCallback((r: any) => dispatch(openEditDialog(r)), [dispatch]);
+    const handleView = useCallback((r: OtherAdjustmentRecord) => dispatch(openViewDialog(r)), [dispatch]);
+    const handleEdit = useCallback((r: OtherAdjustmentRecord) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'adjustment' })), [dispatch]);
 
     return {

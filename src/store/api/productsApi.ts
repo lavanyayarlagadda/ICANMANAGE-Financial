@@ -5,11 +5,11 @@ import { baseApi } from './baseApi';
  */
 export const productsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getProducts: builder.query<any[], void>({
+    getProducts: builder.query<unknown[], void>({
       query: () => 'products',
       providesTags: ['Financials'], // Using existing tags or adding new ones in baseApi
     }),
-    getProductByStatus: builder.query<any[], number>({
+    getProductByStatus: builder.query<unknown[], number>({
       query: (statusId) => `products?orderStatusId=${statusId}`,
     }),
   }),

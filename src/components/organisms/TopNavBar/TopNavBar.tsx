@@ -36,7 +36,7 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
   const {
     user,
     selectedTenantId,
-    tenantData,
+    tenants,
     isTenantsLoading,
     isCognitiveUser,
     anchorEl,
@@ -80,7 +80,7 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                   }
                   sx={styles.tenantSelectStyles(theme)}
                 >
-                  {tenantData?.map((t) => (
+                  {tenants?.map((t) => (
                     <MenuItem key={t.tenantId} value={t.tenantId}>
                       {t.displayName}
                     </MenuItem>
@@ -114,7 +114,7 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
               onClose={handleClose}
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-              slotProps={{ paper: { sx: styles.menuPaperStyles } as any }}
+              slotProps={{ paper: { sx: styles.menuPaperStyles } }}
             >
               <Box sx={{ px: 2, py: 1.5 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>

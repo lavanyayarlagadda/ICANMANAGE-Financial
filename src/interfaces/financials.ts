@@ -80,6 +80,7 @@ export interface RemittanceDetail {
   payerName: string;
   patientName: string;
   patientCtlNo: string;
+  patientCtrlNo?: string;
   payerIcn: string;
   statementPeriod: string;
   claimCharge: number;

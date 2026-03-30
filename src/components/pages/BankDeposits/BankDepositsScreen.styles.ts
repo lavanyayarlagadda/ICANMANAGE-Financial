@@ -1,6 +1,5 @@
-import { styled } from '@mui/material/styles';
+import { styled, alpha } from '@mui/material/styles';
 import { Box, Typography, Chip, TextField, Button } from '@mui/material';
-import { themeConfig } from '@/theme/themeConfig';
 
 export const ScreenWrapper = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1, 3, 4, 3),
@@ -11,13 +10,13 @@ export const ScreenHeader = styled(Box)(({ theme }) => ({
 }));
 
 export const EntityChip = styled(Chip)<{ isSelected: boolean }>(({ theme, isSelected }) => ({
-  backgroundColor: isSelected ? themeConfig.colors.tabActive : themeConfig.colors.surfaceAlt,
-  color: isSelected ? '#fff' : themeConfig.colors.text.secondary,
+  backgroundColor: isSelected ? alpha(theme.palette.primary.main, 0.7) : theme.palette.grey[100],
+  color: isSelected ? theme.palette.common.white : theme.palette.text.secondary,
   fontWeight: 600,
   fontSize: '12px',
   marginBottom: theme.spacing(0.5),
   '&:hover': {
-    backgroundColor: isSelected ? themeConfig.colors.primaryDark : themeConfig.colors.border,
+    backgroundColor: isSelected ? theme.palette.primary.dark : theme.palette.grey[200],
   }
 }));
 
@@ -25,8 +24,8 @@ export const ToolbarWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
-  backgroundColor: themeConfig.colors.background,
-  border: `1px solid ${themeConfig.colors.border}`,
+  backgroundColor: theme.palette.background.default,
+  border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1),
   padding: theme.spacing(1.5),
   gap: theme.spacing(2),
@@ -62,8 +61,8 @@ export const RefreshButton = styled(Button)(({ theme }) => ({
 }));
 
 export const FinalizeButton = styled(Button)(({ theme }) => ({
-  backgroundColor: themeConfig.colors.tabActive,
-  color: '#fff',
+  backgroundColor: alpha(theme.palette.primary.main, 0.7),
+  color: theme.palette.common.white,
   textTransform: 'none',
   fontWeight: 600,
   boxShadow: 'none',
@@ -72,41 +71,41 @@ export const FinalizeButton = styled(Button)(({ theme }) => ({
     flex: 'none',
   },
   '&:hover': {
-    backgroundColor: themeConfig.colors.primaryDark,
+    backgroundColor: theme.palette.primary.dark,
     boxShadow: 'none',
   }
 }));
 
 export const EntitySectionHeader = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1, 2),
-  backgroundColor: themeConfig.colors.surfaceAlt,
+  backgroundColor: theme.palette.grey[100],
   borderRadius: '4px 4px 0 0',
-  border: `1px solid ${themeConfig.colors.border}`,
+  border: `1px solid ${theme.palette.divider}`,
   borderBottom: 'none'
 }));
 
 export const ExpandedContentBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   backgroundColor: theme.palette.background.paper,
-  border: `1px solid ${themeConfig.colors.border}`,
+  border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1)
 }));
 
 export const SubSectionWrapper = styled(Box)(({ theme }) => ({
-  border: `1px solid ${themeConfig.colors.border}`,
+  border: `1px solid ${theme.palette.divider}`,
   borderRadius: theme.spacing(1)
 }));
 
 export const SubSectionHeader = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1, 2),
-  borderBottom: `1px solid ${themeConfig.colors.border}`,
-  backgroundColor: themeConfig.colors.background
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  backgroundColor: theme.palette.background.default
 }));
 
 export const PostingItemBox = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   padding: theme.spacing(1.5),
-  backgroundColor: themeConfig.colors.background,
+  backgroundColor: theme.palette.background.default,
   borderRadius: theme.spacing(1),
-  border: `1px solid ${themeConfig.colors.surfaceAlt}`
+  border: `1px solid ${theme.palette.grey[100]}`
 }));

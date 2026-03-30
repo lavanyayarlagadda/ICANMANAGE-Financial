@@ -1,23 +1,24 @@
+import { SxProps, Theme } from '@mui/material';
 import { themeConfig } from '@/theme/themeConfig';
 
-export const containerStyles: any = {
+export const containerStyles: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
   gap: 2,
   flexWrap: 'wrap',
 };
 
-export const rangeBoxStyles: any = {
+export const rangeBoxStyles: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
   gap: 1,
 };
 
-export const labelStyles: any = {
+export const labelStyles: SxProps<Theme> = {
   fontWeight: 500,
 };
 
-export const selectStyles: any = {
+export const selectStyles: SxProps<Theme> = {
   height: 32,
   minWidth: 120,
   fontSize: '0.85rem',
@@ -28,7 +29,7 @@ export const selectStyles: any = {
   },
 };
 
-export const datePickersContainerStyles = (isMobile: boolean): any => ({
+export const datePickersContainerStyles = (isMobile: boolean): SxProps<Theme> => ({
   display: 'flex',
   alignItems: isMobile ? 'flex-start' : 'center',
   gap: isMobile ? 1 : 2,
@@ -36,19 +37,19 @@ export const datePickersContainerStyles = (isMobile: boolean): any => ({
   width: isMobile ? '100%' : 'auto'
 });
 
-export const datePickerItemStyles = (isMobile: boolean): any => ({
+export const datePickerItemStyles = (isMobile: boolean): SxProps<Theme> => ({
   display: 'flex',
   alignItems: 'center',
   gap: 1,
   width: isMobile ? '100%' : 'auto'
 });
 
-export const dateLabelStyles: any = {
+export const dateLabelStyles: SxProps<Theme> = {
   fontWeight: 600,
   minWidth: 40,
 };
 
-export const getDatePickerSx = (isMobile: boolean): any => ({
+export const getDatePickerSx = (isMobile: boolean): SxProps<Theme> => ({
   '& .MuiInputBase-root': { 
     height: 32, 
     fontSize: '0.75rem', 

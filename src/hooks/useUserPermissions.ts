@@ -1,6 +1,7 @@
 import { useAppSelector } from '@/store';
 import { COMPANIES } from '@/config/constants';
 import { useMemo } from 'react';
+import { MenuAccess } from '@/store/slices/authSlice';
 
 /**
  * Hook to determine user permissions based on company and assigned menus.
@@ -18,7 +19,7 @@ export const useUserPermissions = () => {
    * Checks the status of a specific menu item.
    */
   const getMenuStatus = useMemo(() => (label: string) => {
-    const findStatus = (menusArray: any[]): string | null => {
+    const findStatus = (menusArray: MenuAccess[]): string | null => {
       for (const m of menusArray) {
         if (m.menuName?.toLowerCase() === label.toLowerCase()) return m.status;
         if (m.subModules) {

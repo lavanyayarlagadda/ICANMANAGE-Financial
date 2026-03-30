@@ -16,7 +16,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   const dispatch = useAppDispatch();
 
   const user = useAppSelector((state: RootState) => state.auth.user);
-  const { selectedTenantId } = useAppSelector((state: RootState) => state.tenant);
+  const { selectedTenantId, tenants } = useAppSelector((state: RootState) => state.tenant);
 
   const isCognitiveUser = user?.company?.toLowerCase() === 'cognitivehealthit';
 
@@ -80,7 +80,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   return {
     user,
     selectedTenantId,
-    tenantData,
+    tenants,
     isTenantsLoading,
     isCognitiveUser,
     anchorEl,

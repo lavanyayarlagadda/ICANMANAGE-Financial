@@ -30,7 +30,7 @@ interface DataTableDesktopProps<T> {
   sortDir: SortDirection;
   isSortable: (col: DataColumn<T>) => boolean;
   handleSort: (colId: string) => void;
-  descriptions: any;
+  descriptions?: Record<string, string>;
   handleHeaderClick: (colId: string) => void;
   paginatedData: T[];
   selectedKeys: Set<string>;

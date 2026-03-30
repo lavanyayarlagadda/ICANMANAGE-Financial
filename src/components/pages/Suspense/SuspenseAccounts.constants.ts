@@ -1,9 +1,11 @@
+import { themeConfig } from '@/theme/themeConfig';
+
 export const SUSPENSE_ACCOUNTS = [
-  { key: 'medicare_part_a', label: 'Medicare Part A Suspense', color: '#e0f2fe', textColor: '#0369a1' },
-  { key: 'patient_responsibility', label: 'Patient Responsibility Suspense', color: '#f3e8ff', textColor: '#7e22ce' },
-  { key: 'tax_holding', label: 'Tax Holding Suspense', color: '#f1f5f9', textColor: '#475569' },
-  { key: 'cross_entity', label: 'Cross-Entity Suspense', color: '#fee2e2', textColor: '#b91c1c' },
-  { key: 'remittance_clearing', label: 'Remittance Clearing Suspense', color: '#ffedd5', textColor: '#9a3412' },
+  { key: 'medicare_part_a', label: 'Medicare Part A Suspense', color: themeConfig.colors.suspense.medicare.bg, textColor: themeConfig.colors.suspense.medicare.text },
+  { key: 'patient_responsibility', label: 'Patient Responsibility Suspense', color: themeConfig.colors.suspense.patient.bg, textColor: themeConfig.colors.suspense.patient.text },
+  { key: 'tax_holding', label: 'Tax Holding Suspense', color: themeConfig.colors.suspense.tax.bg, textColor: themeConfig.colors.suspense.tax.text },
+  { key: 'cross_entity', label: 'Cross-Entity Suspense', color: themeConfig.colors.suspense.cross.bg, textColor: themeConfig.colors.suspense.cross.text },
+  { key: 'remittance_clearing', label: 'Remittance Clearing Suspense', color: themeConfig.colors.suspense.remittance.bg, textColor: themeConfig.colors.suspense.remittance.text },
 ];
 
 export const BY_ACCOUNT_DATA = [

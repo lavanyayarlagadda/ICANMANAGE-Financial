@@ -1,6 +1,7 @@
 import { useMemo, useCallback, useRef, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType } from '@/store/slices/uiSlice';
+import { AllTransaction } from '@/interfaces/financials';
 
 export const useAllTransactionsScreen = () => {
     const dispatch = useAppDispatch();
@@ -44,8 +45,8 @@ export const useAllTransactionsScreen = () => {
         }
     }, [actionTriggers.reload]);
 
-    const handleView = useCallback((r: any) => dispatch(openViewDialog(r)), [dispatch]);
-    const handleEdit = useCallback((r: any) => dispatch(openEditDialog(r)), [dispatch]);
+    const handleView = useCallback((r: AllTransaction) => dispatch(openViewDialog(r)), [dispatch]);
+    const handleEdit = useCallback((r: AllTransaction) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'transaction' })), [dispatch]);
 
     return {

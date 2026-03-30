@@ -1,5 +1,22 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, alpha } from '@mui/material/styles';
 import { themeConfig } from './themeConfig';
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    inputBackground: string;
+    cardBorder: string;
+    selectionBackground: string;
+    tabActive: string;
+    tabHover: string;
+  }
+  interface PaletteOptions {
+    inputBackground?: string;
+    cardBorder?: string;
+    selectionBackground?: string;
+    tabActive?: string;
+    tabHover?: string;
+  }
+}
 
 const { colors, typography, spacing } = themeConfig;
 
@@ -36,6 +53,25 @@ export const muiTheme = createTheme({
       disabled: colors.text.disabled,
     },
     divider: colors.divider,
+    // Custom tokens
+    inputBackground: colors.inputBackground,
+    cardBorder: colors.cardBorder,
+    selectionBackground: colors.selectionBackground,
+    tabActive: colors.tabActive,
+    tabHover: colors.tabHover,
+    // Custom Slate Scale exposed to theme
+    grey: {
+      50: colors.slate[50],
+      100: colors.slate[100],
+      200: colors.slate[200],
+      300: colors.slate[300],
+      400: colors.slate[400],
+      500: colors.slate[500],
+      600: colors.slate[600],
+      700: colors.slate[700],
+      800: colors.slate[800],
+      900: colors.slate[900],
+    },
   },
   typography: {
     fontFamily: typography.fontFamily.primary,
@@ -136,7 +172,7 @@ export const muiTheme = createTheme({
     },
     MuiTableRow: {
       styleOverrides: {
-        root: { '&:hover': { backgroundColor: `${colors.primaryLight}08` } },
+        root: { '&:hover': { backgroundColor: alpha(colors.primary, 0.04) } },
       },
     },
     MuiTabs: {

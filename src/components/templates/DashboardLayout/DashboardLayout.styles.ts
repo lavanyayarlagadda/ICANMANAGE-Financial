@@ -1,5 +1,6 @@
 import { styled } from '@mui/material/styles';
-import { Box, Card, Typography, TextField, Button } from '@mui/material';
+import { Box, Card, Typography, TextField, Button, SxProps, Theme } from '@mui/material';
+import { themeConfig } from '@/theme/themeConfig';
 
 export const DRAWER_WIDTH = 240;
 export const DRAWER_COLLAPSED_WIDTH = 64;
@@ -37,7 +38,7 @@ export const GlobalOverlay = styled(Box)(({ theme }) => ({
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  backgroundColor: themeConfig.colors.overlay.white,
   zIndex: 99999,
   cursor: 'wait',
   display: 'flex',
@@ -47,7 +48,7 @@ export const GlobalOverlay = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2)
 }));
 
-export const NavItemStyles = (sidebarCollapsed: boolean, theme: any) => ({
+export const NavItemStyles = (sidebarCollapsed: boolean, theme: Theme): SxProps<Theme> => ({
   mx: sidebarCollapsed ? 0.5 : 1,
   borderRadius: 1,
   mb: 0.5,

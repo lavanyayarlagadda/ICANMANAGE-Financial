@@ -26,7 +26,12 @@ const App = () => (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <ThemeProvider theme={muiTheme}>
         <CssBaseline />
-        <BrowserRouter>
+        <BrowserRouter 
+          future={{ 
+            v7_startTransition: true, 
+            v7_relativeSplatPath: true 
+          }}
+        >
           <GlobalHooksWrapper>
             <Suspense fallback={<LoadingFallback />}>
               <Routes>
