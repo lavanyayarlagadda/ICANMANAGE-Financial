@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback, useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
+import { RecoupmentRecord } from '@/interfaces/financials';
 
 export const useRecoupmentsScreen = () => {
     const dispatch = useAppDispatch();
@@ -50,8 +51,8 @@ export const useRecoupmentsScreen = () => {
         return { totalRecouped, totalOriginal };
     }, [recoupments]);
 
-    const handleView = useCallback((r: any) => dispatch(openViewDialog(r)), [dispatch]);
-    const handleEdit = useCallback((r: any) => dispatch(openEditDialog(r)), [dispatch]);
+    const handleView = useCallback((r: RecoupmentRecord) => dispatch(openViewDialog(r)), [dispatch]);
+    const handleEdit = useCallback((r: RecoupmentRecord) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'recoupment' })), [dispatch]);
 
     return {

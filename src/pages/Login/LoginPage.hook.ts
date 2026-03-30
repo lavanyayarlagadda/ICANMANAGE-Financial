@@ -41,7 +41,7 @@ export const useLoginPage = () => {
 
       const landingPageRoute = DUMMY_USER.role === 'Admin' ? '/financials/all-transactions' : '/collections';
       navigate(landingPageRoute, { replace: true });
-    } catch (err: any) {
+    } catch (err) {
       setErrorMsg('Login failed');
     } finally {
       setIsLoading(false);

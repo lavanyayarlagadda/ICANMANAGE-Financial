@@ -9,9 +9,11 @@ export const DUMMY_USER: User = {
     email: 'alex.johnson@icanmanage.com',
     firstName: 'Alex',
     lastName: 'Johnson',
-    company: 'ICANManage Health',
+    company: 'CognitiveHealthIT',
     roleId: 'role-admin',
     role: 'Admin',
+    accessibleModules: ['Financials', 'Collections'],
+    defaultLandingPage: 'Financials',
     menus: [
         {
             menuName: 'Financials',

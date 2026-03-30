@@ -17,6 +17,8 @@ import { useStatementsScreen, useForwardBalanceNoticesTable } from './Statements
 import * as styles from './StatementsScreen.styles';
 import SuspenseAccountsScreen from '../Suspense/SuspenseAccountsScreen';
 
+import { useTheme } from '@mui/material/styles';
+
 const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
     <Box sx={{ mb: 1 }}>
         <Accordion
@@ -110,6 +112,7 @@ const ForwardBalanceNoticesTable = ({ data }: { data: ForwardBalanceNotice[] }) 
 };
 
 const StatementsScreen: React.FC = () => {
+    const theme = useTheme();
     const { activeSubTab, finalActiveSubTab, forwardBalanceNotices, stats } = useStatementsScreen();
 
     return (
@@ -123,9 +126,9 @@ const StatementsScreen: React.FC = () => {
 
             {activeSubTab === 1 && (
                 <Grid container spacing={2} sx={{ mb: 4 }}>
-                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL ORIGINAL AMOUNT" value={formatCurrency(stats.totalOriginalAmount)} backgroundColor="#fff" /></Grid>
-                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL REMAINING BALANCE" value={formatCurrency(stats.totalRemainingBalance)} variant="negative" backgroundColor="#fff" /></Grid>
-                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="ACTION REQUIRED" value="1" backgroundColor="#fff" /></Grid>
+                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL ORIGINAL AMOUNT" value={formatCurrency(stats.totalOriginalAmount)} backgroundColor={theme.palette.background.paper} /></Grid>
+                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL REMAINING BALANCE" value={formatCurrency(stats.totalRemainingBalance)} variant="negative" backgroundColor={theme.palette.background.paper} /></Grid>
+                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="ACTION REQUIRED" value="1" backgroundColor={theme.palette.background.paper} /></Grid>
                 </Grid>
             )}
 

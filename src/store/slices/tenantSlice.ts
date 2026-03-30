@@ -15,8 +15,11 @@ interface TenantState {
 const TENANT_STORAGE_KEY = 'ican_selected_tenant';
 
 const initialState: TenantState = {
-  tenants: [],
-  selectedTenantId: localStorage.getItem(TENANT_STORAGE_KEY), // No hardcoded default here
+  tenants: [
+    { tenantId: '1', displayName: 'Mock Organization 1' },
+    { tenantId: '2', displayName: 'Mock Organization 2' }
+  ],
+  selectedTenantId: localStorage.getItem(TENANT_STORAGE_KEY) || '1',
   isLoading: false,
   error: null,
 };

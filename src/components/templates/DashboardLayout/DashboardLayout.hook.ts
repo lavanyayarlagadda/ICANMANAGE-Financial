@@ -20,7 +20,7 @@ export const useDashboardLayout = () => {
     
     const permissions = useUserPermissions();
     
-    const isWaitingForTenants = permissions.isCognitiveUser && !tenant.selectedTenantId;
+    const isWaitingForTenants = permissions.isCognitiveUser && !tenant.selectedTenantId && tenant.tenants.length === 0;
     const isOverlayActive = ui.activeExportType || ui.isReloading || ui.isDrillingDown || ui.isGlobalFetching || financials.loading || tenant.isLoading || isWaitingForTenants;
 
     useEffect(() => {

@@ -1,6 +1,5 @@
-import { styled } from '@mui/material/styles';
+import { styled, alpha } from '@mui/material/styles';
 import { Box, Typography, Card } from '@mui/material';
-import { themeConfig } from '@/theme/themeConfig';
 
 export const TrendsWrapper = styled(Box)(({ theme }) => ({
   padding: 0,
@@ -12,7 +11,7 @@ export const SectionHeader = styled(Box)(({ theme }) => ({
 
 export const TitleText = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
-  color: themeConfig.colors.text.primary,
+  color: theme.palette.text.primary,
 }));
 
 export const ChartContainer = styled(Box)(({ theme }) => ({
@@ -45,7 +44,7 @@ export const RichCard = styled(Card)(({ theme }) => ({
 
 export const RiskCardStyled = styled(Card)<{ severity: 'error' | 'warning' }>(({ theme, severity }) => ({
   height: '100%',
-  backgroundColor: severity === 'error' ? themeConfig.colors.error + '10' : themeConfig.colors.accent + '10',
-  borderLeft: `4px solid ${severity === 'error' ? themeConfig.colors.error : themeConfig.colors.accent}`,
+  backgroundColor: severity === 'error' ? alpha(theme.palette.error.main, 0.1) : alpha(theme.palette.warning.main, 0.1),
+  borderLeft: `4px solid ${severity === 'error' ? theme.palette.error.main : theme.palette.warning.main}`,
   boxShadow: 'none',
 }));

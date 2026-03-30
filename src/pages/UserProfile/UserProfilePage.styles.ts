@@ -1,25 +1,26 @@
+import { SxProps, Theme } from '@mui/material';
 import { themeConfig } from '@/theme';
 
-export const pageContainerStyles: any = {
+export const pageContainerStyles: SxProps<Theme> = {
   maxWidth: 800,
   margin: '0 auto',
   py: 2,
 };
 
-export const headerBoxStyles: any = {
+export const headerBoxStyles: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
   mb: 1,
 };
 
-export const tabsContainerStyles: any = {
+export const tabsContainerStyles: SxProps<Theme> = {
   backgroundColor: themeConfig.colors.surfaceAlt,
   borderRadius: 2,
   p: 0.5,
   mb: 3,
 };
 
-export const tabsStyles: any = {
+export const tabsStyles: SxProps<Theme> = {
   minHeight: 'unset',
   '& .MuiTab-root': {
     py: 1,
@@ -35,23 +36,23 @@ export const tabsStyles: any = {
     '&.Mui-selected': {
       color: themeConfig.colors.text.primary,
       backgroundColor: themeConfig.colors.surface,
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      boxShadow: `0 1px 3px ${themeConfig.colors.overlay.black}`,
     }
   }
 };
 
-export const cardStyles: any = {
+export const cardStyles: SxProps<Theme> = {
   p: 3,
   border: `1px solid ${themeConfig.colors.border}`,
   boxShadow: 'none',
 };
 
-export const textFieldStyles: any = {
+export const textFieldStyles: SxProps<Theme> = {
   mb: 2,
-  backgroundColor: '#FAFBFC',
+  backgroundColor: themeConfig.colors.inputBackground,
 };
 
-export const actionsBoxStyles: any = {
+export const actionsBoxStyles: SxProps<Theme> = {
   display: 'flex',
   justifyContent: 'flex-end',
 };

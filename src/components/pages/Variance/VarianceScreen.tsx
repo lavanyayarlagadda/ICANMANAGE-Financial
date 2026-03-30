@@ -6,6 +6,7 @@ import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
+import { themeConfig } from '@/theme/themeConfig';
 import {
     ScreenWrapper,
     HeaderSection,
@@ -15,15 +16,17 @@ import {
 } from './VarianceScreen.styles';
 import { useVarianceScreen } from './VarianceScreen.hook';
 
+import { FeeScheduleVariance, PaymentVariance } from '@/interfaces/financials';
+
 const VarianceScreen: React.FC = () => {
     const { activeSubTab, queryParams, feeData, feeSummaryData, paymentData, paymentSummaryData, handleDrillDown, handleRangeChange, handleSortChange, handlePageChange, handleRowsPerPageChange } = useVarianceScreen();
     const theme = useTheme();
-    const feeColumns = useMemo<DataColumn<any>[]>(() => [
+    const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
         {
             id: 'paymentDate',
             label: 'PAYMENT DATE',
             minWidth: 120,
-            accessor: (r) => r.paymentDate,
+            accessor: (r) => r.paymentDate || '',
             render: (r) => <Typography variant="body2">{r.paymentDate}</Typography>
         },
         {
@@ -102,7 +105,7 @@ const VarianceScreen: React.FC = () => {
                 </IconButton>
             ),
         },
-    ], [handleDrillDown]);
+    ], [handleDrillDown, theme]);
 
     const summaryValues = useMemo(() => {
         const fee = feeSummaryData?.data;
@@ -114,13 +117,13 @@ const VarianceScreen: React.FC = () => {
         <ScreenWrapper>
             <HeaderSection><Typography variant="h6" sx={{ fontWeight: 700 }}>{activeSubTab === 0 ? 'Fee Variance' : 'Payment Variance'}</Typography></HeaderSection>
             <Grid container spacing={2} sx={{ mb: 4 }}>
-                <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="EXPECTED" value={formatCurrency(summaryValues.tExp)} backgroundColor="#fff" /></Grid>
-                <Grid size={{ xs: 12, md: 4 }}><SummaryCard title={summaryValues.lbl2} value={formatCurrency(summaryValues.tAct)} backgroundColor="#fff" /></Grid>
-                <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="LEAKAGE" value={formatCurrency(summaryValues.tLeak)} backgroundColor="#fff" /></Grid>
+                <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="EXPECTED" value={formatCurrency(summaryValues.tExp)} backgroundColor={themeConfig.colors.surface} /></Grid>
+                <Grid size={{ xs: 12, md: 4 }}><SummaryCard title={summaryValues.lbl2} value={formatCurrency(summaryValues.tAct)} backgroundColor={themeConfig.colors.surface} /></Grid>
+                <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="LEAKAGE" value={formatCurrency(summaryValues.tLeak)} backgroundColor={themeConfig.colors.surface} /></Grid>
             </Grid>
             <DataTable
                 columns={feeColumns} data={activeSubTab === 0 ? (feeData?.data?.content ?? []) : (paymentData?.data?.content ?? [])}
-                rowKey={(r: any) => r.id || `${r.patientName}-${r.variance}`} exportTitle="Variance Analysis"
+                rowKey={(r) => r.id || `${r.patientName}-${r.variance}`} exportTitle="Variance Analysis"
                 customToolbarContent={<RangeDropdown onChange={handleRangeChange} />} serverSide
                 totalElements={activeSubTab === 0 ? (feeData?.data?.totalElements ?? 0) : (paymentData?.data?.totalElements ?? 0)}
                 page={queryParams.page} rowsPerPage={queryParams.size} sortCol={queryParams.sortField}

@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
+import { CollectionAccount } from '@/interfaces/financials';
 
 export const useCollectionsScreen = () => {
     const dispatch = useAppDispatch();
@@ -14,8 +15,8 @@ export const useCollectionsScreen = () => {
         return { totalDue, totalCollected, totalBalance, openAccounts };
     }, [collections]);
 
-    const handleView = useCallback((r: any) => dispatch(openViewDialog(r)), [dispatch]);
-    const handleEdit = useCallback((r: any) => dispatch(openEditDialog(r)), [dispatch]);
+    const handleView = useCallback((r: CollectionAccount) => dispatch(openViewDialog(r)), [dispatch]);
+    const handleEdit = useCallback((r: CollectionAccount) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'collection' })), [dispatch]);
 
     return {

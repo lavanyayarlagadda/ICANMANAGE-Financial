@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, alpha } from '@mui/material/styles';
 import { themeConfig } from './themeConfig';
 
 declare module '@mui/material/styles' {
@@ -26,7 +26,7 @@ export const muiTheme = createTheme({
       main: colors.primary,
       light: colors.primaryLight,
       dark: colors.primaryDark,
-      contrastText: '#f5f7fa',
+      contrastText: colors.background,
     },
     secondary: {
       main: colors.secondary,
@@ -54,11 +54,24 @@ export const muiTheme = createTheme({
     },
     divider: colors.divider,
     // Custom tokens
-    inputBackground: (colors as any).inputBackground,
-    cardBorder: (colors as any).cardBorder,
-    selectionBackground: (colors as any).selectionBackground,
-    tabActive: (colors as any).tabActive,
-    tabHover: (colors as any).tabHover,
+    inputBackground: colors.inputBackground,
+    cardBorder: colors.cardBorder,
+    selectionBackground: colors.selectionBackground,
+    tabActive: colors.tabActive,
+    tabHover: colors.tabHover,
+    // Custom Slate Scale exposed to theme
+    grey: {
+      50: colors.slate[50],
+      100: colors.slate[100],
+      200: colors.slate[200],
+      300: colors.slate[300],
+      400: colors.slate[400],
+      500: colors.slate[500],
+      600: colors.slate[600],
+      700: colors.slate[700],
+      800: colors.slate[800],
+      900: colors.slate[900],
+    },
   },
   typography: {
     fontFamily: typography.fontFamily.primary,
@@ -118,81 +131,81 @@ export const muiTheme = createTheme({
         root: { borderRadius: spacing.borderRadius.sm, fontWeight: typography.fontWeight.medium, fontSize: typography.fontSize.xs },
       },
     },
- MuiTableHead: {
-  styleOverrides: {
-    root: {
-      '& .MuiTableCell-head': {
-        fontFamily: typography.fontFamily.primary,
-        fontWeight: 600,
-        fontSize: '11px',
-        lineHeight: 'normal',
-        color: colors.text.primary,
-        backgroundColor: colors.surfaceAlt,
-        borderBottom: `1px solid ${colors.border}`,
-        padding: '10px 16px',
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          '& .MuiTableCell-head': {
+            fontFamily: typography.fontFamily.primary,
+            fontWeight: 600,
+            fontSize: '11px',
+            lineHeight: 'normal',
+            color: colors.text.primary,
+            backgroundColor: colors.surfaceAlt,
+            borderBottom: `1px solid ${colors.border}`,
+            padding: '10px 16px',
+          },
+        },
       },
     },
-  },
-},
-MuiTableCell: {
-  styleOverrides: {
-    head: {
-      fontFamily: typography.fontFamily.primary,
-      fontWeight: 600,
-      fontSize: '11px',
-      color: colors.text.primary,
-      lineHeight: 'normal',
-      letterSpacing: '0.03em',
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          fontFamily: typography.fontFamily.primary,
+          fontWeight: 600,
+          fontSize: '11px',
+          color: colors.text.primary,
+          lineHeight: 'normal',
+          letterSpacing: '0.03em',
+        },
+        body: {
+          fontFamily: typography.fontFamily.primary,
+          fontWeight: 400,
+          fontSize: '12px',
+          lineHeight: 'normal',
+          color: colors.text.primary,
+        },
+        root: {
+          padding: '12px 16px',
+          borderBottom: `1px solid ${colors.border}`,
+        },
+      },
     },
-    body: {
-      fontFamily: typography.fontFamily.primary,
-      fontWeight: 400,
-      fontSize: '12px',
-      lineHeight: 'normal',
-      color: colors.text.primary,
-    },
-    root: {
-      padding: '12px 16px',
-      borderBottom: `1px solid ${colors.border}`,
-    },
-  },
-},
     MuiTableRow: {
       styleOverrides: {
-        root: { '&:hover': { backgroundColor: `${colors.primaryLight}08` } },
+        root: { '&:hover': { backgroundColor: alpha(colors.primary, 0.04) } },
       },
     },
-   MuiTabs: {
-  styleOverrides: {
-    root: {
-      minHeight: 44,
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+        },
+        indicator: {
+          height: 3,
+          borderRadius: '3px 3px 0 0',
+          backgroundColor: colors.primary,
+        },
+      },
     },
-    indicator: {
-      height: 3,
-      borderRadius: '3px 3px 0 0',
-      backgroundColor: colors.primary,
-    },
-  },
-},
 
-MuiTab: {
-  styleOverrides: {
-    root: {
-      textTransform: 'none',
-      fontFamily: typography.fontFamily.primary,
-      fontWeight: 500,
-      fontSize: '13px',
-      lineHeight: 'normal',
-      color: colors.text.primary,
-      minHeight: 44,
-      padding: '10px 18px',
-      '&.Mui-selected': {
-        color: colors.text.primary,
-        fontWeight: 600,
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontFamily: typography.fontFamily.primary,
+          fontWeight: 500,
+          fontSize: '13px',
+          lineHeight: 'normal',
+          color: colors.text.primary,
+          minHeight: 44,
+          padding: '10px 18px',
+          '&.Mui-selected': {
+            color: colors.text.primary,
+            fontWeight: 600,
+          },
+        },
       },
     },
-  },
-},
     MuiPaper: {
       styleOverrides: {
         root: { backgroundImage: 'none' },

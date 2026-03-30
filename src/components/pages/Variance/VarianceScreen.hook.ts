@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { 
-  setActiveExportType, 
   setIsReloading, 
   setIsGlobalFetching, 
   setIsDrillingDown as setGlobalDrillingDown 
@@ -21,6 +20,7 @@ import {
   useLazyGetRemittanceClaimsQuery
 } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
+import { FeeScheduleVariance, PaymentVariance, RemittanceDetail } from '@/interfaces/financials';
 
 export const useVarianceScreen = () => {
     const dispatch = useAppDispatch();
@@ -65,14 +65,24 @@ export const useVarianceScreen = () => {
 
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
 
-    const handleDrillDown = useCallback(async (row: any) => {
+    const handleDrillDown = useCallback(async (row: FeeScheduleVariance | PaymentVariance) => {
         try {
             dispatch(setGlobalDrillingDown(true));
-            const identifier = row.claimId || row.id;
+            const identifier = row.id || '';
+            if (!identifier) return;
+
             dispatch(setSelectedPaymentId(identifier));
 
-            const claimResult = await triggerGetRemittance(identifier).unwrap() as any;
-            const claimsArr = Array.isArray(claimResult?.data) ? claimResult.data : (Array.isArray(claimResult) ? claimResult : (claimResult ? [claimResult] : []));
+            const claimResult = await triggerGetRemittance(identifier).unwrap() as RemittanceDetail | { data: RemittanceDetail[] } | RemittanceDetail[];
+            
+            let claimsArr: RemittanceDetail[] = [];
+            if (Array.isArray(claimResult)) {
+                claimsArr = claimResult;
+            } else if (claimResult && 'data' in claimResult && Array.isArray(claimResult.data)) {
+                claimsArr = claimResult.data;
+            } else if (claimResult) {
+                claimsArr = [claimResult as RemittanceDetail];
+            }
 
             if (claimsArr.length === 0) {
                 dispatch(setRemittanceClaims([]));

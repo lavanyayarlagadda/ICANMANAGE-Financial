@@ -1,6 +1,12 @@
+import { SxProps, Theme } from '@mui/material';
 import { themeConfig } from '@/theme/themeConfig';
 
-export const accountChipStyles = (config: any): any => ({
+interface AccountChipConfig {
+  color?: string;
+  textColor?: string;
+}
+
+export const accountChipStyles = (config?: AccountChipConfig): SxProps<Theme> => ({
   bgcolor: config?.color || themeConfig.colors.surfaceAlt,
   color: config?.textColor || themeConfig.colors.text.secondary,
   fontWeight: 600,
@@ -9,21 +15,22 @@ export const accountChipStyles = (config: any): any => ({
   height: 24
 });
 
-export const tableGridStyles = (cols: string): any => ({
+export const tableGridStyles = (cols: string): SxProps<Theme> => ({
   display: 'grid',
   gridTemplateColumns: cols,
   p: 1.5,
-  alignItems: 'center'
+  alignItems: 'center',
+  backgroundColor: themeConfig.colors.surface,
 });
 
-export const headerTypographyStyles = (isRight: boolean): any => ({
+export const headerTypographyStyles = (isRight: boolean): SxProps<Theme> => ({
   fontWeight: 700,
   fontSize: '11px',
   color: themeConfig.colors.text.secondary,
   textAlign: isRight ? 'right' : 'left'
 });
 
-export const toggleButtonGroupStyles: any = {
+export const toggleButtonGroupStyles: SxProps<Theme> = {
   '& .MuiToggleButton-root': {
     px: 2,
     py: 0.5,

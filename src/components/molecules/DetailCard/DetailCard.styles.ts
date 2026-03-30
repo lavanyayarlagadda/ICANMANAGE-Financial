@@ -1,34 +1,36 @@
-export const cardStyles: any = {
+import { SxProps, Theme } from '@mui/material';
+
+export const cardStyles: SxProps<Theme> = {
   mb: 3,
   boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
   borderRadius: 2,
 };
 
-export const cardContentStyles: any = {
+export const cardContentStyles: SxProps<Theme> = {
   p: { xs: 2, md: 3 },
 };
 
-export const labelContainerStyles: any = {
+export const labelContainerStyles: SxProps<Theme> = {
   mb: 1.5,
 };
 
-export const labelStyles: any = {
+export const labelStyles: SxProps<Theme> = {
   fontWeight: 600,
   textTransform: 'uppercase',
   letterSpacing: '0.03em',
 };
 
-export const valueStyles: any = {
+export const valueStyles: SxProps<Theme> = {
   typography: 'body2',
   fontWeight: 500,
 };
 
-export const sectionTitleStyles: any = {
+export const sectionTitleStyles: SxProps<Theme> = {
   fontWeight: 600,
   mb: 2,
 };
 
-export const footerContainerStyles: any = {
+export const footerContainerStyles: SxProps<Theme> = {
   mt: 2,
   pt: 2,
   borderTop: '1px solid rgba(0,0,0,0.08)',

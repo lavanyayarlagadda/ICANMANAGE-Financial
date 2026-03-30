@@ -121,7 +121,7 @@ export const usePaymentsScreen = () => {
             dispatch(setSelectedPaymentId(row.transactionNo));
 
             // Call both APIs simultaneously
-            const [claimResult, serviceLinesResult] = await Promise.all([
+            const [claimResult, _serviceLinesResult] = await Promise.all([
               triggerGetRemittance(row.transactionNo).unwrap(),
               triggerSearchServiceLines({
                 page: 1,
@@ -130,11 +130,16 @@ export const usePaymentsScreen = () => {
                 desc: false,
                 check: row.transactionNo
               }).unwrap()
-            ]) as [RemittanceDetail | { data: RemittanceDetail[] }, ServiceLineSearchResponse];
+            ]) as [RemittanceDetail | { data: RemittanceDetail[] } | RemittanceDetail[], ServiceLineSearchResponse];
 
-            const claimsArr: RemittanceDetail[] = Array.isArray((claimResult as any)?.data) 
-              ? (claimResult as any).data 
-              : (Array.isArray(claimResult) ? claimResult : (claimResult ? [claimResult as RemittanceDetail] : []));
+            let claimsArr: RemittanceDetail[] = [];
+            if (Array.isArray(claimResult)) {
+              claimsArr = claimResult;
+            } else if (claimResult && 'data' in claimResult && Array.isArray(claimResult.data)) {
+              claimsArr = claimResult.data;
+            } else if (claimResult) {
+              claimsArr = [claimResult as RemittanceDetail];
+            }
 
             if (claimsArr.length === 0) {
                 dispatch(setRemittanceClaims([]));

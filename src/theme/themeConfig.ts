@@ -1,5 +1,4 @@
 import { colors } from './colors';
-import { typography } from './typography';
 
 /**
  * Global Theme Configuration – iCAN Manage
@@ -7,7 +6,38 @@ import { typography } from './typography';
 
 export const themeConfig = {
   colors,
-  typography,
+
+  logoColor: colors.primary,
+
+  typography: {
+    fontFamily: {
+      primary: '"Inter", "Segoe UI", system-ui, -apple-system, sans-serif',
+      headline: '"Space Grotesk", "Inter", "Segoe UI", system-ui, sans-serif',
+      secondary: '"Inter", "Segoe UI", system-ui, -apple-system, sans-serif',
+      mono: '"JetBrains Mono", "Fira Code", monospace',
+    },
+    fontSize: {
+      xs: '0.75rem',
+      sm: '0.8125rem',
+      body: '0.875rem',
+      md: '1rem',
+      lg: '1.125rem',
+      xl: '1.25rem',
+      h6: '1.125rem',
+      h5: '1.25rem',
+      h4: '1.5rem',
+      h3: '1.75rem',
+      h2: '2rem',
+      h1: '2.5rem',
+    },
+    fontWeight: {
+      light: 300,
+      regular: 400,
+      medium: 500,
+      semibold: 600,
+      bold: 700,
+    },
+  },
 
   spacing: {
     borderRadius: {
@@ -22,19 +52,10 @@ export const themeConfig = {
     card: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)',
     cardHover: '0 4px 12px rgba(0,0,0,0.12)',
     elevated: '0 8px 24px rgba(0,0,0,0.12)',
+    dropdown: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
   },
 
-  status: {
-    posted: { bg: '#E8F5E9', text: '#2E7D32' },
-    completed: { bg: '#E3F2FD', text: '#1565C0' },
-    reconciled: { bg: '#F3E5F5', text: '#7B1FA2' },
-    needsReview: { bg: '#FFF3E0', text: '#E65100' },
-    pendingReview: { bg: '#FFF8E1', text: '#F57F17' },
-    match: { bg: '#E8F5E9', text: '#2E7D32' },
-    improving: { bg: '#E8F5E9', text: '#2E7D32' },
-    growing: { bg: '#E3F2FD', text: '#1565C0' },
-    decreasing: { bg: '#FFEBEE', text: '#C62828' },
-  },
+  status: colors.status,
 } as const;
 
 export type ThemeConfig = typeof themeConfig;

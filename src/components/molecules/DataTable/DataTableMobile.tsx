@@ -19,7 +19,7 @@ interface DataTableMobileProps<T> {
   selectedKeys: Set<string>;
   handleSelectOne: (key: string, checked: boolean) => void;
   columns: DataColumn<T>[];
-  descriptions: any;
+  descriptions?: Record<string, string>;
   handleHeaderClick: (colId: string) => void;
 }
 

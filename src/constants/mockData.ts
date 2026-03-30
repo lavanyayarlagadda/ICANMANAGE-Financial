@@ -13,15 +13,15 @@ import {
 } from '@/interfaces/financials';
 
 export const mockPayments: PaymentTransaction[] = [
-  { id: '1', effectiveDate: '01/25/2026', type: 'PAYMENT', description: 'Claim Payment - MC10677', sourceProvider: 'HOSPICE OF THE SOUTH', amount: 3729.12, openBalance: null, status: 'Posted' },
-  { id: '2', effectiveDate: '01/25/2026', type: 'PAYMENT', description: 'EFT Payment - EFT1559917', sourceProvider: 'JM MAC SCHEMES', amount: 4421.92, openBalance: null, status: 'Completed' },
-  { id: '3', effectiveDate: '01/24/2026', type: 'PAYMENT', description: 'Claim Payment - MC20451', sourceProvider: 'AETNA MEDICARE', amount: 3200.00, openBalance: null, status: 'Reconciled' },
-  { id: '4', effectiveDate: '01/23/2026', type: 'PAYMENT', description: 'PAYMENT - Auto Generated 19', sourceProvider: 'UHC MEDICARE', amount: 1685.88, openBalance: null, status: 'Posted' },
-  { id: '5', effectiveDate: '01/23/2026', type: 'PAYMENT', description: 'PAYMENT - Auto Generated 24', sourceProvider: 'MOLINA', amount: 4966.15, openBalance: null, status: 'Needs Review' },
-  { id: '6', effectiveDate: '01/20/2026', type: 'PAYMENT', description: 'PAYMENT - Auto Generated 22', sourceProvider: 'BLUE CROSS', amount: 788.94, openBalance: null, status: 'Completed' },
-  { id: '7', effectiveDate: '01/19/2026', type: 'PAYMENT', description: 'PAYMENT - Auto Generated 21', sourceProvider: 'AETNA', amount: 1481.38, openBalance: null, status: 'Completed' },
-  { id: '8', effectiveDate: '01/14/2026', type: 'PAYMENT', description: 'PAYMENT - Auto Generated 28', sourceProvider: 'CIGNA', amount: 2787.83, openBalance: null, status: 'Reconciled' },
-  { id: '9', effectiveDate: '01/10/2026', type: 'PAYMENT', description: 'PAYMENT - Auto Generated 16', sourceProvider: 'MOLINA', amount: 4917.26, openBalance: null, status: 'Posted' },
+  { id: '1', effectiveDate: '01/25/2026', type: 'PAYMENT', transactionNo: 'CH-10677', payer: 'HOSPICE OF THE SOUTH', amount: 3729.12, openBalance: null, status: 'Posted' },
+  { id: '2', effectiveDate: '01/25/2026', type: 'PAYMENT', transactionNo: 'EFT-1559917', payer: 'JM MAC SCHEMES', amount: 4421.92, openBalance: null, status: 'Completed' },
+  { id: '3', effectiveDate: '01/24/2026', type: 'PAYMENT', transactionNo: 'CH-20451', payer: 'AETNA MEDICARE', amount: 3200.00, openBalance: null, status: 'Reconciled' },
+  { id: '4', effectiveDate: '01/23/2026', type: 'PAYMENT', transactionNo: 'CH-AUTO-19', payer: 'UHC MEDICARE', amount: 1685.88, openBalance: null, status: 'Posted' },
+  { id: '5', effectiveDate: '01/23/2026', type: 'PAYMENT', transactionNo: 'CH-AUTO-24', payer: 'MOLINA', amount: 4966.15, openBalance: null, status: 'Needs Review' },
+  { id: '6', effectiveDate: '01/20/2026', type: 'PAYMENT', transactionNo: 'CH-AUTO-22', payer: 'BLUE CROSS', amount: 788.94, openBalance: null, status: 'Completed' },
+  { id: '7', effectiveDate: '01/19/2026', type: 'PAYMENT', transactionNo: 'CH-AUTO-21', payer: 'AETNA', amount: 1481.38, openBalance: null, status: 'Completed' },
+  { id: '8', effectiveDate: '01/14/2026', type: 'PAYMENT', transactionNo: 'CH-AUTO-28', payer: 'CIGNA', amount: 2787.83, openBalance: null, status: 'Reconciled' },
+  { id: '9', effectiveDate: '01/10/2026', type: 'PAYMENT', transactionNo: 'CH-AUTO-16', payer: 'MOLINA', amount: 4917.26, openBalance: null, status: 'Posted' },
 ];
 
 export const mockPipRecords: PipRecord[] = [
@@ -82,7 +82,7 @@ export const mockPipRecords: PipRecord[] = [
 
 export const mockRemittanceDetail: RemittanceDetail = {
   paymentDate: '2026-01-25',
-  checkEftNumber: '20232456812400',
+  transactionNo: '20232456812400',
   paymentAmount: 0.00,
   payerName: 'DHR',
   patientName: 'ELLIS, MARTHA',
@@ -466,6 +466,3 @@ export const mockForwardBalanceNotices: ForwardBalanceNotice[] = [
     offsets: []
   }
 ];
-
-
-

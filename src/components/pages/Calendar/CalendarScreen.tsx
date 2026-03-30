@@ -61,7 +61,7 @@ const CalendarScreen: React.FC = () => {
         return (
             <Grid container columns={7} spacing={0} sx={{ borderBottom: `1px solid ${theme.palette.divider}`, backgroundColor: '#fcfcfc' }}>
                 {days.map((day, idx) => (
-                    <Grid key={idx} item xs={1} sx={{ py: 1.5, textAlign: 'center' }}>
+                    <Grid key={idx} size={{ xs: 1 }} sx={{ py: 1.5, textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase' }}>{day}</Typography>
                     </Grid>
                 ))}
@@ -96,7 +96,7 @@ const CalendarScreen: React.FC = () => {
                 const dayTotal = dayTransactions.reduce((acc, curr) => acc + curr.amount, 0);
 
                 daysInRow.push(
-                    <Grid key={d.toISOString()} item xs={1} onClick={() => handleDateSelect(d)} sx={styles.calendarCellStyles(!!isSelected, isCurrentMonth, theme, isMobile, isTablet)}>
+                    <Grid key={d.toISOString()} size={{ xs: 1 }} onClick={() => handleDateSelect(d)} sx={styles.calendarCellStyles(!!isSelected, isCurrentMonth, theme, isMobile, isTablet)}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                             <Typography variant="caption" sx={{ fontWeight: isToday ? 800 : 600, fontSize: isMobile ? '10px' : '12px', color: isToday ? theme.palette.primary.main : isCurrentMonth ? 'text.primary' : 'text.disabled', width: isMobile ? 20 : 24, height: isMobile ? 20 : 24, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', backgroundColor: isToday ? `${theme.palette.primary.main}15` : 'transparent' }}>{format(d, 'd')}</Typography>
                             {dayTotal !== 0 && !isMobile && <Typography variant="caption" sx={{ fontWeight: 700, color: dayTotal < 0 ? theme.palette.error.main : theme.palette.success.main, fontSize: '9px' }}>{dayTotal > 0 ? '+' : ''}{formatCurrency(dayTotal)}</Typography>}

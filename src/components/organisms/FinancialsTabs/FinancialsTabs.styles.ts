@@ -1,8 +1,10 @@
-export const containerStyles: any = {
+import { SxProps, Theme } from '@mui/material';
+
+export const containerStyles: SxProps<Theme> = {
   mb: 1,
 };
 
-export const mainTabsRowStyles = (theme: any, isTablet: boolean): any => ({
+export const mainTabsRowStyles = (theme: Theme, isTablet: boolean): SxProps<Theme> => ({
   px: 2,
   py: 1.5,
   display: 'flex',
@@ -13,13 +15,13 @@ export const mainTabsRowStyles = (theme: any, isTablet: boolean): any => ({
   gap: isTablet ? 1.5 : 0,
 });
 
-export const mainTitleStyles: any = {
+export const mainTitleStyles: SxProps<Theme> = {
   fontWeight: 700,
   fontSize: '20px',
   color: 'rgb(10, 22, 40)',
 };
 
-export const tabletSelectStyles = (theme: any): any => ({
+export const tabletSelectStyles = (theme: Theme): SxProps<Theme> => ({
   backgroundColor: 'rgba(240, 244, 248, 0.8)',
   borderRadius: '8px',
   fontWeight: 600,
@@ -27,7 +29,7 @@ export const tabletSelectStyles = (theme: any): any => ({
   '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
 });
 
-export const mainTabItemStyles = (isActive: boolean): any => ({
+export const mainTabItemStyles = (isActive: boolean): SxProps<Theme> => ({
   px: 2,
   py: 1,
   borderRadius: '6px',
@@ -43,7 +45,7 @@ export const mainTabItemStyles = (isActive: boolean): any => ({
   },
 });
 
-export const subTabsRowStyles = (isMobile: boolean): any => ({
+export const subTabsRowStyles = (isMobile: boolean): SxProps<Theme> => ({
   px: 2,
   py: 1.5,
   display: 'flex',
@@ -54,7 +56,7 @@ export const subTabsRowStyles = (isMobile: boolean): any => ({
   gap: 2,
 });
 
-export const subTabItemStyles = (isActive: boolean): any => ({
+export const subTabItemStyles = (isActive: boolean): SxProps<Theme> => ({
   px: 1.5,
   py: 0.5,
   borderRadius: '16px',
@@ -70,7 +72,7 @@ export const subTabItemStyles = (isActive: boolean): any => ({
   },
 });
 
-export const actionsGroupStyles = (isMobile: boolean): any => ({
+export const actionsGroupStyles = (isMobile: boolean): SxProps<Theme> => ({
   display: 'flex',
   gap: 1.5,
   flexDirection: 'row',
@@ -78,7 +80,7 @@ export const actionsGroupStyles = (isMobile: boolean): any => ({
   justifyContent: isMobile ? 'flex-start' : 'flex-end',
 });
 
-export const printButtonStyles = (isMobile: boolean): any => ({
+export const printButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
   color: 'rgb(71, 85, 105)',
   borderColor: '#e2e8f0',
   borderRadius: '6px',
@@ -93,7 +95,7 @@ export const printButtonStyles = (isMobile: boolean): any => ({
   '&:hover': { borderColor: '#cbd5e1', bgcolor: '#f8fafc' },
 });
 
-export const reloadButtonStyles = (isMobile: boolean): any => ({
+export const reloadButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
   color: '#000',
   borderColor: '#000',
   borderWidth: 1.5,
@@ -108,7 +110,7 @@ export const reloadButtonStyles = (isMobile: boolean): any => ({
   '&:hover': { borderWidth: 1.5, bgcolor: 'rgba(0,0,0,0.04)' },
 });
 
-export const exportButtonStyles = (isMobile: boolean): any => ({
+export const exportButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
   bgcolor: '#d97706',
   color: '#fff',
   borderRadius: '6px',

@@ -1,16 +1,18 @@
-export const appBarStyles = (theme: any): any => ({
+import { SxProps, Theme } from '@mui/material';
+
+export const appBarStyles = (theme: Theme): SxProps<Theme> => ({
   backgroundColor: theme.palette.background.paper,
   color: theme.palette.text.primary,
   zIndex: theme.zIndex.drawer + 1,
 });
 
-export const toolbarStyles: any = {
+export const toolbarStyles: SxProps<Theme> = {
   justifyContent: 'space-between',
   minHeight: { xs: 56, md: 64 },
   px: { xs: 1.5, md: 3 },
 };
 
-export const tenantSelectStyles = (theme: any): any => ({
+export const tenantSelectStyles = (theme: Theme): SxProps<Theme> => ({
   borderRadius: 2,
   fontSize: '0.85rem',
   fontWeight: 600,
@@ -26,7 +28,7 @@ export const tenantSelectStyles = (theme: any): any => ({
   },
 });
 
-export const userProfileBoxStyles = (theme: any): any => ({
+export const userProfileBoxStyles = (theme: Theme): SxProps<Theme> => ({
   display: 'flex',
   alignItems: 'center',
   gap: 1,
@@ -37,7 +39,7 @@ export const userProfileBoxStyles = (theme: any): any => ({
   '&:hover': { backgroundColor: `${theme.palette.action.hover}` },
 });
 
-export const menuPaperStyles: any = {
+export const menuPaperStyles: SxProps<Theme> = {
   minWidth: 260,
   mt: 1,
   borderRadius: 2,
