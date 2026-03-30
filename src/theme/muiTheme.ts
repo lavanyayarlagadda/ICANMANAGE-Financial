@@ -1,23 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 import { themeConfig } from './themeConfig';
 
-declare module '@mui/material/styles' {
-  interface Palette {
-    inputBackground: string;
-    cardBorder: string;
-    selectionBackground: string;
-    tabActive: string;
-    tabHover: string;
-  }
-  interface PaletteOptions {
-    inputBackground?: string;
-    cardBorder?: string;
-    selectionBackground?: string;
-    tabActive?: string;
-    tabHover?: string;
-  }
-}
-
 const { colors, typography, spacing } = themeConfig;
 
 export const muiTheme = createTheme({
@@ -53,12 +36,6 @@ export const muiTheme = createTheme({
       disabled: colors.text.disabled,
     },
     divider: colors.divider,
-    // Custom tokens
-    inputBackground: (colors as any).inputBackground,
-    cardBorder: (colors as any).cardBorder,
-    selectionBackground: (colors as any).selectionBackground,
-    tabActive: (colors as any).tabActive,
-    tabHover: (colors as any).tabHover,
   },
   typography: {
     fontFamily: typography.fontFamily.primary,
@@ -118,81 +95,81 @@ export const muiTheme = createTheme({
         root: { borderRadius: spacing.borderRadius.sm, fontWeight: typography.fontWeight.medium, fontSize: typography.fontSize.xs },
       },
     },
- MuiTableHead: {
-  styleOverrides: {
-    root: {
-      '& .MuiTableCell-head': {
-        fontFamily: typography.fontFamily.primary,
-        fontWeight: 600,
-        fontSize: '11px',
-        lineHeight: 'normal',
-        color: colors.text.primary,
-        backgroundColor: colors.surfaceAlt,
-        borderBottom: `1px solid ${colors.border}`,
-        padding: '10px 16px',
+    MuiTableHead: {
+      styleOverrides: {
+        root: {
+          '& .MuiTableCell-head': {
+            fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+            fontWeight: 600,
+            fontSize: '11px',
+            lineHeight: 'normal',
+            color: 'rgb(10, 22, 40)',
+            backgroundColor: colors.surfaceAlt,
+            borderBottom: `1px solid ${colors.border}`,
+            padding: '10px 16px',
+          },
+        },
       },
     },
-  },
-},
-MuiTableCell: {
-  styleOverrides: {
-    head: {
-      fontFamily: typography.fontFamily.primary,
-      fontWeight: 600,
-      fontSize: '11px',
-      color: colors.text.primary,
-      lineHeight: 'normal',
-      letterSpacing: '0.03em',
+    MuiTableCell: {
+      styleOverrides: {
+        head: {
+          fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+          fontWeight: 600,
+          fontSize: '11px',
+          color: 'rgb(10, 22, 40)',
+          lineHeight: 'normal',
+          letterSpacing: '0.03em',
+        },
+        body: {
+          fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+          fontWeight: 400,
+          fontSize: '12px',
+          lineHeight: 'normal',
+          color: 'rgb(10, 22, 40)',
+        },
+        root: {
+          padding: '12px 16px',
+          borderBottom: `1px solid ${colors.border}`,
+        },
+      },
     },
-    body: {
-      fontFamily: typography.fontFamily.primary,
-      fontWeight: 400,
-      fontSize: '12px',
-      lineHeight: 'normal',
-      color: colors.text.primary,
-    },
-    root: {
-      padding: '12px 16px',
-      borderBottom: `1px solid ${colors.border}`,
-    },
-  },
-},
     MuiTableRow: {
       styleOverrides: {
         root: { '&:hover': { backgroundColor: `${colors.primaryLight}08` } },
       },
     },
-   MuiTabs: {
-  styleOverrides: {
-    root: {
-      minHeight: 44,
-    },
-    indicator: {
-      height: 3,
-      borderRadius: '3px 3px 0 0',
-      backgroundColor: colors.primary,
-    },
-  },
-},
-
-MuiTab: {
-  styleOverrides: {
-    root: {
-      textTransform: 'none',
-      fontFamily: typography.fontFamily.primary,
-      fontWeight: 500,
-      fontSize: '13px',
-      lineHeight: 'normal',
-      color: colors.text.primary,
-      minHeight: 44,
-      padding: '10px 18px',
-      '&.Mui-selected': {
-        color: colors.text.primary,
-        fontWeight: 600,
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          minHeight: 44,
+        },
+        indicator: {
+          height: 3,
+          borderRadius: '3px 3px 0 0',
+          backgroundColor: colors.primary,
+        },
       },
     },
-  },
-},
+
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+          fontWeight: 500,
+          fontSize: '13px',
+          lineHeight: 'normal',
+          color: 'rgb(10, 22, 40)',
+          minHeight: 44,
+          padding: '10px 18px',
+          '&.Mui-selected': {
+            color: colors.text.primary,
+            fontWeight: 600,
+          },
+        },
+      },
+    },
     MuiPaper: {
       styleOverrides: {
         root: { backgroundImage: 'none' },
