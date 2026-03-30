@@ -1,0 +1,118 @@
+import { useEffect, useCallback, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
+import { SelectChangeEvent } from '@mui/material';
+
+export const mainTabs = [
+  { id: 0, label: 'Transactions', path: '/financials/all-transactions' },
+  { id: 1, label: 'Bank Deposits', path: '/financials/bank-deposits' },
+  { id: 2, label: 'Statements', path: '/financials/statements/forward-balance' },
+  { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis' },
+  { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast' },
+];
+
+export const transactionSubTabs = [
+  { id: 0, label: 'All Transactions', path: '/financials/all-transactions' },
+  { id: 1, label: 'Payments', path: '/financials/payments' },
+  { id: 2, label: 'Recoupments', path: '/financials/recoupments' },
+  { id: 3, label: 'Adjustments', path: '/financials/other-adjustments' },
+];
+
+export const statementsSubTabs = [
+  { id: 0, label: 'PIP Statements', path: '/financials/statements/pip' },
+  { id: 1, label: 'Forward Balance', path: '/financials/statements/forward-balance' },
+  { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts' },
+];
+
+export const varianceSubTabs = [
+  { id: 0, label: 'Fee Schedule Variance', path: '/financials/variance-analysis/fee-schedule' },
+  { id: 1, label: 'Payment Variance', path: '/financials/variance-analysis/payment' },
+];
+
+export const trendsSubTabs = [
+  { id: 0, label: 'Forecast Trends', path: '/financials/trends-forecast/forecast' },
+  { id: 1, label: 'Executive Summary', path: '/financials/trends-forecast/summary' },
+  { id: 2, label: 'Payer Performance', path: '/financials/trends-forecast/payer-performance' },
+];
+
+interface UseFinancialsTabsProps {
+  showPrint?: boolean;
+  showReload?: boolean;
+  showExportWizard?: boolean;
+}
+
+export const useFinancialsTabs = ({
+  showPrint,
+  showReload,
+  showExportWizard,
+}: UseFinancialsTabsProps) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+  const { activeTab, activeSubTab, isReloading } = useAppSelector((s) => s.ui);
+  const user = useAppSelector((s) => s.auth.user);
+  
+  const isMindPath = useMemo(() => user?.company?.toLowerCase() === 'mindpath', [user]);
+
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes('/all-transactions') || path.includes('/payments') || path.includes('/recoupments') || path.includes('/other-adjustments') || path.includes('/pip')) {
+      dispatch(setActiveTab(0));
+      const subIndex = transactionSubTabs.findIndex(st => path === st.path);
+      if (subIndex !== -1) dispatch(setActiveSubTab(subIndex));
+    } else if (path.includes('/statements')) {
+      dispatch(setActiveTab(2));
+      if (path.includes('/pip')) dispatch(setActiveSubTab(0));
+      else if (path.includes('/forward-balance')) dispatch(setActiveSubTab(1));
+      else if (path.includes('/suspense-accounts')) dispatch(setActiveSubTab(2));
+    } else if (path.includes('/variance-analysis')) {
+      dispatch(setActiveTab(3));
+      if (path.includes('/fee-schedule')) dispatch(setActiveSubTab(0));
+      else if (path.includes('/payment')) dispatch(setActiveSubTab(1));
+    } else if (path.includes('/trends-forecast')) {
+      dispatch(setActiveTab(4));
+      if (path.includes('/forecast')) dispatch(setActiveSubTab(0));
+      else if (path.includes('/summary')) dispatch(setActiveSubTab(1));
+      else if (path.includes('/payer-performance')) dispatch(setActiveSubTab(2));
+    } else if (path.includes('/calendar')) {
+      dispatch(setActiveTab(5));
+    }
+  }, [location.pathname, dispatch]);
+
+  const handleMainTabChange = useCallback((index: number, path: string) => {
+    dispatch(setActiveTab(index));
+    let finalPath = path;
+    if (index === 2 && isMindPath) {
+      finalPath = '/financials/statements/forward-balance';
+    }
+    navigate(finalPath);
+  }, [dispatch, isMindPath, navigate]);
+
+  const handleSubTabChange = useCallback((index: number, path: string) => {
+    dispatch(setActiveSubTab(index));
+    navigate(path);
+  }, [dispatch, navigate]);
+
+  const canShowActions = useMemo(() => activeTab === 0 || activeTab === 2 || activeTab === 5, [activeTab]);
+  const shouldShowPrint = showPrint ?? canShowActions;
+  const shouldShowReload = showReload ?? canShowActions;
+  const shouldShowExport = showExportWizard ?? canShowActions;
+
+  const hasSubTabs = useMemo(() => [0, 2, 3, 4].includes(activeTab), [activeTab]);
+  const hasActions = shouldShowPrint || shouldShowReload || shouldShowExport;
+  const showSubTabsRow = hasSubTabs || hasActions;
+
+  return {
+    activeTab,
+    activeSubTab,
+    isReloading,
+    isMindPath,
+    shouldShowPrint,
+    shouldShowReload,
+    shouldShowExport,
+    showSubTabsRow,
+    handleMainTabChange,
+    handleSubTabChange,
+  };
+};

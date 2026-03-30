@@ -1,0 +1,224 @@
+import React from 'react';
+import {
+  Box,
+  Typography,
+  Chip,
+  InputAdornment,
+  IconButton,
+  Collapse,
+  FormControl,
+  Select,
+  MenuItem,
+  Menu,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import ClearIcon from '@mui/icons-material/Clear';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import {
+  ToolbarContainer,
+  SelectionBar,
+  ActionLink,
+  ToolbarRow,
+  ToolbarLeft,
+  RecordsText,
+  ToolbarRight,
+  SearchField,
+  ActionGroup,
+  FilterButton,
+  ExportButton,
+  FilterWrapper,
+} from './DataTable.styles';
+import { DataColumn } from './DataTable.hook';
+
+interface DataTableToolbarProps<T> {
+  selectable?: boolean;
+  selectedKeys: Set<string>;
+  sortedData: T[];
+  rowKey: (row: T) => string;
+  handleSelectionChange: (keys: Set<string>) => void;
+  isMobile: boolean;
+  activeFilterCount: number;
+  clearAllFilters: () => void;
+  customToolbarContent?: React.ReactNode;
+  searchable?: boolean;
+  search: string;
+  setSearch: (val: string) => void;
+  onSearchChange?: (val: string) => void;
+  setInternalPage: (page: number) => void;
+  filterableColumns: DataColumn<T>[];
+  showFilters: boolean;
+  setShowFilters: (val: boolean) => void;
+  columnFilters: Record<string, string>;
+  setColumnFilters: (filters: Record<string, string>) => void;
+  onFilterChange?: (filters: Record<string, string>) => void;
+  download?: boolean;
+  onDownload?: () => void;
+  handleCSVExport: () => void;
+  handlePDFExport: () => void;
+}
+
+export function DataTableToolbar<T>({
+  selectable,
+  selectedKeys,
+  sortedData,
+  rowKey,
+  handleSelectionChange,
+  isMobile,
+  activeFilterCount,
+  clearAllFilters,
+  customToolbarContent,
+  searchable,
+  search,
+  setSearch,
+  onSearchChange,
+  setInternalPage,
+  filterableColumns,
+  showFilters,
+  setShowFilters,
+  columnFilters,
+  setColumnFilters,
+  onFilterChange,
+  download,
+  onDownload,
+  handleCSVExport,
+  handlePDFExport,
+}: DataTableToolbarProps<T>) {
+  const [downloadAnchor, setDownloadAnchor] = React.useState<null | HTMLElement>(null);
+
+  return (
+    <ToolbarContainer>
+      {selectable && (
+        <SelectionBar>
+          {selectedKeys.size > 0 && (
+            <>
+              <Typography variant="body2" color="primary" fontWeight={600}>
+                ({selectedKeys.size}) Selected
+              </Typography>
+              <ActionLink variant="body2" onClick={() => handleSelectionChange(new Set())}>
+                Deselect All
+              </ActionLink>
+              <ActionLink variant="body2" onClick={() => handleSelectionChange(new Set(sortedData.map(rowKey)))}>
+                Select Max
+              </ActionLink>
+            </>
+          )}
+        </SelectionBar>
+      )}
+
+      <ToolbarRow isMobile={isMobile}>
+        <ToolbarLeft>
+          <RecordsText variant="caption">{sortedData.length} records</RecordsText>
+          {activeFilterCount > 0 && (
+            <Chip
+              label={`${activeFilterCount} Active`}
+              size="small"
+              onDelete={clearAllFilters}
+              color="primary"
+              variant="outlined"
+            />
+          )}
+        </ToolbarLeft>
+
+        <ToolbarRight isMobile={isMobile}>
+          {customToolbarContent}
+          {searchable && (
+            <SearchField
+              isMobile={isMobile}
+              size="small"
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                onSearchChange?.(e.target.value);
+                setInternalPage(0);
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: search && (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => setSearch('')}>
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
+
+          <ActionGroup>
+            {filterableColumns.length > 0 && (
+              <FilterButton
+                size="small"
+                onClick={() => setShowFilters(!showFilters)}
+                color={showFilters ? 'primary' : 'default'}
+              >
+                <FilterListIcon fontSize="small" />
+              </FilterButton>
+            )}
+
+            {download && (
+              <>
+                <ExportButton
+                  size="small"
+                  variant="outlined"
+                  startIcon={<FileDownloadIcon fontSize="small" />}
+                  onClick={(e) => (onDownload ? onDownload() : setDownloadAnchor(e.currentTarget))}
+                >
+                  Export
+                </ExportButton>
+                <Menu
+                  anchorEl={downloadAnchor}
+                  open={Boolean(downloadAnchor)}
+                  onClose={() => setDownloadAnchor(null)}
+                >
+                  <MenuItem onClick={() => { handleCSVExport(); setDownloadAnchor(null); }}>
+                    <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText>CSV</ListItemText>
+                  </MenuItem>
+                  <MenuItem onClick={() => { handlePDFExport(); setDownloadAnchor(null); }}>
+                    <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText>PDF</ListItemText>
+                  </MenuItem>
+                </Menu>
+              </>
+            )}
+          </ActionGroup>
+        </ToolbarRight>
+      </ToolbarRow>
+
+      <Collapse in={showFilters}>
+        <FilterWrapper>
+          {filterableColumns.map((col) => (
+            <FormControl key={col.id} size="small" sx={{ minWidth: 140 }}>
+              <Select
+                displayEmpty
+                value={columnFilters[col.id] || ''}
+                onChange={(e) => {
+                  const next = { ...columnFilters, [col.id]: e.target.value as string };
+                  setColumnFilters(next);
+                  onFilterChange?.(next);
+                  setInternalPage(0);
+                }}
+                renderValue={(v) => v || <Typography variant="caption" color="text.secondary">{col.label}</Typography>}
+              >
+                <MenuItem value=""><em>All {col.label}</em></MenuItem>
+                {col.filterOptions!.map((opt) => (
+                  <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ))}
+        </FilterWrapper>
+      </Collapse>
+    </ToolbarContainer>
+  );
+}

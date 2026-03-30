@@ -11,7 +11,7 @@ import {
   CollectionAccount,
   BankDepositEntity,
   ForwardBalanceNotice,
-} from '@/types/financials';
+} from '@/interfaces/financials';
 
 import {
   mockPayments,
@@ -25,7 +25,7 @@ import {
   mockCollections,
   mockBankDeposits,
   mockForwardBalanceNotices,
-} from '@/data/mockData';
+} from '@/constants/mockData';
 
 
 interface FinancialsState {
@@ -152,4 +152,5 @@ export const {
   deleteBankDeposit,
 } = financialsSlice.actions;
 export default financialsSlice.reducer;
+
 

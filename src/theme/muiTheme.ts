@@ -1,6 +1,23 @@
 import { createTheme } from '@mui/material/styles';
 import { themeConfig } from './themeConfig';
 
+declare module '@mui/material/styles' {
+  interface Palette {
+    inputBackground: string;
+    cardBorder: string;
+    selectionBackground: string;
+    tabActive: string;
+    tabHover: string;
+  }
+  interface PaletteOptions {
+    inputBackground?: string;
+    cardBorder?: string;
+    selectionBackground?: string;
+    tabActive?: string;
+    tabHover?: string;
+  }
+}
+
 const { colors, typography, spacing } = themeConfig;
 
 export const muiTheme = createTheme({
@@ -36,6 +53,12 @@ export const muiTheme = createTheme({
       disabled: colors.text.disabled,
     },
     divider: colors.divider,
+    // Custom tokens
+    inputBackground: (colors as any).inputBackground,
+    cardBorder: (colors as any).cardBorder,
+    selectionBackground: (colors as any).selectionBackground,
+    tabActive: (colors as any).tabActive,
+    tabHover: (colors as any).tabHover,
   },
   typography: {
     fontFamily: typography.fontFamily.primary,
@@ -99,11 +122,11 @@ export const muiTheme = createTheme({
   styleOverrides: {
     root: {
       '& .MuiTableCell-head': {
-        fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+        fontFamily: typography.fontFamily.primary,
         fontWeight: 600,
         fontSize: '11px',
         lineHeight: 'normal',
-        color: 'rgb(10, 22, 40)',
+        color: colors.text.primary,
         backgroundColor: colors.surfaceAlt,
         borderBottom: `1px solid ${colors.border}`,
         padding: '10px 16px',
@@ -114,19 +137,19 @@ export const muiTheme = createTheme({
 MuiTableCell: {
   styleOverrides: {
     head: {
-      fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+      fontFamily: typography.fontFamily.primary,
       fontWeight: 600,
       fontSize: '11px',
-      color: 'rgb(10, 22, 40)',
+      color: colors.text.primary,
       lineHeight: 'normal',
       letterSpacing: '0.03em',
     },
     body: {
-      fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+      fontFamily: typography.fontFamily.primary,
       fontWeight: 400,
       fontSize: '12px',
       lineHeight: 'normal',
-      color: 'rgb(10, 22, 40)',
+      color: colors.text.primary,
     },
     root: {
       padding: '12px 16px',
@@ -156,11 +179,11 @@ MuiTab: {
   styleOverrides: {
     root: {
       textTransform: 'none',
-      fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+      fontFamily: typography.fontFamily.primary,
       fontWeight: 500,
       fontSize: '13px',
       lineHeight: 'normal',
-      color: 'rgb(10, 22, 40)',
+      color: colors.text.primary,
       minHeight: 44,
       padding: '10px 18px',
       '&.Mui-selected': {

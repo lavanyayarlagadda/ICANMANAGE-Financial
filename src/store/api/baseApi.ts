@@ -1,13 +1,13 @@
 import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError, BaseQueryApi } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../index';
 import { logout, updateToken } from '../slices/authSlice';
+import { API_CONFIG, COMPANIES } from '@/config/constants';
 
+const BASE_URL = API_CONFIG.BASE_URL;
 
-export const BASE_URL = import.meta.env.PROD
-  ? import.meta.env.VITE_API_URL_PROD
-  : import.meta.env.VITE_API_URL_TEST || 'http://10.0.1.48:8181/platform/api/v1';
-
-console.log(`Using API Base URL (${import.meta.env.MODE}):`, BASE_URL);
+if (import.meta.env.DEV) {
+  console.log(`Using API Base URL:`, BASE_URL);
+}
 
 const baseQuery = fetchBaseQuery({
   baseUrl: '/', // Will be overridden in the custom base query
@@ -18,10 +18,10 @@ const baseQuery = fetchBaseQuery({
       headers.set('authorization', `Bearer ${token}`);
     }
 
-    // Add tenant ID header, but ONLY for MindPath company users and NOT for getTenants call
-    const isMindPathUser = state.auth.user?.company?.toLowerCase() === 'cognitivehealthit';
+    // Add tenant ID header, but ONLY for specific company users and NOT for getTenants call
+    const isSpecialCompanyUser = state.auth.user?.company?.toLowerCase() === COMPANIES.COGNITIVE_HEALTH_IT;
     const selectedTenantId = state.tenant?.selectedTenantId;
-    if (isMindPathUser && selectedTenantId && endpoint !== 'getTenants') {
+    if (isSpecialCompanyUser && selectedTenantId && endpoint !== 'getTenants') {
       headers.set('x-tenant-id', selectedTenantId);
     }
 
