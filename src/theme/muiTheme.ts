@@ -9,7 +9,7 @@ export const muiTheme = createTheme({
       main: colors.primary,
       light: colors.primaryLight,
       dark: colors.primaryDark,
-      contrastText: '#f5f7fa',
+      contrastText: colors.background,
     },
     secondary: {
       main: colors.secondary,
@@ -99,11 +99,11 @@ export const muiTheme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiTableCell-head': {
-            fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+            fontFamily: typography.fontFamily.primary,
             fontWeight: 600,
             fontSize: '11px',
             lineHeight: 'normal',
-            color: 'rgb(10, 22, 40)',
+            color: colors.text.primary,
             backgroundColor: colors.surfaceAlt,
             borderBottom: `1px solid ${colors.border}`,
             padding: '10px 16px',
@@ -114,19 +114,19 @@ export const muiTheme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         head: {
-          fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+          fontFamily: typography.fontFamily.primary,
           fontWeight: 600,
           fontSize: '11px',
-          color: 'rgb(10, 22, 40)',
+          color: colors.text.primary,
           lineHeight: 'normal',
           letterSpacing: '0.03em',
         },
         body: {
-          fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+          fontFamily: typography.fontFamily.primary,
           fontWeight: 400,
           fontSize: '12px',
           lineHeight: 'normal',
-          color: 'rgb(10, 22, 40)',
+          color: colors.text.primary,
         },
         root: {
           padding: '12px 16px',
@@ -156,11 +156,11 @@ export const muiTheme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'none',
-          fontFamily: 'Inter, "Segoe UI", system-ui, -apple-system, sans-serif',
+          fontFamily: typography.fontFamily.primary,
           fontWeight: 500,
           fontSize: '13px',
           lineHeight: 'normal',
-          color: 'rgb(10, 22, 40)',
+          color: colors.text.primary,
           minHeight: 44,
           padding: '10px 18px',
           '&.Mui-selected': {
