@@ -13,7 +13,7 @@ import { formatCurrency } from '@/utils/formatters';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import DetailCard from '@/components/molecules/DetailCard/DetailCard';
-import { ServiceLine } from '@/interfaces/financials';
+import { ServiceLine, RemittanceDetail } from '@/interfaces/financials';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
 import {
     ScreenWrapper,
@@ -86,7 +86,7 @@ const RemittanceDetailScreen: React.FC = () => {
                     <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>Affected Claims in this Transaction ({claims.length})</Typography>
                     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
                         <List disablePadding>
-                            {claims.map((claim: any, idx: number) => (
+                            {claims.map((claim: RemittanceDetail, idx: number) => (
                                 <StyledListItemButton key={claim.payerIcn || idx} selected={selectedIndex === idx} onClick={() => handleClaimSelect(idx)} divider={idx < claims.length - 1}>
                                     <ListItemAvatar><StyledAvatar isSelected={selectedIndex === idx}><AssignmentIcon fontSize="small" /></StyledAvatar></ListItemAvatar>
                                     <ListItemText primary={`ICN: ${claim.payerIcn}`} secondary={`Charge: ${formatCurrency(claim.claimCharge)} | Status: ${claim.claimStatusCode}`} primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />

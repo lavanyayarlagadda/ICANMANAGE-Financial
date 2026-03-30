@@ -19,9 +19,12 @@ import { subMonths, format } from 'date-fns';
 import { 
   useSearchPaymentsQuery, 
   useLazyExportPaymentsQuery, 
-  useLazyGetRemittanceClaimsQuery 
+  useLazyGetRemittanceClaimsQuery,
+  useLazySearchServiceLinesQuery 
 } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
+import { ServiceLineSearchResponse } from '@/interfaces/api';
 
 export const usePaymentsScreen = () => {
     const dispatch = useAppDispatch();
@@ -110,13 +113,28 @@ export const usePaymentsScreen = () => {
         }
     }, [actionTriggers.reload, refetch, dispatch]);
 
-    const handleDrillDown = useCallback(async (row: any) => {
+    const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
+
+    const handleDrillDown = useCallback(async (row: PaymentTransaction) => {
         try {
             dispatch(setGlobalDrillingDown(true));
             dispatch(setSelectedPaymentId(row.transactionNo));
 
-            const claimResult = await triggerGetRemittance(row.transactionNo).unwrap() as any;
-            const claimsArr = Array.isArray(claimResult?.data) ? claimResult.data : (Array.isArray(claimResult) ? claimResult : (claimResult ? [claimResult] : []));
+            // Call both APIs simultaneously
+            const [claimResult, serviceLinesResult] = await Promise.all([
+              triggerGetRemittance(row.transactionNo).unwrap(),
+              triggerSearchServiceLines({
+                page: 1,
+                size: 10,
+                sort: 'lineNumber',
+                desc: false,
+                check: row.transactionNo
+              }).unwrap()
+            ]) as [RemittanceDetail | { data: RemittanceDetail[] }, ServiceLineSearchResponse];
+
+            const claimsArr: RemittanceDetail[] = Array.isArray((claimResult as any)?.data) 
+              ? (claimResult as any).data 
+              : (Array.isArray(claimResult) ? claimResult : (claimResult ? [claimResult as RemittanceDetail] : []));
 
             if (claimsArr.length === 0) {
                 dispatch(setRemittanceClaims([]));
@@ -128,13 +146,15 @@ export const usePaymentsScreen = () => {
             dispatch(setRemittanceClaims(claimsArr));
             dispatch(setSelectedClaimIndex(0));
             dispatch(setRemittanceDetail(claimsArr[0]));
+            // Service lines are already fetched and will be available to the Detail screen via cache if needed, 
+            // but we ensure the initial load is done.
             dispatch(setShowRemittanceDetail(true));
         } catch (err) {
-            console.error('Failed to fetch primary remittance details:', err);
+            console.error('Failed to fetch remittance drill-down data:', err);
         } finally {
             dispatch(setGlobalDrillingDown(false));
         }
-    }, [dispatch, triggerGetRemittance]);
+    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {

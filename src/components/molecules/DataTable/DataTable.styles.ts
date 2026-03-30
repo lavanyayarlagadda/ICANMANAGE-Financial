@@ -134,10 +134,10 @@ export const ScrollableTableContainer = styled(TableContainer)(({ theme }) => ({
     background: 'transparent',
   },
   '&::-webkit-scrollbar-thumb': {
-    background: '#bdbdbd',
+    background: theme.palette.grey[400],
     borderRadius: '10px',
     '&:hover': {
-      background: '#9e9e9e',
+      background: theme.palette.grey[500],
     },
   },
 }));
@@ -158,7 +158,7 @@ export const StyledTableRow = styled(TableRow, {
   },
 
   ...(isSelected && {
-    backgroundColor: '#F4F9FF !important',
+    backgroundColor: theme.palette.action.selected + ' !important',
   }),
 }));
 
@@ -173,8 +173,8 @@ export const StyledTableCell = styled(TableCell)(({ theme }) => ({
 /* HEADER CELL */
 export const HeaderTableCell = styled(TableCell)(({ theme }) => ({
   padding: '4px 12px',
-  backgroundColor: '#f1f5f9',
-  color: '#475569',
+  backgroundColor: theme.palette.grey[100],
+  color: theme.palette.text.secondary,
   fontWeight: 700,
   fontSize: '0.75rem',
   textTransform: 'uppercase',
