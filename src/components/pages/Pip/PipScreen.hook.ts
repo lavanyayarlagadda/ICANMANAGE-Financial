@@ -51,7 +51,7 @@ export const usePipScreen = () => {
 
             if (result !== undefined) {
                 downloadFileFromBlob(
-                    result as unknown as Blob,
+                    result,
                     `PIP_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
                 );
             }

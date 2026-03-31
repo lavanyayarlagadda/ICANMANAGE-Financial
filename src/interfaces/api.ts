@@ -12,6 +12,13 @@ import {
   PayerPerformanceRecord 
 } from './financials';
 
+export type RawRemittanceClaimsResponse =
+  | RemittanceDetail
+  | { data: RemittanceDetail[] }
+  | RemittanceDetail[];
+
+export type RemittanceClaimsResponse = RemittanceDetail[];
+
 export interface PaymentSearchRequest {
   page: number;
   size: number;

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { z } from 'zod';
 
 export type MenuStatus = 'Active' | 'Hidden' | 'Disabled';
 
@@ -24,6 +25,29 @@ export interface User {
     passwordPolicy?: string;
 }
 
+const menuStatusSchema = z.enum(['Active', 'Hidden', 'Disabled']);
+const menuAccessSchema: z.ZodType<MenuAccess> = z.object({
+    menuName: z.string(),
+    status: menuStatusSchema,
+    subModules: z.lazy(() => z.array(menuAccessSchema)).optional(),
+});
+
+const userSchema: z.ZodType<User> = z.object({
+    menus: z.array(menuAccessSchema),
+    id: z.string(),
+    username: z.string(),
+    email: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    company: z.string(),
+    roleId: z.string(),
+    role: z.string(),
+    accessibleModules: z.array(z.string()),
+    defaultLandingPage: z.string(),
+    inactivityTimeout: z.string().optional(),
+    passwordPolicy: z.string().optional(),
+});
+
 interface AuthState {
     isAuthenticated: boolean;
     user: User | null;
@@ -40,7 +64,13 @@ const loadUserFromStorage = (): User | null => {
     try {
         const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
         if (storedUser) {
-            return JSON.parse(storedUser) as User;
+            const parsed = JSON.parse(storedUser);
+            const result = userSchema.safeParse(parsed);
+            if (result.success) {
+                return result.data;
+            }
+            console.warn('Invalid stored user format. Clearing auth user from storage.');
+            localStorage.removeItem(AUTH_STORAGE_KEY);
         }
     } catch (e) {
         console.error("Failed to parse stored user", e);

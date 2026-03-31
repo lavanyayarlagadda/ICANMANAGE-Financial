@@ -50,7 +50,7 @@ const TrendsScreen: React.FC = () => {
         { id: 'amountPctByTeam', label: 'AMT % BY TEAM', align: 'right', render: (row) => `${row.amountPctByTeam}%`, accessor: (row) => row.amountPctByTeam },
         { id: 'totalAmountPosted', label: 'TOTAL POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountPosted)), accessor: (row) => row.totalAmountPosted },
         { id: 'totalAmountNotPosted', label: 'TOTAL NOT POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountNotPosted)), accessor: (row) => row.totalAmountNotPosted },
-        { id: 'avgDaysToReconcile', label: 'AVG DAYS', align: 'right', render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile },
+        { id: 'avgDaysToReconcile', label: 'AVG DAYS', align: 'right', render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile ?? '' },
     ], []);
 
     const forecastTrendsContent = useMemo(() => (
@@ -71,7 +71,11 @@ const TrendsScreen: React.FC = () => {
             </LegendWrapper>
             <ChartContainer>
                 <ResponsiveContainer width="100%" height={350}>
-                    <ComposedChart data={(reconPerformance?.data || []).map(d => ({ month: format(new Date(d.month), 'MMM yy'), actual: parseFloat(d.actualReconciledAmount) / 1000000, forecast: parseFloat(d.forecastAmount) / 1000000 }))}>
+                    <ComposedChart data={(reconPerformance?.data || []).map(d => ({ 
+                        month: format(new Date(d.month), 'MMM yy'), 
+                        actual: parseFloat(d.actualReconciledAmount || '0') / 1000000, 
+                        forecast: parseFloat(d.forecastAmount || '0') / 1000000 
+                    }))}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
                         <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                         <YAxis tickFormatter={(v) => `$${v}M`} tick={{ fontSize: 12 }} />

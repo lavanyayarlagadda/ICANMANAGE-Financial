@@ -9,7 +9,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 import DictionaryDrawer from '../DictionaryDrawer/DictionaryDrawer';
-import { useDataTable, DataColumn, SortDirection } from './DataTable.hook';
+import { useDataTable, DataColumn, SortDirection, AccessorColumn, FilterableColumn } from './DataTable.hook';
 import { MainContainer } from './DataTable.styles';
 import { DataTableToolbar } from './DataTableToolbar';
 import { DataTableDesktop } from './DataTableDesktop';
@@ -61,6 +61,10 @@ function DataTable<T>({
   dictionaryId,
   ...props
 }: DataTableProps<T>) {
+  const hasAccessor = (column: DataColumn<T>): column is AccessorColumn<T> => !!column.accessor;
+  const hasFilterOptions = (column: DataColumn<T>): column is FilterableColumn<T> =>
+    Array.isArray(column.filterOptions) && column.filterOptions.length > 0;
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [showFilters, setShowFilters] = useState(false);
@@ -98,9 +102,9 @@ function DataTable<T>({
     ...props,
   });
 
-  const isSortable = (col: DataColumn<T>) => col.accessor && !col.disableSort;
-  const filterableColumns = columns.filter((c) => c.filterOptions && c.filterOptions.length > 0);
-  const exportableColumns = columns.filter((c) => c.id !== 'actions' && c.accessor);
+  const isSortable = (col: DataColumn<T>) => !!(col.accessor && !col.disableSort);
+  const filterableColumns = columns.filter(hasFilterOptions);
+  const exportableColumns = columns.filter((c): c is AccessorColumn<T> => c.id !== 'actions' && hasAccessor(c));
   const paginatedData = paginated && !props.serverSide
     ? sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : sortedData;
@@ -128,7 +132,7 @@ function DataTable<T>({
 
   const handleCSVExport = () => {
     const headers = exportableColumns.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
-    const rows = sortedData.map((row) => exportableColumns.map((col) => String(col.accessor!(row))));
+    const rows = sortedData.map((row) => exportableColumns.map((col) => String(col.accessor(row))));
     const csvContent = [headers.join(','), ...rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -141,7 +145,7 @@ function DataTable<T>({
 
   const handlePDFExport = () => {
     const headers = exportableColumns.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
-    const rows = sortedData.map((row) => exportableColumns.map((col) => String(col.accessor!(row))));
+    const rows = sortedData.map((row) => exportableColumns.map((col) => String(col.accessor(row))));
     const doc = new jsPDF({ orientation: headers.length > 6 ? 'landscape' : 'portrait' });
     doc.setFontSize(14).text(exportTitle, 14, 18);
     autoTable(doc, {

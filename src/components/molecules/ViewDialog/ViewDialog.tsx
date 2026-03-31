@@ -12,13 +12,14 @@ import {
   useTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { DialogData } from '@/interfaces/financials';
 import * as styles from './ViewDialog.styles';
 
 interface ViewDialogProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  data: Record<string, unknown> | null;
+  data: DialogData | null;
 }
 
 const ViewDialog: React.FC<ViewDialogProps> = ({ open, onClose, title, data }) => {

@@ -24,7 +24,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import Accordion from '@/components/atoms/Accordion/Accordion';
 import { themeConfig } from '@/theme';
 import { LOGIN_API_RESPONSE } from '@/utils/dummyData';
-import { useDemoSecurityModal } from './DemoSecurityModal.hook';
+import { useDemoSecurityModal, MODULE_STATUS_OPTIONS, PASSWORD_POLICY_OPTIONS } from './DemoSecurityModal.hook';
 import * as styles from './DemoSecurityModal.styles';
 
 interface DemoSecurityModalProps {
@@ -44,11 +44,11 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
         userBeingEdited,
         selectedUsername,
         setInactivityTimeout,
-        setPasswordPolicy,
         setModuleSelectionEnabled,
         setSearchQuery,
         handleUserChange,
-        handleModuleStatusChange,
+        handleModuleStatusSelectChange,
+        handlePasswordPolicyChange,
         handleSave,
     } = useDemoSecurityModal({ currentUser, onClose });
 
@@ -152,11 +152,11 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                             <FormControl size="small" sx={{ width: { xs: 110, sm: 120 }, flexShrink: 0 }}>
                                                 <Select
                                                     value={moduleStatuses[menuItem.menuName] || 'Hidden'}
-                                                    onChange={(e) => handleModuleStatusChange(menuItem.menuName, e.target.value as string)}
+                                                    onChange={(e) => handleModuleStatusSelectChange(menuItem.menuName, e)}
                                                     disabled={!moduleSelectionEnabled}
                                                     sx={styles.statusSelectStyles}
                                                 >
-                                                    {['Active', 'Hidden', 'Disabled'].map(statusOption => (
+                                                    {MODULE_STATUS_OPTIONS.map(statusOption => (
                                                         <MenuItem key={statusOption} value={statusOption} sx={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 1 }}>
                                                             {moduleStatuses[menuItem.menuName] === statusOption ? <CheckIcon fontSize="small" /> : <Box sx={{ width: 20 }} />}
                                                             {statusOption}
@@ -176,11 +176,11 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                                     <FormControl size="small" sx={{ width: { xs: 110, sm: 120 }, flexShrink: 0 }}>
                                                         <Select
                                                             value={moduleStatuses[subItem.menuName] || 'Hidden'}
-                                                            onChange={(e) => handleModuleStatusChange(subItem.menuName, e.target.value as string)}
+                                                            onChange={(e) => handleModuleStatusSelectChange(subItem.menuName, e)}
                                                             disabled={moduleStatuses[menuItem.menuName] === 'Disabled' || !moduleSelectionEnabled}
                                                             sx={styles.statusSelectStyles}
                                                         >
-                                                            {['Active', 'Hidden', 'Disabled'].map(statusOption => (
+                                                            {MODULE_STATUS_OPTIONS.map(statusOption => (
                                                                 <MenuItem key={statusOption} value={statusOption} sx={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 1 }}>
                                                                     {moduleStatuses[subItem.menuName] === statusOption ? <CheckIcon fontSize="small" /> : <Box sx={{ width: 20 }} />}
                                                                     {statusOption}
@@ -210,8 +210,8 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                     <Box>
                         <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>Password Expiration Policy</Typography>
                         <FormControl fullWidth size="small" sx={{ mb: 1 }}>
-                            <Select value={passwordPolicy} onChange={(e) => setPasswordPolicy(e.target.value as string)}>
-                                {['15 Days', '30 Days', '60 Days', '90 Days', 'Never'].map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+                            <Select value={passwordPolicy} onChange={handlePasswordPolicyChange}>
+                                {PASSWORD_POLICY_OPTIONS.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
                             </Select>
                         </FormControl>
                     </Box>

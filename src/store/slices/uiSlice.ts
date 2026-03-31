@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { DialogData } from '@/interfaces/financials';
 
 interface UiState {
   activeTab: number;
@@ -8,9 +9,9 @@ interface UiState {
   sidebarCollapsed: boolean;
   mobileMenuOpen: boolean;
   viewDialogOpen: boolean;
-  viewDialogData: any | null;
+  viewDialogData: DialogData | null;
   editDialogOpen: boolean;
-  editDialogData: any | null;
+  editDialogData: DialogData | null;
   confirmDeleteOpen: boolean;
   confirmDeleteId: string | null;
   confirmDeleteType: string;
@@ -81,7 +82,7 @@ const uiSlice = createSlice({
     closeMobileMenu: (state) => {
       state.mobileMenuOpen = false;
     },
-    openViewDialog: (state, action: PayloadAction<any>) => {
+    openViewDialog: (state, action: PayloadAction<DialogData>) => {
       state.viewDialogOpen = true;
       state.viewDialogData = action.payload;
     },
@@ -89,7 +90,7 @@ const uiSlice = createSlice({
       state.viewDialogOpen = false;
       state.viewDialogData = null;
     },
-    openEditDialog: (state, action: PayloadAction<any>) => {
+    openEditDialog: (state, action: PayloadAction<DialogData>) => {
       state.editDialogOpen = true;
       state.editDialogData = action.payload;
     },

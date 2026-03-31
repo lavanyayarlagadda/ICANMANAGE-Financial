@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { 
+import {
   setIsReloading, 
   setIsGlobalFetching, 
   setIsDrillingDown as setGlobalDrillingDown 
@@ -21,6 +21,7 @@ import {
 } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
 import { FeeScheduleVariance, PaymentVariance, RemittanceDetail } from '@/interfaces/financials';
+import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 
 export const useVarianceScreen = () => {
     const dispatch = useAppDispatch();
@@ -73,16 +74,8 @@ export const useVarianceScreen = () => {
 
             dispatch(setSelectedPaymentId(identifier));
 
-            const claimResult = await triggerGetRemittance(identifier).unwrap() as RemittanceDetail | { data: RemittanceDetail[] } | RemittanceDetail[];
-            
-            let claimsArr: RemittanceDetail[] = [];
-            if (Array.isArray(claimResult)) {
-                claimsArr = claimResult;
-            } else if (claimResult && 'data' in claimResult && Array.isArray(claimResult.data)) {
-                claimsArr = claimResult.data;
-            } else if (claimResult) {
-                claimsArr = [claimResult as RemittanceDetail];
-            }
+            const claimResult = await triggerGetRemittance(identifier).unwrap();
+            const claimsArr = normalizeRemittanceClaims(claimResult);
 
             if (claimsArr.length === 0) {
                 dispatch(setRemittanceClaims([]));
@@ -93,7 +86,8 @@ export const useVarianceScreen = () => {
 
             dispatch(setRemittanceClaims(claimsArr));
             dispatch(setSelectedClaimIndex(0));
-            dispatch(setRemittanceDetail(claimsArr[0]));
+            const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
+            dispatch(setRemittanceDetail(selectedClaim));
             dispatch(setShowRemittanceDetail(true));
         } catch (err) {
             console.error('Failed to fetch remittance details:', err);

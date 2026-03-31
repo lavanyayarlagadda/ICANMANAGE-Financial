@@ -33,7 +33,7 @@ import {
   ExportButton,
   FilterWrapper,
 } from './DataTable.styles';
-import { DataColumn } from './DataTable.hook';
+import { FilterableColumn } from './DataTable.hook';
 
 interface DataTableToolbarProps<T> {
   selectable?: boolean;
@@ -50,7 +50,7 @@ interface DataTableToolbarProps<T> {
   setSearch: (val: string) => void;
   onSearchChange?: (val: string) => void;
   setInternalPage: (page: number) => void;
-  filterableColumns: DataColumn<T>[];
+  filterableColumns: FilterableColumn<T>[];
   showFilters: boolean;
   setShowFilters: (val: boolean) => void;
   columnFilters: Record<string, string>;
@@ -203,7 +203,7 @@ export function DataTableToolbar<T>({
                 displayEmpty
                 value={columnFilters[col.id] || ''}
                 onChange={(e) => {
-                  const next = { ...columnFilters, [col.id]: e.target.value as string };
+                  const next = { ...columnFilters, [col.id]: String(e.target.value) };
                   setColumnFilters(next);
                   onFilterChange?.(next);
                   setInternalPage(0);
@@ -211,7 +211,7 @@ export function DataTableToolbar<T>({
                 renderValue={(v) => v || <Typography variant="caption" color="text.secondary">{col.label}</Typography>}
               >
                 <MenuItem value=""><em>All {col.label}</em></MenuItem>
-                {col.filterOptions!.map((opt) => (
+                {col.filterOptions.map((opt) => (
                   <MenuItem key={opt} value={opt}>{opt}</MenuItem>
                 ))}
               </Select>
