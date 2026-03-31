@@ -19,6 +19,7 @@ import {
   StyledTableRow,
 } from './DataTable.styles';
 import { DataColumn, SortDirection } from './DataTable.hook';
+import { TableDescriptions } from '@/services/descriptionService';
 
 interface DataTableDesktopProps<T> {
   selectable?: boolean;
@@ -30,7 +31,7 @@ interface DataTableDesktopProps<T> {
   sortDir: SortDirection;
   isSortable: (col: DataColumn<T>) => boolean;
   handleSort: (colId: string) => void;
-  descriptions?: Record<string, string>;
+  descriptions?: TableDescriptions | null;
   handleHeaderClick: (colId: string) => void;
   paginatedData: T[];
   selectedKeys: Set<string>;

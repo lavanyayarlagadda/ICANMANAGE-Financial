@@ -8,9 +8,9 @@ interface UiState {
   sidebarCollapsed: boolean;
   mobileMenuOpen: boolean;
   viewDialogOpen: boolean;
-  viewDialogData: Record<string, unknown> | null;
+  viewDialogData: any | null;
   editDialogOpen: boolean;
-  editDialogData: Record<string, unknown> | null;
+  editDialogData: any | null;
   confirmDeleteOpen: boolean;
   confirmDeleteId: string | null;
   confirmDeleteType: string;
@@ -81,7 +81,7 @@ const uiSlice = createSlice({
     closeMobileMenu: (state) => {
       state.mobileMenuOpen = false;
     },
-    openViewDialog: (state, action: PayloadAction<Record<string, unknown>>) => {
+    openViewDialog: (state, action: PayloadAction<any>) => {
       state.viewDialogOpen = true;
       state.viewDialogData = action.payload;
     },
@@ -89,7 +89,7 @@ const uiSlice = createSlice({
       state.viewDialogOpen = false;
       state.viewDialogData = null;
     },
-    openEditDialog: (state, action: PayloadAction<Record<string, unknown>>) => {
+    openEditDialog: (state, action: PayloadAction<any>) => {
       state.editDialogOpen = true;
       state.editDialogData = action.payload;
     },

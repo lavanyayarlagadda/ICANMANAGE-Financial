@@ -29,8 +29,8 @@ const RecoupmentsScreen: React.FC = () => {
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
-                    onView={() => handleView(r as unknown as Record<string, unknown>)}
-                    onEdit={() => handleEdit(r as unknown as Record<string, unknown>)}
+                    onView={() => handleView(r)}
+                    onEdit={() => handleEdit(r)}
                     onDelete={() => handleDelete(r.id)}
                 />
             ),

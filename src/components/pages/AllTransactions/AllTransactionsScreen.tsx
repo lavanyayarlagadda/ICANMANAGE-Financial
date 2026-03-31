@@ -26,7 +26,7 @@ const AllTransactionsScreen: React.FC = () => {
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
-                    onView={() => handleView(r as unknown as Record<string, unknown>)}
+                    onView={() => handleView(r)}
                 />
             ),
         },

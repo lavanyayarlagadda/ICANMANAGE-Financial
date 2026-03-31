@@ -26,8 +26,9 @@ const OtherAdjustmentsScreen: React.FC = () => {
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
-                    onView={() => handleView(r as unknown as Record<string, unknown>)}
-                    onEdit={() => handleEdit(r as unknown as Record<string, unknown>)}
+                    // Pass 'r' directly without the Record casting
+                    onView={() => handleView(r)}
+                    onEdit={() => handleEdit(r)}
                     onDelete={() => handleDelete(r.id)}
                 />
             ),
