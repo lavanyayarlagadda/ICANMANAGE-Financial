@@ -42,17 +42,16 @@ export const formatNumber = (value: number): string => {
   return new Intl.NumberFormat('en-US').format(value);
 };
 
-/**
- * Capitalize the first letter of a string.
- */
-export const capitalize = (str: string): string => {
+export const capitalize = (str: string | null | undefined): string => {
+  if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
 /**
  * Truncate text with ellipsis.
  */
-export const truncate = (str: string, maxLength: number): string => {
+export const truncate = (str: string | null | undefined, maxLength: number): string => {
+  if (!str) return '';
   if (str.length <= maxLength) return str;
   return `${str.slice(0, maxLength)}…`;
 };
@@ -60,6 +59,7 @@ export const truncate = (str: string, maxLength: number): string => {
 /**
  * Get status color key from status string.
  */
-export const getStatusKey = (status: string): string => {
+export const getStatusKey = (status: string | null | undefined): string => {
+  if (!status) return '';
   return status.toLowerCase().replace(/\s+/g, '');
 };

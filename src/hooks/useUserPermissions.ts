@@ -11,8 +11,10 @@ export const useUserPermissions = () => {
   const menus = user?.menus || [];
 
   const company = user?.company?.toLowerCase();
-  
-  const isMindPath = company === COMPANIES.MINDPATH;
+    const { selectedTenantId } = useAppSelector((s) => s.tenant);
+
+  const isMindPath = company === COMPANIES.MINDPATH ||  
+      selectedTenantId?.toLowerCase() === 'mindpath';
   const isCognitiveUser = company === COMPANIES.COGNITIVE_HEALTH_IT;
 
   /**

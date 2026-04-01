@@ -4,8 +4,13 @@ import { useAppSelector } from '@/store';
 export const useStatementsScreen = () => {
     const { activeSubTab } = useAppSelector((s) => s.ui);
     const user = useAppSelector((s) => s.auth.user);
-    const isMindPath = user?.company?.toLowerCase() === 'mindpath';
-    const { forwardBalanceNotices } = useAppSelector((s) => s.financials);
+ const { selectedTenantId } = useAppSelector((s) => s.tenant);
+const isMindPath = useMemo(
+  () =>
+    user?.company?.toLowerCase() === 'mindpath' ||
+    selectedTenantId?.toLowerCase() === 'mindpath',
+  [user, selectedTenantId]
+);  const { forwardBalanceNotices } = useAppSelector((s) => s.financials);
 
     const finalActiveSubTab = (isMindPath && activeSubTab === 0) ? 1 : activeSubTab;
 
