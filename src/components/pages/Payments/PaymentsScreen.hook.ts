@@ -24,7 +24,7 @@ import {
 } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
-import { ServiceLineSearchResponse } from '@/interfaces/api';
+import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 
 export const usePaymentsScreen = () => {
     const dispatch = useAppDispatch();
@@ -73,7 +73,7 @@ export const usePaymentsScreen = () => {
 
             if (result !== undefined) {
                 downloadFileFromBlob(
-                    result as unknown as Blob,
+                    result,
                     `Payments_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
                 );
             }
@@ -121,7 +121,7 @@ export const usePaymentsScreen = () => {
             dispatch(setSelectedPaymentId(row.transactionNo));
 
             // Call both APIs simultaneously
-            const [claimResult, _serviceLinesResult] = await Promise.all([
+            const [claimResult] = await Promise.all([
               triggerGetRemittance(row.transactionNo).unwrap(),
               triggerSearchServiceLines({
                 page: 1,
@@ -130,16 +130,9 @@ export const usePaymentsScreen = () => {
                 desc: false,
                 check: row.transactionNo
               }).unwrap()
-            ]) as [RemittanceDetail | { data: RemittanceDetail[] } | RemittanceDetail[], ServiceLineSearchResponse];
+            ]);
 
-            let claimsArr: RemittanceDetail[] = [];
-            if (Array.isArray(claimResult)) {
-              claimsArr = claimResult;
-            } else if (claimResult && 'data' in claimResult && Array.isArray(claimResult.data)) {
-              claimsArr = claimResult.data;
-            } else if (claimResult) {
-              claimsArr = [claimResult as RemittanceDetail];
-            }
+            const claimsArr = normalizeRemittanceClaims(claimResult);
 
             if (claimsArr.length === 0) {
                 dispatch(setRemittanceClaims([]));
@@ -150,7 +143,8 @@ export const usePaymentsScreen = () => {
 
             dispatch(setRemittanceClaims(claimsArr));
             dispatch(setSelectedClaimIndex(0));
-            dispatch(setRemittanceDetail(claimsArr[0]));
+            const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
+            dispatch(setRemittanceDetail(selectedClaim));
             // Service lines are already fetched and will be available to the Detail screen via cache if needed, 
             // but we ensure the initial load is done.
             dispatch(setShowRemittanceDetail(true));

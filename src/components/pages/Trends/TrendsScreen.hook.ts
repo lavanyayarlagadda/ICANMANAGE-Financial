@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { format, subMonths } from 'date-fns';
@@ -15,8 +15,13 @@ export const useTrendsScreen = () => {
     const dispatch = useAppDispatch();
     const trendsData = useAppSelector((s) => s.financials.trendsData);
     const user = useAppSelector((s) => s.auth.user);
-    const isMindPath = user?.company?.toLowerCase() === 'mindpath';
-    const { activeSubTab } = useAppSelector((s) => s.ui);
+ const { selectedTenantId } = useAppSelector((s) => s.tenant);
+const isMindPath = useMemo(
+  () =>
+    user?.company?.toLowerCase() === 'mindpath' ||
+    selectedTenantId?.toLowerCase() === 'mindpath',
+  [user, selectedTenantId]
+);  const { activeSubTab } = useAppSelector((s) => s.ui);
 
     const [queryParams, setQueryParams] = useState({
         fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),

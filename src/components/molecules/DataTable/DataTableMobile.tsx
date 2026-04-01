@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { DataColumn } from './DataTable.hook';
+import { TableDescriptions } from '@/services/descriptionService';
 
 interface DataTableMobileProps<T> {
   paginatedData: T[];
@@ -19,7 +20,7 @@ interface DataTableMobileProps<T> {
   selectedKeys: Set<string>;
   handleSelectOne: (key: string, checked: boolean) => void;
   columns: DataColumn<T>[];
-  descriptions?: Record<string, string>;
+  descriptions?: TableDescriptions | null;
   handleHeaderClick: (colId: string) => void;
 }
 

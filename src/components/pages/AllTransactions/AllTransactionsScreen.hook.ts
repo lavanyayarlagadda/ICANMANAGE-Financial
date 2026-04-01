@@ -7,8 +7,13 @@ export const useAllTransactionsScreen = () => {
     const dispatch = useAppDispatch();
     const { allTransactions } = useAppSelector((s) => s.financials);
     const user = useAppSelector((s) => s.auth.user);
-    const isMindPath = user?.company?.toLowerCase() === 'mindpath';
-    const { actionTriggers } = useAppSelector(s => s.ui);
+     const { selectedTenantId } = useAppSelector((s) => s.tenant);
+const isMindPath = useMemo(
+  () =>
+    user?.company?.toLowerCase() === 'mindpath' ||
+    selectedTenantId?.toLowerCase() === 'mindpath',
+  [user, selectedTenantId]
+);    const { actionTriggers } = useAppSelector(s => s.ui);
 
     const filteredTransactions = useMemo(() => isMindPath 
         ? allTransactions.filter(t => t.transactionType !== 'PIP') 

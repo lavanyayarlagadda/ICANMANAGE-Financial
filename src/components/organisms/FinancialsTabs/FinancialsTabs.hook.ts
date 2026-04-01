@@ -52,9 +52,13 @@ export const useFinancialsTabs = ({
   const dispatch = useAppDispatch();
   const { activeTab, activeSubTab, isReloading } = useAppSelector((s) => s.ui);
   const user = useAppSelector((s) => s.auth.user);
-  
-  const isMindPath = useMemo(() => user?.company?.toLowerCase() === 'mindpath', [user]);
-
+  const { selectedTenantId } = useAppSelector((s) => s.tenant);
+const isMindPath = useMemo(
+  () =>
+    user?.company?.toLowerCase() === 'mindpath' ||
+    selectedTenantId?.toLowerCase() === 'mindpath',
+  [user, selectedTenantId]
+);
   useEffect(() => {
     const path = location.pathname;
     if (path.includes('/all-transactions') || path.includes('/payments') || path.includes('/recoupments') || path.includes('/other-adjustments') || path.includes('/pip')) {

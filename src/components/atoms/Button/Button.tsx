@@ -18,12 +18,12 @@ const Button: React.FC<CustomButtonProps> = ({
 }) => {
     const theme = useTheme();
 
-    const startIcon = useMemo(() => 
+    const startIcon = useMemo(() =>
         iconPosition === 'start' && icon ? icon : props.startIcon,
         [icon, iconPosition, props.startIcon]
     );
-    
-    const endIcon = useMemo(() => 
+
+    const endIcon = useMemo(() =>
         iconPosition === 'end' && icon ? icon : props.endIcon,
         [icon, iconPosition, props.endIcon]
     );
@@ -32,10 +32,8 @@ const Button: React.FC<CustomButtonProps> = ({
         <MuiButton
             startIcon={startIcon}
             endIcon={endIcon}
-            sx={{
-                ...styles.buttonStyles(theme),
-                ...sx,
-            }}
+            // MUI will automatically flatten this array
+            sx={[styles.buttonStyles(theme), ...(Array.isArray(sx) ? sx : [sx])]}
             {...props}
         >
             {label || children}

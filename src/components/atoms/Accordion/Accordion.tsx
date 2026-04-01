@@ -5,6 +5,8 @@ import {
     AccordionDetails as MuiAccordionDetails,
     AccordionProps as MuiAccordionProps,
     Typography,
+    SxProps,
+    Theme,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { themeConfig } from '@/theme/themeConfig';
@@ -14,8 +16,8 @@ export interface AccordionProps extends Omit<MuiAccordionProps, 'children'> {
     summary?: React.ReactNode;
     children: React.ReactNode;
     hideBorderTop?: boolean;
-    summarySx?: object;
-    detailsSx?: object;
+    summarySx?: SxProps<Theme>;
+    detailsSx?: SxProps<Theme>;
 }
 
 const Accordion: React.FC<AccordionProps> = ({
@@ -35,19 +37,19 @@ const Accordion: React.FC<AccordionProps> = ({
             defaultExpanded={defaultExpanded}
             disableGutters={disableGutters}
             elevation={elevation}
-            sx={{
-                ...styles.accordionStyles(hideBorderTop),
-                ...sx,
-            }}
+            sx={[
+                styles.accordionStyles(hideBorderTop),
+                ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+            ]}
             {...rest}
         >
             {summary && (
                 <MuiAccordionSummary
                     expandIcon={<ExpandMoreIcon sx={{ color: themeConfig.colors.primary }} />}
-                    sx={{
-                        ...styles.summaryStyles,
-                        ...summarySx,
-                    }}
+                    sx={[
+                        styles.summaryStyles,
+                        ...(Array.isArray(summarySx) ? summarySx : summarySx ? [summarySx] : []),
+                    ]}
                 >
                     {typeof summary === 'string' ? (
                         <Typography sx={styles.typographyStyles}>
@@ -58,7 +60,10 @@ const Accordion: React.FC<AccordionProps> = ({
                     )}
                 </MuiAccordionSummary>
             )}
-            <MuiAccordionDetails sx={{ ...styles.detailsStyles, ...detailsSx }}>
+            <MuiAccordionDetails sx={[
+                styles.detailsStyles,
+                ...(Array.isArray(detailsSx) ? detailsSx : detailsSx ? [detailsSx] : []),
+            ]}>
                 {children}
             </MuiAccordionDetails>
         </MuiAccordion>

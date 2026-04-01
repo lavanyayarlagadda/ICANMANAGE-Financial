@@ -301,4 +301,11 @@ export interface PaymentVarianceSummary {
   totalLeakage: number;
 }
 
+export type DialogData = 
+  | RecoupmentRecord 
+  | OtherAdjustmentRecord 
+  | CollectionAccount 
+  | AllTransaction 
+  | PaymentTransaction;
+
 

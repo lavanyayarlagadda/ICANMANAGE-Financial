@@ -15,6 +15,9 @@ export interface DataColumn<T> {
   exportLabel?: string;
 }
 
+export type AccessorColumn<T> = DataColumn<T> & { accessor: (row: T) => string | number };
+export type FilterableColumn<T> = DataColumn<T> & { filterOptions: string[] };
+
 export type SortDirection = 'asc' | 'desc';
 
 interface UseDataTableProps<T> {
@@ -112,7 +115,8 @@ export function useDataTable<T>({
       if (!filterVal) return;
       const col = columns.find((c) => c.id === colId);
       if (col?.accessor) {
-        result = result.filter((row) => String(col.accessor!(row)) === filterVal);
+        const accessor = col.accessor;
+        result = result.filter((row) => String(accessor(row)) === filterVal);
       }
     });
     return result;
@@ -122,9 +126,10 @@ export function useDataTable<T>({
     if (serverSide || !sortCol) return filteredData;
     const col = columns.find((c) => c.id === sortCol);
     if (!col?.accessor) return filteredData;
+    const accessor = col.accessor;
     return [...filteredData].sort((a, b) => {
-      const aVal = col.accessor!(a);
-      const bVal = col.accessor!(b);
+      const aVal = accessor(a);
+      const bVal = accessor(b);
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
       }

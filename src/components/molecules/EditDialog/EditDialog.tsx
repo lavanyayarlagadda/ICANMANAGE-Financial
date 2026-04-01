@@ -12,6 +12,7 @@ import {
   IconButton,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { DialogData } from '@/interfaces/financials';
 import * as styles from './EditDialog.styles';
 
 interface EditDialogProps {
@@ -19,7 +20,7 @@ interface EditDialogProps {
   onClose: () => void;
   onSave: () => void;
   title: string;
-  data: Record<string, unknown> | null;
+  data: DialogData | null;
 }
 
 const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, onSave, title, data }) => {

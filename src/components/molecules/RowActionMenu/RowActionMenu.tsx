@@ -50,20 +50,24 @@ const RowActionMenu: React.FC<RowActionMenuProps> = ({ onView, onEdit, onDelete,
           <ListItemIcon><VisibilityIcon fontSize="small" /></ListItemIcon>
           <ListItemText>View Details</ListItemText>
         </MenuItem>
-        <MenuItem onClick={() => handleAction(onEdit)}>
-          <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
-          <ListItemText>Edit</ListItemText>
-        </MenuItem>
+        {onEdit && (
+          <MenuItem onClick={() => handleAction(onEdit)}>
+            <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+            <ListItemText>Edit</ListItemText>
+          </MenuItem>
+        )}
         {extraActions?.map((action, idx) => (
           <MenuItem key={idx} onClick={() => handleAction(action.onClick)}>
             <ListItemIcon>{action.icon}</ListItemIcon>
             <ListItemText>{action.label}</ListItemText>
           </MenuItem>
         ))}
-        <MenuItem onClick={() => handleAction(onDelete)} sx={styles.errorMenuItemStyles}>
-          <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
-          <ListItemText>Delete</ListItemText>
-        </MenuItem>
+        {onDelete && (
+          <MenuItem onClick={() => handleAction(onDelete)} sx={styles.errorMenuItemStyles}>
+            <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
+            <ListItemText>Delete</ListItemText>
+          </MenuItem>
+        )}
       </Menu>
     </>
   );

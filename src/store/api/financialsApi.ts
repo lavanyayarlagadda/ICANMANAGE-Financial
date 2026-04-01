@@ -3,7 +3,7 @@ import {
   PaymentTransaction, 
   CollectionAccount, 
   BankDepositEntity, 
-  RemittanceDetail, 
+  RemittanceDetail,
 } from '@/interfaces/financials';
 import {
   PaymentSearchRequest,
@@ -24,8 +24,11 @@ import {
   ExecutiveSummaryResponse,
   PaymentMixResponse,
   AdjustmentBreakdownResponse,
-  PayerPerformanceResponse
+  PayerPerformanceResponse,
+  RawRemittanceClaimsResponse,
+  RemittanceClaimsResponse
 } from '@/interfaces/api';
+import { normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 
 /**
  * Financials API using RTK Query.
@@ -67,8 +70,10 @@ export const financialsApi = baseApi.injectEndpoints({
       query: () => 'bank-deposits',
       providesTags: ['Financials'],
     }),
-    getRemittanceClaims: builder.query<RemittanceDetail, string>({
+    getRemittanceClaims: builder.query<RemittanceDetail[], string>({
       query: (claimId) => `financials/payments/remittance-claims/${claimId}`,
+      transformResponse: (response: RawRemittanceClaimsResponse): RemittanceClaimsResponse =>
+        normalizeRemittanceClaims(response),
       providesTags: ['Financials'],
     }),
     searchServiceLines: builder.query<ServiceLineSearchResponse, ServiceLineSearchRequest>({

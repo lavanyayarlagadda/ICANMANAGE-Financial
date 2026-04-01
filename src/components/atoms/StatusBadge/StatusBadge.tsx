@@ -4,7 +4,7 @@ import { getStatusKey } from '@/utils/formatters';
 import { statusColorMap } from './StatusBadge.styles';
 
 interface StatusBadgeProps {
-  status: string;
+  status: string | null | undefined;
   size?: ChipProps['size'];
 }
 
@@ -13,6 +13,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'small' }) => 
     const key = getStatusKey(status);
     return statusColorMap[key] || { bg: '#F5F5F5', text: '#616161' };
   }, [status]);
+        if (!status) return null;
 
   return (
     <Chip

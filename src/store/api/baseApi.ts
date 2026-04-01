@@ -9,10 +9,27 @@ if (import.meta.env.DEV) {
   console.log(`Using API Base URL:`, BASE_URL);
 }
 
+const toRootState = (state: unknown): RootState | null => {
+  if (!state || typeof state !== 'object') {
+    return null;
+  }
+
+  const candidate = state as Partial<RootState>;
+  if (!candidate.auth || !candidate.tenant) {
+    return null;
+  }
+
+  return candidate as RootState;
+};
+
 const baseQuery = fetchBaseQuery({
   baseUrl: '/', // Will be overridden in the custom base query
   prepareHeaders: (headers, { getState, endpoint }) => {
-    const state = getState() as RootState;
+    const state = toRootState(getState());
+    if (!state) {
+      return headers;
+    }
+
     const token = state.auth.accessToken;
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
@@ -51,7 +68,8 @@ const baseQueryWithReauth: BaseQueryFn<
   let result = await baseQuery(fullArgs, api, extraOptions);
 
   if (result.error && result.error.status === 401) {
-    const refreshToken = (api.getState() as RootState).auth.refreshToken;
+    const currentState = toRootState(api.getState());
+    const refreshToken = currentState?.auth.refreshToken;
 
     if (refreshToken) {
       // Try to refresh the token

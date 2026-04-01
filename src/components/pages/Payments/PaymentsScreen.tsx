@@ -35,7 +35,7 @@ const PaymentsScreen: React.FC = () => {
             render: (r) => (
                 <RowActionMenu
                     onView={() => handleDrillDown(r)}
-                    onEdit={() => dispatch(openEditDialog(r as unknown as Record<string, unknown>))}
+                    onEdit={() => dispatch(openEditDialog(r))}
                     onDelete={() => dispatch(openConfirmDelete({ id: r.id, type: 'payment' }))}
                     extraActions={[
                         { label: 'Copy ID', icon: <ContentCopyIcon fontSize="small" />, onClick: () => navigator.clipboard.writeText(r.id) },
