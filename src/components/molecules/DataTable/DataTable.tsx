@@ -52,7 +52,7 @@ function DataTable<T>({
   rowKey,
   paginated = true,
   download = true,
-  rowsPerPageOptions = [10, 25, 50],
+  rowsPerPageOptions = [10, 25, 50, 100, 200],
   onRowClick,
   expandedContent,
   expandedRows,

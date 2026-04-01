@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { subMonths, subYears, format, startOfMonth } from 'date-fns';
+import { subMonths, subYears, format, startOfMonth,isAfter } from 'date-fns';
 
 export interface UseRangeDropdownProps {
   value: string;
@@ -10,6 +10,7 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
   const [internalVal, setInternalVal] = useState(value);
   const [fromDate, setFromDate] = useState<Date | null>(startOfMonth(new Date()));
   const [toDate, setToDate] = useState<Date | null>(new Date());
+    const [errorOpen, setErrorOpen] = useState(false);
 
   const calculateDates = useCallback((range: string) => {
     const to = new Date();
@@ -50,15 +51,27 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
   }, [calculateDates, onChange]);
 
   const handleDateChange = useCallback((type: 'from' | 'to', val: Date | null) => {
-    setInternalVal('Custom');
-    if (type === 'from') {
-      setFromDate(val);
-      if (val && toDate) onChange?.(`${format(val, 'yyyy-MM-dd')} to ${format(toDate, 'yyyy-MM-dd')}`);
-    } else {
-      setToDate(val);
-      if (fromDate && val) onChange?.(`${format(fromDate, 'yyyy-MM-dd')} to ${format(val, 'yyyy-MM-dd')}`);
-    }
+          if (!val) return;
+
+        if (type === 'from') {
+            if (toDate && isAfter(val, toDate)) {
+                setErrorOpen(true);
+                return;
+            }
+            setInternalVal('Custom');
+            setFromDate(val);
+            if (toDate) onChange?.(`${format(val, 'yyyy-MM-dd')} to ${format(toDate, 'yyyy-MM-dd')}`);
+        } else {
+            if (fromDate && isAfter(fromDate, val)) {
+                setErrorOpen(true);
+                return;
+            }
+            setInternalVal('Custom');
+            setToDate(val);
+            if (fromDate) onChange?.(`${format(fromDate, 'yyyy-MM-dd')} to ${format(val, 'yyyy-MM-dd')}`);
+          }
   }, [fromDate, toDate, onChange]);
+  
 
   return {
     internalVal,
@@ -66,5 +79,7 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
     toDate,
     handleRangeChange,
     handleDateChange,
+    errorOpen,
+    setErrorOpen
   };
 };

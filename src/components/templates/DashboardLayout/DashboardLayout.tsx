@@ -69,7 +69,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const drawerContent = (
     <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Collections Section */}
-      {canViewCollections && (
+      {/* {canViewCollections && (
         <List disablePadding>
           <Tooltip title={sidebarCollapsed ? 'Collections' : ''} placement="right">
             <ListItemButton
@@ -83,9 +83,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             </ListItemButton>
           </Tooltip>
         </List>
-      )}
+      )} */}
 
-      <Divider sx={{ mx: sidebarCollapsed ? 0.5 : 2, my: 1 }} />
+      {/* <Divider sx={{ mx: sidebarCollapsed ? 0.5 : 2, my: 1 }} /> */}
 
       {/* Financials Section */}
       {canViewFinancials && (
@@ -94,7 +94,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <ListItemButton
               disabled={getMenuStatus('Financials') === MENU_STATUS.DISABLED}
               selected={ui.activePage === 'financials'}
-              onClick={() => getMenuStatus('Financials') !== MENU_STATUS.DISABLED && handleNavClick('financials', '/financials/all-transactions')}
+              onClick={() => getMenuStatus('Financials') !== MENU_STATUS.DISABLED && handleNavClick('financials', '/financials/payments')}
               sx={NavItemStyles(sidebarCollapsed, theme)}
             >
               <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}><AccountBalanceIcon fontSize="small" /></ListItemIcon>
@@ -133,7 +133,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             '& .MuiDrawer-paper': {
               width: drawerWidth,
               boxSizing: 'border-box',
-              borderRight: `1px solid ${theme.palette.divider}`,
+              borderRight: 'none',
               backgroundColor: theme.palette.background.paper,
               transition: theme.transitions.create('width', { duration: theme.transitions.duration.shorter }),
               overflowX: 'hidden',

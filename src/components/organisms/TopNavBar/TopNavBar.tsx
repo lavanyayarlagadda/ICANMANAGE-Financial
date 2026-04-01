@@ -32,7 +32,7 @@ interface TopNavBarProps {
 const TopNavBar: React.FC<TopNavBarProps> = (props) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   const {
     user,
     selectedTenantId,
@@ -67,8 +67,8 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
-            {!isMobile && isCognitiveUser && (
-              <FormControl size="small" sx={{ minWidth: 160, ml: 2 }}>
+            {isCognitiveUser && (
+              <FormControl size="small" sx={{ minWidth: { xs: 60, sm: 160 }, maxWidth: { xs: 100, sm: 'none' }, ml: { xs: 0.5, sm: 2 } }}>
                 <Select
                   value={selectedTenantId || ''}
                   onChange={handleTenantChange}
@@ -90,8 +90,8 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
               </FormControl>
             )}
             <Box sx={styles.userProfileBoxStyles(theme)} onClick={handleClick}>
-              <Avatar 
-                src="/avatar-placeholder.png" 
+              <Avatar
+                src="/avatar-placeholder.png"
                 sx={{ width: 36, height: 36, bgcolor: theme.palette.primary.main, fontSize: '0.9rem' }}
               >
                 {user.firstName[0]}{user.lastName[0]}
@@ -107,7 +107,6 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                 </Box>
               )}
             </Box>
-
             <Menu
               anchorEl={anchorEl}
               open={open}
@@ -124,11 +123,11 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
               </Box>
               <Divider />
 
-              <MenuItem onClick={openProfile} sx={{ py: 1.5 }}>
+              {/* <MenuItem onClick={openProfile} sx={{ py: 1.5 }}>
                 <ListItemIcon><LockOutlinedIcon fontSize="small" /></ListItemIcon>
                 <Typography variant="body2">Profile & Password</Typography>
-              </MenuItem>
-              {user.role !== 'user' && (
+              </MenuItem> */}
+              {/* {user.role !== 'user' && (
                 <>
                   <Divider />
                   <Box sx={{ px: 2, py: 1 }}>
@@ -141,7 +140,7 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                     <Typography variant="body2">Demo & Security</Typography>
                   </MenuItem>
                 </>
-              )}
+              )} */}
 
               <Divider />
 

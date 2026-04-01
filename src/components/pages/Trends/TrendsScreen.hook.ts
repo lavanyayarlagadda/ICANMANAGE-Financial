@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { setIsGlobalFetching } from '@/store/slices/uiSlice';
+import { setIsGlobalFetching, setIsReloading } from '@/store/slices/uiSlice';
 import { format, subMonths } from 'date-fns';
 import {
   useGetForecastSummaryQuery,
@@ -28,15 +28,37 @@ const isMindPath = useMemo(
         toDate: format(new Date(), 'yyyy-MM-dd'),
     });
 
-    const { data: forecastSummary, isFetching: isFetchingForecast } = useGetForecastSummaryQuery(queryParams, { skip: activeSubTab !== 0 });
-    const { data: reconPerformance, isFetching: isFetchingRecon } = useGetReconciliationPerformanceQuery(queryParams, { skip: activeSubTab !== 0 });
-    const { data: dashboardData, isFetching: isFetchingDashboard } = useGetForecastDashboardQuery(queryParams, { skip: activeSubTab !== 0 });
+    const { actionTriggers } = useAppSelector(s => s.ui);
+    const reloadCount = React.useRef(actionTriggers.reload);
 
-    const { data: execSummary, isFetching: isFetchingExec } = useGetExecutiveSummaryQuery(queryParams, { skip: activeSubTab !== 1 });
-    const { data: paymentMix, isFetching: isFetchingMix } = useGetPaymentMixQuery(queryParams, { skip: activeSubTab !== 1 });
-    const { data: adjBreakdown, isFetching: isFetchingAdj } = useGetAdjustmentBreakdownQuery(queryParams, { skip: activeSubTab !== 1 });
+    const { data: forecastSummary, isFetching: isFetchingForecast, refetch: refetchForecast } = useGetForecastSummaryQuery(queryParams, { skip: activeSubTab !== 0 });
+    const { data: reconPerformance, isFetching: isFetchingRecon, refetch: refetchRecon } = useGetReconciliationPerformanceQuery(queryParams, { skip: activeSubTab !== 0 });
+    const { data: dashboardData, isFetching: isFetchingDashboard, refetch: refetchDash } = useGetForecastDashboardQuery(queryParams, { skip: activeSubTab !== 0 });
+
+    const { data: execSummary, isFetching: isFetchingExec, refetch: refetchExec } = useGetExecutiveSummaryQuery(queryParams, { skip: activeSubTab !== 1 });
+    const { data: paymentMix, isFetching: isFetchingMix, refetch: refetchMix } = useGetPaymentMixQuery(queryParams, { skip: activeSubTab !== 1 });
+    const { data: adjBreakdown, isFetching: isFetchingAdj, refetch: refetchAdj } = useGetAdjustmentBreakdownQuery(queryParams, { skip: activeSubTab !== 1 });
 
     const isFetching = isFetchingForecast || isFetchingRecon || isFetchingDashboard || isFetchingExec || isFetchingMix || isFetchingAdj;
+
+    useEffect(() => {
+        if (actionTriggers.reload > reloadCount.current) {
+            const doReload = async () => {
+                try {
+                    dispatch(setIsReloading(true));
+                    if (activeSubTab === 0) {
+                        await Promise.all([refetchForecast(), refetchRecon(), refetchDash()]);
+                    } else {
+                        await Promise.all([refetchExec(), refetchMix(), refetchAdj()]);
+                    }
+                } finally {
+                    dispatch(setIsReloading(false));
+                }
+            };
+            doReload();
+            reloadCount.current = actionTriggers.reload;
+        }
+    }, [actionTriggers.reload, activeSubTab, refetchForecast, refetchRecon, refetchDash, refetchExec, refetchMix, refetchAdj, dispatch]);
 
     useEffect(() => {
         dispatch(setIsGlobalFetching(isFetching));
@@ -46,7 +68,10 @@ const isMindPath = useMemo(
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
-            setQueryParams({ fromDate: from, toDate: to });
+            setQueryParams(prev => {
+                if (prev.fromDate === from && prev.toDate === to) return prev;
+                return { fromDate: from, toDate: to };
+            });
         }
     }, []);
 

@@ -5,24 +5,24 @@ import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
 import { SelectChangeEvent } from '@mui/material';
 
 export const mainTabs = [
-  { id: 0, label: 'Transactions', path: '/financials/all-transactions' },
-  { id: 1, label: 'Bank Deposits', path: '/financials/bank-deposits' },
-  { id: 2, label: 'Statements', path: '/financials/statements/forward-balance' },
+  { id: 0, label: 'Transactions', path: '/financials/payments' },
+  // { id: 1, label: 'Bank Deposits', path: '/financials/bank-deposits' },
+  { id: 2, label: 'Statements', path: '/financials/statements/pip' },
   { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis' },
   { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast' },
 ];
 
 export const transactionSubTabs = [
-  { id: 0, label: 'All Transactions', path: '/financials/all-transactions' },
+  // { id: 0, label: 'All Transactions', path: '/financials/all-transactions' },
   { id: 1, label: 'Payments', path: '/financials/payments' },
-  { id: 2, label: 'Recoupments', path: '/financials/recoupments' },
-  { id: 3, label: 'Adjustments', path: '/financials/other-adjustments' },
+  // { id: 2, label: 'Recoupments', path: '/financials/recoupments' },
+  // { id: 3, label: 'Adjustments', path: '/financials/other-adjustments' },
 ];
 
 export const statementsSubTabs = [
   { id: 0, label: 'PIP Statements', path: '/financials/statements/pip' },
-  { id: 1, label: 'Forward Balance', path: '/financials/statements/forward-balance' },
-  { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts' },
+  // { id: 1, label: 'Forward Balance', path: '/financials/statements/forward-balance' },
+  // { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts' },
 ];
 
 export const varianceSubTabs = [
@@ -61,7 +61,7 @@ const isMindPath = useMemo(
 );
   useEffect(() => {
     const path = location.pathname;
-    if (path.includes('/all-transactions') || path.includes('/payments') || path.includes('/recoupments') || path.includes('/other-adjustments') || path.includes('/pip')) {
+    if (path.includes('/all-transactions') || path.includes('/payments') || path.includes('/recoupments') || path.includes('/other-adjustments') || path.includes('/pip') || path.includes('/collections')) {
       dispatch(setActiveTab(0));
       const subIndex = transactionSubTabs.findIndex(st => path === st.path);
       if (subIndex !== -1) dispatch(setActiveSubTab(subIndex));
@@ -84,21 +84,23 @@ const isMindPath = useMemo(
     }
   }, [location.pathname, dispatch]);
 
+  useEffect(() => {
+    if (activeTab === 2 && isMindPath) {
+      navigate('/financials/payments', { replace: true });
+    }
+  }, [activeTab, isMindPath, navigate, dispatch]);
+
   const handleMainTabChange = useCallback((index: number, path: string) => {
     dispatch(setActiveTab(index));
-    let finalPath = path;
-    if (index === 2 && isMindPath) {
-      finalPath = '/financials/statements/forward-balance';
-    }
-    navigate(finalPath);
-  }, [dispatch, isMindPath, navigate]);
+    navigate(path);
+  }, [dispatch, navigate]);
 
   const handleSubTabChange = useCallback((index: number, path: string) => {
     dispatch(setActiveSubTab(index));
     navigate(path);
   }, [dispatch, navigate]);
 
-  const canShowActions = useMemo(() => activeTab === 0 || activeTab === 2 || activeTab === 5, [activeTab]);
+  const canShowActions = useMemo(() => activeTab === 0 || activeTab === 2 || activeTab === 3 || activeTab === 5, [activeTab]);
   const shouldShowPrint = showPrint ?? canShowActions;
   const shouldShowReload = showReload ?? canShowActions;
   const shouldShowExport = showExportWizard ?? canShowActions;
@@ -106,6 +108,10 @@ const isMindPath = useMemo(
   const hasSubTabs = useMemo(() => [0, 2, 3, 4].includes(activeTab), [activeTab]);
   const hasActions = shouldShowPrint || shouldShowReload || shouldShowExport;
   const showSubTabsRow = hasSubTabs || hasActions;
+
+  const filteredMainTabs = useMemo(() => {
+    return mainTabs.filter(tab => !(tab.id === 2 && isMindPath));
+  }, [isMindPath]);
 
   return {
     activeTab,
@@ -116,6 +122,7 @@ const isMindPath = useMemo(
     shouldShowReload,
     shouldShowExport,
     showSubTabsRow,
+    filteredMainTabs,
     handleMainTabChange,
     handleSubTabChange,
   };

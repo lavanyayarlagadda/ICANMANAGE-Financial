@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import {
   setIsReloading, 
@@ -36,6 +36,8 @@ export const useVarianceScreen = () => {
         toDate: format(new Date(), 'yyyy-MM-dd'),
     });
 
+    const reloadCount = React.useRef(actionTriggers.reload);
+
     const { data: feeData, isFetching: feeFetching, refetch: refetchFee } = useSearchFeeScheduleVarianceQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
@@ -45,7 +47,7 @@ export const useVarianceScreen = () => {
         toDate: queryParams.toDate
     }, { skip: activeSubTab !== 0 });
 
-    const { data: feeSummaryData } = useGetFeeScheduleVarianceSummaryQuery({
+    const { data: feeSummaryData, refetch: refetchFeeSummary } = useGetFeeScheduleVarianceSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip: activeSubTab !== 0 });
@@ -59,12 +61,31 @@ export const useVarianceScreen = () => {
         toDate: queryParams.toDate
     }, { skip: activeSubTab !== 1 });
 
-    const { data: paymentSummaryData } = useGetPaymentVarianceSummaryQuery({
+    const { data: paymentSummaryData, refetch: refetchPaymentSummary } = useGetPaymentVarianceSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip: activeSubTab !== 1 });
 
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
+
+    useEffect(() => {
+        if (actionTriggers.reload > reloadCount.current) {
+            const doReload = async () => {
+                try {
+                    dispatch(setIsReloading(true));
+                    if (activeSubTab === 0) {
+                        await Promise.all([refetchFee(), refetchFeeSummary()]);
+                    } else {
+                        await Promise.all([refetchPayment(), refetchPaymentSummary()]);
+                    }
+                } finally {
+                    dispatch(setIsReloading(false));
+                }
+            };
+            doReload();
+            reloadCount.current = actionTriggers.reload;
+        }
+    }, [actionTriggers.reload, activeSubTab, refetchFee, refetchFeeSummary, refetchPayment, refetchPaymentSummary, dispatch]);
 
     const handleDrillDown = useCallback(async (row: FeeScheduleVariance | PaymentVariance) => {
         try {
@@ -105,7 +126,10 @@ export const useVarianceScreen = () => {
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
-            setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+            setQueryParams(prev => {
+                if (prev.fromDate === from && prev.toDate === to) return prev;
+                return { ...prev, fromDate: from, toDate: to, page: 0 };
+            });
         }
     }, []);
 

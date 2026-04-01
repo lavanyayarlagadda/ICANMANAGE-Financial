@@ -67,7 +67,7 @@ export const useFinancialsPage = () => {
         if (uiState.activeTab !== match.tab) dispatch(setActiveTab(match.tab));
         if (uiState.activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
       } else if (pathPart === '') {
-        navigate('/financials/all-transactions', { replace: true });
+        navigate('/financials/payments', { replace: true });
       }
     }
   }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, canViewPip]);

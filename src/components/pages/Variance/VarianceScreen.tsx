@@ -128,6 +128,7 @@ const VarianceScreen: React.FC = () => {
                 totalElements={activeSubTab === 0 ? (feeData?.data?.totalElements ?? 0) : (paymentData?.data?.totalElements ?? 0)}
                 page={queryParams.page} rowsPerPage={queryParams.size} sortCol={queryParams.sortField}
                 sortDir={queryParams.sortOrder} onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}
+                download={false}
             />
         </ScreenWrapper>
     );

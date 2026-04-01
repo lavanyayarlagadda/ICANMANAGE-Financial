@@ -29,6 +29,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
     shouldShowReload,
     shouldShowExport,
     showSubTabsRow,
+    filteredMainTabs,
     handleMainTabChange,
     handleSubTabChange,
   } = useFinancialsTabs(props);
@@ -40,19 +41,19 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
           Financials
         </Typography>
 
-        <Box sx={{ width: isTablet ? '100%' : 'auto' }}>
-          {isTablet ? (
+        <Box sx={{ width: isMobile ? '100%' : 'auto' }}>
+          {isMobile ? (
             <FormControl fullWidth size="small">
               <Select
                 value={activeTab}
                 onChange={(e: SelectChangeEvent<number>) => {
                   const val = Number(e.target.value);
-                  const tab = mainTabs.find(t => t.id === val);
+                  const tab = filteredMainTabs.find(t => t.id === val);
                   if (tab) handleMainTabChange(tab.id, tab.path);
                 }}
                 sx={styles.tabletSelectStyles(theme)}
               >
-                {mainTabs.map((tab) => (
+                {filteredMainTabs.map((tab) => (
                   <MenuItem key={tab.id} value={tab.id} sx={{ fontWeight: 500, fontSize: '14px' }}>
                     {tab.label}
                   </MenuItem>
@@ -61,7 +62,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
             </FormControl>
           ) : (
             <Box sx={{ display: 'flex', gap: 0.5 }}>
-              {mainTabs.map((tab) => (
+              {filteredMainTabs.map((tab) => (
                 <Box
                   key={tab.id}
                   onClick={() => handleMainTabChange(tab.id, tab.path)}
