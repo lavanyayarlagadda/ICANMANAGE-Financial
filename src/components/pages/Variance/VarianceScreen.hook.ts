@@ -3,7 +3,8 @@ import { useAppSelector, useAppDispatch } from '@/store';
 import {
   setIsReloading, 
   setIsGlobalFetching, 
-  setIsDrillingDown as setGlobalDrillingDown 
+  setIsDrillingDown as setGlobalDrillingDown ,
+  setActiveExportType
 } from '@/store/slices/uiSlice';
 import { 
   setShowRemittanceDetail, 
@@ -17,7 +18,9 @@ import {
   useGetFeeScheduleVarianceSummaryQuery,
   useSearchPaymentVarianceQuery,
   useGetPaymentVarianceSummaryQuery,
-  useLazyGetRemittanceClaimsQuery
+  useLazyGetRemittanceClaimsQuery,
+  useLazyExportFeeScheduleVarianceQuery,
+  useLazyExportPaymentVarianceQuery
 } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
 import { FeeScheduleVariance, PaymentVariance, RemittanceDetail } from '@/interfaces/financials';
@@ -65,9 +68,11 @@ export const useVarianceScreen = () => {
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip: activeSubTab !== 1 });
-
+  const exportCount = useRef(actionTriggers.export);
+  const printCount = useRef(actionTriggers.print);
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
-
+  const [triggerExportFee] = useLazyExportFeeScheduleVarianceQuery();
+  const [triggerExportPayment] = useLazyExportPaymentVarianceQuery();
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
             const doReload = async () => {
@@ -132,7 +137,53 @@ export const useVarianceScreen = () => {
             });
         }
     }, []);
+ const handleExport = async (format: 'pdf' | 'xlsx') => {
+    try {
+      dispatch(setActiveExportType(format));
+      
+      const params = {
+        fromDate: queryParams.fromDate,
+        toDate: queryParams.toDate,
+        format
+      };
 
+      let blob: Blob;
+      if (activeSubTab === 0) {
+        blob = await triggerExportFee(params).unwrap();
+      } else {
+        blob = await triggerExportPayment(params).unwrap();
+      }
+
+      // Create a URL for the blob and trigger download
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${activeSubTab === 0 ? 'fee-schedule-variance' : 'payment-variance'}-${queryParams.fromDate}-to-${queryParams.toDate}.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export. Please try again.');
+    } finally {
+      dispatch(setActiveExportType(null));
+    }
+  };
+    useEffect(() => {
+    if (actionTriggers.export > exportCount.current) {
+      handleExport('xlsx');
+      exportCount.current = actionTriggers.export;
+    }
+  }, [actionTriggers.export]);
+
+  useEffect(() => {
+    if (actionTriggers.print > printCount.current) {
+      handleExport('pdf');
+      printCount.current = actionTriggers.print;
+    }
+  }, [actionTriggers.print]);
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
     }, []);
