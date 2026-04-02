@@ -10,6 +10,13 @@ export const mainTabs = [
   { id: 2, label: 'Statements', path: '/financials/statements/pip' },
   { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis' },
   { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast' },
+  { id: 5, label: 'Reconciliation', path: '/financials/reconciliation' },
+];
+
+export const reconciliationSubTabs = [
+  { id: 0, label: 'Unreconciled', path: '/financials/reconciliation/unreconciled' },
+  { id: 1, label: 'Reconciled', path: '/financials/reconciliation/reconciled' },
+  { id: 2, label: 'My Queue', path: '/financials/reconciliation/my-queue' },
 ];
 
 export const transactionSubTabs = [
@@ -53,12 +60,12 @@ export const useFinancialsTabs = ({
   const { activeTab, activeSubTab, isReloading } = useAppSelector((s) => s.ui);
   const user = useAppSelector((s) => s.auth.user);
   const { selectedTenantId } = useAppSelector((s) => s.tenant);
-const isMindPath = useMemo(
-  () =>
-    user?.company?.toLowerCase() === 'mindpath' ||
-    selectedTenantId?.toLowerCase() === 'mindpath',
-  [user, selectedTenantId]
-);
+  const isMindPath = useMemo(
+    () =>
+      user?.company?.toLowerCase() === 'mindpath' ||
+      selectedTenantId?.toLowerCase() === 'mindpath',
+    [user, selectedTenantId]
+  );
   useEffect(() => {
     const path = location.pathname;
     if (path.includes('/all-transactions') || path.includes('/payments') || path.includes('/recoupments') || path.includes('/other-adjustments') || path.includes('/pip') || path.includes('/collections')) {
@@ -79,8 +86,10 @@ const isMindPath = useMemo(
       if (path.includes('/forecast')) dispatch(setActiveSubTab(0));
       else if (path.includes('/summary')) dispatch(setActiveSubTab(1));
       else if (path.includes('/payer-performance')) dispatch(setActiveSubTab(2));
-    } else if (path.includes('/calendar')) {
+    } else if (path.includes('/reconciliation')) {
       dispatch(setActiveTab(5));
+      const subIndex = reconciliationSubTabs.findIndex(st => path === st.path);
+      dispatch(setActiveSubTab(subIndex !== -1 ? subIndex : 0));
     }
   }, [location.pathname, dispatch]);
 
@@ -105,7 +114,7 @@ const isMindPath = useMemo(
   const shouldShowReload = showReload ?? canShowActions;
   const shouldShowExport = showExportWizard ?? canShowActions;
 
-  const hasSubTabs = useMemo(() => [0, 2, 3, 4].includes(activeTab), [activeTab]);
+  const hasSubTabs = useMemo(() => [0, 2, 3, 4, 5].includes(activeTab), [activeTab]);
   const hasActions = shouldShowPrint || shouldShowReload || shouldShowExport;
   const showSubTabsRow = hasSubTabs || hasActions;
 

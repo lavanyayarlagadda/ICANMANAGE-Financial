@@ -50,7 +50,10 @@ export const useFinancialsPage = () => {
         'statements/forward-balance': { tab: 2, subTab: 1 },
         'variance-analysis': { tab: 3, subTab: 0 },
         'trends-forecast': { tab: 4, subTab: 0 },
-        'calendar': { tab: 5, subTab: 0 },
+        'reconciliation': { tab: 5, subTab: 0 },
+        'reconciliation/unreconciled': { tab: 5, subTab: 0 },
+        'reconciliation/reconciled': { tab: 5, subTab: 1 },
+        'reconciliation/my-queue': { tab: 5, subTab: 2 },
       };
 
       const match = pathMap[pathPart];

@@ -12,6 +12,7 @@ import {
   Menu,
   ListItemIcon,
   ListItemText,
+  Divider,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -92,30 +93,34 @@ export function DataTableToolbar<T>({
 
   return (
     <ToolbarContainer>
-      {selectable && (
+      {selectable && selectedKeys.size > 0 && (
         <SelectionBar>
-          {selectedKeys.size > 0 && (
-            <>
-              <Typography variant="body2" color="primary" fontWeight={600}>
-                ({selectedKeys.size}) Selected
-              </Typography>
-              <ActionLink variant="body2" onClick={() => handleSelectionChange(new Set())}>
-                Deselect All
-              </ActionLink>
-              <ActionLink variant="body2" onClick={() => handleSelectionChange(new Set(sortedData.map(rowKey)))}>
-                Select Max
-              </ActionLink>
-            </>
+          <Typography variant="body2" color="primary" fontWeight={600}>
+            ({selectedKeys.size}) Rows Selected
+          </Typography>
+          <Typography variant="body2" color="text.secondary">·</Typography>
+          <ActionLink variant="body2" onClick={() => handleSelectionChange(new Set())}>
+            Deselect All
+          </ActionLink>
+          <Typography variant="body2" color="text.secondary">·</Typography>
+          <ActionLink variant="body2" onClick={() => handleSelectionChange(new Set(sortedData.map(rowKey)))}>
+            Select Max
+          </ActionLink>
+          
+          {(activeFilterCount > 0 || customToolbarContent) && (
+            <Divider orientation="vertical" flexItem sx={{ mx: 1, height: 16, alignSelf: 'center' }} />
           )}
         </SelectionBar>
       )}
 
       <ToolbarRow isMobile={isMobile}>
         <ToolbarLeft>
-          <RecordsText variant="caption">{sortedData.length} records</RecordsText>
+          <RecordsText variant="caption">
+            {sortedData.length} records
+          </RecordsText>
           {activeFilterCount > 0 && (
             <Chip
-              label={`${activeFilterCount} Active`}
+              label={`${activeFilterCount} Active Filter${activeFilterCount > 1 ? 's' : ''}`}
               size="small"
               onDelete={clearAllFilters}
               color="primary"
@@ -145,7 +150,7 @@ export function DataTableToolbar<T>({
                 ),
                 endAdornment: search && (
                   <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => setSearch('')}>
+                    <IconButton size="small" onClick={() => { setSearch(''); onSearchChange?.(''); }}>
                       <ClearIcon fontSize="small" />
                     </IconButton>
                   </InputAdornment>
@@ -171,7 +176,7 @@ export function DataTableToolbar<T>({
                   size="small"
                   variant="outlined"
                   startIcon={<FileDownloadIcon fontSize="small" />}
-                  onClick={(e) => (onDownload ? onDownload() : setDownloadAnchor(e.currentTarget))}
+                  onClick={(e) => setDownloadAnchor(e.currentTarget)}
                 >
                   Export
                 </ExportButton>
@@ -180,13 +185,20 @@ export function DataTableToolbar<T>({
                   open={Boolean(downloadAnchor)}
                   onClose={() => setDownloadAnchor(null)}
                 >
-                  <MenuItem onClick={() => { handleCSVExport(); setDownloadAnchor(null); }}>
-                    <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText>CSV</ListItemText>
-                  </MenuItem>
+                  {onDownload ? (
+                    <MenuItem onClick={() => { setDownloadAnchor(null); onDownload(); }}>
+                      <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Download Excel</ListItemText>
+                    </MenuItem>
+                  ) : (
+                    <MenuItem onClick={() => { handleCSVExport(); setDownloadAnchor(null); }}>
+                      <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                      <ListItemText>Download CSV</ListItemText>
+                    </MenuItem>
+                  )}
                   <MenuItem onClick={() => { handlePDFExport(); setDownloadAnchor(null); }}>
                     <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText>PDF</ListItemText>
+                    <ListItemText>Download PDF</ListItemText>
                   </MenuItem>
                 </Menu>
               </>
@@ -222,3 +234,4 @@ export function DataTableToolbar<T>({
     </ToolbarContainer>
   );
 }
+

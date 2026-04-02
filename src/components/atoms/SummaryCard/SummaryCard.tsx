@@ -6,7 +6,7 @@ interface SummaryCardProps {
   title: string;
   value: string;
   subtitle?: string;
-  variant?: 'default' | 'highlight' | 'negative';
+  variant?: 'default' | 'highlight' | 'negative' | 'positive';
   backgroundColor?: string;
 }
 
@@ -17,14 +17,18 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, subtitle, varia
     switch (variant) {
       case 'highlight': return `${theme.palette.primary.main}08`;
       case 'negative': return `${theme.palette.error.main}08`;
+      case 'positive': return  `#f0fdf4`;
+      
       default: return theme.palette.background.paper;
     }
   }, [variant, theme]);
 
   const valueColor = useMemo(() => 
-    variant === 'negative' ? theme.palette.error.main : theme.palette.text.primary,
+    variant === 'negative' ? theme.palette.error.main  : variant === 'positive'
+      ? `#f0fdf4` : theme.palette.text.primary,
     [variant, theme]
   );
+
 
   return (
     <Card sx={styles.cardStyles(backgroundColor, defaultBg)}>

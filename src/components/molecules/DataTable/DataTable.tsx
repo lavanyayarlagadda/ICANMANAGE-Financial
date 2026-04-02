@@ -44,6 +44,9 @@ interface DataTableProps<T> {
   onSearchChange?: (query: string) => void;
   download?: boolean;
   onDownload?: () => void;
+  disableHover?: boolean;
+  getRowStyle?: (row: T) => React.CSSProperties;
+  dense?: boolean;
 }
 
 function DataTable<T>({
@@ -59,6 +62,9 @@ function DataTable<T>({
   searchable = false,
   exportTitle = 'Data Export',
   dictionaryId,
+   disableHover = false,
+  getRowStyle,
+  dense = false,
   ...props
 }: DataTableProps<T>) {
   const hasAccessor = (column: DataColumn<T>): column is AccessorColumn<T> => !!column.accessor;
@@ -199,6 +205,9 @@ function DataTable<T>({
           columns={columns}
           descriptions={descriptions}
           handleHeaderClick={handleHeaderClick}
+          expandedContent={expandedContent}
+          expandedRows={expandedRows}
+          getRowStyle={getRowStyle}
         />
       ) : (
         <DataTableDesktop
@@ -220,6 +229,9 @@ function DataTable<T>({
           handleSelectOne={handleSelectOne}
           expandedContent={expandedContent}
           expandedRows={expandedRows}
+          dense={dense}
+          disableHover={disableHover}
+          getRowStyle={getRowStyle}
         />
       )}
 

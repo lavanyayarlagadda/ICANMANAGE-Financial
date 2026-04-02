@@ -10,9 +10,11 @@ import AddNewDialog from '@/components/molecules/AddNewDialog/AddNewDialog';
 import { PageWrapper, BackButtonWrapper, BackText } from './FinancialsPage.styles';
 import { useFinancialsPage } from './FinancialsPage.hook';
 import { closeViewDialog, closeEditDialog, closeConfirmDelete } from '@/store/slices/uiSlice';
+import ReconciliationScreen from '@/components/pages/ReconciliationScreen/ReconciliationScreen';
 
 const AllTransactionsScreen = lazy(() => import('@/components/pages/AllTransactions/AllTransactionsScreen'));
 const PaymentsScreen = lazy(() => import('@/components/pages/Payments/PaymentsScreen'));
+// const PipScreen = lazy(() => import('@/components/pages/Pip/PipScreen'));
 const RemittanceDetailScreen = lazy(() => import('@/components/pages/RemittanceDetail/RemittanceDetailScreen'));
 const TrendsScreen = lazy(() => import('@/components/pages/Trends/TrendsScreen'));
 const VarianceScreen = lazy(() => import('@/components/pages/Variance/VarianceScreen'));
@@ -21,7 +23,7 @@ const StatementsScreen = lazy(() => import('@/components/pages/Statements/Statem
 const RecoupmentsScreen = lazy(() => import('@/components/pages/Recoupments/RecoupmentsScreen'));
 const OtherAdjustmentsScreen = lazy(() => import('@/components/pages/OtherAdjustments/OtherAdjustmentsScreen'));
 const CollectionsScreen = lazy(() => import('@/components/pages/Collections/CollectionsScreen'));
-const CalendarScreen = lazy(() => import('@/components/pages/Calendar/CalendarScreen'));
+// const CalendarScreen = lazy(() => import('@/components/pages/Calendar/CalendarScreen'));
 
 const TabLoadingFallback = () => (
   <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -68,7 +70,7 @@ const FinancialsPage: React.FC = () => {
     if (activeTab === 2) return <StatementsScreen />;
     if (activeTab === 3) return <VarianceScreen />;
     if (activeTab === 4) return <TrendsScreen />;
-    if (activeTab === 5) return <CalendarScreen />;
+    if (activeTab === 5) return <ReconciliationScreen />;
 
     return <AllTransactionsScreen />;
   }, [activeTab, activeSubTab]);

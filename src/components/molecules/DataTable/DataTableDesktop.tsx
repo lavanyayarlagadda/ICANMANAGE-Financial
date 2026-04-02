@@ -40,6 +40,9 @@ interface DataTableDesktopProps<T> {
   handleSelectOne: (key: string, checked: boolean) => void;
   expandedContent?: (row: T) => React.ReactNode;
   expandedRows?: Set<string>;
+    disableHover?: boolean;
+    getRowStyle?: (row: T) => React.CSSProperties;
+    dense?: boolean;
 }
 
 export function DataTableDesktop<T>({
@@ -61,12 +64,22 @@ export function DataTableDesktop<T>({
   handleSelectOne,
   expandedContent,
   expandedRows,
+     disableHover = false,
+  getRowStyle,
+  dense = false,
 }: DataTableDesktopProps<T>) {
   const theme = useTheme();
 
   return (
     <ScrollableTableContainer>
-      <Table stickyHeader size="small" sx={{ '& .MuiTableCell-root': { p: 1, minHeight: 40 }, '& .MuiTableHead-root .MuiTableCell-root': { py: 1, minHeight: 48 } }}>
+      <Table 
+        stickyHeader 
+        size={dense ? "small" : "medium"}
+        sx={{ 
+          '& .MuiTableCell-root': { p: dense ? 0.5 : 1, minHeight: dense ? 32 : 40 }, 
+          '& .MuiTableHead-root .MuiTableCell-root': { py: dense ? 0.5 : 1, minHeight: dense ? 40 : 48 } 
+        }}
+      >
         <TableHead>
           <TableRow>
             {selectable && (
@@ -144,9 +157,11 @@ export function DataTableDesktop<T>({
               return (
                 <React.Fragment key={key}>
                   <StyledTableRow
+                    hover={!disableHover}
                     clickable={!!onRowClick}
                     isSelected={selectedKeys.has(key)}
                     onClick={() => onRowClick?.(row)}
+                    sx={{ ...getRowStyle?.(row) }}
                   >
                     {selectable && (
                       <TableCell padding="checkbox">

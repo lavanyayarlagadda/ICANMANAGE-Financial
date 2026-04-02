@@ -77,6 +77,9 @@ export const SearchField = styled(TextField, {
   shouldForwardProp: (prop) => prop !== 'isMobile',
 })<{ isMobile?: boolean }>(({ isMobile }) => ({
   minWidth: isMobile ? '100%' : 240,
+  maxWidth: isMobile ? '100%' : 400,
+  flex: isMobile ? 1 : 'unset',
+  order: isMobile ? 1 : 0,
 }));
 
 /* ICON BUTTON (FILTER) */
@@ -152,10 +155,6 @@ export const StyledTableRow = styled(TableRow, {
 }>(({ theme, isSelected, clickable }) => ({
   cursor: clickable ? 'pointer' : 'default',
   height: '32px',
-
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
 
   ...(isSelected && {
     backgroundColor: theme.palette.action.selected + ' !important',

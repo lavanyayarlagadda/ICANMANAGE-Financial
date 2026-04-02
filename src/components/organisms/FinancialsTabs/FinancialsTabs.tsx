@@ -3,7 +3,7 @@ import { Box, Typography, useTheme, useMediaQuery, Select, MenuItem, SelectChang
 import Button from '@/components/atoms/Button/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { useFinancialsTabs, mainTabs, transactionSubTabs, statementsSubTabs, varianceSubTabs, trendsSubTabs } from './FinancialsTabs.hook';
+import { useFinancialsTabs, mainTabs, transactionSubTabs, statementsSubTabs, varianceSubTabs, trendsSubTabs, reconciliationSubTabs } from './FinancialsTabs.hook';
 import { themeConfig } from '@/theme/themeConfig';
 import * as styles from './FinancialsTabs.styles';
 
@@ -118,6 +118,15 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 {subTab.label}
               </Box>
             ))}
+            {activeTab === 5 && reconciliationSubTabs.map((subTab) => (
+              <Box
+                key={subTab.id}
+                onClick={() => handleSubTabChange(subTab.id, subTab.path)}
+                sx={styles.subTabItemStyles(activeSubTab === subTab.id)}
+              >
+                {subTab.label}
+              </Box>
+            ))}
           </Box>
 
           <Box sx={styles.actionsGroupStyles(isMobile)}>
@@ -126,7 +135,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 size="small"
                 variant="outlined"
                 onClick={onPrint}
-                startIcon={<PrintIcon sx={{ fontSize: 18, color: themeConfig.colors.text.disabled }} />}
+                startIcon={<PrintIcon sx={{ fontSize: 18, color: themeConfig.colors.slate[400] }} />}
                 sx={styles.printButtonStyles(isMobile)}
               >
                 Print
