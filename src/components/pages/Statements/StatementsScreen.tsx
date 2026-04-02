@@ -18,6 +18,7 @@ import * as styles from './StatementsScreen.styles';
 import SuspenseAccountsScreen from '../Suspense/SuspenseAccountsScreen';
 
 import { useTheme } from '@mui/material/styles';
+import { themeConfig } from '@/theme/themeConfig';
 
 const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
     <Box sx={{ mb: 1 }}>
@@ -31,14 +32,14 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
                 </Box>
             }
         >
-            <Box sx={{ border: "1px solid #eee", borderTop: "none", overflowX: "auto" }}>
-                <Box sx={{ ...styles.offsetGridStyles, background: "#fafafa", borderBottom: "1px solid #eee" }}>
+            <Box sx={{ border: `1px solid ${themeConfig.colors.divider}`, borderTop: "none", overflowX: "auto" }}>
+                <Box sx={{ ...styles.offsetGridStyles, background: themeConfig.colors.surfaceAlt, borderBottom: `1px solid ${themeConfig.colors.divider}` }}>
                     <Typography fontSize={11} fontWeight={700} color="text.secondary">CLAIM ID (DEDUCTED FROM)</Typography>
                     <Typography fontSize={11} fontWeight={700} color="text.secondary">PATIENT NAME</Typography>
                     <Typography fontSize={11} fontWeight={700} color="text.secondary" textAlign="right">DEDUCTED AMOUNT</Typography>
                 </Box>
                 {offset.claims.map((claim, idx) => (
-                    <Box key={idx} sx={{ ...styles.offsetGridStyles, borderBottom: "1px solid #f1f1f1" }}>
+                    <Box key={idx} sx={{ ...styles.offsetGridStyles, borderBottom: `1px solid ${themeConfig.colors.divider}` }}>
                         <Typography fontSize={13} color="primary" sx={{ fontWeight: 500 }}>{claim.claimId}</Typography>
                         <Typography fontSize={13} sx={{ fontWeight: 500 }}>{claim.patientName}</Typography>
                         <Typography fontSize={13} textAlign="right" color="error.main" sx={{ fontWeight: 700 }}>{formatCurrency(claim.deductedAmount)}</Typography>
@@ -67,7 +68,7 @@ const ForwardBalanceNoticesTable = ({ data }: { data: ForwardBalanceNotice[] }) 
             id: 'noticeId',
             label: 'NOTICE ID',
             accessor: (row) => row.noticeId,
-            render: (row) => <Typography variant="body2" sx={{ fontWeight: 700, color: '#b45309' }}>{row.noticeId}</Typography>,
+            render: (row) => <Typography variant="body2" sx={{ fontWeight: 700, color: themeConfig.colors.amberDark }}>{row.noticeId}</Typography>,
         },
         {
             id: 'notificationDate',

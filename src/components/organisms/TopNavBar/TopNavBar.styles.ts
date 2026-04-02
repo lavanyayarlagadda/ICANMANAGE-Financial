@@ -1,4 +1,5 @@
 import { SxProps, Theme } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 
 export const appBarStyles = (theme: Theme): SxProps<Theme> => ({
   backgroundColor: theme.palette.background.paper,
@@ -16,12 +17,12 @@ export const tenantSelectStyles = (theme: Theme): SxProps<Theme> => ({
   borderRadius: 2,
   fontSize: '0.85rem',
   fontWeight: 600,
-  bgcolor: 'rgba(25, 118, 210, 0.04)',
+  bgcolor: alpha(theme.palette.primary.main, 0.04),
   '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: 'rgba(25, 118, 210, 0.2)',
+    borderColor: alpha(theme.palette.primary.main, 0.2),
   },
   '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: 'rgba(25, 118, 210, 0.4)',
+    borderColor: alpha(theme.palette.primary.main, 0.4),
   },
   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
     borderColor: theme.palette.primary.main,

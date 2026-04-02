@@ -4,6 +4,7 @@ import Button from '@/components/atoms/Button/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useFinancialsTabs, mainTabs, transactionSubTabs, statementsSubTabs, varianceSubTabs, trendsSubTabs } from './FinancialsTabs.hook';
+import { themeConfig } from '@/theme/themeConfig';
 import * as styles from './FinancialsTabs.styles';
 
 interface FinancialsTabsProps {
@@ -124,7 +125,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 size="small"
                 variant="outlined"
                 onClick={onPrint}
-                startIcon={<PrintIcon sx={{ fontSize: 18, color: '#94a3b8' }} />}
+                startIcon={<PrintIcon sx={{ fontSize: 18, color: themeConfig.colors.text.disabled }} />}
                 sx={styles.printButtonStyles(isMobile)}
               >
                 Print

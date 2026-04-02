@@ -1,4 +1,6 @@
 import { SxProps, Theme } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import { themeConfig } from '@/theme/themeConfig';
 
 export const containerStyles: SxProps<Theme> = {
   mb: 1,
@@ -10,7 +12,7 @@ export const mainTabsRowStyles = (theme: Theme, isTablet: boolean): SxProps<Them
   display: 'flex',
   flexDirection: isTablet ? 'column' : 'row',
   alignItems: isTablet ? 'flex-start' : 'center',
-  backgroundColor: '#fff',
+  backgroundColor: themeConfig.colors.tabs.mainBg,
   borderBottom: `1px solid ${theme.palette.divider}`,
   gap: isTablet ? 1.5 : 0,
 });
@@ -18,11 +20,11 @@ export const mainTabsRowStyles = (theme: Theme, isTablet: boolean): SxProps<Them
 export const mainTitleStyles: SxProps<Theme> = {
   fontWeight: 700,
   fontSize: '20px',
-  color: 'rgb(10, 22, 40)',
+  color: themeConfig.colors.tabs.textTitle,
 };
 
 export const tabletSelectStyles = (theme: Theme): SxProps<Theme> => ({
-  backgroundColor: 'rgba(240, 244, 248, 0.8)',
+  backgroundColor: themeConfig.colors.tabs.inactiveBg,
   borderRadius: '8px',
   fontWeight: 600,
   fontSize: '14px',
@@ -34,14 +36,14 @@ export const mainTabItemStyles = (isActive: boolean): SxProps<Theme> => ({
   py: 1,
   borderRadius: '6px',
   cursor: 'pointer',
-  backgroundColor: isActive ? 'rgba(107, 153, 196, 0.6)' : 'rgba(240, 244, 248, 0.8)',
-  color: isActive ? '#fff' : 'rgb(100, 116, 139)',
+  backgroundColor: isActive ? themeConfig.colors.tabs.activeBg : themeConfig.colors.tabs.inactiveBg,
+  color: isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive,
   fontWeight: isActive ? 600 : 500,
   fontSize: '13px',
   whiteSpace: 'nowrap',
   transition: 'all 0.2s',
   '&:hover': {
-    backgroundColor: isActive ? 'rgba(107, 153, 196, 0.7)' : 'rgba(226, 232, 240, 1)',
+    backgroundColor: isActive ? themeConfig.colors.tabs.activeBgHover : themeConfig.colors.tabs.inactiveBgHover,
   },
 });
 
@@ -52,7 +54,7 @@ export const subTabsRowStyles = (isMobile: boolean): SxProps<Theme> => ({
   flexDirection: isMobile ? 'column' : 'row',
   justifyContent: isMobile ? 'flex-start' : 'space-between',
   alignItems: isMobile ? 'stretch' : 'center',
-  backgroundColor: '#fcfcfc',
+  backgroundColor: themeConfig.colors.tabs.subBg,
   gap: 2,
 });
 
@@ -61,14 +63,14 @@ export const subTabItemStyles = (isActive: boolean): SxProps<Theme> => ({
   py: 0.5,
   borderRadius: '16px',
   cursor: 'pointer',
-  backgroundColor: isActive ? 'rgba(107, 153, 196, 0.7)' : 'transparent',
-  color: isActive ? '#fff' : 'rgb(100, 116, 139)',
+  backgroundColor: isActive ? themeConfig.colors.tabs.activeBgHover : 'transparent',
+  color: isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive,
   fontWeight: 500,
   fontSize: '13px',
   whiteSpace: 'nowrap',
   transition: 'all 0.2s',
   '&:hover': {
-    backgroundColor: isActive ? 'rgba(107, 153, 196, 0.8)' : 'rgba(241, 245, 249, 1)',
+    backgroundColor: isActive ? alpha(themeConfig.colors.primary, 0.8) : themeConfig.colors.tabs.subBg,
   },
 });
 
@@ -81,23 +83,23 @@ export const actionsGroupStyles = (isMobile: boolean): SxProps<Theme> => ({
 });
 
 export const printButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
-  color: 'rgb(71, 85, 105)',
-  borderColor: '#e2e8f0',
+  color: themeConfig.colors.slate[600],
+  borderColor: themeConfig.colors.slate[200],
   borderRadius: '6px',
   textTransform: 'none',
   px: 2,
   py: 0.7,
   fontSize: '13px',
   fontWeight: 500,
-  backgroundColor: '#fff',
+  backgroundColor: themeConfig.colors.surface,
   flex: isMobile ? 1 : 'unset',
   minWidth: isMobile ? 'calc(50% - 12px)' : 'unset',
-  '&:hover': { borderColor: '#cbd5e1', bgcolor: '#f8fafc' },
+  '&:hover': { borderColor: themeConfig.colors.slate[300], bgcolor: themeConfig.colors.slate[50] },
 });
 
 export const reloadButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
-  color: '#000',
-  borderColor: '#000',
+  color: themeConfig.colors.text.primary,
+  borderColor: themeConfig.colors.text.primary,
   borderWidth: 1.5,
   borderRadius: '6px',
   textTransform: 'none',
@@ -107,12 +109,12 @@ export const reloadButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
   fontWeight: 700,
   flex: isMobile ? 1 : 'unset',
   minWidth: isMobile ? 'calc(50% - 12px)' : 'unset',
-  '&:hover': { borderWidth: 1.5, bgcolor: 'rgba(0,0,0,0.04)' },
+  '&:hover': { borderWidth: 1.5, bgcolor: alpha(themeConfig.colors.text.primary, 0.04) },
 });
 
 export const exportButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
-  bgcolor: '#d97706',
-  color: '#fff',
+  bgcolor: themeConfig.colors.amber,
+  color: themeConfig.colors.surface,
   borderRadius: '6px',
   textTransform: 'none',
   px: 3,
@@ -120,5 +122,5 @@ export const exportButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
   fontSize: '13px',
   fontWeight: 600,
   width: isMobile ? '100%' : 'unset',
-  '&:hover': { bgcolor: '#b45309' },
+  '&:hover': { bgcolor: themeConfig.colors.amberDark },
 });

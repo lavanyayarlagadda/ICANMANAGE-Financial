@@ -1,4 +1,5 @@
 import { SxProps, Theme } from '@mui/material';
+import { themeConfig } from '@/theme/themeConfig';
 
 export const footerStyles = (theme: Theme): SxProps<Theme> => ({
   py: 1.5,
@@ -9,6 +10,6 @@ export const footerStyles = (theme: Theme): SxProps<Theme> => ({
   alignItems: 'center',
   flexWrap: 'wrap',
   gap: 1,
-  backgroundColor: '#0A1929',
+  backgroundColor: themeConfig.colors.footerBg,
   flexShrink: 0,
 });

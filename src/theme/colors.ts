@@ -21,6 +21,7 @@ export const colors = {
   warning: '#DD7A43',
   info: '#6B99C4',
   success: '#75A663',
+  amber: '#D97706',
 
   // Grays / Neutrals (Slate Scale)
   slate: {
@@ -40,6 +41,9 @@ export const colors = {
   background: '#f5f7fa',
   surface: '#ffffff',
   surfaceAlt: '#eef1f5',
+  surfaceSubtle: '#FAFBFC',
+  surfaceInfo: '#eff6ff',
+  surfaceInfoHover: '#dbeafe',
   border: '#dde3ec',
   divider: '#dde3ec',
   cardBorder: '#E2E8F0',
@@ -109,4 +113,47 @@ export const colors = {
   
   // Specific brand/legacy colors
   amberDark: '#b45309',
+
+  // Suspense Screen Specifics
+  suspenseScreen: {
+    borderLight: '#eee',
+    borderMedium: '#e2e8f0',
+    bgLight: '#f1f5f9',
+    bgAlt: '#f8fafc',
+    textMuted: '#64748b',
+    textLight: '#94a3b8',
+    textSlate: '#475569',
+    textNavy: 'rgb(10, 22, 40)',
+    linkBlue: '#0284c7',
+  },
+
+  // Dictionary Drawer Specifics
+  dictionaryDrawer: {
+    bg: '#ffffff',
+    bgAlt: '#f1f5f9',
+    bgHover: '#e2e8f0',
+    bgTip: '#f0f7ff',
+    bgFooter: '#fafafa',
+    border: '#e2e8f0',
+    borderAlt: '#f1f5f9',
+    textHeading: '#1e293b',
+    textBody: '#475569',
+    textMuted: '#64748b',
+    textLight: '#94a3b8',
+    textAccent: '#3b82f6',
+    textNavy: '#334155',
+  },
+
+  // Tabs Specifics
+  tabs: {
+    mainBg: '#ffffff',
+    subBg: '#fcfcfc',
+    activeBg: 'rgba(107, 153, 196, 0.6)',
+    activeBgHover: 'rgba(107, 153, 196, 0.7)',
+    inactiveBg: 'rgba(240, 244, 248, 0.8)',
+    inactiveBgHover: 'rgba(226, 232, 240, 1)',
+    textActive: '#ffffff',
+    textInactive: 'rgb(100, 116, 139)',
+    textTitle: 'rgb(10, 22, 40)',
+  },
 } as const;

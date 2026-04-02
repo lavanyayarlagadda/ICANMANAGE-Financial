@@ -24,6 +24,7 @@ import {
 } from 'date-fns';
 import { formatCurrency } from '@/utils/formatters';
 import { useCalendarScreen } from './CalendarScreen.hook';
+import { themeConfig } from '@/theme/themeConfig';
 import * as styles from './CalendarScreen.styles';
 
 const CalendarScreen: React.FC = () => {
@@ -59,7 +60,7 @@ const CalendarScreen: React.FC = () => {
     const renderDays = () => {
         const days = isMobile ? ['S', 'M', 'T', 'W', 'T', 'F', 'S'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         return (
-            <Grid container columns={7} spacing={0} sx={{ borderBottom: `1px solid ${theme.palette.divider}`, backgroundColor: '#fcfcfc' }}>
+            <Grid container columns={7} spacing={0} sx={{ borderBottom: `1px solid ${theme.palette.divider}`, backgroundColor: themeConfig.colors.background }}>
                 {days.map((day, idx) => (
                     <Grid key={idx} size={{ xs: 1 }} sx={{ py: 1.5, textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase' }}>{day}</Typography>
@@ -128,11 +129,11 @@ const CalendarScreen: React.FC = () => {
 
         return (
             <Collapse in={dayTransactions.length > 0}>
-                <Box sx={{ mt: 3, p: 2, backgroundColor: '#f8fafc', borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
+                <Box sx={{ mt: 3, p: 2, backgroundColor: themeConfig.colors.suspenseScreen.bgAlt, borderRadius: 2, border: `1px solid ${theme.palette.divider}` }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}><ListAltIcon fontSize="small" sx={{ color: theme.palette.primary.main }} />Transactions for {format(selectedDate, 'MMMM d, yyyy')}</Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                         {dayTransactions.map((t) => (
-                            <Box key={t.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: '#fff', borderRadius: 1.5, borderLeft: `4px solid ${t.transactionType === 'PAYMENT' ? theme.palette.success.main : t.transactionType === 'RECOUPMENT' ? theme.palette.error.main : theme.palette.warning.main}` }}>
+                            <Box key={t.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, backgroundColor: themeConfig.colors.surface, borderRadius: 1.5, borderLeft: `4px solid ${t.transactionType === 'PAYMENT' ? theme.palette.success.main : t.transactionType === 'RECOUPMENT' ? theme.palette.error.main : theme.palette.warning.main}` }}>
                                 <Box><Typography variant="body2" sx={{ fontWeight: 600 }}>{t.description}</Typography><Typography variant="caption" color="text.secondary">{t.sourceProvider}</Typography></Box>
                                 <Typography variant="body2" sx={{ fontWeight: 700, color: t.amount < 0 ? theme.palette.error.main : theme.palette.text.primary }}>{formatCurrency(t.amount)}</Typography>
                             </Box>
@@ -152,9 +153,9 @@ const CalendarScreen: React.FC = () => {
             </Paper>
             {renderSelectedDayInfo()}
             <Box sx={{ mt: 3, display: 'flex', gap: isMobile ? 1.5 : 3, justifyContent: 'flex-start', flexWrap: 'wrap' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={styles.legendIconStyles('#e0f2fe', '#0369a1')} /><Typography variant="caption" sx={{ fontWeight: 600 }}>Payments</Typography></Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={styles.legendIconStyles('#fef2f2', '#991b1b')} /><Typography variant="caption" sx={{ fontWeight: 600 }}>Recoupments</Typography></Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={styles.legendIconStyles('#f1f5f9', '#475569')} /><Typography variant="caption" sx={{ fontWeight: 600 }}>Others</Typography></Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={styles.legendIconStyles(themeConfig.colors.suspense.medicare.bg, themeConfig.colors.suspense.medicare.text)} /><Typography variant="caption" sx={{ fontWeight: 600 }}>Payments</Typography></Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={styles.legendIconStyles(themeConfig.colors.suspense.cross.bg, themeConfig.colors.suspense.cross.text)} /><Typography variant="caption" sx={{ fontWeight: 600 }}>Recoupments</Typography></Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><Box sx={styles.legendIconStyles(themeConfig.colors.suspense.tax.bg, themeConfig.colors.suspense.tax.text)} /><Typography variant="caption" sx={{ fontWeight: 600 }}>Others</Typography></Box>
             </Box>
         </Box>
     );

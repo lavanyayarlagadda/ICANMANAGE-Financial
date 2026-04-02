@@ -43,7 +43,7 @@ export const toggleButtonGroupStyles: SxProps<Theme> = {
     ml: '8px !important',
     '&.Mui-selected': {
       bgcolor: themeConfig.colors.tabActive,
-      color: '#fff',
+      color: themeConfig.colors.surface,
       border: 'none',
       '&:hover': { bgcolor: themeConfig.colors.primaryDark }
     }

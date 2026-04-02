@@ -6,15 +6,15 @@ export const adjustmentTypeColors: Record<string, string> = {
   'CREDIT': themeConfig.colors.info,
   'INTEREST': themeConfig.colors.accentDark,
   'CONTRACTUAL': themeConfig.colors.primaryDark,
-  'REFUND': '#00838F', // Specialized color maintained for branding if needed
+  'REFUND': themeConfig.colors.charts.teal,
   'TRANSFER': themeConfig.colors.accent,
-  'RECLASSIFICATION': '#37474F',
+  'RECLASSIFICATION': themeConfig.colors.slate[700],
   'CHARITY': themeConfig.colors.success,
 };
 
 export const adjustmentChipStyles = (type: string): SxProps<Theme> => ({
-  backgroundColor: `${adjustmentTypeColors[type] || '#616161'}18`,
-  color: adjustmentTypeColors[type] || '#616161',
+  backgroundColor: `${adjustmentTypeColors[type] || themeConfig.colors.slate[500]}18`,
+  color: adjustmentTypeColors[type] || themeConfig.colors.slate[500],
   fontWeight: 600,
   fontSize: '0.7rem',
 });

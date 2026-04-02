@@ -51,7 +51,7 @@ const DetailCard: React.FC<DetailCardProps> = ({ title, sections, footer }) => {
                                 </Grid>
                             ))}
                         </Grid>
-                        {sIndex < sections.length - 1 && <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.08)' }} />}
+                        {sIndex < sections.length - 1 && <Divider sx={{ my: 2, borderColor: 'divider' }} />}
                     </React.Fragment>
                 ))}
                 {footer && (

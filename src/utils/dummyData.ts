@@ -60,11 +60,6 @@ const userMenus: MenuAccess[] = [
     }
 ];
 
-export const MOCK_CREDENTIALS = [
-    { username: 'ajohnson', password: 'password123', userId: '1' },
-    { username: 'jsmith', password: 'password123', userId: '2' },
-    { username: 'demo', password: 'demo', userId: '3' },
-];
 
 export const LOGIN_API_RESPONSE = [
     {
