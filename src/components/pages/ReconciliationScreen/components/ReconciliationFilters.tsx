@@ -9,7 +9,10 @@ import {
   IconButton
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { format, isToday } from 'date-fns';
+import { format, isToday, parseISO } from 'date-fns';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { themeConfig } from '@/theme/themeConfig';
 import {
   FilterContainer,
   ToggleWrapper,
@@ -42,7 +45,7 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
   if (view === 'my-queue') return null;
 
   return (
-    <>
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
       <FilterContainer elevation={0} sx={{ p: 2, mb: 3 }}>
         <Box sx={{ width: '100%' }}>
           {/* Row 0: Toggle at Top */}
@@ -54,35 +57,39 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
           </Box>
 
           {/* Row 1: Primary Selection */}
-          <Grid container spacing={3} alignItems="flex-end">
-            <Grid size={{ xs: 12, md: 2.4 }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>
-                {view === 'reconciled' ? 'Reconciled From Date' : (dateMode === 'range' ? 'From Date' : 'Date')}
+          <Grid container spacing={2} alignItems="flex-end">
+            <Grid size={{ xs: 12, md: 2.2 }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: themeConfig.colors.slate[500], fontSize: '11px', textTransform: 'uppercase' }}>
+                {view === 'reconciled' ? 'Reconciled From Date' : 'From Date'}
               </Typography>
-              <TextField
-                size="small"
-                type="date"
-                fullWidth
-                value={searchFilters.fromDate}
-                onChange={(e) => setSearchFilters({ ...searchFilters, fromDate: e.target.value })}
-                sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f8fafc' } }}
+              <DatePicker
+                value={searchFilters.fromDate ? parseISO(searchFilters.fromDate) : null}
+                onChange={(newValue) => setSearchFilters({ ...searchFilters, fromDate: newValue ? format(newValue, 'yyyy-MM-dd') : '' })}
+                slotProps={{ 
+                  textField: { 
+                    size: 'small', 
+                    fullWidth: true,
+                    sx: { '& .MuiOutlinedInput-root': { backgroundColor: themeConfig.colors.slate[50] } }
+                  } 
+                }}
               />
             </Grid>
-            {dateMode === 'range' && (
-              <Grid size={{ xs: 12, md: 2.4 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>
-                  {view === 'reconciled' ? 'Reconciled To Date' : 'To Date'}
-                </Typography>
-                <TextField
-                  size="small"
-                  type="date"
-                  fullWidth
-                  value={searchFilters.toDate}
-                  onChange={(e) => setSearchFilters({ ...searchFilters, toDate: e.target.value })}
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f8fafc' } }}
-                />
-              </Grid>
-            )}
+            <Grid size={{ xs: 12, md: 2.2 }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: themeConfig.colors.slate[500], fontSize: '11px', textTransform: 'uppercase' }}>
+                {view === 'reconciled' ? 'Reconciled To Date' : 'To Date'}
+              </Typography>
+              <DatePicker
+                value={searchFilters.toDate ? parseISO(searchFilters.toDate) : null}
+                onChange={(newValue) => setSearchFilters({ ...searchFilters, toDate: newValue ? format(newValue, 'yyyy-MM-dd') : '' })}
+                slotProps={{ 
+                  textField: { 
+                    size: 'small', 
+                    fullWidth: true,
+                    sx: { '& .MuiOutlinedInput-root': { backgroundColor: themeConfig.colors.slate[50] } }
+                  } 
+                }}
+              />
+            </Grid>
             <Grid size={{ xs: 12, md: 2.4 }}>
               <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>Payor</Typography>
               <TextField
@@ -115,7 +122,7 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                 </TextField>
               </Grid>
             )}
-            <Grid size={{ xs: 12, md: (dateMode === 'range' ? 2.4 : 4.8) }} sx={{ display: 'flex', gap: 1 }}>
+            <Grid size={{ xs: 12, md: (view === 'reconciled' ? 5.4 : 3.2) }} sx={{ display: 'flex', gap: 1 }}>
               <Button
                 variant="contained"
                 fullWidth
@@ -189,7 +196,7 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
           })}
         </DayStripContainer>
       )}
-    </>
+    </LocalizationProvider>
   );
 };
 

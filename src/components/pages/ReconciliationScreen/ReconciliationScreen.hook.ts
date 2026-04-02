@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useTheme } from '@mui/material';
 import { formatCurrency } from '@/utils/formatters';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 
 export type ReconciliationStatus = 'unreconciled' | 'reconciled' | 'my-queue';
 
@@ -40,8 +41,8 @@ export const useReconciliation = () => {
   const [searchFilters, setSearchFilters] = useState({
     payor: 'All',
     status: 'All',
-    fromDate: '2025-06-01',
-    toDate: '2025-06-30',
+    fromDate: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
+    toDate: format(endOfMonth(new Date()), 'yyyy-MM-dd'),
     transactionNo: '',
   });
 
