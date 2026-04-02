@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { TableDescription } from '@/services/descriptionService';
+import { themeConfig } from '@/theme/themeConfig';
 
 interface DictionaryDrawerProps {
   open: boolean;
@@ -33,12 +34,12 @@ const DictionaryDrawer: React.FC<DictionaryDrawerProps> = ({
           top: { xs: '56px', md: '64px' } 
         } 
       }}
-      PaperProps={{
+        PaperProps={{
         sx: {
           width: { xs: '100%', sm: 400 },
           height: { xs: 'calc(100% - 56px)', md: 'calc(100% - 64px)' },
           top: { xs: '56px', md: '64px' },
-          boxShadow: '-10px 0 30px rgba(0,0,0,0.1)',
+          boxShadow: themeConfig.shadows.dropdown,
         }
       }}
     >
@@ -56,17 +57,17 @@ const DictionaryDrawer: React.FC<DictionaryDrawerProps> = ({
           mb: 3,
           flexShrink: 0,
           pb: 1,
-          borderBottom: { xs: '1px solid #f1f5f9', sm: 'none' }
+          borderBottom: { xs: `1px solid ${themeConfig.colors.dictionaryDrawer.bgAlt}`, sm: 'none' }
         }}>
-          <Typography variant="h6" sx={{ fontWeight: 800, color: '#1e293b', fontSize: '1.2rem' }}>
+          <Typography variant="h6" sx={{ fontWeight: 800, color: themeConfig.colors.dictionaryDrawer.textHeading, fontSize: '1.2rem' }}>
             Description
           </Typography>
           <IconButton
             onClick={onClose}
             sx={{
-              bgcolor: '#f1f5f9',
-              color: '#64748b',
-              '&:hover': { bgcolor: '#e2e8f0', color: '#1e293b' },
+              bgcolor: themeConfig.colors.dictionaryDrawer.bgAlt,
+              color: themeConfig.colors.dictionaryDrawer.textMuted,
+              '&:hover': { bgcolor: themeConfig.colors.dictionaryDrawer.bgHover, color: themeConfig.colors.dictionaryDrawer.textHeading },
               width: 36,
               height: 36
             }}
@@ -81,20 +82,20 @@ const DictionaryDrawer: React.FC<DictionaryDrawerProps> = ({
           pr: 1,
           mr: -1,
           '&::-webkit-scrollbar': { width: 6 },
-          '&::-webkit-scrollbar-thumb': { bgcolor: '#e2e8f0', borderRadius: 3 }
+          '&::-webkit-scrollbar-thumb': { bgcolor: themeConfig.colors.dictionaryDrawer.bgHover, borderRadius: 3 }
         }}>
           <Box sx={{
-            bgcolor: '#fff',
+            bgcolor: themeConfig.colors.dictionaryDrawer.bg,
             p: 4,
             borderRadius: '40px',
-            border: '1px solid #e2e8f0',
+            border: `1px solid ${themeConfig.colors.dictionaryDrawer.border}`,
             position: 'relative',
             mb: 4
           }}>
             <Typography
               variant="subtitle2"
               sx={{
-                color: '#3b82f6',
+                color: themeConfig.colors.dictionaryDrawer.textAccent,
                 fontWeight: 800,
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase',
@@ -105,12 +106,12 @@ const DictionaryDrawer: React.FC<DictionaryDrawerProps> = ({
               {selectedField.heading}
             </Typography>
 
-            <Divider sx={{ mb: 3, borderColor: '#f1f5f9', borderBottomWidth: '1px' }} />
+            <Divider sx={{ mb: 3, borderColor: themeConfig.colors.dictionaryDrawer.bgAlt, borderBottomWidth: '1px' }} />
 
             <Typography
               variant="body1"
               sx={{
-                color: '#475569',
+                color: themeConfig.colors.dictionaryDrawer.textBody,
                 lineHeight: 1.7,
                 fontSize: '0.95rem',
                 mb: 3
@@ -123,13 +124,13 @@ const DictionaryDrawer: React.FC<DictionaryDrawerProps> = ({
               <Box sx={{
                 mt: 4,
                 p: 3,
-                bgcolor: '#f0f7ff',
+                bgcolor: themeConfig.colors.dictionaryDrawer.bgTip,
                 borderRadius: '24px',
               }}>
-                <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: '#3b82f6', mb: 0.5 }}>
+                <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: themeConfig.colors.dictionaryDrawer.textAccent, mb: 0.5 }}>
                   Usage Tip:
                 </Typography>
-                <Typography sx={{ fontSize: '0.85rem', color: '#3b82f6', lineHeight: 1.5 }}>
+                <Typography sx={{ fontSize: '0.85rem', color: themeConfig.colors.dictionaryDrawer.textAccent, lineHeight: 1.5 }}>
                   {selectedField.usageTip}
                 </Typography>
               </Box>
@@ -143,22 +144,22 @@ const DictionaryDrawer: React.FC<DictionaryDrawerProps> = ({
                 sx={{
                   fontWeight: 800,
                   letterSpacing: '0.05em',
-                  color: '#1e293b',
+                  color: themeConfig.colors.dictionaryDrawer.textHeading,
                   mb: 3,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 1
                 }}
               >
-                <Box component="span" sx={{ width: 4, height: 16, bgcolor: '#3b82f6', borderRadius: 1 }} />
+                <Box component="span" sx={{ width: 4, height: 16, bgcolor: themeConfig.colors.dictionaryDrawer.textAccent, borderRadius: 1 }} />
                 STATUS EXPLANATIONS
               </Typography>
               {selectedField.statuses.map((status, idx) => (
                 <Box key={idx} sx={{ mb: 3, pl: 1.5 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155', mb: 0.5 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: themeConfig.colors.dictionaryDrawer.textNavy, mb: 0.5 }}>
                     {status.label}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748b', lineHeight: 1.6 }}>
+                  <Typography variant="body2" sx={{ color: themeConfig.colors.dictionaryDrawer.textMuted, lineHeight: 1.6 }}>
                     {status.explanation}
                   </Typography>
                 </Box>
@@ -174,17 +175,17 @@ const DictionaryDrawer: React.FC<DictionaryDrawerProps> = ({
           pb: 2,
           px: 4,
           flexShrink: 0,
-          borderTop: '1px solid #f1f5f9',
-          bgcolor: '#fafafa',
+          borderTop: `1px solid ${themeConfig.colors.dictionaryDrawer.bgAlt}`,
+          bgcolor: themeConfig.colors.dictionaryDrawer.bgFooter,
           mx: -4,
           mb: -4,
         }}>
-          <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', mb: 1, fontWeight: 500 }}>
+          <Typography variant="caption" sx={{ color: themeConfig.colors.dictionaryDrawer.textLight, display: 'block', mb: 1, fontWeight: 500 }}>
             Need more help? Contact your administrator.
           </Typography>
-          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, px: 2, py: 0.5, bgcolor: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-            <Box sx={{ width: 6, height: 6, bgcolor: '#3b82f6', borderRadius: '50%' }} />
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+          <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, px: 2, py: 0.5, bgcolor: themeConfig.colors.dictionaryDrawer.bg, borderRadius: '12px', border: `1px solid ${themeConfig.colors.dictionaryDrawer.border}` }}>
+            <Box sx={{ width: 6, height: 6, bgcolor: themeConfig.colors.dictionaryDrawer.textAccent, borderRadius: '50%' }} />
+            <Typography variant="caption" sx={{ color: themeConfig.colors.dictionaryDrawer.textMuted, fontWeight: 600 }}>
               ICANMANAGE Support
             </Typography>
           </Box>

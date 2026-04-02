@@ -7,7 +7,7 @@ export const accordionStyles = (hideBorderTop: boolean): SxProps<Theme> => ({
 });
 
 export const summaryStyles: SxProps<Theme> = {
-    backgroundColor: '#FAFBFC',
+    backgroundColor: themeConfig.colors.surfaceSubtle,
     flexDirection: 'row-reverse',
     gap: 1,
     minHeight: 48,

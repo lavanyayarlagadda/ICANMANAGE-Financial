@@ -13,7 +13,6 @@ import { closeViewDialog, closeEditDialog, closeConfirmDelete } from '@/store/sl
 
 const AllTransactionsScreen = lazy(() => import('@/components/pages/AllTransactions/AllTransactionsScreen'));
 const PaymentsScreen = lazy(() => import('@/components/pages/Payments/PaymentsScreen'));
-const PipScreen = lazy(() => import('@/components/pages/Pip/PipScreen'));
 const RemittanceDetailScreen = lazy(() => import('@/components/pages/RemittanceDetail/RemittanceDetailScreen'));
 const TrendsScreen = lazy(() => import('@/components/pages/Trends/TrendsScreen'));
 const VarianceScreen = lazy(() => import('@/components/pages/Variance/VarianceScreen'));

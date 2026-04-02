@@ -7,6 +7,7 @@ import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { AllTransaction } from '@/interfaces/financials';
 import { formatCurrency } from '@/utils/formatters';
+import { themeConfig } from '@/theme/themeConfig';
 import { AmountText, BalanceText, transactionTypeColors } from './AllTransactionsScreen.styles';
 import { useAllTransactionsScreen } from './AllTransactionsScreen.hook';
 
@@ -38,7 +39,7 @@ const AllTransactionsScreen: React.FC = () => {
             accessor: (r) => r.transactionType,
             filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', ...(!isMindPath ? ['PIP'] : [])],
             render: (r) => {
-                const colors = transactionTypeColors[r.transactionType] || { bg: '#F5F5F5', text: '#616161' };
+                const colors = transactionTypeColors[r.transactionType] || { bg: themeConfig.colors.slate[100], text: themeConfig.colors.slate[600] };
                 return (
                     <Chip
                         label={r.transactionType.replace('_', ' ')}

@@ -28,7 +28,7 @@ export const securitySettingsBoxStyles: SxProps<Theme> = {
 
 export const searchFieldStyles: SxProps<Theme> = {
   width: { xs: '100%', sm: 250 },
-  backgroundColor: '#FAFBFC',
+  backgroundColor: themeConfig.colors.surfaceSubtle,
   '& .MuiOutlinedInput-root': { borderRadius: 2 },
 };
 

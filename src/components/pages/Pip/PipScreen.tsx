@@ -11,6 +11,7 @@ import { Box, Typography, IconButton, Chip, Grid } from "@mui/material";
 import MultiValueDisplay from "@/components/atoms/MultiValueDisplay/MultiValueDisplay";
 import { formatCurrency, formatPercent } from "@/utils/formatters";
 import SummaryCard from "@/components/atoms/SummaryCard/SummaryCard";
+import { themeConfig } from '@/theme/themeConfig';
 import { NpiSectionWrapper, NpiHeaderRow, NpiDataRow } from "./PipScreen.styles";
 import { usePipScreen } from "./PipScreen.hook";
 
@@ -101,9 +102,9 @@ const PipScreen: React.FC = () => {
   return (
     <Box sx={{ position: 'relative' }}>
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL PAID AMOUNT" value={formatCurrency(pipSummary?.totalPaidAmount ?? 0)} backgroundColor="#fff" /></Grid>
-        <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL SUSPENSE BALANCE" value={formatCurrency(pipSummary?.totalSuspenseBalance ?? 0)} backgroundColor="#fff" /></Grid>
-        <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="ACTION REQUIRED" value={pipSummary?.actionRequired?.toString() || '0'} variant="default" backgroundColor="#fff" /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL PAID AMOUNT" value={formatCurrency(pipSummary?.totalPaidAmount ?? 0)} backgroundColor={themeConfig.colors.surface} /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL SUSPENSE BALANCE" value={formatCurrency(pipSummary?.totalSuspenseBalance ?? 0)} backgroundColor={themeConfig.colors.surface} /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="ACTION REQUIRED" value={pipSummary?.actionRequired?.toString() || '0'} variant="default" backgroundColor={themeConfig.colors.surface} /></Grid>
       </Grid>
       <DataTable
         columns={columns} data={pipRecords} rowKey={getRowId} expandedRows={expandedRows}

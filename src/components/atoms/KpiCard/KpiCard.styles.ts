@@ -1,10 +1,11 @@
 import { SxProps, Theme } from '@mui/material';
+import { themeConfig } from '@/theme/themeConfig';
 
 export const cardStyles: SxProps<Theme> = {
   height: '100%',
   transition: 'box-shadow 0.2s ease',
   '&:hover': {
-    boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
+    boxShadow: themeConfig.shadows.cardHover,
   },
 };
 

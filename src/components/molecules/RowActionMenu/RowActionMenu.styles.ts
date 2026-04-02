@@ -1,8 +1,9 @@
 import { SxProps, Theme } from '@mui/material';
+import { themeConfig } from '@/theme/themeConfig';
 
 export const menuPaperProps: SxProps<Theme> = {
   minWidth: 160,
-  boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+  boxShadow: themeConfig.shadows.cardHover,
 };
 
 export const errorMenuItemStyles: SxProps<Theme> = {

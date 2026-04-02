@@ -22,7 +22,7 @@ export const selectStyles: SxProps<Theme> = {
   height: 32,
   minWidth: 120,
   fontSize: '0.85rem',
-  backgroundColor: '#fff',
+  backgroundColor: themeConfig.colors.surface,
   borderRadius: 1.5,
   '& .MuiOutlinedInput-notchedOutline': {
     borderColor: themeConfig.colors.border,
@@ -55,7 +55,7 @@ export const getDatePickerSx = (isMobile: boolean): SxProps<Theme> => ({
     fontSize: '0.75rem', 
     borderRadius: 1.5, 
     width: isMobile ? '100%' : 140,
-    backgroundColor: '#fff',
+    backgroundColor: themeConfig.colors.surface,
   },
   '& .MuiOutlinedInput-notchedOutline': { borderColor: themeConfig.colors.border },
   flex: isMobile ? 1 : 'unset',
@@ -66,11 +66,11 @@ export const slotProps = (isMobile: boolean) => ({
   desktopPaper: {
     sx: {
       '& .MuiPickersLayout-root': {
-        backgroundColor: '#fff',
+        backgroundColor: themeConfig.colors.surface,
       },
       '& .MuiPickersToolbar-root': {
         backgroundColor: themeConfig.colors.accent,
-        color: '#fff',
+        color: themeConfig.colors.surface,
       },
       '& .MuiDateCalendar-root': {
         '& .MuiPickersDay-root.Mui-selected': {
@@ -83,7 +83,7 @@ export const slotProps = (isMobile: boolean) => ({
     sx: {
       '& .MuiPickersToolbar-root': {
         backgroundColor: themeConfig.colors.accent,
-        color: '#fff',
+        color: themeConfig.colors.surface,
       },
       '& .MuiPickersDay-root.Mui-selected': {
         backgroundColor: themeConfig.colors.accent,

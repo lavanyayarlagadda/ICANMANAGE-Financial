@@ -1,8 +1,9 @@
 import { SxProps, Theme } from '@mui/material';
+import { themeConfig } from '@/theme/themeConfig';
 
 export const cardStyles: SxProps<Theme> = {
   mb: 3,
-  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+  boxShadow: themeConfig.shadows.card,
   borderRadius: 2,
 };
 
@@ -33,5 +34,5 @@ export const sectionTitleStyles: SxProps<Theme> = {
 export const footerContainerStyles: SxProps<Theme> = {
   mt: 2,
   pt: 2,
-  borderTop: '1px solid rgba(0,0,0,0.08)',
+  borderTop: `1px solid ${themeConfig.colors.border}`,
 };

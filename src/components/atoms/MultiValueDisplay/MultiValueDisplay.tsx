@@ -84,16 +84,16 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
             placeholder="Search numbers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-              sx: { height: 32, fontSize: 13, bgcolor: '#fff' }
-            }}
-          />
-        </Box>
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+              sx: { height: 32, fontSize: 13, bgcolor: 'background.paper' }
+              }}
+            />
+          </Box>
         <List sx={styles.listStyles}>
           {filteredItems.map((item, idx) => (
             <ListItem

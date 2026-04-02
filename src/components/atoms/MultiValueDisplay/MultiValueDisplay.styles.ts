@@ -1,4 +1,5 @@
 import { SxProps, Theme } from '@mui/material';
+import { themeConfig } from '@/theme/themeConfig';
 
 export const containerStyles: SxProps<Theme> = {
   py: 0.5,
@@ -23,16 +24,16 @@ export const moreChipStyles: SxProps<Theme> = {
   fontSize: 10,
   fontWeight: 600,
   color: 'primary.main',
-  bgcolor: '#eff6ff',
+  bgcolor: themeConfig.colors.surfaceInfo,
   border: theme => `1px solid ${theme.palette.primary.light}`,
-  '&:hover': { bgcolor: '#dbeafe' }
+  '&:hover': { bgcolor: themeConfig.colors.surfaceInfoHover }
 };
 
 export const popoverPaperProps: SxProps<Theme> = {
   width: 280,
   maxHeight: 400,
   borderRadius: 2,
-  boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+  boxShadow: themeConfig.shadows.dropdown,
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column'

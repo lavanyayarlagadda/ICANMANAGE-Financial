@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Chip, type ChipProps } from '@mui/material';
 import { getStatusKey } from '@/utils/formatters';
+import { themeConfig } from '@/theme/themeConfig';
 import { statusColorMap } from './StatusBadge.styles';
 
 interface StatusBadgeProps {
@@ -11,7 +12,7 @@ interface StatusBadgeProps {
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'small' }) => {
   const colors = useMemo(() => {
     const key = getStatusKey(status);
-    return statusColorMap[key] || { bg: '#F5F5F5', text: '#616161' };
+    return statusColorMap[key] || { bg: themeConfig.colors.slate[100], text: themeConfig.colors.slate[500] };
   }, [status]);
         if (!status) return null;
 
