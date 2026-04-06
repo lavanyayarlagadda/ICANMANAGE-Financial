@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useTheme } from '@mui/material';
-import { formatCurrency } from '@/utils/formatters';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { RECONCILIATION_DUMMY_DATA } from './ReconciliationDummyData';
 
 export type ReconciliationStatus = 'unreconciled' | 'reconciled' | 'my-queue';
 
@@ -88,75 +87,7 @@ export const useReconciliation = () => {
   }, [view]);
 
   // Mock Row Data
-  const mockRows: ReconciliationRow[] = useMemo(() => [
-    {
-      id: '1',
-      transactionNo: '08277549909',
-      transactionType: 'EFT CREDIT',
-      batchOwner: 'ICAN',
-      accountName: 'MDL MD PC Deposits',
-      payor: 'HEALTH NET COMMU',
-      depositDate: '06/30/2025',
-      bankDeposit: 819.72,
-      remittance: 0,
-      amd: 0,
-      nextGenCore: 10,
-      nextGenPcsd: 10,
-      legacy: 0,
-      gl: 0,
-      unapplied: 0,
-      variance: -819.72,
-      status: 'Unreconciled',
-      complexStatus: ['Remit missing', 'Post < Deposit', 'Age-276'],
-      location: 'AZ',
-      isEdited: true,
-      comment: 'Check amount not matching'
-    },
-    {
-      id: '2',
-      transactionNo: 'W3272298...',
-      transactionType: 'EFT CREDIT',
-      batchOwner: 'ICAN',
-      accountName: 'MDL MD PC Deposits',
-      payor: 'UnitedHealthcare',
-      depositDate: '06/30/2025',
-      bankDeposit: 742.69,
-      remittance: 0,
-      amd: 0,
-      nextGenCore: 10,
-      nextGenPcsd: 0,
-      legacy: 0,
-      gl: 0,
-      unapplied: 0,
-      variance: -742.69,
-      status: 'Unreconciled',
-      complexStatus: ['Remit missing', 'Post < Deposit', 'Age-276'],
-      location: 'CA',
-      isEdited: false
-    },
-    {
-      id: '3',
-      transactionNo: 'T1122334...',
-      transactionType: 'CHECK',
-      batchOwner: 'RECON',
-      accountName: 'MDL MD PC Deposits',
-      payor: 'UnitedHealthcare',
-      depositDate: '06/30/2025',
-      bankDeposit: 744.25,
-      remittance: 744.25,
-      amd: 0,
-      nextGenCore: 744.25,
-      nextGenPcsd: 0,
-      legacy: 0,
-      gl: 0,
-      unapplied: 0,
-      variance: 0,
-      status: 'Reconciled',
-      complexStatus: ['Match', 'Age-30'],
-      location: 'FL',
-      reconcileDate: '06/26/2025'
-    }
-  ], []);
+  const mockRows: ReconciliationRow[] = useMemo(() => RECONCILIATION_DUMMY_DATA, []);
 
   const filteredData = useMemo(() => {
     return mockRows.filter(row => {

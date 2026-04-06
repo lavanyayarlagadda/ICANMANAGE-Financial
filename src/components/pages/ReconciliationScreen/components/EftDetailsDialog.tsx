@@ -92,36 +92,36 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
       fullWidth
       PaperComponent={GlassDialog}
     >
-      <DialogTitle sx={{ p: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(to right, #f8fafc, #fff)' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <DialogTitle sx={{ p: { xs: 2, sm: 2.5 }, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: 'linear-gradient(to right, #f8fafc, #fff)' }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, flex: 1, mt: 0.5 }}>
           <Box sx={{ p: 1, borderRadius: '10px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', display: 'flex' }}>
             <CalendarMonthIcon fontSize="small" />
           </Box>
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#1e293b', lineHeight: 1.2 }}>EFT Transaction Details</Typography>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, display: 'block', mt: 0.5 }}>
               {selectedRow ? (
-                <>
-                  {selectedRow.transactionNo}
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 0.5, sm: 2 } }}>
+                  <span>{selectedRow.transactionNo}</span>
                   {selectedRow.reconcileDate && (
-                    <Box component="span" sx={{ ml: 2, color: 'success.main', fontWeight: 800 }}>
+                    <Box component="span" sx={{ color: 'success.main', fontWeight: 800 }}>
                       Reconcile Date: {selectedRow.reconcileDate}
                     </Box>
                   )}
-                </>
+                </Box>
               ) : 'No Selection'}
             </Typography>
           </Box>
         </Box>
-        <IconButton onClick={onClose} sx={{ backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} size="small">
+        <IconButton onClick={onClose} sx={{ backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', flexShrink: 0 }} size="small">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
       <Divider sx={{ opacity: 0.5 }} />
 
-      <DialogContent sx={{ p: 3, backgroundColor: '#fdfdfd' }}>
+      <DialogContent sx={{ p: { xs: 2, sm: 3 }, backgroundColor: '#fdfdfd' }}>
         {/* Actions Row - Balanced 3-column Layout */}
-        <Grid container spacing={4} sx={{ mb: 4, alignItems: 'stretch' }}>
+        <Grid container spacing={{ xs: 2, md: 4 }} sx={{ mb: 4, alignItems: 'stretch' }}>
           {/* 1. TRANSACTION SEARCH */}
           <Grid size={{ xs: 12, md: 4 }}>
             <Box sx={{ height: '100%', p: 2, borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
@@ -206,7 +206,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
         {/* Reusable Sectioned Content */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* BAI SECTION */}
-          <Box sx={{ display: 'flex', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
             <SectionSidebar bgColor="#fef3c7">
               <Typography variant="caption" sx={{ fontWeight: 900, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.1em' }}>BAI</Typography>
             </SectionSidebar>
@@ -218,7 +218,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
           </Box>
 
           {/* REMIT SECTION */}
-          <Box sx={{ display: 'flex', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
             <SectionSidebar bgColor="#dcfce7">
               <Typography variant="caption" sx={{ fontWeight: 900, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Remit</Typography>
             </SectionSidebar>
@@ -230,7 +230,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
           </Box>
 
           {/* CASH POSTING SECTION */}
-          <Box sx={{ display: 'flex', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
             <SectionSidebar bgColor="#f3e8ff">
               <Typography variant="caption" sx={{ fontWeight: 900, color: '#6b21a8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Cash Posting</Typography>
             </SectionSidebar>
