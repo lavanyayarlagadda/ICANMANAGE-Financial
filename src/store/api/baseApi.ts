@@ -3,7 +3,7 @@ import { RootState } from '../index';
 import { logout, updateToken } from '../slices/authSlice';
 import { API_CONFIG, COMPANIES } from '@/config/constants';
 
-const BASE_URL = API_CONFIG.BASE_URL;
+const BASE_URL = import.meta.env.VITE_API_URL || API_CONFIG.BASE_URL;
 
 if (import.meta.env.DEV) {
   console.log(`Using API Base URL:`, BASE_URL);

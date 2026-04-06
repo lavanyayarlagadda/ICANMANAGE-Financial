@@ -56,6 +56,10 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
       heading: 'Priority Level',
       description: 'A risk-based classification (High, Medium, Low) determining the frequency and method of follow-up required.',
     },
+    description: {
+      heading: 'Description',
+      description: 'Additional notes or context regarding the collection account status or patient communication history.',
+    },
     status: {
       heading: 'Account Status',
       description: 'The current state of the account within the collections lifecycle.',
@@ -129,6 +133,10 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
       heading: 'Variance',
       description: 'The discrepancy between the bank deposit amount and the total remittance amount. Ideally, this should be zero.',
     },
+    description: {
+      heading: 'Description',
+      description: 'Additional context or identifying information for the bank deposit record, typically sourced from the bank statement or post-reconciliation memos.',
+    },
     status: {
       heading: 'Reconciliation Status',
       description: 'Indicates the match quality between bank and remit data.',
@@ -176,6 +184,26 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
       heading: 'Suspense Balance',
       description: 'Monetary amounts that have been received but not yet matched or applied to specific claims due to missing or conflicting information.',
     },
+    noticeId: {
+      heading: 'Notice ID',
+      description: 'The unique reference number for the overpayment or forward balance notification.',
+    },
+    notificationDate: {
+      heading: 'Notification Date',
+      description: 'The date on which the provider was officially notified of the overpayment or balance due.',
+    },
+    originalAmount: {
+      heading: 'Original Amount',
+      description: 'The total value of the overpayment as identified at the time of notification.',
+    },
+    remainingBalance: {
+      heading: 'Remaining Balance',
+      description: 'The portion of the overpayment that has not yet been recovered through subsequent payment offsets.',
+    },
+    description: {
+      heading: 'Description',
+      description: 'Detailed info about the statement record, providing context for the balance or specific period notices.',
+    },
     status: {
       heading: 'Status',
       description: 'The processing or allocation status of the PIP or FB record.',
@@ -200,6 +228,10 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
       heading: 'Variance',
       description: 'The discrepancy between the contracted allowed amount and the actual paid amount.',
       usageTip: 'High variance indicates potential underpayments or billing errors.'
+    },
+    description: {
+      heading: 'Description',
+      description: 'The reasoning or context behind the variance, often including specific billing codes or payer remark summaries.',
     }
   },
   'recoupments': {
@@ -230,6 +262,10 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
     reason: {
       heading: 'Reason',
       description: 'A description provided by the payer explaining why the funds are being recouped (e.g., overpayment, duplicate claim).',
+    },
+    description: {
+      heading: 'Description',
+      description: 'Context explaining the specific recoupment event, often linking back to the original claim dispute or overpayment notice.',
     },
     status: {
       heading: 'Status',
@@ -405,6 +441,10 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
       heading: 'Total Variance',
       description: 'The total dollar amount of underpayments or overpayments identified for this payer.',
     },
+    description: {
+      heading: 'Description',
+      description: 'A summary note on the payer\'s overall performance health and specific reconciliation recurring errors.',
+    },
     status: {
       heading: 'Payer Status',
       description: 'A status indicating whether the payer\'s reconciliation performance is within acceptable thresholds.',
@@ -413,6 +453,104 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
         { label: 'On Watch', explanation: 'Small discrepancies or delays have been noted; monitoring frequency increased.' },
         { label: 'Critical', explanation: 'Significant reconciliation failures or payment delays requiring immediate intervention.' }
       ]
+    }
+  },
+  'payments': {
+    effectiveDate: {
+      heading: 'Effective Date',
+      description: 'The date identifying when the payment was recognized for accounting purposes.',
+    },
+    type: {
+      heading: 'Payment Type',
+      description: 'Categorization of the payment (e.g., EFT, Check, Cash).',
+    },
+    description: {
+      heading: 'Description',
+      description: 'Detailed context regarding the payment origin or purpose.',
+    },
+    transactionNo: {
+      heading: 'Transaction Number',
+      description: 'The reference number assigned to this payment by the bank or insurer.',
+    },
+    payer: {
+      heading: 'Payer',
+      description: 'The entity that issued the payment.',
+    },
+    amount: {
+      heading: 'Amount',
+      description: 'The total monetary value of the payment.',
+    },
+    openBalance: {
+      heading: 'Open Balance',
+      description: 'The portion of the payment that remains unapplied to claims.',
+    },
+    status: {
+      heading: 'Status',
+      description: 'Current lifecycle state of the payment record.',
+    }
+  },
+  'reconciliation': {
+    depositDate: {
+      heading: 'Deposit Date',
+      description: 'The date on which the bank deposit or remit record was officially recognized.',
+    },
+    transactionNo: {
+      heading: 'Transaction NO',
+      description: 'The unique identification number (e.g., Check # or EFT #) associated with the transaction.',
+    },
+    payor: {
+      heading: 'Payor',
+      description: 'The entity responsible for the payment or deposit.',
+    },
+    bankDeposit: {
+      heading: 'Bank Deposit',
+      description: 'The total value reported by the bank for this deposit.',
+    },
+    remittance: {
+      heading: 'Remittance',
+      description: 'The total value identified in the associated remittance advice documents.',
+    },
+    variance: {
+      heading: 'Variance',
+      description: 'The difference between the bank amount and the remit amount.',
+    },
+    actions: {
+      heading: 'Actions',
+      description: 'Available administrative tasks for this reconciliation record.',
+    },
+    description: {
+      heading: 'Description',
+      description: 'Specific notes explaining the reconciliation status or manual adjustments made.',
+    },
+    status: {
+      heading: 'Status',
+      description: 'The current state of the reconciliation record (Reconciled, Unreconciled, or In Queue).',
+    }
+  },
+  'suspense-accounts': {
+    account: {
+      heading: 'Account Type',
+      description: 'The specific category or ledger (e.g., Medicare, Patient, Tax) where unidentified funds currently reside.',
+    },
+    items: {
+      heading: 'Items Count',
+      description: 'The total number of individual payments or remittances contributing to the suspense balance.',
+    },
+    total: {
+      heading: 'Total Balance',
+      description: 'The cumulative dollar amount currently sitting in this suspense category.',
+    },
+    payer: {
+      heading: 'Facility / Payer',
+      description: 'The specific insurance company or provider location associated with the suspense funds.',
+    },
+    month: {
+      heading: 'Reporting Month',
+      description: 'The calendar month when the suspense record was first generated or recognized.',
+    },
+    description: {
+      heading: 'Description',
+      description: 'Internal documentation detailing the ongoing investigation into these unapplied funds.',
     }
   }
 };

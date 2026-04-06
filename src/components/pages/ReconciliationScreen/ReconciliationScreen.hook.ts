@@ -1,34 +1,12 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useTheme } from '@mui/material';
 import { formatCurrency } from '@/utils/formatters';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 
-export type ReconciliationStatus = 'unreconciled' | 'reconciled' | 'my-queue';
+import { mockReconciliationRows } from '@/constants/mockData';
+import { ReconciliationRow } from '@/interfaces/financials';
 
-export interface ReconciliationRow {
-  id: string;
-  transactionNo: string;
-  transactionType: string;
-  batchOwner: string;
-  accountName: string;
-  payor: string;
-  depositDate: string;
-  bankDeposit: number;
-  remittance: number;
-  amd: number;
-  nextGenCore: number;
-  nextGenPcsd: number;
-  legacy: number;
-  gl: number;
-  unapplied: number;
-  variance: number;
-  status: string;
-  complexStatus: string[];
-  location: string;
-  isEdited?: boolean;
-  comment?: string;
-  reconcileDate?: string;
-}
+export type ReconciliationStatus = 'unreconciled' | 'reconciled' | 'my-queue';
 
 export const useReconciliation = () => {
   const [view, setView] = useState<ReconciliationStatus>('unreconciled');
@@ -58,13 +36,14 @@ export const useReconciliation = () => {
       // setLoading(true);
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      const newHeaders = [
+      const newHeaders: any[] = [
         { id: 'actions', label: 'Actions', align: 'left', isAction: true },
         { id: 'transactionNo', label: 'Transaction NO', align: 'left', isLink: true },
         { id: 'transactionType', label: 'Transaction Type', align: 'left' },
         { id: 'batchOwner', label: 'Batch Owner', align: 'left' },
         { id: 'accountName', label: 'Account Name', align: 'left' },
         { id: 'payor', label: 'Payor', align: 'left' },
+        { id: 'description', label: 'Description', align: 'left' },
         { id: 'depositDate', label: 'Deposit Date', align: 'left' },
         { id: 'bankDeposit', label: 'Bank Deposit', align: 'right', isCurrency: true },
         { id: 'remittance', label: 'Remittance', align: 'right', isCurrency: true, highlightOnZero: true },
@@ -74,12 +53,15 @@ export const useReconciliation = () => {
         { id: 'legacy', label: 'Legacy', align: 'right', isCurrency: true },
         { id: 'gl', label: 'GL', align: 'right', isCurrency: true },
         { id: 'unapplied', label: 'Unapplied', align: 'right', isCurrency: true },
-        { id: 'variance', label: 'Variance', align: 'right', isCurrency: true },
-        { id: 'status', label: 'Status', align: 'left', isStatus: true },
       ];
+
       if (view === 'reconciled') {
-        newHeaders.splice(16, 0, { id: 'reconcileDate', label: 'Reconcile Date', align: 'left' });
+        (newHeaders as any).push({ id: 'reconcileDate', label: 'Reconcile Date', align: 'left' });
+      } else {
+        (newHeaders as any).push({ id: 'variance', label: 'Variance', align: 'right', isCurrency: true });
+        (newHeaders as any).push({ id: 'status', label: 'Status', align: 'left', isStatus: true });
       }
+
       setHeaders(newHeaders);
       setLoading(false);
     };
@@ -88,75 +70,7 @@ export const useReconciliation = () => {
   }, [view]);
 
   // Mock Row Data
-  const mockRows: ReconciliationRow[] = useMemo(() => [
-    {
-      id: '1',
-      transactionNo: '08277549909',
-      transactionType: 'EFT CREDIT',
-      batchOwner: 'ICAN',
-      accountName: 'MDL MD PC Deposits',
-      payor: 'HEALTH NET COMMU',
-      depositDate: '06/30/2025',
-      bankDeposit: 819.72,
-      remittance: 0,
-      amd: 0,
-      nextGenCore: 10,
-      nextGenPcsd: 10,
-      legacy: 0,
-      gl: 0,
-      unapplied: 0,
-      variance: -819.72,
-      status: 'Unreconciled',
-      complexStatus: ['Remit missing', 'Post < Deposit', 'Age-276'],
-      location: 'AZ',
-      isEdited: true,
-      comment: 'Check amount not matching'
-    },
-    {
-      id: '2',
-      transactionNo: 'W3272298...',
-      transactionType: 'EFT CREDIT',
-      batchOwner: 'ICAN',
-      accountName: 'MDL MD PC Deposits',
-      payor: 'UnitedHealthcare',
-      depositDate: '06/30/2025',
-      bankDeposit: 742.69,
-      remittance: 0,
-      amd: 0,
-      nextGenCore: 10,
-      nextGenPcsd: 0,
-      legacy: 0,
-      gl: 0,
-      unapplied: 0,
-      variance: -742.69,
-      status: 'Unreconciled',
-      complexStatus: ['Remit missing', 'Post < Deposit', 'Age-276'],
-      location: 'CA',
-      isEdited: false
-    },
-    {
-      id: '3',
-      transactionNo: 'T1122334...',
-      transactionType: 'CHECK',
-      batchOwner: 'RECON',
-      accountName: 'MDL MD PC Deposits',
-      payor: 'UnitedHealthcare',
-      depositDate: '06/30/2025',
-      bankDeposit: 744.25,
-      remittance: 744.25,
-      amd: 0,
-      nextGenCore: 744.25,
-      nextGenPcsd: 0,
-      legacy: 0,
-      gl: 0,
-      unapplied: 0,
-      variance: 0,
-      status: 'Reconciled',
-      complexStatus: ['Match', 'Age-30'],
-      location: 'FL',
-      reconcileDate: '06/26/2025'
-    }
-  ], []);
+  const mockRows = mockReconciliationRows;
 
   const filteredData = useMemo(() => {
     return mockRows.filter(row => {
@@ -187,19 +101,19 @@ export const useReconciliation = () => {
     };
   }, [filteredData]);
 
-  const handleToggle = (newView: ReconciliationStatus) => {
+  const handleToggle = useCallback((newView: ReconciliationStatus) => {
     setView(newView);
-  };
+  }, []);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     setLoading(true);
     setTimeout(() => {
       setAppliedFilters(searchFilters);
       setLoading(false);
     }, 200);
-  };
+  }, [searchFilters]);
 
-  const handleGlobalTransactionSearch = (txNo: string) => {
+  const handleGlobalTransactionSearch = useCallback((txNo: string) => {
     setLoading(true);
     setTimeout(() => {
       // Find the record in ALL data
@@ -217,7 +131,7 @@ export const useReconciliation = () => {
       }
       setLoading(false);
     }, 300);
-  };
+  }, [mockRows, searchFilters]);
 
   return {
     view,

@@ -12,7 +12,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { ScreenWrapper, TransactionNumber, MonospaceBox } from './PaymentsScreen.styles';
 import { usePaymentsScreen } from './PaymentsScreen.hook';
 
-const PaymentsScreen: React.FC = () => {
+const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const {
         payments,
         totalElements,
@@ -25,7 +25,7 @@ const PaymentsScreen: React.FC = () => {
         onRowsPerPageChange,
         isError,
         dispatch,
-    } = usePaymentsScreen();
+    } = usePaymentsScreen({ skip });
 
     const columns = useMemo<DataColumn<PaymentTransaction>[]>(() => [
         {
@@ -45,6 +45,7 @@ const PaymentsScreen: React.FC = () => {
         },
         { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
         { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type, render: (r) => r.type },
+        { id: 'description', label: 'Description', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         {
             id: 'transactionNo',
             label: 'Transaction Number',

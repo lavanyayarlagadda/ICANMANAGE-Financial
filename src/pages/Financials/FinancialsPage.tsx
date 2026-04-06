@@ -12,18 +12,16 @@ import { useFinancialsPage } from './FinancialsPage.hook';
 import { closeViewDialog, closeEditDialog, closeConfirmDelete } from '@/store/slices/uiSlice';
 import ReconciliationScreen from '@/components/pages/ReconciliationScreen/ReconciliationScreen';
 
-const AllTransactionsScreen = lazy(() => import('@/components/pages/AllTransactions/AllTransactionsScreen'));
 const PaymentsScreen = lazy(() => import('@/components/pages/Payments/PaymentsScreen'));
-// const PipScreen = lazy(() => import('@/components/pages/Pip/PipScreen'));
+const AllTransactionsScreen = lazy(() => import('@/components/pages/AllTransactions/AllTransactionsScreen'));
+const RecoupmentsScreen = lazy(() => import('@/components/pages/Recoupments/RecoupmentsScreen'));
+const OtherAdjustmentsScreen = lazy(() => import('@/components/pages/OtherAdjustments/OtherAdjustmentsScreen'));
+const BankDepositsScreen = lazy(() => import('@/components/pages/BankDeposits/BankDepositsScreen'));
 const RemittanceDetailScreen = lazy(() => import('@/components/pages/RemittanceDetail/RemittanceDetailScreen'));
 const TrendsScreen = lazy(() => import('@/components/pages/Trends/TrendsScreen'));
 const VarianceScreen = lazy(() => import('@/components/pages/Variance/VarianceScreen'));
-const BankDepositsScreen = lazy(() => import('@/components/pages/BankDeposits/BankDepositsScreen'));
 const StatementsScreen = lazy(() => import('@/components/pages/Statements/StatementsScreen'));
-const RecoupmentsScreen = lazy(() => import('@/components/pages/Recoupments/RecoupmentsScreen'));
-const OtherAdjustmentsScreen = lazy(() => import('@/components/pages/OtherAdjustments/OtherAdjustmentsScreen'));
 const CollectionsScreen = lazy(() => import('@/components/pages/Collections/CollectionsScreen'));
-// const CalendarScreen = lazy(() => import('@/components/pages/Calendar/CalendarScreen'));
 
 const TabLoadingFallback = () => (
   <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -57,27 +55,27 @@ const FinancialsPage: React.FC = () => {
 
   const tabContent = useMemo(() => {
     if (activeTab === 0) {
-      const subMap: Record<number, React.ReactNode> = {
-        0: <AllTransactionsScreen />,
-        1: <PaymentsScreen />,
-        2: <RecoupmentsScreen />,
-        3: <OtherAdjustmentsScreen />,
-      };
-      return subMap[activeSubTab] ?? <AllTransactionsScreen />;
+      switch (activeSubTab) {
+        case 0: return <AllTransactionsScreen skip={false} />;
+        case 1: return <PaymentsScreen skip={false} />;
+        case 2: return <RecoupmentsScreen skip={false} />;
+        case 3: return <OtherAdjustmentsScreen skip={false} />;
+        default: return <AllTransactionsScreen skip={false} />;
+      }
     }
 
-    if (activeTab === 1) return <BankDepositsScreen />;
-    if (activeTab === 2) return <StatementsScreen />;
-    if (activeTab === 3) return <VarianceScreen />;
-    if (activeTab === 4) return <TrendsScreen />;
+    if (activeTab === 1) return <BankDepositsScreen skip={false} />;
+    if (activeTab === 2) return <StatementsScreen skip={false} />;
+    if (activeTab === 3) return <VarianceScreen skip={false} />;
+    if (activeTab === 4) return <TrendsScreen skip={false} />;
     if (activeTab === 5) return <ReconciliationScreen />;
 
-    return <AllTransactionsScreen />;
+    return <AllTransactionsScreen skip={false} />;
   }, [activeTab, activeSubTab]);
 
   const mainContent = useMemo(() => {
     if (activePage === 'collections') {
-      return <CollectionsScreen />;
+      return <CollectionsScreen skip={activePage !== 'collections'} />;
     }
 
     if (showRemittanceDetail) {

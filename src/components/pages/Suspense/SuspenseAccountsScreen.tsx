@@ -28,6 +28,8 @@ import * as styles from './SuspenseAccountsScreen.styles';
 import { SUSPENSE_ACCOUNTS, BY_ACCOUNT_DATA, BY_PAYER_DATA, BY_MONTH_DATA } from './SuspenseAccounts.constants';
 import { themeConfig } from '@/theme/themeConfig';
 import { useTheme } from '@mui/material/styles';
+import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
+import DataTable from '@/components/molecules/DataTable/DataTable';
 
 
 const ManageAccountsModal = ({ open, onClose }: { open: boolean, onClose: () => void }) => {
@@ -87,47 +89,63 @@ const ManageAccountsModal = ({ open, onClose }: { open: boolean, onClose: () => 
     );
 };
 
-const SuspenseAccountsScreen: React.FC = () => {
-    const { viewType, manageDialogOpen, handleViewChange, toggleManageDialog } = useSuspenseAccountsScreen();
+const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
+    const { viewType, manageDialogOpen, handleViewChange, toggleManageDialog } = useSuspenseAccountsScreen({ skip });
 
-    const renderTable = (data: Record<string, string | number | null>[], cols: string, headers: string[], type: 'account' | 'payer' | 'month') => (
-        <Box sx={{ border: `1px solid ${themeConfig.colors.suspenseScreen.borderMedium}`, borderRadius: '8px', overflow: 'hidden' }}>
-            <Box sx={{ ...styles.tableGridStyles(cols), bgcolor: themeConfig.colors.suspenseScreen.bgLight, borderBottom: `1px solid ${themeConfig.colors.suspenseScreen.borderMedium}` }}>
-                {headers.map((h, i) => (
-                    <Typography key={h} sx={styles.headerTypographyStyles(i >= (type === 'month' ? 1 : 2))}>{h}</Typography>
-                ))}
-            </Box>
-            {data.map((row, idx) => (
-                <Box key={idx} sx={{ ...styles.tableGridStyles(cols), borderBottom: idx < data.length - 1 ? `1px solid ${themeConfig.colors.suspenseScreen.bgLight}` : 'none' }}>
-                    {type === 'account' ? (
-                        <Chip
-                            label={String(row.account)}
-                            size="small"
-                            sx={styles.accountChipStyles(SUSPENSE_ACCOUNTS.find(s => s.label === row.account))}
-                        />
-                    ) : (
-                        <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>{String(row.payer || row.month)}</Typography>
-                    )}
+    const renderTable = (data: Record<string, string | number | null>[], cols: string, headers: string[], type: 'account' | 'payer' | 'month') => {
+        // Extract all unique data keys for columns
+        const dataKeys = Object.keys(data[0] || {});
 
-                    {type !== 'month' && (
-                        <Typography sx={{ fontSize: '12px', color: themeConfig.colors.suspenseScreen.linkBlue, fontWeight: 600, textAlign: type === 'account' ? 'left' : 'center' }}>
-                            {row.items}
-                        </Typography>
-                    )}
+        const tableColumns: DataColumn<any>[] = headers.map((label, index) => {
+            const id = dataKeys[index] || `col_${index}`;
+            return {
+                id: id as any,
+                label: label,
+                align: index >= (type === 'month' ? 1 : 2) ? 'right' : 'left',
+                accessor: (row) => row[id],
+                render: (row) => {
+                    const val = row[id];
+                    if (id === 'account') {
+                        return (
+                            <Chip
+                                label={String(val)}
+                                size="small"
+                                sx={styles.accountChipStyles(SUSPENSE_ACCOUNTS.find(s => s.label === val))}
+                            />
+                        );
+                    }
+                    if (id === 'items') {
+                        return (
+                            <Typography sx={{ fontSize: '12px', color: themeConfig.colors.suspenseScreen.linkBlue, fontWeight: 600 }}>
+                                {String(val)}
+                            </Typography>
+                        );
+                    }
+                    if (typeof val === 'number') {
+                        return (
+                            <Typography sx={{ fontSize: '13px', fontWeight: id === 'total' ? 700 : 500 }}>
+                                {formatCurrency(val)}
+                            </Typography>
+                        );
+                    }
+                    return <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>{String(val || '-')}</Typography>;
+                }
+            };
+        });
 
-                    {Object.keys(row).filter(key => !['account', 'items', 'payer', 'month', 'total'].includes(key)).map(key => (
-                        <Typography key={key} sx={{ fontSize: '12px', color: themeConfig.colors.suspenseScreen.textMuted, textAlign: 'right' }}>
-                            {row[key] ? formatCurrency(Number(row[key])) : '-'}
-                        </Typography>
-                    ))}
-
-                    <Typography sx={{ fontSize: '13px', fontWeight: 700, textAlign: 'right' }}>
-                        {formatCurrency(Number(row.total))}
-                    </Typography>
-                </Box>
-            ))}
-        </Box>
-    );
+        return (
+            <DataTable
+                columns={tableColumns}
+                data={data}
+                rowKey={(r) => String(r.account || r.payer || r.month)}
+                paginated={false}
+                searchable={false}
+                download={false}
+                dictionaryId="suspense-accounts"
+                dense={true}
+            />
+        );
+    };
 
     return (
         <Box sx={{ p: 0 }}>

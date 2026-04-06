@@ -8,9 +8,7 @@ export const COMPANIES = {
 } as const;
 
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.PROD
-    ? import.meta.env.VITE_API_URL_PROD
-    : import.meta.env.VITE_API_URL_TEST || 'http://10.0.1.48:8181/platform/api/v1'
+  BASE_URL: import.meta.env.VITE_API_URL || 'http://10.0.1.48:8181/platform/api/v1'
 };
 
 export const MENU_STATUS = {

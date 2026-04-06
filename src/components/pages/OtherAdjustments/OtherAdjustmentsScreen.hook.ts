@@ -1,22 +1,48 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
+import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { OtherAdjustmentRecord } from '@/interfaces/financials';
+import { useSearchOtherAdjustmentsQuery } from '@/store/api/financialsApi';
+import { subMonths, format } from 'date-fns';
 
-export const useOtherAdjustmentsScreen = () => {
+export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    const otherAdjustments = useAppSelector((s) => s.financials.otherAdjustments);
     const { actionTriggers } = useAppSelector(s => s.ui);
+
+    const [queryParams, setQueryParams] = useState({
+        page: 0,
+        size: 10,
+        sortField: 'effectiveDate',
+        sortOrder: 'desc' as 'asc' | 'desc',
+        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
+        toDate: format(new Date(), 'yyyy-MM-dd'),
+    });
+
+    const { data, isFetching, isError, refetch } = useSearchOtherAdjustmentsQuery({
+        page: queryParams.page + 1,
+        size: queryParams.size,
+        sort: queryParams.sortField,
+        desc: queryParams.sortOrder === 'desc',
+        fromDate: queryParams.fromDate,
+        toDate: queryParams.toDate
+    }, { skip });
+
+    const adjustments = useMemo(() => data?.data?.content ?? [], [data]);
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
 
-    const handleExport = useCallback((format: 'pdf' | 'xlsx') => {
-        dispatch(setActiveExportType(format));
+    useEffect(() => {
+        dispatch(setIsGlobalFetching(isFetching));
+        return () => { dispatch(setIsGlobalFetching(false)); };
+    }, [isFetching, dispatch]);
+
+    const handleExport = useCallback((formatType: 'pdf' | 'xlsx') => {
+        dispatch(setActiveExportType(formatType));
         setTimeout(() => {
             dispatch(setActiveExportType(null));
-        }, 1200);
+        }, 1500);
     }, [dispatch]);
 
     useEffect(() => {
@@ -35,25 +61,41 @@ export const useOtherAdjustmentsScreen = () => {
 
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
-            const doReload = async () => {
-                dispatch(setIsReloading(true));
-                await new Promise(r => setTimeout(r, 800));
-                dispatch(setIsReloading(false));
-            };
-            doReload();
+            refetch();
             reloadCount.current = actionTriggers.reload;
         }
-    }, [actionTriggers.reload, dispatch]);
+    }, [actionTriggers.reload, refetch]);
 
     const handleView = useCallback((r: OtherAdjustmentRecord) => dispatch(openViewDialog(r)), [dispatch]);
     const handleEdit = useCallback((r: OtherAdjustmentRecord) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'adjustment' })), [dispatch]);
 
+    const handleRangeChange = useCallback((range: string) => {
+        if (range.includes(' to ')) {
+            const [from, to] = range.split(' to ');
+            setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+        }
+    }, []);
+
+    const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
+        setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
+    }, []);
+
+    const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
+    const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
+
     return {
-        otherAdjustments,
+        adjustments,
+        totalElements: data?.data?.totalElements ?? 0,
+        queryParams,
         handleView,
         handleEdit,
         handleDelete,
+        handleRangeChange,
+        handleSortChange,
+        onPageChange,
+        onRowsPerPageChange,
+        isError,
         dispatch
     };
 };

@@ -9,7 +9,8 @@ import { ChatBubbleOutline } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import { formatCurrency } from '@/utils/formatters';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { useReconciliation, ReconciliationRow, ReconciliationStatus } from './ReconciliationScreen.hook';
+import { useReconciliation, ReconciliationStatus } from './ReconciliationScreen.hook';
+import { ReconciliationRow } from '@/interfaces/financials';
 import { HighlightCell } from './ReconciliationScreen.styles';
 import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { themeConfig } from '@/theme/themeConfig';
@@ -127,9 +128,11 @@ const ReconciliationScreen: React.FC = () => {
       if (header.isAction) {
         return (
           <Box sx={{ display: 'flex', gap: 1 }}>
-            <IconButton size="small" color="primary"><EditIcon fontSize="small" /></IconButton>
+            <IconButton size="small" color="info" sx={{ '&:hover': { backgroundColor: 'info.light' } }}>
+              <EditIcon fontSize="small" />
+            </IconButton>
             {row.comment && (
-              <IconButton size="small" sx={{ color: 'text.secondary' }}>
+              <IconButton size="small" sx={{ color: themeConfig.colors.primary }}>
                 <ChatBubbleOutline fontSize="small" />
               </IconButton>
             )}
@@ -180,7 +183,7 @@ const ReconciliationScreen: React.FC = () => {
         return (
           <Typography
             variant="body2"
-            sx={{ fontWeight: 700, color: 'primary.main', cursor: 'pointer', textDecoration: 'underline' }}
+            sx={{ fontWeight: 700, color: row.isEdited ? themeConfig.colors.success : 'primary.main', cursor: 'pointer', textDecoration: 'underline' }}
             onClick={() => {
               setSelectedRow(row);
               setSelectedTxNo(String(val));
@@ -242,9 +245,16 @@ const ReconciliationScreen: React.FC = () => {
           download={false}
           dense={true}
           getRowStyle={(row) => ({
-            backgroundColor: row.isEdited ? `${themeConfig.colors.primary}1A` : 'transparent', // 1A is ~10% opacity
-            '&:hover': { 
-              background: row.isEdited ? `${themeConfig.colors.primary}26` : themeConfig.colors.slate[50] + ' !important' // 26 is ~15% opacity
+            backgroundColor: row.isEdited ? themeConfig.colors.slate[50] : 'transparent',
+            color: row.isEdited ? themeConfig.colors.primary : 'inherit',
+            fontWeight: row.isEdited ? 700 : 'inherit',
+            transition: 'all 0.2s ease',
+            '& td': {
+              color: row.isEdited ? themeConfig.colors.success : 'inherit',
+              // borderColor: row.isEdited ? themeConfig.colors.primary + '33' : 'inherit', // 20% opacity border
+            },
+            '&:hover': {
+              background: row.isEdited ? themeConfig.colors.slate[100] + ' !important' : themeConfig.colors.slate[50] + ' !important'
             }
           })}
         />

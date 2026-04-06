@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Typography, Chip, useTheme } from '@mui/material';
+import { Typography, Chip, useTheme, Box } from '@mui/material';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -10,14 +10,21 @@ import { formatCurrency } from '@/utils/formatters';
 import { useOtherAdjustmentsScreen } from './OtherAdjustmentsScreen.hook';
 import * as styles from './OtherAdjustmentsScreen.styles';
 
-const OtherAdjustmentsScreen: React.FC = () => {
+const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
     const {
-        otherAdjustments,
+        adjustments,
+        totalElements,
+        queryParams,
         handleView,
         handleEdit,
         handleDelete,
-    } = useOtherAdjustmentsScreen();
+        handleRangeChange,
+        handleSortChange,
+        onPageChange,
+        onRowsPerPageChange,
+        isError,
+    } = useOtherAdjustmentsScreen({ skip });
 
     const columns = useMemo<DataColumn<OtherAdjustmentRecord>[]>(() => [
         {
@@ -26,7 +33,6 @@ const OtherAdjustmentsScreen: React.FC = () => {
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
-                    // Pass 'r' directly without the Record casting
                     onView={() => handleView(r)}
                     onEdit={() => handleEdit(r)}
                     onDelete={() => handleDelete(r.id)}
@@ -61,14 +67,26 @@ const OtherAdjustmentsScreen: React.FC = () => {
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Applied', 'Pending', 'Under Review'], render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleView, handleEdit, handleDelete]);
 
+    if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading adjustments.</Box>;
+
     return (
         <DataTable
             columns={columns}
-            data={otherAdjustments}
+            data={adjustments}
             rowKey={(r) => r.id}
             exportTitle="Other Adjustments"
-            customToolbarContent={<RangeDropdown />}
+            customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
             dictionaryId="other-adjustments"
+            serverSide
+            totalElements={totalElements}
+            page={queryParams.page}
+            rowsPerPage={queryParams.size}
+            sortCol={queryParams.sortField}
+            sortDir={queryParams.sortOrder}
+            onPageChange={onPageChange}
+            onRowsPerPageChange={onRowsPerPageChange}
+            onSortChange={handleSortChange}
+            download={false}
         />
     );
 };

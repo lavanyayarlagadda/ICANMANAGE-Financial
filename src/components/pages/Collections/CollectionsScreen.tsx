@@ -18,15 +18,25 @@ import {
 } from './CollectionsScreen.styles';
 import { useCollectionsScreen } from './CollectionsScreen.hook';
 
-const CollectionsScreen: React.FC = () => {
+const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const {
         collections,
+        totalElements,
+        queryParams,
         stats,
         handleView,
         handleEdit,
         handleDelete,
-    } = useCollectionsScreen();
+        handleRangeChange,
+        handleSortChange,
+        handlePageChange,
+        handleRowsPerPageChange,
+        isError,
+    } = useCollectionsScreen({ skip });
     const theme = useTheme();
+
+    if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading collections.</Box>;
+
     const columns = useMemo<DataColumn<CollectionAccount>[]>(() => [
         {
             id: 'actions',
@@ -43,6 +53,7 @@ const CollectionsScreen: React.FC = () => {
         { id: 'accountNumber', label: 'Account #', minWidth: 140, accessor: (r) => r.accountNumber, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.accountNumber}</Typography> },
         { id: 'patientName', label: 'Patient Name', minWidth: 160, accessor: (r) => r.patientName, render: (r) => r.patientName },
         { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, render: (r) => r.payer },
+        { id: 'description', label: 'Description', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         { id: 'totalDue', label: 'Total Due', minWidth: 110, align: 'right', accessor: (r) => r.totalDue, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.totalDue)}</Box> },
         { id: 'amountCollected', label: 'Collected', minWidth: 110, align: 'right', accessor: (r) => r.amountCollected, render: (r) => <Box sx={{ fontFamily: 'monospace', color: 'success.main' }}>{formatCurrency(r.amountCollected)}</Box> },
         {
@@ -79,7 +90,7 @@ const CollectionsScreen: React.FC = () => {
             },
         },
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Open', 'In Progress', 'Closed', 'Settled'], render: (r) => <StatusBadge status={r.status} /> },
-    ], [handleView, handleEdit, handleDelete]);
+    ], [handleView, handleEdit, handleDelete, theme]);
 
     return (
         <ScreenWrapper>
@@ -109,8 +120,18 @@ const CollectionsScreen: React.FC = () => {
                 rowKey={(r) => r.id}
                 exportTitle="Collections"
                 selectable
-                customToolbarContent={<RangeDropdown />}
+                customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
                 dictionaryId="collections"
+                serverSide
+                totalElements={totalElements}
+                page={queryParams.page}
+                rowsPerPage={queryParams.size}
+                sortCol={queryParams.sortField}
+                sortDir={queryParams.sortOrder}
+                onPageChange={handlePageChange}
+                onRowsPerPageChange={handleRowsPerPageChange}
+                onSortChange={handleSortChange}
+                download={false}
             />
         </ScreenWrapper>
     );

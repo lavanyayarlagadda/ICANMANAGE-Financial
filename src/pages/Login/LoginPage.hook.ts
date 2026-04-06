@@ -1,52 +1,65 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAppSelector } from '@/store';
 import { setCredentials } from '@/store/slices/authSlice';
 import { STATIC_AUTH_TOKEN, STATIC_REFRESH_TOKEN, DUMMY_USER } from '@/constants/auth';
+import { useLoginMutation } from '@/store/api/authApi';
 
 export const useLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('ajohnson');
   const [password, setPassword] = useState('password123');
   const [errorMsg, setErrorMsg] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [login, { isLoading }] = useLoginMutation();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
+  const from = location.state?.from?.pathname || '/financials/payments';
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, from]);
 
   const togglePasswordVisibility = useCallback(() => setShowPassword((show) => !show), []);
   const handleMouseDownPassword = useCallback((event: React.MouseEvent<HTMLButtonElement>) => event.preventDefault(), []);
 
-  const handleLogin = useCallback(async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
-    setIsLoading(true);
 
     if (!username || !password) {
       setErrorMsg('Please enter both username and password');
-      setIsLoading(false);
       return;
     }
 
     try {
-      // Mocking API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const result = await login({ username, password }).unwrap();
 
-      // Use static login bypass with DUMMY_USER for development
+      // Success! Store credentials and navigate
       dispatch(setCredentials({
-        user: DUMMY_USER,
-        accessToken: STATIC_AUTH_TOKEN,
-        refreshToken: STATIC_REFRESH_TOKEN,
+        user: result.user,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
       }));
 
-      const landingPageRoute = DUMMY_USER.role === 'Admin' ? '/financials/all-transactions' : '/collections';
-      navigate(landingPageRoute, { replace: true });
-    } catch (err) {
-      setErrorMsg('Login failed');
-    } finally {
-      setIsLoading(false);
+      // Always land on the default landing page regardless of where we came from
+      // const landingPageRoute = result.user.role === 'Admin' ? '/financials/all-transactions' : '/collections';
+      const landingPageRoute = '/financials/payments';
+      const redirectTo = landingPageRoute;
+
+      navigate(redirectTo, { replace: true });
+    } catch (err: any) {
+      console.error('Login failed:', err);
+      setErrorMsg(err.data?.message || 'Invalid username or password');
     }
-  }, [username, password, dispatch, navigate]);
+  };
+
 
   return {
     username,

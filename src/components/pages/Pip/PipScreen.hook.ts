@@ -6,7 +6,7 @@ import { format, subMonths } from 'date-fns';
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 
-export const usePipScreen = () => {
+export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
     const { canViewPip } = useUserPermissions();
@@ -24,6 +24,8 @@ export const usePipScreen = () => {
         toDate: format(new Date(), 'yyyy-MM-dd'),
     });
 
+    const isActualSkip = skip || !canViewPip;
+
     const { data, isError, isFetching, refetch } = useSearchPipQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
@@ -31,12 +33,12 @@ export const usePipScreen = () => {
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
-    }, { skip: !canViewPip });
+    }, { skip: isActualSkip });
 
     const { data: pipSummaryData } = useGetPipSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
-    }, { skip: !canViewPip });
+    }, { skip: isActualSkip });
 
     const [triggerExport] = useLazyExportPipQuery();
 

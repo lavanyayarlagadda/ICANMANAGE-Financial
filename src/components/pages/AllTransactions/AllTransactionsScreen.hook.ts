@@ -1,27 +1,52 @@
-import { useMemo, useCallback, useRef, useEffect } from 'react';
+import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType } from '@/store/slices/uiSlice';
+import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { AllTransaction } from '@/interfaces/financials';
+import { useSearchAllTransactionsQuery } from '@/store/api/financialsApi';
+import { subMonths, format } from 'date-fns';
 
-export const useAllTransactionsScreen = () => {
+export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    const { allTransactions } = useAppSelector((s) => s.financials);
     const user = useAppSelector((s) => s.auth.user);
-     const { selectedTenantId } = useAppSelector((s) => s.tenant);
-const isMindPath = useMemo(
-  () =>
-    user?.company?.toLowerCase() === 'mindpath' ||
-    selectedTenantId?.toLowerCase() === 'mindpath',
-  [user, selectedTenantId]
-);    const { actionTriggers } = useAppSelector(s => s.ui);
+    const { selectedTenantId } = useAppSelector((s) => s.tenant);
+    const { actionTriggers } = useAppSelector(s => s.ui);
 
-    const filteredTransactions = useMemo(() => isMindPath 
-        ? allTransactions.filter(t => t.transactionType !== 'PIP') 
-        : allTransactions, [allTransactions, isMindPath]);
+    const isMindPath = useMemo(
+        () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
+        [user, selectedTenantId]
+    );
+
+    const [queryParams, setQueryParams] = useState({
+        page: 0,
+        size: 10,
+        sortField: 'effectiveDate',
+        sortOrder: 'desc' as 'asc' | 'desc',
+        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
+        toDate: format(new Date(), 'yyyy-MM-dd'),
+    });
+
+    const { data, isFetching, isError, refetch } = useSearchAllTransactionsQuery({
+        page: queryParams.page + 1,
+        size: queryParams.size,
+        sort: queryParams.sortField,
+        desc: queryParams.sortOrder === 'desc',
+        fromDate: queryParams.fromDate,
+        toDate: queryParams.toDate
+    }, { skip });
+
+    const transactions = useMemo(() => {
+        const raw = data?.data?.content ?? [];
+        return isMindPath ? raw.filter(t => t.transactionType !== 'PIP') : raw;
+    }, [data, isMindPath]);
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
+
+    useEffect(() => {
+        dispatch(setIsGlobalFetching(isFetching));
+        return () => { dispatch(setIsGlobalFetching(false)); };
+    }, [isFetching, dispatch]);
 
     const handleExport = useCallback((formatType: 'pdf' | 'xlsx') => {
         dispatch(setActiveExportType(formatType));
@@ -46,20 +71,42 @@ const isMindPath = useMemo(
 
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
+            refetch();
             reloadCount.current = actionTriggers.reload;
         }
-    }, [actionTriggers.reload]);
+    }, [actionTriggers.reload, refetch]);
 
     const handleView = useCallback((r: AllTransaction) => dispatch(openViewDialog(r)), [dispatch]);
     const handleEdit = useCallback((r: AllTransaction) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'transaction' })), [dispatch]);
 
+    const handleRangeChange = useCallback((range: string) => {
+        if (range.includes(' to ')) {
+            const [from, to] = range.split(' to ');
+            setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+        }
+    }, []);
+
+    const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
+        setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
+    }, []);
+
+    const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
+    const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
+
     return {
-        filteredTransactions,
+        filteredTransactions: transactions,
+        totalElements: data?.data?.totalElements ?? 0,
+        queryParams,
         isMindPath,
         handleView,
         handleEdit,
         handleDelete,
+        handleRangeChange,
+        handleSortChange,
+        onPageChange,
+        onRowsPerPageChange,
+        isError,
         dispatch
     };
 };

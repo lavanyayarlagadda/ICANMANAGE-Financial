@@ -9,8 +9,30 @@ import {
   PaymentVariance, 
   FeeScheduleVarianceSummary, 
   PaymentVarianceSummary, 
-  PayerPerformanceRecord 
+  PayerPerformanceRecord,
+  RecoupmentRecord,
+  OtherAdjustmentRecord,
+  AllTransaction,
+  ForwardBalanceNotice
 } from './financials';
+
+export type { 
+  PaymentTransaction, 
+  CollectionAccount, 
+  BankDepositEntity, 
+  PipRecord, 
+  RemittanceDetail, 
+  ServiceLine, 
+  FeeScheduleVariance, 
+  PaymentVariance, 
+  FeeScheduleVarianceSummary, 
+  PaymentVarianceSummary, 
+  PayerPerformanceRecord,
+  RecoupmentRecord,
+  OtherAdjustmentRecord,
+  AllTransaction,
+  ForwardBalanceNotice
+};
 
 export type RawRemittanceClaimsResponse =
   | RemittanceDetail
@@ -191,3 +213,55 @@ export interface PayerPerformanceResponse {
   data: PayerPerformanceRecord[];
   message: string | null;
 }
+export interface AllTransactionSearchResponse {
+  data: {
+    content: AllTransaction[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  }
+}
+
+export interface RecoupmentSearchResponse {
+  data: {
+    content: RecoupmentRecord[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  }
+}
+
+export interface OtherAdjustmentSearchResponse {
+  data: {
+    content: OtherAdjustmentRecord[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  }
+}
+
+export interface BankDepositSearchResponse {
+  data: {
+    content: BankDepositEntity[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  }
+}
+
+export interface ForwardBalanceNoticeSearchResponse {
+  data: {
+    content: ForwardBalanceNotice[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  }
+}
+
+// Reusing PipSearchRequest for simple table searches
+export type TableSearchRequest = PipSearchRequest;

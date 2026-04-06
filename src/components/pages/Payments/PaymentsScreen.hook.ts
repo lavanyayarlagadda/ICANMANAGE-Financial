@@ -1,32 +1,32 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { 
-  openEditDialog, 
-  openConfirmDelete, 
-  setActiveExportType, 
-  setIsReloading, 
-  setIsDrillingDown as setGlobalDrillingDown, 
-  setIsGlobalFetching 
+import {
+    openEditDialog,
+    openConfirmDelete,
+    setActiveExportType,
+    setIsReloading,
+    setIsDrillingDown as setGlobalDrillingDown,
+    setIsGlobalFetching
 } from '@/store/slices/uiSlice';
-import { 
-  setShowRemittanceDetail, 
-  setSelectedPaymentId, 
-  setRemittanceDetail, 
-  setRemittanceClaims, 
-  setSelectedClaimIndex 
+import {
+    setShowRemittanceDetail,
+    setSelectedPaymentId,
+    setRemittanceDetail,
+    setRemittanceClaims,
+    setSelectedClaimIndex
 } from '@/store/slices/financialsSlice';
 import { subMonths, format } from 'date-fns';
-import { 
-  useSearchPaymentsQuery, 
-  useLazyExportPaymentsQuery, 
-  useLazyGetRemittanceClaimsQuery,
-  useLazySearchServiceLinesQuery 
+import {
+    useSearchPaymentsQuery,
+    useLazyExportPaymentsQuery,
+    useLazyGetRemittanceClaimsQuery,
+    useLazySearchServiceLinesQuery
 } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 
-export const usePaymentsScreen = () => {
+export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
 
@@ -48,7 +48,7 @@ export const usePaymentsScreen = () => {
         status: queryParams.status === 'All' ? null : queryParams.status,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
-    });
+    }, { skip });
 
     const [triggerExport] = useLazyExportPaymentsQuery();
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
@@ -122,14 +122,14 @@ export const usePaymentsScreen = () => {
 
             // Call both APIs simultaneously
             const [claimResult] = await Promise.all([
-              triggerGetRemittance(row.transactionNo).unwrap(),
-              triggerSearchServiceLines({
-                page: 1,
-                size: 10,
-                sort: 'lineNumber',
-                desc: false,
-                check: row.transactionNo
-              }).unwrap()
+                triggerGetRemittance(row.transactionNo).unwrap(),
+                triggerSearchServiceLines({
+                    page: 1,
+                    size: 10,
+                    sort: 'lineNumber',
+                    desc: false,
+                    check: row.transactionNo
+                }).unwrap()
             ]);
 
             const claimsArr = normalizeRemittanceClaims(claimResult);

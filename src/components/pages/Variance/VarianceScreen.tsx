@@ -18,8 +18,8 @@ import { useVarianceScreen } from './VarianceScreen.hook';
 
 import { FeeScheduleVariance, PaymentVariance } from '@/interfaces/financials';
 
-const VarianceScreen: React.FC = () => {
-    const { activeSubTab, queryParams, feeData, feeSummaryData, paymentData, paymentSummaryData, handleDrillDown, handleRangeChange, handleSortChange, handlePageChange, handleRowsPerPageChange } = useVarianceScreen();
+const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
+    const { activeSubTab, queryParams, feeData, feeSummaryData, paymentData, paymentSummaryData, handleDrillDown, handleRangeChange, handleSortChange, handlePageChange, handleRowsPerPageChange } = useVarianceScreen({ skip });
     const theme = useTheme();
     const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
         {
@@ -47,6 +47,7 @@ const VarianceScreen: React.FC = () => {
             accessor: (r) => r.payerName || '',
             render: (r) => <Typography variant="body2">{r.payerName}</Typography>
         },
+        { id: 'description', label: 'DESCRIPTION', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => <Typography variant="body2">{r.description ?? '-'}</Typography> },
         {
             id: 'expectedAllowed',
             label: 'EXPECTED ALLOWED',
@@ -128,6 +129,7 @@ const VarianceScreen: React.FC = () => {
                 totalElements={activeSubTab === 0 ? (feeData?.data?.totalElements ?? 0) : (paymentData?.data?.totalElements ?? 0)}
                 page={queryParams.page} rowsPerPage={queryParams.size} sortCol={queryParams.sortField}
                 sortDir={queryParams.sortOrder} onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}
+                dictionaryId="variance-analysis"
                 download={false}
             />
         </ScreenWrapper>

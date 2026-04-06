@@ -2,11 +2,10 @@ import { useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
-import { SelectChangeEvent } from '@mui/material';
 
 export const mainTabs = [
   { id: 0, label: 'Transactions', path: '/financials/payments' },
-  // { id: 1, label: 'Bank Deposits', path: '/financials/bank-deposits' },
+  { id: 1, label: 'Bank Deposits', path: '/financials/bank-deposits' },
   { id: 2, label: 'Statements', path: '/financials/statements/pip' },
   { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis' },
   { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast' },
@@ -20,16 +19,16 @@ export const reconciliationSubTabs = [
 ];
 
 export const transactionSubTabs = [
-  // { id: 0, label: 'All Transactions', path: '/financials/all-transactions' },
+  { id: 0, label: 'All Transactions', path: '/financials/all-transactions' },
   { id: 1, label: 'Payments', path: '/financials/payments' },
-  // { id: 2, label: 'Recoupments', path: '/financials/recoupments' },
-  // { id: 3, label: 'Adjustments', path: '/financials/other-adjustments' },
+  { id: 2, label: 'Recoupments', path: '/financials/recoupments' },
+  { id: 3, label: 'Adjustments', path: '/financials/other-adjustments' },
 ];
 
 export const statementsSubTabs = [
   { id: 0, label: 'PIP Statements', path: '/financials/statements/pip' },
-  // { id: 1, label: 'Forward Balance', path: '/financials/statements/forward-balance' },
-  // { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts' },
+  { id: 1, label: 'Forward Balance', path: '/financials/statements/forward-balance' },
+  { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts' },
 ];
 
 export const varianceSubTabs = [
@@ -60,19 +59,27 @@ export const useFinancialsTabs = ({
   const { activeTab, activeSubTab, isReloading } = useAppSelector((s) => s.ui);
   const user = useAppSelector((s) => s.auth.user);
   const { selectedTenantId } = useAppSelector((s) => s.tenant);
+
   const isMindPath = useMemo(
     () =>
       user?.company?.toLowerCase() === 'mindpath' ||
       selectedTenantId?.toLowerCase() === 'mindpath',
     [user, selectedTenantId]
   );
+
   useEffect(() => {
     const path = location.pathname;
-    if (path.includes('/all-transactions') || path.includes('/payments') || path.includes('/recoupments') || path.includes('/other-adjustments') || path.includes('/pip') || path.includes('/collections')) {
+    if (path.includes('/all-transactions') || path.includes('/payments') || path.includes('/recoupments') || path.includes('/other-adjustments')) {
       dispatch(setActiveTab(0));
-      const subIndex = transactionSubTabs.findIndex(st => path === st.path);
+      const subIndex = transactionSubTabs.findIndex(st => path.includes(st.path));
       if (subIndex !== -1) dispatch(setActiveSubTab(subIndex));
-    } else if (path.includes('/statements')) {
+    } else if (path.includes('/collections')) {
+      dispatch(setActiveTab(0));
+      dispatch(setActiveSubTab(1));
+    } else if (path.includes('/bank-deposits')) {
+      dispatch(setActiveTab(1));
+      dispatch(setActiveSubTab(0));
+    } else if (path.includes('/statements') || path.includes('/pip')) {
       dispatch(setActiveTab(2));
       if (path.includes('/pip')) dispatch(setActiveSubTab(0));
       else if (path.includes('/forward-balance')) dispatch(setActiveSubTab(1));
@@ -88,7 +95,7 @@ export const useFinancialsTabs = ({
       else if (path.includes('/payer-performance')) dispatch(setActiveSubTab(2));
     } else if (path.includes('/reconciliation')) {
       dispatch(setActiveTab(5));
-      const subIndex = reconciliationSubTabs.findIndex(st => path === st.path);
+      const subIndex = reconciliationSubTabs.findIndex(st => path.includes(st.path));
       dispatch(setActiveSubTab(subIndex !== -1 ? subIndex : 0));
     }
   }, [location.pathname, dispatch]);
@@ -97,7 +104,7 @@ export const useFinancialsTabs = ({
     if (activeTab === 2 && isMindPath) {
       navigate('/financials/payments', { replace: true });
     }
-  }, [activeTab, isMindPath, navigate, dispatch]);
+  }, [activeTab, isMindPath, navigate]);
 
   const handleMainTabChange = useCallback((index: number, path: string) => {
     dispatch(setActiveTab(index));

@@ -39,16 +39,42 @@ import {
 } from './BankDepositsScreen.styles';
 import { useBankDepositsScreen } from './BankDepositsScreen.hook';
 
-const BankDepositsScreen: React.FC = () => {
+const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
     const {
         filteredDeposits,
+        totalElements,
+        queryParams,
         selectedEntityId,
         setSelectedEntityId,
         expandedRows,
         entities,
+        exceptionsOnly,
+        setExceptionsOnly,
         toggleRow,
-    } = useBankDepositsScreen();
+        handleRangeChange,
+        handleSortChange,
+        onPageChange,
+        onRowsPerPageChange,
+        refetch,
+    } = useBankDepositsScreen({ skip });
+
+    const summaryStats = useMemo(() => {
+        let totalItems = 0;
+        let exceptions = 0;
+        let totalBankAmt = 0;
+
+        filteredDeposits.forEach(entity => {
+            totalItems += entity.items.length;
+            entity.items.forEach(item => {
+                totalBankAmt += item.bankAmt;
+                if (item.status === 'Exception') exceptions++;
+            });
+        });
+
+        const reconRate = totalItems > 0 ? ((totalItems - exceptions) / totalItems * 100).toFixed(2) : '100.00';
+        return { totalBankAmt, reconRate, exceptions };
+    }, [filteredDeposits]);
 
     const columns = useMemo<DataColumn<BankDepositItem>[]>(() => [
         {
@@ -78,6 +104,7 @@ const BankDepositsScreen: React.FC = () => {
             accessor: (row) => row.payerName,
             render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
         },
+        { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
         {
             id: 'bankAmt',
             label: 'BANK AMT',
@@ -117,7 +144,7 @@ const BankDepositsScreen: React.FC = () => {
             render: (row) => {
                 const isMatched = row.status === 'Matched';
                 const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
-                
+
                 return (
                     <Chip
                         label={row.status}
@@ -227,22 +254,26 @@ const BankDepositsScreen: React.FC = () => {
                         ),
                     }}
                 />
-                <FormControlLabel control={<Switch size="small" />} label={<Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>Exceptions Only</Typography>} sx={{ ml: { xs: 0, md: 1 } }} />
+                <FormControlLabel
+                    control={<Switch size="small" checked={exceptionsOnly} onChange={(e) => setExceptionsOnly(e.target.checked)} />}
+                    label={<Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>Exceptions Only</Typography>}
+                    sx={{ ml: { xs: 0, md: 1 } }}
+                />
                 <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: 1, flexWrap: 'wrap' }}>
-                    <RefreshButton variant="outlined" size="small">Refresh Data</RefreshButton>
+                    <RefreshButton variant="outlined" size="small" onClick={() => refetch()}>Refresh Data</RefreshButton>
                     <FinalizeButton variant="contained" size="small">Finalize Selected</FinalizeButton>
                 </Box>
             </ToolbarWrapper>
 
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="Total Collections" value={formatCurrency(84007.08)} variant="highlight" backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="Total Collections" value={formatCurrency(summaryStats.totalBankAmt)} variant="highlight" backgroundColor={theme.palette.background.paper} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="Reconciliation Rate" value="99.95%" variant="negative" backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="Reconciliation Rate" value={`${summaryStats.reconRate}%`} variant={summaryStats.exceptions > 0 ? "negative" : "positive"} backgroundColor={theme.palette.background.paper} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="Action Required" value="1" backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="Action Required" value={String(summaryStats.exceptions)} backgroundColor={theme.palette.background.paper} />
                 </Grid>
             </Grid>
 
@@ -259,8 +290,11 @@ const BankDepositsScreen: React.FC = () => {
                         expandedContent={renderExpandedContent}
                         paginated={false}
                         searchable={false}
-                        customToolbarContent={<RangeDropdown />}
+                        customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
                         dictionaryId="bank-deposits"
+                        sortCol={queryParams.sortField}
+                        sortDir={queryParams.sortOrder}
+                        onSortChange={handleSortChange}
                     />
                 </Box>
             ))}

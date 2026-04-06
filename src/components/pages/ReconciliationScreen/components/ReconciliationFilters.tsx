@@ -56,9 +56,9 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
             </ToggleWrapper>
           </Box>
 
-          {/* Row 1: Primary Selection */}
+          {/* Row 1: Primary Selection & Search */}
           <Grid container spacing={2} alignItems="flex-end">
-            <Grid size={{ xs: 12, md: 2.2 }}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: themeConfig.colors.slate[500], fontSize: '11px', textTransform: 'uppercase' }}>
                 {view === 'reconciled' ? 'Reconciled From Date' : 'From Date'}
               </Typography>
@@ -74,7 +74,7 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                 }}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 2.2 }}>
+            <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: themeConfig.colors.slate[500], fontSize: '11px', textTransform: 'uppercase' }}>
                 {view === 'reconciled' ? 'Reconciled To Date' : 'To Date'}
               </Typography>
@@ -90,15 +90,15 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                 }}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 2.4 }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>Payor</Typography>
+            <Grid size={{ xs: 12, md: 2 }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: themeConfig.colors.slate[500], fontSize: '11px', textTransform: 'uppercase' }}>Payor</Typography>
               <TextField
                 size="small"
                 select
                 fullWidth
                 value={searchFilters.payor}
                 onChange={(e) => setSearchFilters({ ...searchFilters, payor: e.target.value })}
-                sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f8fafc' } }}
+                sx={{ '& .MuiOutlinedInput-root': { backgroundColor: themeConfig.colors.slate[50] } }}
               >
                 <MenuItem value="All">All Payors Selected</MenuItem>
                 <MenuItem value="UnitedHealthcare">UnitedHealthcare</MenuItem>
@@ -106,15 +106,15 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
               </TextField>
             </Grid>
             {view !== 'reconciled' && (
-              <Grid size={{ xs: 12, md: 2.4 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: '#64748b', fontSize: '11px', textTransform: 'uppercase' }}>Status</Typography>
+              <Grid size={{ xs: 12, md: 2 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: themeConfig.colors.slate[500], fontSize: '11px', textTransform: 'uppercase' }}>Status</Typography>
                 <TextField
                   size="small"
                   select
                   fullWidth
                   value={searchFilters.status}
                   onChange={(e) => setSearchFilters({ ...searchFilters, status: e.target.value })}
-                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: '#f8fafc' } }}
+                  sx={{ '& .MuiOutlinedInput-root': { backgroundColor: themeConfig.colors.slate[50] } }}
                 >
                   <MenuItem value="All">All Status Selected</MenuItem>
                   <MenuItem value="Done">Done</MenuItem>
@@ -122,13 +122,12 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                 </TextField>
               </Grid>
             )}
-            <Grid size={{ xs: 12, md: (view === 'reconciled' ? 5.4 : 3.2) }} sx={{ display: 'flex', gap: 1 }}>
+            <Grid size={{ xs: 12, md: (view === 'reconciled' ? 4 : 4) }} sx={{ display: 'flex', gap: 1 }}>
               <Button
                 variant="contained"
-                fullWidth
                 startIcon={<SearchIcon fontSize="small" />}
                 onClick={applyFilters}
-                sx={{ height: '40px', textTransform: 'none', fontWeight: 700, borderRadius: '8px' }}
+                sx={{ height: '40px', textTransform: 'none', fontWeight: 700, borderRadius: '8px', px: 4 }}
               >
                 Search
               </Button>

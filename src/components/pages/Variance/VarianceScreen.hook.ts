@@ -26,7 +26,7 @@ import { subMonths, format } from 'date-fns';
 import { FeeScheduleVariance, PaymentVariance, RemittanceDetail } from '@/interfaces/financials';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 
-export const useVarianceScreen = () => {
+export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { activeSubTab, actionTriggers } = useAppSelector((s) => s.ui);
 
@@ -48,12 +48,12 @@ export const useVarianceScreen = () => {
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
-    }, { skip: activeSubTab !== 0 });
+    }, { skip: skip || activeSubTab !== 0 });
 
     const { data: feeSummaryData, refetch: refetchFeeSummary } = useGetFeeScheduleVarianceSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
-    }, { skip: activeSubTab !== 0 });
+    }, { skip: skip || activeSubTab !== 0 });
 
     const { data: paymentData, isFetching: paymentFetching, refetch: refetchPayment } = useSearchPaymentVarianceQuery({
         page: queryParams.page + 1,
@@ -62,12 +62,12 @@ export const useVarianceScreen = () => {
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
-    }, { skip: activeSubTab !== 1 });
+    }, { skip: skip || activeSubTab !== 1 });
 
     const { data: paymentSummaryData, refetch: refetchPaymentSummary } = useGetPaymentVarianceSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
-    }, { skip: activeSubTab !== 1 });
+    }, { skip: skip || activeSubTab !== 1 });
   const exportCount = useRef(actionTriggers.export);
   const printCount = useRef(actionTriggers.print);
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();

@@ -2,7 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, Box, CircularProgress } from '@mui/material';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { muiTheme } from '@/theme';
@@ -26,10 +26,10 @@ const App = () => (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <ThemeProvider theme={muiTheme}>
         <CssBaseline />
-        <BrowserRouter 
-          future={{ 
-            v7_startTransition: true, 
-            v7_relativeSplatPath: true 
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
           }}
         >
           <GlobalHooksWrapper>
@@ -41,9 +41,7 @@ const App = () => (
                 {/* Protected Routes */}
                 <Route
                   path="/"
-                  element={
-                    <LoginPage />
-                  }
+                  element={<Navigate to="/financials/payments" replace />}
                 />
                 <Route
                   path="/financials/*"

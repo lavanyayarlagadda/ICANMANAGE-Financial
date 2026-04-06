@@ -53,7 +53,7 @@ export const NpiSection: React.FC<NpiProps> = ({ allocation }) => (
   </Box>
 );
 
-const PipScreen: React.FC = () => {
+const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   const {
     canViewPip,
     pipRecords,
@@ -68,7 +68,7 @@ const PipScreen: React.FC = () => {
     handleRowsPerPageChange,
     handleExport,
     isError,
-  } = usePipScreen();
+  } = usePipScreen({ skip });
 
   const getRowId = useCallback((row: PipRecord) => row.id || row.ptan, []);
 
@@ -86,6 +86,7 @@ const PipScreen: React.FC = () => {
     { id: "ptan", label: "PTAN", accessor: (row) => row.ptan, render: (row) => row.ptan },
     { id: "paymentDate", label: "PAYMENT DATE", accessor: (row) => row.paymentDate, render: (row) => row.paymentDate },
     { id: "checkEftNumber", label: "CHECK/EFT NUMBER", accessor: (row) => row.checkEftNumber, render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
+    { id: "description", label: "DESCRIPTION", minWidth: 180, accessor: (row) => row.description ?? '-', render: (row) => row.description ?? '-' },
     { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "right", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
     { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "right", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
     { id: "status", label: "STATUS", accessor: (row) => row.status, render: (row) => <StatusBadge status={row.status} /> },

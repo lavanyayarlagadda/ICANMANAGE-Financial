@@ -11,16 +11,22 @@ import { formatCurrency } from '@/utils/formatters';
 import { useRecoupmentsScreen } from './RecoupmentsScreen.hook';
 import * as styles from './RecoupmentsScreen.styles';
 
-const RecoupmentsScreen: React.FC = () => {
+const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
     const {
         recoupments,
+        totalElements,
+        queryParams,
         stats,
         handleView,
         handleEdit,
         handleDelete,
-        dispatch
-    } = useRecoupmentsScreen();
+        handleRangeChange,
+        handleSortChange,
+        onPageChange,
+        onRowsPerPageChange,
+        isError,
+    } = useRecoupmentsScreen({ skip });
 
     const columns = useMemo<DataColumn<RecoupmentRecord>[]>(() => [
         {
@@ -72,17 +78,37 @@ const RecoupmentsScreen: React.FC = () => {
                 <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{r.reason}</Typography>
             ),
         },
+        { id: 'description', label: 'Description', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleView, handleEdit, handleDelete]);
+
+    if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading recoupments.</Box>;
 
     return (
         <Box>
             <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Original Payments" value={formatCurrency(stats.totalOriginal)} variant="highlight" /></Grid>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Recouped" value={formatCurrency(stats.totalRecouped)} variant="negative" /></Grid>
-                <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Records" value={String(recoupments.length)} /></Grid>
+                <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Records" value={String(totalElements)} /></Grid>
             </Grid>
-            <DataTable columns={columns} data={recoupments} rowKey={(r) => r.id} exportTitle="Recoupments" customToolbarContent={<RangeDropdown />} dictionaryId="recoupments" />
+            <DataTable 
+                columns={columns} 
+                data={recoupments} 
+                rowKey={(r) => r.id} 
+                exportTitle="Recoupments" 
+                customToolbarContent={<RangeDropdown onChange={handleRangeChange} />} 
+                dictionaryId="recoupments" 
+                serverSide
+                totalElements={totalElements}
+                page={queryParams.page}
+                rowsPerPage={queryParams.size}
+                sortCol={queryParams.sortField}
+                sortDir={queryParams.sortOrder}
+                onPageChange={onPageChange}
+                onRowsPerPageChange={onRowsPerPageChange}
+                onSortChange={handleSortChange}
+                download={false}
+            />
         </Box>
     );
 };

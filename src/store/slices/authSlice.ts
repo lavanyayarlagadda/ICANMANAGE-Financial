@@ -79,11 +79,12 @@ const loadUserFromStorage = (): User | null => {
 };
 
 const savedUser = loadUserFromStorage();
+const savedToken = localStorage.getItem(TOKEN_KEY);
 
 const initialState: AuthState = {
-    isAuthenticated: !!savedUser,
+    isAuthenticated: !!savedUser && !!savedToken,
     user: savedUser,
-    accessToken: localStorage.getItem(TOKEN_KEY),
+    accessToken: savedToken,
     refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
     error: null,
 };

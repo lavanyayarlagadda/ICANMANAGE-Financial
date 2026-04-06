@@ -23,9 +23,9 @@ import { useTrendsScreen } from './TrendsScreen.hook';
 
 import { ForecastDashboardResponse } from '@/interfaces/api';
 
-const TrendsScreen: React.FC = () => {
+const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
-    const { activeSubTab, trendsData, forecastSummary, reconPerformance, dashboardData, execSummary, paymentMix, adjBreakdown, handleRangeChange } = useTrendsScreen();
+    const { activeSubTab, queryParams, forecastSummary, reconPerformance, dashboardData, execSummary, paymentMix, adjBreakdown, handleRangeChange } = useTrendsScreen({ skip });
     const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
     
     const teamColumns = useMemo<DataColumn<ForecastDashboardResponse['data'][0]>[]>(() => [
@@ -40,6 +40,7 @@ const TrendsScreen: React.FC = () => {
             ),
             accessor: (row) => row.team,
         },
+        { id: 'description', label: 'DESCRIPTION', minWidth: 150, accessor: (row) => (row as any).description ?? '-', render: (row) => (row as any).description ?? '-' },
         { id: 'reconciledCheckCountPct', label: 'RECONCILED CHECK %', align: 'right', render: (row) => `${row.reconciledCheckCountPct}%`, accessor: (row) => row.reconciledCheckCountPct },
         { id: 'unreconciledCheckCountPct', label: 'UNRECONCILED CHECK %', align: 'right', render: (row) => `${row.unreconciledCheckCountPct}%`, accessor: (row) => row.unreconciledCheckCountPct },
         { id: 'checkCountPctByTeam', label: 'CHECK % BY TEAM', align: 'right', render: (row) => `${row.checkCountPctByTeam}%`, accessor: (row) => row.checkCountPctByTeam },

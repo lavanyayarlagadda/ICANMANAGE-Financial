@@ -27,7 +27,14 @@ import {
   PayerPerformanceResponse,
   RawRemittanceClaimsResponse,
   RemittanceClaimsResponse,
+  AllTransactionSearchResponse,
+  RecoupmentSearchResponse,
+  OtherAdjustmentSearchResponse,
+  BankDepositSearchResponse,
+  ForwardBalanceNoticeSearchResponse,
+  TableSearchRequest
 } from "@/interfaces/api";
+
 import { normalizeRemittanceClaims } from "@/utils/normalizeRemittanceClaims";
 
 /**
@@ -36,16 +43,6 @@ import { normalizeRemittanceClaims } from "@/utils/normalizeRemittanceClaims";
  */
 export const financialsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPayments: builder.query<PaymentTransaction[], void>({
-      query: () => "payments",
-      providesTags: (result) =>
-        result
-          ? [
-              ...result.map(({ id }) => ({ type: "Financials" as const, id })),
-              { type: "Financials", id: "LIST" },
-            ]
-          : [{ type: "Financials", id: "LIST" }],
-    }),
     searchPayments: builder.query<PaymentSearchResponse, PaymentSearchRequest>({
       query: (body) => ({
         url: "financials/payments/search",
@@ -62,12 +59,15 @@ export const financialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Financials"],
     }),
-    getCollections: builder.query<CollectionAccount[], void>({
-      query: () => "collections",
-      providesTags: ["Financials"],
-    }),
-    getBankDeposits: builder.query<BankDepositEntity[], void>({
-      query: () => "bank-deposits",
+    searchCollections: builder.query<
+      { data: { content: CollectionAccount[]; totalElements: number } },
+      TableSearchRequest
+    >({
+      query: (body) => ({
+        url: "financials/collections/search",
+        method: "POST",
+        body,
+      }),
       providesTags: ["Financials"],
     }),
     getRemittanceClaims: builder.query<RemittanceDetail[], string>({
@@ -90,7 +90,7 @@ export const financialsApi = baseApi.injectEndpoints({
     }),
     exportPayments: builder.query<
       Blob,
-      { fromDate: string; toDate: string; format: "pdf" | "xlsx" }
+      DateRangeParams & { format: "pdf" | "xlsx" }
     >({
       query: (params) => ({
         url: `financials/export/payments`,
@@ -100,7 +100,7 @@ export const financialsApi = baseApi.injectEndpoints({
     }),
     exportPip: builder.query<
       Blob,
-      { fromDate: string; toDate: string; format: "pdf" | "xlsx" }
+      DateRangeParams & { format: "pdf" | "xlsx" }
     >({
       query: (params) => ({
         url: `financials/export/pip`,
@@ -159,7 +159,7 @@ export const financialsApi = baseApi.injectEndpoints({
     }),
     exportFeeScheduleVariance: builder.query<
       Blob,
-      { fromDate: string; toDate: string; format: "pdf" | "xlsx" }
+      DateRangeParams & { format: "pdf" | "xlsx" }
     >({
       query: (params) => ({
         url: `financials/export/fee-schedule-variance`,
@@ -169,7 +169,7 @@ export const financialsApi = baseApi.injectEndpoints({
     }),
     exportPaymentVariance: builder.query<
       Blob,
-      { fromDate: string; toDate: string; format: "pdf" | "xlsx" }
+      DateRangeParams & { format: "pdf" | "xlsx" }
     >({
       query: (params) => ({
         url: `financials/export/payment-variance`,
@@ -243,15 +243,78 @@ export const financialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Financials"],
     }),
+    searchAllTransactions: builder.query<
+      AllTransactionSearchResponse,
+      TableSearchRequest
+    >({
+      query: (body) => ({
+        url: "financials/all-transactions",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Financials"],
+    }),
+    searchRecoupments: builder.query<
+      RecoupmentSearchResponse,
+      TableSearchRequest
+    >({
+      query: (body) => ({
+        url: "financials/recoupments",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Financials"],
+    }),
+    searchOtherAdjustments: builder.query<
+      OtherAdjustmentSearchResponse,
+      TableSearchRequest
+    >({
+      query: (body) => ({
+        url: "financials/other-adjustments",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Financials"],
+    }),
+    searchBankDepositsBody: builder.query<
+      BankDepositSearchResponse,
+      TableSearchRequest
+    >({
+      query: (body) => ({
+        url: "financials/bank-deposits",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Financials"],
+    }),
+    searchForwardBalanceNotices: builder.query<
+      ForwardBalanceNoticeSearchResponse,
+      TableSearchRequest
+    >({
+      query: (body) => ({
+        url: "financials/forward-balance-notices",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Financials"],
+    }),
+    searchSuspenseAccounts: builder.query<
+      AllTransactionSearchResponse,
+      TableSearchRequest
+    >({
+      query: (body) => ({
+        url: "financials/suspense-accounts",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Financials"],
+    }),
   }),
 });
 
 export const {
-  useGetPaymentsQuery,
   useSearchPaymentsQuery,
   useSearchPipQuery,
-  useGetCollectionsQuery,
-  useGetBankDepositsQuery,
   useGetRemittanceClaimsQuery,
   useLazyGetRemittanceClaimsQuery,
   useSearchServiceLinesQuery,
@@ -272,4 +335,11 @@ export const {
   useGetPayerPerformanceQuery,
   useLazyExportFeeScheduleVarianceQuery,
   useLazyExportPaymentVarianceQuery,
+  useSearchAllTransactionsQuery,
+  useSearchRecoupmentsQuery,
+  useSearchOtherAdjustmentsQuery,
+  useSearchBankDepositsBodyQuery,
+  useSearchForwardBalanceNoticesQuery,
+  useSearchSuspenseAccountsQuery,
+  useSearchCollectionsQuery,
 } = financialsApi;

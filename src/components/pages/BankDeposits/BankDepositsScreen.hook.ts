@@ -1,10 +1,49 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useAppSelector } from '@/store';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { setIsGlobalFetching } from '@/store/slices/uiSlice';
+import { useSearchBankDepositsBodyQuery } from '@/store/api/financialsApi';
+import { subMonths, format } from 'date-fns';
 
-export const useBankDepositsScreen = () => {
-    const bankDeposits = useAppSelector((s) => s.financials.bankDeposits);
+export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
+    const dispatch = useAppDispatch();
+    const { actionTriggers } = useAppSelector(s => s.ui);
+    const reloadCount = useRef(actionTriggers.reload);
+
     const [selectedEntityId, setSelectedEntityId] = useState<'all' | string>('all');
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+    const [exceptionsOnly, setExceptionsOnly] = useState(false);
+
+    const [queryParams, setQueryParams] = useState({
+        page: 0,
+        size: 10,
+        sortField: 'date',
+        sortOrder: 'desc' as 'asc' | 'desc',
+        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
+        toDate: format(new Date(), 'yyyy-MM-dd'),
+    });
+
+    const { data, isFetching, isError, refetch } = useSearchBankDepositsBodyQuery({
+        page: queryParams.page + 1,
+        size: queryParams.size,
+        sort: queryParams.sortField,
+        desc: queryParams.sortOrder === 'desc',
+        fromDate: queryParams.fromDate,
+        toDate: queryParams.toDate
+    }, { skip });
+
+    useEffect(() => {
+        dispatch(setIsGlobalFetching(isFetching));
+        return () => { dispatch(setIsGlobalFetching(false)); };
+    }, [isFetching, dispatch]);
+
+    useEffect(() => {
+        if (actionTriggers.reload > reloadCount.current) {
+            refetch();
+            reloadCount.current = actionTriggers.reload;
+        }
+    }, [actionTriggers.reload, refetch]);
+
+    const bankDeposits = useMemo(() => data?.data?.content ?? [], [data]);
 
     const entities = useMemo(() => [
         { id: 'all', name: 'All Entities (Consolidated)' },
@@ -23,16 +62,46 @@ export const useBankDepositsScreen = () => {
     }, []);
 
     const filteredDeposits = useMemo(() => {
-        return bankDeposits.filter(entity => selectedEntityId === 'all' || entity.id === selectedEntityId);
-    }, [bankDeposits, selectedEntityId]);
+        return bankDeposits
+            .filter(entity => selectedEntityId === 'all' || entity.id === selectedEntityId)
+            .map(entity => ({
+                ...entity,
+                items: exceptionsOnly ? entity.items.filter(item => item.status === 'Exception') : entity.items
+            }))
+            .filter(entity => entity.items.length > 0);
+    }, [bankDeposits, selectedEntityId, exceptionsOnly]);
+
+    const handleRangeChange = useCallback((range: string) => {
+        if (range.includes(' to ')) {
+            const [from, to] = range.split(' to ');
+            setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+        }
+    }, []);
+
+    const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
+        setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
+    }, []);
+
+    const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
+    const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
     return {
         bankDeposits,
         filteredDeposits,
+        totalElements: data?.data?.totalElements ?? 0,
+        queryParams,
         selectedEntityId,
         setSelectedEntityId,
         expandedRows,
         entities,
+        exceptionsOnly,
+        setExceptionsOnly,
         toggleRow,
+        handleRangeChange,
+        handleSortChange,
+        onPageChange,
+        onRowsPerPageChange,
+        isError,
+        refetch,
     };
 };

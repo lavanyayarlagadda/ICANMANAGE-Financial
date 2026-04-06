@@ -26,6 +26,7 @@ export interface PaymentTransaction {
   type: string;
   transactionNo: string;
   payer: string;
+  description?: string;
   amount: number;
   openBalance: number | null;
   status: TransactionStatus;
@@ -138,6 +139,7 @@ export interface TeamPerformance {
 
 export interface PayerPerformanceRecord {
   payerName: string;
+  description?: string;
   volume: number;
   depositCount: number;
   matchRate: number;
@@ -167,6 +169,7 @@ export interface RecoupmentRecord {
   recoupmentAmount: number;
   recoupmentDate: string;
   reason: string;
+  description?: string;
   status: TransactionStatus;
 }
 
@@ -199,6 +202,7 @@ export interface CollectionAccount {
   accountNumber: string;
   patientName: string;
   payer: string;
+  description?: string;
   totalDue: number;
   amountCollected: number;
   balance: number;
@@ -227,6 +231,7 @@ export interface BankDepositItem {
   reference: string;
   date: string;
   payerName: string;
+  description?: string;
   bankAmt: number;
   remitAmt: number;
   variance: number;
@@ -261,6 +266,7 @@ export interface ForwardBalanceNotice {
   notificationDate: string;
   providerName: string;
   npi: string;
+  description?: string;
   originalAmount: number;
   remainingBalance: number;
   status: TransactionStatus;
@@ -272,6 +278,7 @@ export interface FeeScheduleVariance {
   paymentDate: string;
   patientName: string;
   payerName?: string;
+  description?: string;
   expectedAllowed: string | number;
   actualAllowed: string | number;
   variance: string | number;
@@ -283,6 +290,7 @@ export interface PaymentVariance {
   paymentDate?: string;
   patientName: string;
   payerName?: string;
+  description?: string;
   expectedAllowed: string | number;
   actualAllowed: string | number;
   variance: string | number;
@@ -307,5 +315,31 @@ export type DialogData =
   | CollectionAccount 
   | AllTransaction 
   | PaymentTransaction;
+
+export interface ReconciliationRow {
+  id: string;
+  transactionNo: string;
+  transactionType: string;
+  batchOwner: string;
+  accountName: string;
+  payor: string;
+  depositDate: string;
+  bankDeposit: number;
+  remittance: number;
+  amd: number;
+  nextGenCore: number;
+  nextGenPcsd: number;
+  legacy: number;
+  gl: number;
+  unapplied: number;
+  variance: number;
+  status: string;
+  complexStatus: string[];
+  location: string;
+  isEdited?: boolean;
+  comment?: string;
+  description?: string;
+  reconcileDate?: string;
+}
 
 

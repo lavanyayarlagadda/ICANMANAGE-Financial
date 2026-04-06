@@ -5,7 +5,6 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { formatCurrency } from '@/utils/formatters';
 import { ForwardBalanceNotice, OffsetEvent } from '@/interfaces/financials';
 import PipScreen from '../Pip/PipScreen';
-// import SuspenseAccountsScreen from '../Suspense/SuspenseAccountsScreen';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
@@ -50,7 +49,23 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
     </Box>
 );
 
-const ForwardBalanceNoticesTable = ({ data }: { data: ForwardBalanceNotice[] }) => {
+const ForwardBalanceNoticesTable = ({ 
+    data, 
+    totalElements, 
+    queryParams, 
+    onPageChange, 
+    onRowsPerPageChange, 
+    onSortChange, 
+    onRangeChange 
+}: { 
+    data: ForwardBalanceNotice[], 
+    totalElements: number, 
+    queryParams: any,
+    onPageChange: (p: number) => void,
+    onRowsPerPageChange: (s: number) => void,
+    onSortChange: (colId: string, dir: 'asc' | 'desc') => void,
+    onRangeChange: (range: string) => void
+}) => {
     const { expandedRows, toggleRow } = useForwardBalanceNoticesTable();
 
     const columns = useMemo<DataColumn<ForwardBalanceNotice>[]>(() => [
@@ -87,6 +102,7 @@ const ForwardBalanceNoticesTable = ({ data }: { data: ForwardBalanceNotice[] }) 
                 </Box>
             ),
         },
+        { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
         {
             id: 'originalAmount',
             label: 'ORIGINAL AMOUNT',
@@ -109,12 +125,44 @@ const ForwardBalanceNoticesTable = ({ data }: { data: ForwardBalanceNotice[] }) 
         },
     ], [expandedRows, toggleRow]);
 
-    return <DataTable columns={columns} data={data} rowKey={(row) => row.id} expandedRows={expandedRows} expandedContent={(row) => <Box sx={{ p: 1 }}>{row.offsets.map((offset, idx) => <OffsetSection key={idx} offset={offset} />)}</Box>} exportTitle="Forward Balance Notices" paginated customToolbarContent={<RangeDropdown />} dictionaryId="statements" />;
+    return (
+        <DataTable 
+            columns={columns} 
+            data={data} 
+            rowKey={(row) => row.id} 
+            expandedRows={expandedRows} 
+            expandedContent={(row) => <Box sx={{ p: 1 }}>{row.offsets.map((offset, idx) => <OffsetSection key={idx} offset={offset} />)}</Box>} 
+            exportTitle="Forward Balance Notices" 
+            customToolbarContent={<RangeDropdown onChange={onRangeChange} />} 
+            dictionaryId="statements" 
+            serverSide
+            totalElements={totalElements}
+            page={queryParams.page}
+            rowsPerPage={queryParams.size}
+            sortCol={queryParams.sortField}
+            sortDir={queryParams.sortOrder}
+            onPageChange={onPageChange}
+            onRowsPerPageChange={onRowsPerPageChange}
+            onSortChange={onSortChange}
+            download={false}
+        />
+    );
 };
 
-const StatementsScreen: React.FC = () => {
+const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
-    const { activeSubTab, finalActiveSubTab, forwardBalanceNotices, stats } = useStatementsScreen();
+    const { 
+        activeSubTab, 
+        finalActiveSubTab, 
+        forwardBalanceNotices, 
+        totalElements,
+        queryParams,
+        handleRangeChange,
+        handleSortChange,
+        onPageChange,
+        onRowsPerPageChange,
+        stats 
+    } = useStatementsScreen({ skip });
 
     return (
         <Box>
@@ -133,7 +181,21 @@ const StatementsScreen: React.FC = () => {
                 </Grid>
             )}
 
-            {finalActiveSubTab === 0 ? <PipScreen /> : finalActiveSubTab === 1 ? <ForwardBalanceNoticesTable data={forwardBalanceNotices} /> : <SuspenseAccountsScreen />}
+            {finalActiveSubTab === 0 ? (
+                <PipScreen skip={finalActiveSubTab !== 0} />
+            ) : finalActiveSubTab === 1 ? (
+                <ForwardBalanceNoticesTable 
+                    data={forwardBalanceNotices} 
+                    totalElements={totalElements}
+                    queryParams={queryParams}
+                    onPageChange={onPageChange}
+                    onRowsPerPageChange={onRowsPerPageChange}
+                    onSortChange={handleSortChange}
+                    onRangeChange={handleRangeChange}
+                />
+            ) : (
+                <SuspenseAccountsScreen skip={finalActiveSubTab !== 2} />
+            )}
         </Box>
     );
 };

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Chip, Typography, useTheme } from '@mui/material';
+import { Box, Chip, Typography, useTheme } from '@mui/material';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -11,15 +11,21 @@ import { themeConfig } from '@/theme/themeConfig';
 import { AmountText, BalanceText, transactionTypeColors } from './AllTransactionsScreen.styles';
 import { useAllTransactionsScreen } from './AllTransactionsScreen.hook';
 
-const AllTransactionsScreen: React.FC = () => {
+const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const {
         filteredTransactions,
+        totalElements,
+        queryParams,
         isMindPath,
         handleView,
-        // handleEdit,
-        // handleDelete,
-    } = useAllTransactionsScreen();
+        handleRangeChange,
+        handleSortChange,
+        onPageChange,
+        onRowsPerPageChange,
+        isError,
+    } = useAllTransactionsScreen({ skip });
     const theme = useTheme();
+
     const columns = useMemo<DataColumn<AllTransaction>[]>(() => [
         {
             id: 'actions',
@@ -82,7 +88,9 @@ const AllTransactionsScreen: React.FC = () => {
             ) : '–',
         },
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Open', 'Pending', 'Partially Applied', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
-    ], [isMindPath, handleView]);
+    ], [isMindPath, handleView, theme.palette.error.main, theme.palette.text.primary]);
+
+    if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading transactions.</Box>;
 
     return (
         <DataTable
@@ -90,8 +98,18 @@ const AllTransactionsScreen: React.FC = () => {
             data={filteredTransactions}
             rowKey={(r) => r.id}
             exportTitle="All Transactions"
-            customToolbarContent={<RangeDropdown />}
-            dictionaryId="all-transactions"
+            customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
+            dictionaryId="all-transaction"
+            serverSide
+            totalElements={totalElements}
+            page={queryParams.page}
+            rowsPerPage={queryParams.size}
+            sortCol={queryParams.sortField}
+            sortDir={queryParams.sortOrder}
+            onPageChange={onPageChange}
+            onRowsPerPageChange={onRowsPerPageChange}
+            onSortChange={handleSortChange}
+            download={false}
         />
     );
 };
