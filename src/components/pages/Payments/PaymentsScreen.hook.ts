@@ -118,36 +118,38 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const handleDrillDown = useCallback(async (row: PaymentTransaction) => {
         try {
             dispatch(setGlobalDrillingDown(true));
-            dispatch(setSelectedPaymentId(row.transactionNo));
+            if (row.transactionNo) {
+                dispatch(setSelectedPaymentId(row.transactionNo));
 
-            // Call both APIs simultaneously
-            const [claimResult] = await Promise.all([
-                triggerGetRemittance(row.transactionNo).unwrap(),
-                triggerSearchServiceLines({
-                    page: 1,
-                    size: 10,
-                    sort: 'lineNumber',
-                    desc: false,
-                    check: row.transactionNo
-                }).unwrap()
-            ]);
+                // Call both APIs simultaneously
+                const [claimResult] = await Promise.all([
+                    triggerGetRemittance(row.transactionNo).unwrap(),
+                    triggerSearchServiceLines({
+                        page: 1,
+                        size: 10,
+                        sort: 'lineNumber',
+                        desc: false,
+                        check: row.transactionNo
+                    }).unwrap()
+                ]);
 
-            const claimsArr = normalizeRemittanceClaims(claimResult);
+                const claimsArr = normalizeRemittanceClaims(claimResult);
 
-            if (claimsArr.length === 0) {
-                dispatch(setRemittanceClaims([]));
-                dispatch(setRemittanceDetail(null));
+                if (claimsArr.length === 0) {
+                    dispatch(setRemittanceClaims([]));
+                    dispatch(setRemittanceDetail(null));
+                    dispatch(setShowRemittanceDetail(true));
+                    return;
+                }
+
+                dispatch(setRemittanceClaims(claimsArr));
+                dispatch(setSelectedClaimIndex(0));
+                const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
+                dispatch(setRemittanceDetail(selectedClaim));
+                // Service lines are already fetched and will be available to the Detail screen via cache if needed, 
+                // but we ensure the initial load is done.
                 dispatch(setShowRemittanceDetail(true));
-                return;
             }
-
-            dispatch(setRemittanceClaims(claimsArr));
-            dispatch(setSelectedClaimIndex(0));
-            const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
-            dispatch(setRemittanceDetail(selectedClaim));
-            // Service lines are already fetched and will be available to the Detail screen via cache if needed, 
-            // but we ensure the initial load is done.
-            dispatch(setShowRemittanceDetail(true));
         } catch (err) {
             console.error('Failed to fetch remittance drill-down data:', err);
         } finally {

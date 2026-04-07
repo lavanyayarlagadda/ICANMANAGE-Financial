@@ -1,9 +1,15 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
-import { AllTransaction } from '@/interfaces/financials';
-import { useSearchAllTransactionsQuery } from '@/store/api/financialsApi';
+import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
+import { useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
+import { setRemittanceClaims, setRemittanceDetail, setSelectedClaimIndex, setSelectedPaymentId, setShowRemittanceDetail } from '@/store/slices/financialsSlice';
+import {
+    setIsDrillingDown as setGlobalDrillingDown,
+} from '@/store/slices/uiSlice';
+import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
+
 
 export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -76,8 +82,52 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         }
     }, [actionTriggers.reload, refetch]);
 
-    const handleView = useCallback((r: AllTransaction) => dispatch(openViewDialog(r)), [dispatch]);
-    const handleEdit = useCallback((r: AllTransaction) => dispatch(openEditDialog(r)), [dispatch]);
+
+    const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
+    const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
+
+    const handleDrillDown = useCallback(async (row: PaymentTransaction) => {
+        try {
+
+            dispatch(setGlobalDrillingDown(true));
+            if (row.transactionNo) {
+                dispatch(setSelectedPaymentId(row.transactionNo));
+
+                // Call both APIs simultaneously
+                const [claimResult] = await Promise.all([
+                    triggerGetRemittance(row.transactionNo).unwrap(),
+                    triggerSearchServiceLines({
+                        page: 1,
+                        size: 10,
+                        sort: 'lineNumber',
+                        desc: false,
+                        check: row.transactionNo
+                    }).unwrap()
+                ]);
+
+                const claimsArr = normalizeRemittanceClaims(claimResult);
+
+                if (claimsArr.length === 0) {
+                    dispatch(setRemittanceClaims([]));
+                    dispatch(setRemittanceDetail(null));
+                    dispatch(setShowRemittanceDetail(true));
+                    return;
+                }
+
+                dispatch(setRemittanceClaims(claimsArr));
+                dispatch(setSelectedClaimIndex(0));
+                const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
+                dispatch(setRemittanceDetail(selectedClaim));
+                // Service lines are already fetched and will be available to the Detail screen via cache if needed, 
+                // but we ensure the initial load is done.
+                dispatch(setShowRemittanceDetail(true));
+            }
+        } catch (err) {
+            console.error('Failed to fetch remittance drill-down data:', err);
+        } finally {
+            dispatch(setGlobalDrillingDown(false));
+        }
+    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines]); const handleEdit = useCallback((r: AllTransaction) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'transaction' })), [dispatch]);
 
     const handleRangeChange = useCallback((range: string) => {
@@ -99,7 +149,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
         isMindPath,
-        handleView,
+        handleDrillDown,
         handleEdit,
         handleDelete,
         handleRangeChange,

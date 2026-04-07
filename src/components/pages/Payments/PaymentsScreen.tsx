@@ -35,22 +35,22 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             render: (r) => (
                 <RowActionMenu
                     onView={() => handleDrillDown(r)}
-                    onEdit={() => dispatch(openEditDialog(r))}
-                    onDelete={() => dispatch(openConfirmDelete({ id: r.id, type: 'payment' }))}
-                    extraActions={[
-                        { label: 'Copy ID', icon: <ContentCopyIcon fontSize="small" />, onClick: () => navigator.clipboard.writeText(r.id) },
-                    ]}
+                // onEdit={() => dispatch(openEditDialog(r))}
+                // onDelete={() => dispatch(openConfirmDelete({ id: r.id, type: 'payment' }))}
+                // extraActions={[
+                //     { label: 'Copy ID', icon: <ContentCopyIcon fontSize="small" />, onClick: () => navigator.clipboard.writeText(r.id) },
+                // ]}
                 />
             ),
         },
-        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
-        { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type, render: (r) => r.type },
+        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => r.effectiveDate },
+        { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type ?? '', render: (r) => r.type },
         // { id: 'description', label: 'Description', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         {
             id: 'transactionNo',
             label: 'Transaction Number',
             minWidth: 220,
-            accessor: (r) => r.transactionNo,
+            accessor: (r) => r.transactionNo ?? '',
             render: (r) => (
                 <Typography
                     variant="body2"
@@ -61,10 +61,10 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Typography>
             ),
         },
-        { id: 'payer', label: 'Payer', minWidth: 180, accessor: (r) => r.payer, render: (r) => r.payer },
-        { id: 'amount', label: 'Amount', minWidth: 110, align: 'right', accessor: (r) => r.amount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount)}</Box> },
+        { id: 'payer', label: 'Payer', minWidth: 180, accessor: (r) => r.payer ?? '', render: (r) => r.payer },
+        { id: 'amount', label: 'Amount', minWidth: 110, align: 'right', accessor: (r) => r.amount ?? 0, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount ?? 0)}</Box> },
         { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'right', accessor: (r) => r.openBalance ?? 0, render: (r) => r.openBalance != null ? formatCurrency(r.openBalance) : 'N/A' },
-        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
+        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
     ], [dispatch, handleDrillDown]);
 
     if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments.</Box>;
@@ -74,7 +74,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             <DataTable
                 columns={columns}
                 data={payments}
-                rowKey={(r) => r.id}
+                rowKey={(r) => r.id ?? ''}
                 exportTitle="Payments"
                 customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
                 dictionaryId="all-transactions"

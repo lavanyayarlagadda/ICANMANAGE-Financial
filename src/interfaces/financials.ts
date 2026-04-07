@@ -21,15 +21,15 @@ export type TrendDirection = 'Improving' | 'Growing' | 'Decreasing' | 'Stable';
 export type TransactionType = 'PAYMENT' | 'RECOUPMENT' | 'FORWARD_BALANCE' | 'ADJUSTMENT' | 'PIP';
 
 export interface PaymentTransaction {
-  id: string;
-  effectiveDate: string;
-  type: string;
-  transactionNo: string;
-  payer: string;
+  id?: string;
+  effectiveDate?: string;
+  type?: string;
+  transactionNo?: string;
+  payer?: string;
   description?: string;
-  amount: number;
-  openBalance: number | null;
-  status: TransactionStatus;
+  amount?: number;
+  openBalance?: number | null;
+  status?: TransactionStatus;
 }
 
 export interface ClaimAllocation {
@@ -310,11 +310,11 @@ export interface PaymentVarianceSummary {
   totalLeakage: number;
 }
 
-export type DialogData = 
-  | RecoupmentRecord 
-  | OtherAdjustmentRecord 
-  | CollectionAccount 
-  | AllTransaction 
+export type DialogData =
+  | RecoupmentRecord
+  | OtherAdjustmentRecord
+  | CollectionAccount
+  | AllTransaction
   | PaymentTransaction;
 
 export interface ReconciliationRow {

@@ -34,8 +34,8 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             render: (r) => (
                 <RowActionMenu
                     onView={() => handleView(r)}
-                    onEdit={() => handleEdit(r)}
-                    onDelete={() => handleDelete(r.id)}
+                // onEdit={() => handleEdit(r)}
+                // onDelete={() => handleDelete(r.id)}
                 />
             ),
         },

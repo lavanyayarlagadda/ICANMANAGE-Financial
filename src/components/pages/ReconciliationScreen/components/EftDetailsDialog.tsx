@@ -39,7 +39,8 @@ const PopupTable: React.FC<{
   headers: string[];
   rows: any[][];
   onCellClick?: (val: any) => void;
-}> = ({ headers, rows, onCellClick }) => (
+  onDeleteClick?: (row: any[]) => void;
+}> = ({ headers, rows, onCellClick, onDeleteClick }) => (
   <DynamicTableContainer>
     <table>
       <thead>
@@ -249,8 +250,8 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
           </Typography>
           <PopupTable
             headers={['File Name', 'Uploaded By', 'Action']}
-            rows={[['payment-variance-analysis.pdf', 'ICAN_SYSTEM', 'View File']]}
-            onCellClick={() => setPdfPreviewOpen(true)}
+            rows={[['payment-variance-analysis.pdf', 'ICAN_SYSTEM', 'Delete']]}
+            onDeleteClick={(row) => alert(`Deleting document: ${row[0]}`)}
           />
         </Box>
       </DialogContent>

@@ -17,11 +17,24 @@ import {
 import { useVarianceScreen } from './VarianceScreen.hook';
 
 import { FeeScheduleVariance, PaymentVariance } from '@/interfaces/financials';
+import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 
 const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const { activeSubTab, queryParams, feeData, feeSummaryData, paymentData, paymentSummaryData, handleDrillDown, handleRangeChange, handleSortChange, handlePageChange, handleRowsPerPageChange } = useVarianceScreen({ skip });
     const theme = useTheme();
     const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
+        {
+            id: 'actions',
+            label: 'Actions',
+            minWidth: 60,
+            render: (r) => (
+                <RowActionMenu
+                    onView={() => handleDrillDown(r)}
+                // onEdit={() => handleEdit(r)}
+                // onDelete={() => handleDelete(r.id)}
+                />
+            ),
+        },
         {
             id: 'paymentDate',
             label: 'PAYMENT DATE',
@@ -89,22 +102,6 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             align: 'right',
             accessor: (r) => r.adjustmentCode || '',
             render: (r) => <Typography variant="body2">{r.adjustmentCode}</Typography>
-        },
-
-        {
-            id: 'action',
-            label: 'ACTION',
-            minWidth: 80,
-            align: 'center',
-            render: (r) => (
-                <IconButton
-                    size="small"
-                    sx={{ border: `1px solid ${theme.palette.divider}`, borderRadius: 1 }}
-                    onClick={() => handleDrillDown(r)}
-                >
-                    <VisibilityIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                </IconButton>
-            ),
         },
     ], [handleDrillDown, theme]);
 

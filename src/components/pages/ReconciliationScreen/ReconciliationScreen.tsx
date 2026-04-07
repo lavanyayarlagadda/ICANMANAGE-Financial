@@ -28,6 +28,7 @@ import SubmitConfirmDialog from './components/SubmitConfirmDialog';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import CommentsDialog from './components/CommentsDialog';
+import EditDetailsDialog from './components/EditDialog';
 
 const ReconciliationScreen: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -58,6 +59,7 @@ const ReconciliationScreen: React.FC = () => {
 
   // EFT & Drill-down State
   const [eftDialogOpen, setEftDialogOpen] = React.useState(false);
+  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
   const [selectedRow, setSelectedRow] = React.useState<ReconciliationRow | null>(null);
   const [selectedTxNo, setSelectedTxNo] = React.useState('');
   const [pdfPreviewOpen, setPdfPreviewOpen] = React.useState(false);
@@ -143,7 +145,7 @@ const ReconciliationScreen: React.FC = () => {
                 onClick={() => {
                   setSelectedRow(row);
                   setSelectedTxNo(row.transactionNo);
-                  setEftDialogOpen(true);
+                  setEditDialogOpen(true);
                 }}
               >
                 <EditIcon fontSize="small" />
@@ -296,8 +298,21 @@ const ReconciliationScreen: React.FC = () => {
         open={eftDialogOpen}
         onClose={() => setEftDialogOpen(false)}
         selectedRow={selectedRow}
+        selectedTxNo={selectedTxNo}
+        setSelectedTxNo={setSelectedTxNo}
+        uploadedFileName={uploadedFileName}
+        setUploadedFileName={setUploadedFileName}
+        selectedAssignee={selectedAssignee}
+        setSelectedAssignee={setSelectedAssignee}
+        setSubmitConfirmOpen={setSubmitConfirmOpen}
+        setBaiDataOpen={setBaiDataOpen}
+        setPdfPreviewOpen={setPdfPreviewOpen}
       />
-
+      <EditDetailsDialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        selectedRow={selectedRow}
+      />
       <PdfPreviewDialog
         open={pdfPreviewOpen}
         onClose={() => setPdfPreviewOpen(false)}

@@ -57,13 +57,14 @@ export const useReconciliation = () => {
       // setLoading(true);
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      const newHeaders = [
+      const newHeaders: any[] = [
         { id: 'actions', label: 'Actions', align: 'left', isAction: true },
         { id: 'transactionNo', label: 'Transaction NO', align: 'left', isLink: true },
         { id: 'transactionType', label: 'Transaction Type', align: 'left' },
         { id: 'batchOwner', label: 'Batch Owner', align: 'left' },
         { id: 'accountName', label: 'Account Name', align: 'left' },
         { id: 'payor', label: 'Payor', align: 'left' },
+        // { id: 'description', label: 'Description', align: 'left' },
         { id: 'depositDate', label: 'Deposit Date', align: 'left' },
         { id: 'bankDeposit', label: 'Bank Deposit', align: 'right', isCurrency: true },
         { id: 'remittance', label: 'Remittance', align: 'right', isCurrency: true, highlightOnZero: true },
@@ -76,9 +77,14 @@ export const useReconciliation = () => {
         { id: 'variance', label: 'Variance', align: 'right', isCurrency: true },
         { id: 'status', label: 'Status', align: 'left', isStatus: true },
       ];
+
       if (view === 'reconciled') {
-        newHeaders.splice(16, 0, { id: 'reconcileDate', label: 'Reconcile Date', align: 'left' });
+        (newHeaders as any).push({ id: 'reconcileDate', label: 'Reconcile Date', align: 'left' });
+      } else {
+        (newHeaders as any).push({ id: 'variance', label: 'Variance', align: 'right', isCurrency: true });
+        (newHeaders as any).push({ id: 'status', label: 'Status', align: 'left', isStatus: true });
       }
+
       setHeaders(newHeaders);
       setLoading(false);
     };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Dialog, DialogTitle, Divider, DialogContent, Button, TextField, IconButton } from '@mui/material';
+import { Box, Typography, Dialog, DialogTitle, Divider, DialogContent, Button, TextField, IconButton, Tabs, Tab, alpha, useTheme, useMediaQuery } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SearchIcon from '@mui/icons-material/Search';
 import { LocationTabWrapper, LocationTab } from '../ReconciliationScreen.styles';
@@ -34,20 +34,74 @@ const LocationTabs: React.FC<LocationTabsProps> = ({
   setTransactionNo,
   handleSearch
 }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
-    <LocationTabWrapper sx={{ mb: 2 }}>
-      {locations.map(loc => (
-        <LocationTab
-          key={loc}
-          active={activeLocation === loc}
-          onClick={() => setActiveLocation(loc)}
+    <LocationTabWrapper sx={{
+      mb: 2,
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
+      alignItems: isMobile ? 'flex-start' : 'center',
+      flexWrap: 'nowrap',
+      gap: 2
+    }}>
+      <Box sx={{ width: '100%', minWidth: 0, overflow: 'hidden' }}>
+        <Tabs
+          value={activeLocation}
+          onChange={(_, newValue) => setActiveLocation(newValue)}
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          sx={{
+            width: '100%',
+            minHeight: 'auto',
+            '& .MuiTabs-indicator': { display: 'none' },
+            '& .MuiTabs-flexContainer': { gap: '4px' },
+            '& .MuiTabs-scrollButtons': {
+              width: '32px',
+              borderRadius: '4px',
+              backgroundColor: alpha(themeConfig.colors.slate[100], 0.8),
+              mx: 0.5,
+              transition: 'all 0.2s',
+              '&:hover': { backgroundColor: themeConfig.colors.slate[200] },
+              '&.Mui-disabled': { display: 'none' }
+            }
+          }}
         >
-          {loc}
-        </LocationTab>
-      ))}
+          {locations.map((loc) => (
+            <Tab
+              key={loc}
+              label={loc}
+              value={loc}
+              disableRipple
+              sx={{
+                minHeight: 'auto',
+                minWidth: 'auto',
+                padding: '6px 16px',
+                backgroundColor: activeLocation === loc ? themeConfig.colors.primary : themeConfig.colors.slate[100],
+                color: activeLocation === loc ? themeConfig.colors.surface + ' !important' : themeConfig.colors.slate[700],
+                borderRadius: '4px',
+                fontSize: '12px',
+                fontWeight: 700,
+                textTransform: 'none',
+                transition: 'all 0.2s',
+                opacity: 1,
+                '&.Mui-selected': {
+                  backgroundColor: themeConfig.colors.primary,
+                  color: themeConfig.colors.surface,
+                },
+                '&:hover': {
+                  backgroundColor: activeLocation === loc ? themeConfig.colors.primaryDark : themeConfig.colors.slate[200]
+                }
+              }}
+            />
+          ))}
+        </Tabs>
+      </Box>
 
       {view !== 'reconciled' && (
-        <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', ml: 2 }}>
+        <Box sx={{ position: 'relative', display: 'flex', alignItems: 'center', ml: isMobile ? 0 : 2, mt: isMobile ? 1 : 0 }}>
           <Box
             sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', color: themeConfig.colors.primary }}
             onClick={() => setAgeOpen(true)}
@@ -84,16 +138,18 @@ const LocationTabs: React.FC<LocationTabsProps> = ({
         </Box>
       )}
 
-      <Box sx={{ flex: 1 }} />
+      <Box sx={{ flex: isMobile ? 'none' : 1 }} />
 
       {view !== 'my-queue' && (
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          background: themeConfig.colors.slate[50], 
-          border: `1px solid ${themeConfig.colors.slate[200]}`, 
-          borderRadius: '4px', 
-          px: 1 
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          background: themeConfig.colors.slate[50],
+          border: `1px solid ${themeConfig.colors.slate[200]}`,
+          borderRadius: '4px',
+          px: 1,
+          width: isMobile ? '100%' : 'auto',
+          mt: isMobile ? 1 : 0
         }}>
           <TextField
             placeholder="Transaction Number"

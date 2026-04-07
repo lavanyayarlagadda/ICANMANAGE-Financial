@@ -17,7 +17,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         totalElements,
         queryParams,
         isMindPath,
-        handleView,
+        handleDrillDown,
         handleRangeChange,
         handleSortChange,
         onPageChange,
@@ -33,37 +33,36 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
-                    onView={() => handleView(r)}
-                />
+                    onView={() => handleDrillDown(r)} />
             ),
         },
-        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
+        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => r.effectiveDate },
         {
             id: 'transactionType',
             label: 'Category',
             minWidth: 140,
-            accessor: (r) => r.transactionType,
+            accessor: (r) => r.transactionType ?? '',
             filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', ...(!isMindPath ? ['PIP'] : [])],
             render: (r) => {
                 const colors = transactionTypeColors[r.transactionType] || { bg: themeConfig.colors.slate[100], text: themeConfig.colors.slate[600] };
                 return (
                     <Chip
-                        label={r.transactionType.replace('_', ' ')}
+                        label={(r.transactionType ?? '').replace('_', ' ')}
                         size="small"
                         sx={{ backgroundColor: colors.bg, color: colors.text, fontWeight: 600, fontSize: '0.7rem' }}
                     />
                 );
             },
         },
-        { id: 'type', label: 'Type', minWidth: 100, accessor: (r) => r.type, render: (r) => r.type },
-        { id: 'description', label: 'Description', minWidth: 240, accessor: (r) => r.description, render: (r) => r.description },
-        { id: 'sourceProvider', label: 'Source / Provider', minWidth: 180, accessor: (r) => r.sourceProvider, render: (r) => r.sourceProvider },
+        { id: 'type', label: 'Type', minWidth: 100, accessor: (r) => r.type ?? '', render: (r) => r.type },
+        { id: 'description', label: 'Description', minWidth: 240, accessor: (r) => r.description ?? '', render: (r) => r.description },
+        { id: 'sourceProvider', label: 'Source / Provider', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', render: (r) => r.sourceProvider },
         {
             id: 'amount',
             label: 'Amount',
             minWidth: 120,
             align: 'right',
-            accessor: (r) => r.amount,
+            accessor: (r) => r.amount ?? 0,
             render: (r) => (
                 <Typography
                     variant="body2"
@@ -87,8 +86,8 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
                 <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.openBalance)}</Typography>
             ) : '–',
         },
-        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Reconciled', 'Open', 'Pending', 'Partially Applied', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
-    ], [isMindPath, handleView, theme.palette.error.main, theme.palette.text.primary]);
+        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
+    ], [isMindPath, theme.palette.error.main, theme.palette.text.primary]);
 
     if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading transactions.</Box>;
 
@@ -96,7 +95,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         <DataTable
             columns={columns}
             data={filteredTransactions}
-            rowKey={(r) => r.id}
+            rowKey={(r) => r.id ?? ''}
             exportTitle="All Transactions"
             customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
             dictionaryId="all-transaction"
