@@ -44,9 +44,9 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const { data: execSummary, isFetching: isFetchingExec, refetch: refetchExec } = useGetExecutiveSummaryQuery(queryParams, { skip: skip || activeSubTab !== 1 });
     const { data: paymentMix, isFetching: isFetchingMix, refetch: refetchMix } = useGetPaymentMixQuery(queryParams, { skip: skip || activeSubTab !== 1 });
     const { data: adjBreakdown, isFetching: isFetchingAdj, refetch: refetchAdj } = useGetAdjustmentBreakdownQuery(queryParams, { skip: skip || activeSubTab !== 1 });
-    const { data: payerPerformance, refetch: refetchPayer } = useGetPayerPerformanceQuery(queryParams, { skip: skip || activeSubTab !== 1 });
+    const { data: payerPerformance, isFetching: isFetchingPayer, refetch: refetchPayer } = useGetPayerPerformanceQuery(queryParams, { skip: skip || activeSubTab !== 2 });
 
-    const isFetching = isFetchingForecast || isFetchingRecon || isFetchingDashboard || isFetchingExec || isFetchingMix || isFetchingAdj;
+    const isFetching = isFetchingForecast || isFetchingRecon || isFetchingDashboard || isFetchingExec || isFetchingMix || isFetchingAdj || isFetchingPayer;
 
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
@@ -99,7 +99,8 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         execSummary,
         paymentMix,
         adjBreakdown,
-        payerPerformance,
+        payerPerformanceRecords: payerPerformance?.data?.content ?? [],
+        totalElementsPayer: payerPerformance?.data?.totalElements ?? 0,
         queryParams,
         handleRangeChange,
         handleSortChange,

@@ -78,7 +78,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{r.reason}</Typography>
             ),
         },
-        { id: 'description', label: 'Description', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
+        // { id: 'description', label: 'Description', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleView, handleEdit, handleDelete]);
 
@@ -91,13 +91,13 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Recouped" value={formatCurrency(stats.totalRecouped)} variant="negative" /></Grid>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Records" value={String(totalElements)} /></Grid>
             </Grid>
-            <DataTable 
-                columns={columns} 
-                data={recoupments} 
-                rowKey={(r) => r.id} 
-                exportTitle="Recoupments" 
-                customToolbarContent={<RangeDropdown onChange={handleRangeChange} />} 
-                dictionaryId="recoupments" 
+            <DataTable
+                columns={columns}
+                data={recoupments}
+                rowKey={(r) => r.id}
+                exportTitle="Recoupments"
+                customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
+                dictionaryId="recoupments"
                 serverSide
                 totalElements={totalElements}
                 page={queryParams.page}

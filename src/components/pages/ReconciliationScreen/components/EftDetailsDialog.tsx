@@ -17,9 +17,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { GlassDialog, SectionSidebar, ModernUploadZone, DynamicTableContainer } from '../ReconciliationScreen.styles';
-import { ReconciliationRow } from '@/interfaces/financials';
+import { ReconciliationRow } from '../ReconciliationScreen.hook';
 
 interface EftDetailsDialogProps {
   open: boolean;
@@ -40,8 +39,7 @@ const PopupTable: React.FC<{
   headers: string[];
   rows: any[][];
   onCellClick?: (val: any) => void;
-  onDeleteClick?: (row: any[]) => void;
-}> = ({ headers, rows, onCellClick, onDeleteClick }) => (
+}> = ({ headers, rows, onCellClick }) => (
   <DynamicTableContainer>
     <table>
       <thead>
@@ -52,24 +50,15 @@ const PopupTable: React.FC<{
       <tbody>
         {rows.length > 0 ? rows.map((row, ri) => (
           <tr key={ri}>
-            {row.map((cell, ci) => {
-              const isPdf = typeof cell === 'string' && cell.endsWith('.pdf');
-              const isAction = typeof cell === 'string' && cell.toLowerCase().includes('delete');
-              
-              return (
-                <td
-                  key={ci}
-                  style={isPdf ? { color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer', fontWeight: 700 } : {}}
-                  onClick={() => isPdf ? onCellClick?.(cell) : null}
-                >
-                  {isAction ? (
-                    <IconButton size="small" color="error" onClick={() => onDeleteClick?.(row)}>
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  ) : cell}
-                </td>
-              );
-            })}
+            {row.map((cell, ci) => (
+              <td
+                key={ci}
+                style={typeof cell === 'string' && cell.endsWith('.pdf') ? { color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer', fontWeight: 700 } : {}}
+                onClick={() => typeof cell === 'string' && cell.endsWith('.pdf') ? onCellClick?.(cell) : null}
+              >
+                {cell}
+              </td>
+            ))}
           </tr>
         )) : (
           <tr>
@@ -103,38 +92,38 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
       fullWidth
       PaperComponent={GlassDialog}
     >
-      <DialogTitle sx={{ p: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(to right, #f8fafc, #fff)' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+      <DialogTitle sx={{ p: { xs: 2, sm: 2.5 }, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: 'linear-gradient(to right, #f8fafc, #fff)' }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, flex: 1, mt: 0.5 }}>
           <Box sx={{ p: 1, borderRadius: '10px', background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: '#fff', display: 'flex' }}>
             <CalendarMonthIcon fontSize="small" />
           </Box>
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#1e293b', lineHeight: 1.2 }}>EFT Transaction Details</Typography>
-            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
+            <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, display: 'block', mt: 0.5 }}>
               {selectedRow ? (
-                <>
-                  {selectedRow.transactionNo}
+                <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 0.5, sm: 2 } }}>
+                  <span>{selectedRow.transactionNo}</span>
                   {selectedRow.reconcileDate && (
-                    <Box component="span" sx={{ ml: 2, color: 'success.main', fontWeight: 800 }}>
+                    <Box component="span" sx={{ color: 'success.main', fontWeight: 800 }}>
                       Reconcile Date: {selectedRow.reconcileDate}
                     </Box>
                   )}
-                </>
+                </Box>
               ) : 'No Selection'}
             </Typography>
           </Box>
         </Box>
-        <IconButton onClick={onClose} sx={{ backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} size="small">
+        <IconButton onClick={onClose} sx={{ backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', flexShrink: 0 }} size="small">
           <CloseIcon />
         </IconButton>
       </DialogTitle>
       <Divider sx={{ opacity: 0.5 }} />
 
-      <DialogContent sx={{ p: 3, backgroundColor: '#fdfdfd' }}>
-        {/* Actions Row - Balanced 2-column Layout */}
-        <Grid container spacing={4} sx={{ mb: 4, alignItems: 'stretch' }}>
+      <DialogContent sx={{ p: { xs: 2, sm: 3 }, backgroundColor: '#fdfdfd' }}>
+        {/* Actions Row - Balanced 3-column Layout */}
+        <Grid container spacing={{ xs: 2, md: 4 }} sx={{ mb: 4, alignItems: 'stretch' }}>
           {/* 1. TRANSACTION SEARCH */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Box sx={{ height: '100%', p: 2, borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
               <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: 'block', color: '#64748b', textTransform: 'uppercase' }}>Scan/Search Transaction</Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
@@ -152,7 +141,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
           </Grid>
 
           {/* 2. UPLOAD ZONE */}
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Box sx={{ height: '100%', p: 2, borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
               <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: 'block', color: '#64748b', textTransform: 'uppercase' }}>Documentation</Typography>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', height: '100%' }}>
@@ -182,12 +171,42 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
               </Box>
             </Box>
           </Grid>
+
+          {/* 3. ASSIGNMENT */}
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Box sx={{ height: '100%', p: 2, borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: 'block', color: '#64748b', textTransform: 'uppercase' }}>Staff Assignment</Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <TextField
+                  select
+                  size="small"
+                  fullWidth
+                  value={selectedAssignee}
+                  onChange={(e) => setSelectedAssignee(e.target.value)}
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', backgroundColor: '#fff' } }}
+                >
+                  <MenuItem value="All">Select User</MenuItem>
+                  <MenuItem value="Naga">Naga Kiran</MenuItem>
+                  <MenuItem value="Lavanya">Lavanya S</MenuItem>
+                </TextField>
+                <Button
+                  variant="contained"
+                  disabled={selectedAssignee === 'All'}
+                  onClick={() => alert(`Transaction ${selectedTxNo} assigned to ${selectedAssignee}`)}
+                  color="primary"
+                  sx={{ textTransform: 'none', borderRadius: '8px', fontWeight: 800, px: 3, boxShadow: 'none' }}
+                >
+                  Assign
+                </Button>
+              </Box>
+            </Box>
+          </Grid>
         </Grid>
 
         {/* Reusable Sectioned Content */}
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {/* BAI SECTION */}
-          <Box sx={{ display: 'flex', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
             <SectionSidebar bgColor="#fef3c7">
               <Typography variant="caption" sx={{ fontWeight: 900, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.1em' }}>BAI</Typography>
             </SectionSidebar>
@@ -199,7 +218,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
           </Box>
 
           {/* REMIT SECTION */}
-          <Box sx={{ display: 'flex', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
             <SectionSidebar bgColor="#dcfce7">
               <Typography variant="caption" sx={{ fontWeight: 900, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Remit</Typography>
             </SectionSidebar>
@@ -211,7 +230,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
           </Box>
 
           {/* CASH POSTING SECTION */}
-          <Box sx={{ display: 'flex', borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: '16px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
             <SectionSidebar bgColor="#f3e8ff">
               <Typography variant="caption" sx={{ fontWeight: 900, color: '#6b21a8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Cash Posting</Typography>
             </SectionSidebar>
@@ -230,9 +249,8 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
           </Typography>
           <PopupTable
             headers={['File Name', 'Uploaded By', 'Action']}
-            rows={[['payment-variance-analysis.pdf', 'ICAN_SYSTEM', 'Delete']]}
+            rows={[['payment-variance-analysis.pdf', 'ICAN_SYSTEM', 'View File']]}
             onCellClick={() => setPdfPreviewOpen(true)}
-            onDeleteClick={(row) => alert(`Deleting document: ${row[0]}`)}
           />
         </Box>
       </DialogContent>

@@ -24,8 +24,10 @@ import LocationTabs from './components/LocationTabs';
 import PdfPreviewDialog from './components/PdfPreviewDialog';
 import BaiDataDialog from './components/BaiDataDialog';
 import SubmitConfirmDialog from './components/SubmitConfirmDialog';
+// import CommentsDialog from './components/CommentsDialog';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
+import CommentsDialog from './components/CommentsDialog';
 
 const ReconciliationScreen: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -63,6 +65,10 @@ const ReconciliationScreen: React.FC = () => {
   const [baiDataOpen, setBaiDataOpen] = React.useState(false);
   const [selectedAssignee, setSelectedAssignee] = React.useState('All');
   const [uploadedFileName, setUploadedFileName] = React.useState<string | null>(null);
+
+  // Comments Dialog state
+  const [commentsDialogOpen, setCommentsDialogOpen] = React.useState(false);
+  const [commentsRow, setCommentsRow] = React.useState<ReconciliationRow | null>(null);
 
   // Sync internal view with global sub-tab
   React.useEffect(() => {
@@ -113,91 +119,107 @@ const ReconciliationScreen: React.FC = () => {
     }
   }, [searchFilters.fromDate, searchFilters.toDate]);
 
-  const columns: DataColumn<ReconciliationRow>[] = headerData.map((header) => ({
-    id: header.id as any,
-    label: header.label,
-    align: header.align as 'left' | 'right' | 'center',
-    accessor: (row) => {
-      const val = row[header.id as keyof ReconciliationRow];
-      if (Array.isArray(val)) return val.join(', ');
-      return (val as string | number) ?? '';
-    },
-    render: (row) => {
-      const val = row[header.id as keyof ReconciliationRow];
+  const columns: DataColumn<ReconciliationRow>[] = headerData
+    .filter(h => h.id !== 'actions' || view !== 'reconciled')
+    .map((header) => ({
+      id: header.id as any,
+      label: header.label,
+      align: header.align as 'left' | 'right' | 'center',
+      accessor: (row) => {
+        const val = row[header.id as keyof ReconciliationRow];
+        if (Array.isArray(val)) return val.join(', ');
+        return (val as string | number) ?? '';
+      },
+      render: (row) => {
+        const val = row[header.id as keyof ReconciliationRow];
 
-      if (header.isAction) {
-        return (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <IconButton size="small" color="info" sx={{ '&:hover': { backgroundColor: 'info.light' } }}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-            {row.comment && (
-              <IconButton size="small" sx={{ color: themeConfig.colors.primary }}>
-                <ChatBubbleOutline fontSize="small" />
-              </IconButton>
-            )}
-          </Box>
-        );
-      }
-
-      if (header.isCurrency) {
-        const isHighlight = header.highlightOnZero && Number(val) === 0;
-        const content = (
-          <Typography
-            variant="body2"
-            sx={{
-              fontWeight: 700,
-              color: header.id === 'variance' ? (Number(val) < 0 ? 'error.main' : 'text.primary') : 'inherit'
-            }}
-          >
-            {formatCurrency(Number(val))}
-          </Typography>
-        );
-        return isHighlight ? <HighlightCell>{formatCurrency(Number(val))}</HighlightCell> : content;
-      }
-
-      if (header.isStatus) {
-        return (
-          <Box>
-            {row.complexStatus.map((s: string, idx: number) => (
-              <Typography
-                key={idx}
-                variant="caption"
-                display="block"
-                sx={{
-                  color: s.toLowerCase().includes('age') || s.toLowerCase().includes('missing') ? 'error.main' : 'text.secondary',
-                  fontWeight: 600,
-                  borderBottom: idx < row.complexStatus.length - 1 ? `1px solid ${themeConfig.colors.slate[200]}` : 'none',
-                  pb: 0.5,
-                  mb: 0.5
+        if (header.id === 'actions') {
+          return (
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <IconButton
+                size="small"
+                color="info"
+                sx={{ '&:hover': { backgroundColor: 'info.light' } }}
+                onClick={() => {
+                  setSelectedRow(row);
+                  setSelectedTxNo(row.transactionNo);
+                  setEftDialogOpen(true);
                 }}
               >
-                {s}
-              </Typography>
-            ))}
-          </Box>
-        );
-      }
+                <EditIcon fontSize="small" />
+              </IconButton>
+              <IconButton
+                size="small"
+                sx={{ color: themeConfig.colors.primary }}
+                onClick={() => {
+                  setCommentsRow(row);
+                  setCommentsDialogOpen(true);
+                }}
+              >
+                <ChatBubbleOutline fontSize="small" />
+              </IconButton>
+            </Box>
+          );
+        }
 
-      if (header.isLink) {
-        return (
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 700, color: row.isEdited ? themeConfig.colors.success : 'primary.main', cursor: 'pointer', textDecoration: 'underline' }}
-            onClick={() => {
-              setSelectedRow(row);
-              setSelectedTxNo(String(val));
-              setEftDialogOpen(true);
-            }}
-          >
-            {String(val ?? '-')}
-          </Typography>
-        );
-      }
+        if (header.isCurrency) {
+          const isHighlight = header.highlightOnZero && Number(val) === 0;
+          const content = (
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 700,
+                color: header.id === 'variance' ? (Number(val) < 0 ? 'error.main' : 'text.primary') : 'inherit'
+              }}
+            >
+              {formatCurrency(Number(val))}
+            </Typography>
+          );
+          return isHighlight ? <HighlightCell>{formatCurrency(Number(val))}</HighlightCell> : content;
+        }
 
-      return (val as string | number) ?? '-';
-    }
-  }));
+        if (header.isStatus) {
+          return (
+            <Box>
+              {row.complexStatus.map((s: string, idx: number) => (
+                <Typography
+                  key={idx}
+                  variant="caption"
+                  display="block"
+                  sx={{
+                    color: s.toLowerCase().includes('age') || s.toLowerCase().includes('missing') ? 'error.main' : 'text.secondary',
+                    fontWeight: 600,
+                    borderBottom: idx < row.complexStatus.length - 1 ? `1px solid ${themeConfig.colors.slate[200]}` : 'none',
+                    pb: 0.5,
+                    mb: 0.5
+                  }}
+                >
+                  {s}
+                </Typography>
+              ))}
+            </Box>
+          );
+        }
+
+        if (header.isLink) {
+          return (
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 700, color: row.isEdited ? themeConfig.colors.success : 'primary.main', cursor: 'pointer', textDecoration: 'underline' }}
+              onClick={() => {
+                setSelectedRow(row);
+                setSelectedTxNo(String(val));
+                setEftDialogOpen(true);
+              }}
+            >
+              {String(val ?? '-')}
+            </Typography>
+          );
+        }
+
+        return (val as string | number) ?? '-';
+      }
+    }));
 
   return (
     <Box sx={{ p: 3, pt: 1 }}>
@@ -274,15 +296,6 @@ const ReconciliationScreen: React.FC = () => {
         open={eftDialogOpen}
         onClose={() => setEftDialogOpen(false)}
         selectedRow={selectedRow}
-        selectedTxNo={selectedTxNo}
-        setSelectedTxNo={setSelectedTxNo}
-        uploadedFileName={uploadedFileName}
-        setUploadedFileName={setUploadedFileName}
-        selectedAssignee={selectedAssignee}
-        setSelectedAssignee={setSelectedAssignee}
-        setSubmitConfirmOpen={setSubmitConfirmOpen}
-        setBaiDataOpen={setBaiDataOpen}
-        setPdfPreviewOpen={setPdfPreviewOpen}
       />
 
       <PdfPreviewDialog
@@ -301,6 +314,12 @@ const ReconciliationScreen: React.FC = () => {
         open={submitConfirmOpen}
         onClose={() => setSubmitConfirmOpen(false)}
         onConfirm={() => { setSubmitConfirmOpen(false); alert('File uploaded successfully!'); }}
+      />
+
+      <CommentsDialog
+        open={commentsDialogOpen}
+        onClose={() => setCommentsDialogOpen(false)}
+        row={commentsRow}
       />
     </Box>
   );

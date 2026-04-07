@@ -104,7 +104,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             accessor: (row) => row.payerName,
             render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
         },
-        { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
+        // { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
         {
             id: 'bankAmt',
             label: 'BANK AMT',

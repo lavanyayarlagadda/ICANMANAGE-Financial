@@ -35,10 +35,12 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         toDate: queryParams.toDate
     }, { skip: isActualSkip });
 
-    const { data: pipSummaryData } = useGetPipSummaryQuery({
+    const { data: pipSummaryData, isFetching: isFetchingSummary } = useGetPipSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip: isActualSkip });
+
+    const isAnyFetching = isFetching || isFetchingSummary;
 
     const [triggerExport] = useLazyExportPipQuery();
 
@@ -65,9 +67,13 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
 
     useEffect(() => {
-        dispatch(setIsGlobalFetching(isFetching));
-        return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, dispatch]);
+        if (!isActualSkip) {
+            dispatch(setIsGlobalFetching(isAnyFetching));
+        }
+        return () => {
+            if (!isActualSkip) dispatch(setIsGlobalFetching(false));
+        };
+    }, [isAnyFetching, isActualSkip, dispatch]);
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {

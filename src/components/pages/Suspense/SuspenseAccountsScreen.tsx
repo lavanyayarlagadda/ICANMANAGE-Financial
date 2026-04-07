@@ -90,29 +90,53 @@ const ManageAccountsModal = ({ open, onClose }: { open: boolean, onClose: () => 
 };
 
 const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-    const { viewType, manageDialogOpen, handleViewChange, toggleManageDialog } = useSuspenseAccountsScreen({ skip });
+    const { 
+        viewType, 
+        manageDialogOpen, 
+        handleViewChange, 
+        toggleManageDialog,
+        suspenseAccounts,
+        summary,
+        periods
+    } = useSuspenseAccountsScreen({ skip });
 
-    const renderTable = (data: Record<string, string | number | null>[], cols: string, headers: string[], type: 'account' | 'payer' | 'month') => {
-        // Extract all unique data keys for columns
-        const dataKeys = Object.keys(data[0] || {});
+    const renderTable = (data: any[], type: 'account' | 'payer' | 'month') => {
+        const headers = type === 'account' 
+            ? ['ACCOUNT TYPE', 'ITEMS', ...periods, 'TOTAL BALANCE']
+            : type === 'payer'
+                ? ['FACILITY / PAYER', 'ITEMS', 'MEDICARE', 'REMIT', 'PATIENT', 'CROSS', 'TAX', 'TOTAL']
+                : ['MONTH', 'MEDICARE', 'REMIT', 'PATIENT', 'CROSS', 'TAX', 'TOTAL'];
 
         const tableColumns: DataColumn<any>[] = headers.map((label, index) => {
-            const id = dataKeys[index] || `col_${index}`;
+            let id: string;
+            if (type === 'account') {
+                if (index === 0) id = 'accountType';
+                else if (index === 1) id = 'items';
+                else if (index === headers.length - 1) id = 'totalBalance';
+                else id = periods[index - 2];
+            } else {
+                const dataKeys = Object.keys(data[0] || {});
+                id = dataKeys[index] || `col_${index}`;
+            }
+
             return {
                 id: id as any,
                 label: label,
                 align: index >= (type === 'month' ? 1 : 2) ? 'right' : 'left',
-                accessor: (row) => row[id],
+                accessor: (row) => row.balances ? (row.balances[id] !== undefined ? row.balances[id] : row[id]) : row[id],
                 render: (row) => {
-                    const val = row[id];
-                    if (id === 'account') {
-                        return (
-                            <Chip
-                                label={String(val)}
-                                size="small"
-                                sx={styles.accountChipStyles(SUSPENSE_ACCOUNTS.find(s => s.label === val))}
-                            />
-                        );
+                    const val = row.balances ? (row.balances[id] !== undefined ? row.balances[id] : row[id]) : row[id];
+                    if (id === 'accountType' || id === 'account' || id === 'payer' || id === 'month') {
+                        const accountInfo = SUSPENSE_ACCOUNTS.find(s => s.label === val);
+                        if (accountInfo) {
+                            return (
+                                <Chip
+                                    label={String(val)}
+                                    size="small"
+                                    sx={styles.accountChipStyles(accountInfo)}
+                                />
+                            );
+                        }
                     }
                     if (id === 'items') {
                         return (
@@ -123,12 +147,15 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
                     }
                     if (typeof val === 'number') {
                         return (
-                            <Typography sx={{ fontSize: '13px', fontWeight: id === 'total' ? 700 : 500 }}>
+                            <Typography sx={{ fontSize: '13px', fontWeight: id === 'totalBalance' || id === 'total' ? 700 : 500 }}>
                                 {formatCurrency(val)}
                             </Typography>
                         );
                     }
-                    return <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>{String(val || '-')}</Typography>;
+                    if (val === null || val === undefined) {
+                        return <Typography sx={{ fontSize: '13px', color: 'text.secondary' }}>-</Typography>;
+                    }
+                    return <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>{String(val)}</Typography>;
                 }
             };
         });
@@ -137,7 +164,7 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             <DataTable
                 columns={tableColumns}
                 data={data}
-                rowKey={(r) => String(r.account || r.payer || r.month)}
+                rowKey={(r) => String(r.id || r.account || r.payer || r.month)}
                 paginated={false}
                 searchable={false}
                 download={false}
@@ -178,15 +205,15 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             </Box>
 
             <Grid container spacing={2} sx={{ mb: 4 }}>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}><SummaryCard title="TOTAL OPEN SUSPENSE" value="$1,802,228.20" backgroundColor={themeConfig.colors.surface} /></Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}><SummaryCard title="OLDEST ITEM AGE" value="143 days" variant="default" backgroundColor={themeConfig.colors.surface} /></Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}><SummaryCard title="AVG DAYS IN SUSPENSE" value="59.3 days" backgroundColor={themeConfig.colors.surface} /></Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}><SummaryCard title="AT RISK (>30 DAYS)" value="17" variant="default" backgroundColor={themeConfig.colors.surface} /></Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}><SummaryCard title="TOTAL OPEN SUSPENSE" value={formatCurrency(summary?.totalOpenSuspense ?? 0)} backgroundColor={themeConfig.colors.surface} /></Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}><SummaryCard title="OLDEST ITEM AGE" value={`${summary?.oldestItemAgeDays ?? 0} days`} variant="default" backgroundColor={themeConfig.colors.surface} /></Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}><SummaryCard title="AVG DAYS IN SUSPENSE" value={`${summary?.avgDaysInSuspense ?? 0} days`} backgroundColor={themeConfig.colors.surface} /></Grid>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }}><SummaryCard title="AT RISK (>30 DAYS)" value={String(summary?.atRiskCount ?? 0)} variant="default" backgroundColor={themeConfig.colors.surface} /></Grid>
             </Grid>
 
-            {viewType === 'account' && renderTable(BY_ACCOUNT_DATA, '2fr 0.5fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr', ['ACCOUNT TYPE', 'ITEMS', '2026-04', '2026-03', '2026-02', '2026-01', '2025-12', '2025-11', 'TOTAL BALANCE'], 'account')}
-            {viewType === 'payer' && renderTable(BY_PAYER_DATA, '2fr 0.5fr 1fr 1fr 1fr 1fr 1fr 1fr', ['FACILITY / PAYER', 'ITEMS', 'MEDICARE', 'REMIT', 'PATIENT', 'CROSS', 'TAX', 'TOTAL'], 'payer')}
-            {viewType === 'month' && renderTable(BY_MONTH_DATA, '1fr 1fr 1fr 1fr 1fr 1fr 1fr', ['MONTH', 'MEDICARE', 'REMIT', 'PATIENT', 'CROSS', 'TAX', 'TOTAL'], 'month')}
+            {viewType === 'account' && renderTable(suspenseAccounts, 'account')}
+            {viewType === 'payer' && renderTable(BY_PAYER_DATA, 'payer')}
+            {viewType === 'month' && renderTable(BY_MONTH_DATA, 'month')}
 
             <ManageAccountsModal open={manageDialogOpen} onClose={() => toggleManageDialog(false)} />
         </Box>

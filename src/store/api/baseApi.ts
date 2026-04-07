@@ -27,12 +27,16 @@ const baseQuery = fetchBaseQuery({
   prepareHeaders: (headers, { getState, endpoint }) => {
     const state = toRootState(getState());
     if (!state) {
+      console.warn('[BaseAPI] State not available for headers');
       return headers;
     }
 
     const token = state.auth.accessToken;
     if (token) {
+      console.log(`[BaseAPI] Setting token for request:`, endpoint);
       headers.set('authorization', `Bearer ${token}`);
+    } else {
+      console.warn(`[BaseAPI] No token available for authenticated request:`, endpoint);
     }
 
     // Add tenant ID header, but ONLY for specific company users and NOT for getTenants call

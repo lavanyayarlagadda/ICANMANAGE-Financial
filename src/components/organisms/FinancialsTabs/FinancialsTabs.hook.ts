@@ -4,12 +4,12 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
 
 export const mainTabs = [
-  { id: 0, label: 'Transactions', path: '/financials/payments' },
+  { id: 0, label: 'Transactions', path: '/financials/all-transactions' },
   { id: 1, label: 'Bank Deposits', path: '/financials/bank-deposits' },
   { id: 2, label: 'Statements', path: '/financials/statements/pip' },
-  { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis' },
-  { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast' },
-  { id: 5, label: 'Reconciliation', path: '/financials/reconciliation' },
+  { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis/fee-schedule' },
+  { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast/forecast' },
+  { id: 5, label: 'Reconciliation', path: '/financials/reconciliation/unreconciled' },
 ];
 
 export const reconciliationSubTabs = [
@@ -101,10 +101,13 @@ export const useFinancialsTabs = ({
   }, [location.pathname, dispatch]);
 
   useEffect(() => {
+    const pathPart = location.pathname.split('/financials/')[1] || '';
     if (activeTab === 2 && isMindPath) {
       navigate('/financials/payments', { replace: true });
+    } else if (pathPart === '') {
+      navigate('/financials/all-transactions', { replace: true });
     }
-  }, [activeTab, isMindPath, navigate]);
+  }, [activeTab, isMindPath, navigate, location.pathname]);
 
   const handleMainTabChange = useCallback((index: number, path: string) => {
     dispatch(setActiveTab(index));

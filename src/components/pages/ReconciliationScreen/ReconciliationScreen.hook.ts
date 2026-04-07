@@ -1,12 +1,33 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useTheme } from '@mui/material';
-import { formatCurrency } from '@/utils/formatters';
+import { useState, useMemo, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-
-import { mockReconciliationRows } from '@/constants/mockData';
-import { ReconciliationRow } from '@/interfaces/financials';
+import { RECONCILIATION_DUMMY_DATA } from './ReconciliationDummyData';
 
 export type ReconciliationStatus = 'unreconciled' | 'reconciled' | 'my-queue';
+
+export interface ReconciliationRow {
+  id: string;
+  transactionNo: string;
+  transactionType: string;
+  batchOwner: string;
+  accountName: string;
+  payor: string;
+  depositDate: string;
+  bankDeposit: number;
+  remittance: number;
+  amd: number;
+  nextGenCore: number;
+  nextGenPcsd: number;
+  legacy: number;
+  gl: number;
+  unapplied: number;
+  variance: number;
+  status: string;
+  complexStatus: string[];
+  location: string;
+  isEdited?: boolean;
+  comment?: string;
+  reconcileDate?: string;
+}
 
 export const useReconciliation = () => {
   const [view, setView] = useState<ReconciliationStatus>('unreconciled');
@@ -36,14 +57,13 @@ export const useReconciliation = () => {
       // setLoading(true);
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      const newHeaders: any[] = [
+      const newHeaders = [
         { id: 'actions', label: 'Actions', align: 'left', isAction: true },
         { id: 'transactionNo', label: 'Transaction NO', align: 'left', isLink: true },
         { id: 'transactionType', label: 'Transaction Type', align: 'left' },
         { id: 'batchOwner', label: 'Batch Owner', align: 'left' },
         { id: 'accountName', label: 'Account Name', align: 'left' },
         { id: 'payor', label: 'Payor', align: 'left' },
-        { id: 'description', label: 'Description', align: 'left' },
         { id: 'depositDate', label: 'Deposit Date', align: 'left' },
         { id: 'bankDeposit', label: 'Bank Deposit', align: 'right', isCurrency: true },
         { id: 'remittance', label: 'Remittance', align: 'right', isCurrency: true, highlightOnZero: true },
@@ -53,15 +73,12 @@ export const useReconciliation = () => {
         { id: 'legacy', label: 'Legacy', align: 'right', isCurrency: true },
         { id: 'gl', label: 'GL', align: 'right', isCurrency: true },
         { id: 'unapplied', label: 'Unapplied', align: 'right', isCurrency: true },
+        { id: 'variance', label: 'Variance', align: 'right', isCurrency: true },
+        { id: 'status', label: 'Status', align: 'left', isStatus: true },
       ];
-
       if (view === 'reconciled') {
-        (newHeaders as any).push({ id: 'reconcileDate', label: 'Reconcile Date', align: 'left' });
-      } else {
-        (newHeaders as any).push({ id: 'variance', label: 'Variance', align: 'right', isCurrency: true });
-        (newHeaders as any).push({ id: 'status', label: 'Status', align: 'left', isStatus: true });
+        newHeaders.splice(16, 0, { id: 'reconcileDate', label: 'Reconcile Date', align: 'left' });
       }
-
       setHeaders(newHeaders);
       setLoading(false);
     };
@@ -70,7 +87,7 @@ export const useReconciliation = () => {
   }, [view]);
 
   // Mock Row Data
-  const mockRows = mockReconciliationRows;
+  const mockRows: ReconciliationRow[] = useMemo(() => RECONCILIATION_DUMMY_DATA, []);
 
   const filteredData = useMemo(() => {
     return mockRows.filter(row => {
@@ -101,19 +118,19 @@ export const useReconciliation = () => {
     };
   }, [filteredData]);
 
-  const handleToggle = useCallback((newView: ReconciliationStatus) => {
+  const handleToggle = (newView: ReconciliationStatus) => {
     setView(newView);
-  }, []);
+  };
 
-  const applyFilters = useCallback(() => {
+  const applyFilters = () => {
     setLoading(true);
     setTimeout(() => {
       setAppliedFilters(searchFilters);
       setLoading(false);
     }, 200);
-  }, [searchFilters]);
+  };
 
-  const handleGlobalTransactionSearch = useCallback((txNo: string) => {
+  const handleGlobalTransactionSearch = (txNo: string) => {
     setLoading(true);
     setTimeout(() => {
       // Find the record in ALL data
@@ -131,7 +148,7 @@ export const useReconciliation = () => {
       }
       setLoading(false);
     }, 300);
-  }, [mockRows, searchFilters]);
+  };
 
   return {
     view,

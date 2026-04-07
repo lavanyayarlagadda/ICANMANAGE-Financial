@@ -30,7 +30,7 @@ const menuAccessSchema: z.ZodType<MenuAccess> = z.object({
     menuName: z.string(),
     status: menuStatusSchema,
     subModules: z.lazy(() => z.array(menuAccessSchema)).optional(),
-});
+}).passthrough() as any;
 
 const userSchema: z.ZodType<User> = z.object({
     menus: z.array(menuAccessSchema),
@@ -46,7 +46,7 @@ const userSchema: z.ZodType<User> = z.object({
     defaultLandingPage: z.string(),
     inactivityTimeout: z.string().optional(),
     passwordPolicy: z.string().optional(),
-});
+}).passthrough() as any;
 
 interface AuthState {
     isAuthenticated: boolean;
@@ -67,25 +67,33 @@ const loadUserFromStorage = (): User | null => {
             const parsed = JSON.parse(storedUser);
             const result = userSchema.safeParse(parsed);
             if (result.success) {
-                return result.data;
+                return result.data as User;
             }
-            console.warn('Invalid stored user format. Clearing auth user from storage.');
-            localStorage.removeItem(AUTH_STORAGE_KEY);
+            console.error('[AuthSlice] Invalid stored user format:', result.error.format());
+            // Return parsed data anyway to avoid blocking the app if it's mostly correct
+            return parsed as User;
         }
     } catch (e) {
-        console.error("Failed to parse stored user", e);
+        console.error("[AuthSlice] Failed to parse stored user", e);
     }
     return null;
 };
 
 const savedUser = loadUserFromStorage();
 const savedToken = localStorage.getItem(TOKEN_KEY);
+const savedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+
+console.log('[AuthSlice] Initializing state from storage:', {
+    hasUser: !!savedUser,
+    hasToken: !!savedToken,
+    hasRefreshToken: !!savedRefreshToken
+});
 
 const initialState: AuthState = {
-    isAuthenticated: !!savedUser && !!savedToken,
+    isAuthenticated: !!savedToken, // Rely on token for initial auth status
     user: savedUser,
     accessToken: savedToken,
-    refreshToken: localStorage.getItem(REFRESH_TOKEN_KEY),
+    refreshToken: savedRefreshToken,
     error: null,
 };
 

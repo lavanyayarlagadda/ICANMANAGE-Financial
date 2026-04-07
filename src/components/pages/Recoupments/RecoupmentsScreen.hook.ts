@@ -12,7 +12,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
     const [queryParams, setQueryParams] = useState({
         page: 0,
         size: 10,
-        sortField: 'recoupmentDate',
+        sortField: '',
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
         toDate: format(new Date(), 'yyyy-MM-dd'),

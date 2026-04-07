@@ -210,7 +210,12 @@ export interface AdjustmentBreakdownResponse {
 }
 
 export interface PayerPerformanceResponse {
-  data: PayerPerformanceRecord[];
+  data: {
+    content: PayerPerformanceRecord[];
+    page: number;
+    size: number;
+    totalElements: number;
+  };
   message: string | null;
 }
 export interface AllTransactionSearchResponse {
@@ -265,3 +270,28 @@ export interface ForwardBalanceNoticeSearchResponse {
 
 // Reusing PipSearchRequest for simple table searches
 export type TableSearchRequest = PipSearchRequest;
+
+export interface SuspenseAccountSearchResponse {
+  summary: {
+    totalOpenSuspense: number;
+    openItems: number;
+    oldestItemAgeDays: number;
+    oldestItemNote: string;
+    avgDaysInSuspense: number;
+    avgDaysLabel: string;
+    atRiskCount: number;
+    atRiskLabel: string;
+  };
+  periods: string[];
+  rows: {
+    id: string;
+    accountType: string;
+    items: number;
+    balances: Record<string, number | null>;
+    totalBalance: number;
+  }[];
+  page: number;
+  size: number;
+  totalElements: number;
+}
+

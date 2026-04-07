@@ -45,7 +45,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         },
         { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
         { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type, render: (r) => r.type },
-        { id: 'description', label: 'Description', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
+        // { id: 'description', label: 'Description', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         {
             id: 'transactionNo',
             label: 'Transaction Number',

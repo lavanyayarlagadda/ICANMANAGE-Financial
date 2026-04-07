@@ -49,17 +49,17 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
     </Box>
 );
 
-const ForwardBalanceNoticesTable = ({ 
-    data, 
-    totalElements, 
-    queryParams, 
-    onPageChange, 
-    onRowsPerPageChange, 
-    onSortChange, 
-    onRangeChange 
-}: { 
-    data: ForwardBalanceNotice[], 
-    totalElements: number, 
+const ForwardBalanceNoticesTable = ({
+    data,
+    totalElements,
+    queryParams,
+    onPageChange,
+    onRowsPerPageChange,
+    onSortChange,
+    onRangeChange
+}: {
+    data: ForwardBalanceNotice[],
+    totalElements: number,
     queryParams: any,
     onPageChange: (p: number) => void,
     onRowsPerPageChange: (s: number) => void,
@@ -102,7 +102,7 @@ const ForwardBalanceNoticesTable = ({
                 </Box>
             ),
         },
-        { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
+        // { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
         {
             id: 'originalAmount',
             label: 'ORIGINAL AMOUNT',
@@ -126,15 +126,15 @@ const ForwardBalanceNoticesTable = ({
     ], [expandedRows, toggleRow]);
 
     return (
-        <DataTable 
-            columns={columns} 
-            data={data} 
-            rowKey={(row) => row.id} 
-            expandedRows={expandedRows} 
-            expandedContent={(row) => <Box sx={{ p: 1 }}>{row.offsets.map((offset, idx) => <OffsetSection key={idx} offset={offset} />)}</Box>} 
-            exportTitle="Forward Balance Notices" 
-            customToolbarContent={<RangeDropdown onChange={onRangeChange} />} 
-            dictionaryId="statements" 
+        <DataTable
+            columns={columns}
+            data={data}
+            rowKey={(row) => row.id}
+            expandedRows={expandedRows}
+            expandedContent={(row) => <Box sx={{ p: 1 }}>{row.offsets.map((offset, idx) => <OffsetSection key={idx} offset={offset} />)}</Box>}
+            exportTitle="Forward Balance Notices"
+            customToolbarContent={<RangeDropdown onChange={onRangeChange} />}
+            dictionaryId="statements"
             serverSide
             totalElements={totalElements}
             page={queryParams.page}
@@ -151,17 +151,17 @@ const ForwardBalanceNoticesTable = ({
 
 const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
-    const { 
-        activeSubTab, 
-        finalActiveSubTab, 
-        forwardBalanceNotices, 
+    const {
+        activeSubTab,
+        finalActiveSubTab,
+        forwardBalanceNotices,
         totalElements,
         queryParams,
         handleRangeChange,
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
-        stats 
+        stats
     } = useStatementsScreen({ skip });
 
     return (
@@ -184,8 +184,8 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             {finalActiveSubTab === 0 ? (
                 <PipScreen skip={finalActiveSubTab !== 0} />
             ) : finalActiveSubTab === 1 ? (
-                <ForwardBalanceNoticesTable 
-                    data={forwardBalanceNotices} 
+                <ForwardBalanceNoticesTable
+                    data={forwardBalanceNotices}
                     totalElements={totalElements}
                     queryParams={queryParams}
                     onPageChange={onPageChange}

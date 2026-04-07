@@ -12,7 +12,7 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
     const [queryParams, setQueryParams] = useState({
         page: 0,
         size: 10,
-        sortField: 'effectiveDate',
+        sortField: '',
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
         toDate: format(new Date(), 'yyyy-MM-dd'),
@@ -28,9 +28,22 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
     }, { skip });
 
     useEffect(() => {
-        dispatch(setIsGlobalFetching(isFetching));
-        return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, dispatch]);
+        if (data) {
+            console.log('[SuspenseScreen] API Response:', data);
+        }
+        if (isError) {
+            console.error('[SuspenseScreen] API Error');
+        }
+    }, [data, isError]);
+
+    useEffect(() => {
+        if (!skip) {
+            dispatch(setIsGlobalFetching(isFetching));
+        }
+        return () => {
+             if (!skip) dispatch(setIsGlobalFetching(false));
+        };
+    }, [isFetching, skip, dispatch]);
 
     const handleViewChange = useCallback((_: React.MouseEvent<HTMLElement>, nextView: 'account' | 'payer' | 'month') => {
         if (nextView !== null) setViewType(nextView);
@@ -54,10 +67,14 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
     const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
+    const responseData = (data as any)?.data || data;
+
     return {
         viewType,
-        suspenseAccounts: data?.data?.content ?? [],
-        totalElements: data?.data?.totalElements ?? 0,
+        suspenseAccounts: responseData?.rows ?? [],
+        summary: responseData?.summary,
+        periods: responseData?.periods ?? [],
+        totalElements: responseData?.totalElements ?? 0,
         queryParams,
         manageDialogOpen,
         handleViewChange,

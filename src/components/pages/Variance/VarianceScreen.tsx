@@ -47,7 +47,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             accessor: (r) => r.payerName || '',
             render: (r) => <Typography variant="body2">{r.payerName}</Typography>
         },
-        { id: 'description', label: 'DESCRIPTION', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => <Typography variant="body2">{r.description ?? '-'}</Typography> },
+        // { id: 'description', label: 'DESCRIPTION', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => <Typography variant="body2">{r.description ?? '-'}</Typography> },
         {
             id: 'expectedAllowed',
             label: 'EXPECTED ALLOWED',

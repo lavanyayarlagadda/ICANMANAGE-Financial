@@ -32,7 +32,8 @@ import {
   OtherAdjustmentSearchResponse,
   BankDepositSearchResponse,
   ForwardBalanceNoticeSearchResponse,
-  TableSearchRequest
+  TableSearchRequest,
+  SuspenseAccountSearchResponse
 } from "@/interfaces/api";
 
 import { normalizeRemittanceClaims } from "@/utils/normalizeRemittanceClaims";
@@ -237,9 +238,10 @@ export const financialsApi = baseApi.injectEndpoints({
       PayerPerformanceResponse,
       DateRangeParams
     >({
-      query: (params) => ({
+      query: (body) => ({
         url: "financials/forecast-trends/payer-performance",
-        params,
+        method: "POST",
+        body,
       }),
       providesTags: ["Financials"],
     }),
@@ -299,7 +301,7 @@ export const financialsApi = baseApi.injectEndpoints({
       providesTags: ["Financials"],
     }),
     searchSuspenseAccounts: builder.query<
-      AllTransactionSearchResponse,
+      SuspenseAccountSearchResponse,
       TableSearchRequest
     >({
       query: (body) => ({

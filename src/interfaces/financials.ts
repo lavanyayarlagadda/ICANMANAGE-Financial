@@ -138,6 +138,7 @@ export interface TeamPerformance {
 
 
 export interface PayerPerformanceRecord {
+  id: string;
   payerName: string;
   description?: string;
   volume: number;
