@@ -162,7 +162,7 @@ export const GlassDialog = styled(Paper)(({ theme }) => ({
 
 export const SectionSidebar = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'bgColor',
-})<{ bgColor?: string }>(({ bgColor }) => ({
+})<{ bgColor?: string }>(({ theme, bgColor }) => ({
   width: '120px',
   backgroundColor: bgColor || themeConfig.colors.slate[100],
   padding: '16px 12px',
@@ -172,6 +172,13 @@ export const SectionSidebar = styled(Box, {
   justifyContent: 'center',
   borderRight: `1px solid ${themeConfig.colors.slate[200]}`,
   position: 'relative',
+  [theme.breakpoints.down('sm')]: {
+    width: '100%',
+    padding: '8px 12px',
+    flexDirection: 'row',
+    borderRight: 'none',
+    borderBottom: `1px solid ${themeConfig.colors.slate[200]}`,
+  },
   '&::after': {
     content: '""',
     position: 'absolute',
@@ -180,6 +187,9 @@ export const SectionSidebar = styled(Box, {
     height: '60%',
     width: '2px',
     backgroundColor: themeConfig.colors.slate[200],
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    }
   }
 }));
 
@@ -201,7 +211,8 @@ export const ModernUploadZone = styled(Box)(({ theme }) => ({
 
 export const DynamicTableContainer = styled(Box)(({ theme }) => ({
    flex: 1,
-   overflow: 'hidden',
+   overflowX: 'auto',
+   WebkitOverflowScrolling: 'touch',
    '& table': {
       width: '100%',
       borderCollapse: 'collapse',
