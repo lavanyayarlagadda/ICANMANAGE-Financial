@@ -13,13 +13,15 @@ import {
   Button
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { themeConfig } from '@/theme/themeConfig';
+import { FilterState, ReconciliationStatus } from '../ReconciliationScreen.hook';
 
 interface AdvancedSearchDialogProps {
   open: boolean;
   onClose: () => void;
-  view: 'unreconciled' | 'reconciled' | 'my-queue';
-  searchFilters: any;
-  setSearchFilters: (filters: any) => void;
+  view: ReconciliationStatus;
+  searchFilters: FilterState;
+  setSearchFilters: (filters: FilterState) => void;
   onSearch: (txNo: string) => void;
 }
 
@@ -39,8 +41,9 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
       fullWidth
       PaperProps={{
         sx: {
-          background: '#3d4451',
-          color: 'white',
+          background: 'white',
+          color: 'black',
+
           borderRadius: 2
         }
       }}
@@ -147,19 +150,6 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
           {/* Status (Hide for Reconciled) */}
           {view !== 'reconciled' && (
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>Search Transaction</Typography>
-              <TextField
-                placeholder="Transaction NO."
-                fullWidth
-                size="small"
-                value={searchFilters.transactionNo}
-                onChange={(e) => setSearchFilters({ ...searchFilters, transactionNo: e.target.value })}
-                sx={{ backgroundColor: 'white', borderRadius: 1 }}
-              />
-            </Grid>
-          )}
-          {view !== 'reconciled' && (
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>Status</Typography>
               <TextField
                 select
@@ -189,7 +179,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
         <Button
           variant="contained"
           onClick={() => setSearchFilters({ payor: 'All', status: 'All', fromDate: '2025-06-01', toDate: '2025-06-30', transactionNo: '' })}
-          sx={{ textTransform: 'lowercase', px: 4, py: 1, backgroundColor: '#3b82f6' }}
+          sx={{ textTransform: 'lowercase', px: 4, py: 1, backgroundColor: themeConfig.colors.primary }}
         >
           clear
         </Button>

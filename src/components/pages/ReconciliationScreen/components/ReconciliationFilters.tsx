@@ -6,7 +6,6 @@ import {
   TextField,
   MenuItem,
   Button,
-  IconButton
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { format, isToday, parseISO } from 'date-fns';
@@ -20,13 +19,14 @@ import {
   DayStripContainer,
   DayCard
 } from '../ReconciliationScreen.styles';
+import { FilterState, ReconciliationStatus } from '../ReconciliationScreen.hook';
 
 interface ReconciliationFiltersProps {
-  view: string;
+  view: ReconciliationStatus;
   dateMode: 'range' | 'day';
   setDateMode: (mode: 'range' | 'day') => void;
-  searchFilters: any;
-  setSearchFilters: (filters: any) => void;
+  searchFilters: FilterState;
+  setSearchFilters: (filters: FilterState) => void;
   applyFilters: () => void;
   setAdvancedSearchOpen: (open: boolean) => void;
   daysInView: Date[];
@@ -122,7 +122,7 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                 </TextField>
               </Grid>
             )}
-            <Grid size={{ xs: 12, md: (view === 'reconciled' ? 4 : 4) }} sx={{ display: 'flex', gap: 1 }}>
+            <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', gap: 1 }}>
               <Button
                 variant="contained"
                 startIcon={<SearchIcon fontSize="small" />}
@@ -135,14 +135,14 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
           </Grid>
 
           {/* Row 2: Advanced Actions */}
-          <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ mt: 3, pt: 2, borderTop: `1px solid ${themeConfig.colors.slate[100]}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: 0.8,
                 cursor: 'pointer',
-                color: 'primary.main',
+                color: themeConfig.colors.primary,
                 fontWeight: 700,
                 fontSize: '13px',
                 '&:hover': { opacity: 0.8, textDecoration: 'underline' }

@@ -29,15 +29,33 @@ export interface ReconciliationRow {
   reconcileDate?: string;
 }
 
+export interface HeaderConfig {
+  id: keyof ReconciliationRow | 'actions';
+  label: string;
+  align: 'left' | 'right' | 'center';
+  isAction?: boolean;
+  isLink?: boolean;
+  isCurrency?: boolean;
+  highlightOnZero?: boolean;
+}
+
+export interface FilterState {
+  payor: string;
+  status: string;
+  fromDate: string;
+  toDate: string;
+  transactionNo: string;
+}
+
 export const useReconciliation = () => {
   const [view, setView] = useState<ReconciliationStatus>('unreconciled');
   const [loading, setLoading] = useState(false);
   const [activeLocation, setActiveLocation] = useState('All');
   const [activeAge, setActiveAge] = useState<string | null>(null);
-  const [headers, setHeaders] = useState<any[]>([]);
+  const [headers, setHeaders] = useState<HeaderConfig[]>([]);
 
   // Real-time values in inputs
-  const [searchFilters, setSearchFilters] = useState({
+  const [searchFilters, setSearchFilters] = useState<FilterState>({
     payor: 'All',
     status: 'All',
     fromDate: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
@@ -46,7 +64,7 @@ export const useReconciliation = () => {
   });
 
   // Filters that are actually affecting the table
-  const [appliedFilters, setAppliedFilters] = useState(searchFilters);
+  const [appliedFilters, setAppliedFilters] = useState<FilterState>(searchFilters);
 
   const locations = ['AZ', 'CA', 'FL', 'MN', 'NC', 'OH', 'SC', 'TX', 'All'];
   const ageRanges = ['0-30', '31-60', '61-90', '>90'];
@@ -57,14 +75,13 @@ export const useReconciliation = () => {
       // setLoading(true);
       await new Promise(resolve => setTimeout(resolve, 300));
 
-      const newHeaders: any[] = [
+      const newHeaders: HeaderConfig[] = [
         { id: 'actions', label: 'Actions', align: 'left', isAction: true },
         { id: 'transactionNo', label: 'Transaction NO', align: 'left', isLink: true },
         { id: 'transactionType', label: 'Transaction Type', align: 'left' },
         { id: 'batchOwner', label: 'Batch Owner', align: 'left' },
         { id: 'accountName', label: 'Account Name', align: 'left' },
         { id: 'payor', label: 'Payor', align: 'left' },
-        // { id: 'description', label: 'Description', align: 'left' },
         { id: 'depositDate', label: 'Deposit Date', align: 'left' },
         { id: 'bankDeposit', label: 'Bank Deposit', align: 'right', isCurrency: true },
         { id: 'remittance', label: 'Remittance', align: 'right', isCurrency: true, highlightOnZero: true },
@@ -74,15 +91,15 @@ export const useReconciliation = () => {
         { id: 'legacy', label: 'Legacy', align: 'right', isCurrency: true },
         { id: 'gl', label: 'GL', align: 'right', isCurrency: true },
         { id: 'unapplied', label: 'Unapplied', align: 'right', isCurrency: true },
-        { id: 'variance', label: 'Variance', align: 'right', isCurrency: true },
-        { id: 'status', label: 'Status', align: 'left', isStatus: true },
       ];
 
       if (view === 'reconciled') {
-        (newHeaders as any).push({ id: 'reconcileDate', label: 'Reconcile Date', align: 'left' });
-      } else {
-        (newHeaders as any).push({ id: 'variance', label: 'Variance', align: 'right', isCurrency: true });
-        (newHeaders as any).push({ id: 'status', label: 'Status', align: 'left', isStatus: true });
+        newHeaders.push({ id: 'reconcileDate', label: 'Reconcile Date', align: 'left' });
+      }
+      
+      if (view === 'unreconciled') {
+        newHeaders.push({ id: 'variance', label: 'Variance', align: 'right', isCurrency: true });
+        newHeaders.push({ id: 'status', label: 'Status', align: 'left' });
       }
 
       setHeaders(newHeaders);

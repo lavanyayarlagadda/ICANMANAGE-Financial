@@ -9,8 +9,7 @@ import { ChatBubbleOutline } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import { formatCurrency } from '@/utils/formatters';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { useReconciliation, ReconciliationStatus } from './ReconciliationScreen.hook';
-import { ReconciliationRow } from '@/interfaces/financials';
+import { useReconciliation, ReconciliationStatus, ReconciliationRow } from './ReconciliationScreen.hook';
 import { HighlightCell } from './ReconciliationScreen.styles';
 import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { themeConfig } from '@/theme/themeConfig';
@@ -24,7 +23,6 @@ import LocationTabs from './components/LocationTabs';
 import PdfPreviewDialog from './components/PdfPreviewDialog';
 import BaiDataDialog from './components/BaiDataDialog';
 import SubmitConfirmDialog from './components/SubmitConfirmDialog';
-// import CommentsDialog from './components/CommentsDialog';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import CommentsDialog from './components/CommentsDialog';
@@ -34,6 +32,7 @@ const ReconciliationScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const { activeSubTab, actionTriggers } = useAppSelector(s => s.ui);
 
+  const reconciliation = useReconciliation();
   const {
     view,
     loading,
@@ -51,7 +50,7 @@ const ReconciliationScreen: React.FC = () => {
     setSearchFilters,
     applyFilters,
     handleGlobalTransactionSearch,
-  } = useReconciliation();
+  } = reconciliation;
 
   const [advancedSearchOpen, setAdvancedSearchOpen] = React.useState(false);
   const [ageOpen, setAgeOpen] = React.useState(false);
@@ -124,9 +123,9 @@ const ReconciliationScreen: React.FC = () => {
   const columns: DataColumn<ReconciliationRow>[] = headerData
     .filter(h => h.id !== 'actions' || view !== 'reconciled')
     .map((header) => ({
-      id: header.id as any,
+      id: header.id as keyof ReconciliationRow,
       label: header.label,
-      align: header.align as 'left' | 'right' | 'center',
+      align: header.align,
       accessor: (row) => {
         const val = row[header.id as keyof ReconciliationRow];
         if (Array.isArray(val)) return val.join(', ');
@@ -165,42 +164,26 @@ const ReconciliationScreen: React.FC = () => {
         }
 
         if (header.isCurrency) {
-          const isHighlight = header.highlightOnZero && Number(val) === 0;
           const content = (
             <Typography
               variant="body2"
               sx={{
                 fontWeight: 700,
-                color: header.id === 'variance' ? (Number(val) < 0 ? 'error.main' : 'text.primary') : 'inherit'
+                color: 'inherit'
               }}
             >
               {formatCurrency(Number(val))}
             </Typography>
           );
-          return isHighlight ? <HighlightCell>{formatCurrency(Number(val))}</HighlightCell> : content;
+          return header.highlightOnZero && Number(val) === 0 ? <HighlightCell>{formatCurrency(Number(val))}</HighlightCell> : content;
         }
 
-        if (header.isStatus) {
-          return (
-            <Box>
-              {row.complexStatus.map((s: string, idx: number) => (
-                <Typography
-                  key={idx}
-                  variant="caption"
-                  display="block"
-                  sx={{
-                    color: s.toLowerCase().includes('age') || s.toLowerCase().includes('missing') ? 'error.main' : 'text.secondary',
-                    fontWeight: 600,
-                    borderBottom: idx < row.complexStatus.length - 1 ? `1px solid ${themeConfig.colors.slate[200]}` : 'none',
-                    pb: 0.5,
-                    mb: 0.5
-                  }}
-                >
-                  {s}
+        if (header.id === 'reconcileDate') {
+            return (
+                <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                    {val as string}
                 </Typography>
-              ))}
-            </Box>
-          );
+            );
         }
 
         if (header.isLink) {
@@ -275,7 +258,6 @@ const ReconciliationScreen: React.FC = () => {
             transition: 'all 0.2s ease',
             '& td': {
               color: row.isEdited ? themeConfig.colors.success : 'inherit',
-              // borderColor: row.isEdited ? themeConfig.colors.primary + '33' : 'inherit', // 20% opacity border
             },
             '&:hover': {
               background: row.isEdited ? themeConfig.colors.slate[100] + ' !important' : themeConfig.colors.slate[50] + ' !important'
@@ -295,6 +277,7 @@ const ReconciliationScreen: React.FC = () => {
       />
 
       <EftDetailsDialog
+        view={view}
         open={eftDialogOpen}
         onClose={() => setEftDialogOpen(false)}
         selectedRow={selectedRow}

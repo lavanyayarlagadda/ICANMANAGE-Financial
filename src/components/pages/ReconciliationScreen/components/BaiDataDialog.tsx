@@ -3,6 +3,7 @@ import { Dialog, DialogTitle, DialogContent, Typography, Box, IconButton, Divide
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { GlassDialog, DynamicTableContainer } from '../ReconciliationScreen.styles';
+import { themeConfig } from '@/theme/themeConfig';
 
 interface BaiDataDialogProps {
   open: boolean;
@@ -12,7 +13,7 @@ interface BaiDataDialogProps {
 
 const PopupTable: React.FC<{
   headers: string[];
-  rows: any[][];
+  rows: (string | number)[][];
 }> = ({ headers, rows }) => (
   <DynamicTableContainer>
     <table>
@@ -45,14 +46,14 @@ const BaiDataDialog: React.FC<BaiDataDialogProps> = ({ open, onClose, txNo }) =>
       fullWidth
       PaperComponent={GlassDialog}
     >
-      <DialogTitle sx={{ p: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(to right, #f0f9ff, #fff)' }}>
+      <DialogTitle sx={{ p: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: `linear-gradient(to right, ${themeConfig.colors.sky[50]}, #fff)` }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box sx={{ p: 1, borderRadius: '10px', background: 'linear-gradient(135deg, #0284c7, #0369a1)', color: '#fff', display: 'flex' }}>
+          <Box sx={{ p: 1, borderRadius: '10px', background: `linear-gradient(135deg, ${themeConfig.colors.sky[600]}, ${themeConfig.colors.sky[800]})`, color: '#fff', display: 'flex' }}>
             <SearchIcon fontSize="small" />
           </Box>
           <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0c4a6e' }}>Granular BAI Information</Typography>
-            <Typography variant="caption" sx={{ color: '#0ea5e9', fontWeight: 800 }}>Audit Level Trace: {txNo}</Typography>
+            <Typography variant="subtitle1" sx={{ fontWeight: 900, color: themeConfig.colors.sky[950] }}>Granular BAI Information</Typography>
+            <Typography variant="caption" sx={{ color: themeConfig.colors.sky[500], fontWeight: 800 }}>Audit Level Trace: {txNo}</Typography>
           </Box>
         </Box>
         <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
@@ -63,8 +64,8 @@ const BaiDataDialog: React.FC<BaiDataDialogProps> = ({ open, onClose, txNo }) =>
           headers={['AS OF DATE', 'BANK ID', 'BANK NAME', 'ACCOUNT NUMBER', 'ACCOUNT NAME', 'CURRENCY', 'BAI CODE', 'AMOUNT', 'TRANSACTION ID']}
           rows={[['06/05/2025', '124001545', 'JPMorgan Chase Bank, N.A.', '785738797', 'Vertava Deposits', 'USD', '840', '$292.88', txNo]]}
         />
-        <Box sx={{ p: 6, textAlign: 'center', backgroundColor: '#f8fafc' }}>
-          <Typography variant="body2" sx={{ color: '#64748b', fontStyle: 'italic' }}>
+        <Box sx={{ p: 6, textAlign: 'center', backgroundColor: themeConfig.colors.slate[50] }}>
+          <Typography variant="body2" sx={{ color: themeConfig.colors.slate[500], fontStyle: 'italic' }}>
             End of granular data trace. All records verified against bank feed.
           </Typography>
         </Box>
