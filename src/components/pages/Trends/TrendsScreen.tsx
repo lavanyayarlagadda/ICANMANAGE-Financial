@@ -164,6 +164,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 onPageChange={handlePageChange}
                 onRowsPerPageChange={handleRowsPerPageChange}
                 dictionaryId="payer-performance"
+                download
             />
         </>
     ), [payerPerformanceRecords, totalElementsPayer, handlePageChange, handleRowsPerPageChange, payerColumns]);

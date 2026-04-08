@@ -18,7 +18,7 @@ export const useLoginPage = () => {
   const location = useLocation();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
-  const from = location.state?.from?.pathname || '/financials/payments';
+  const from = '/financials/all-transactions';
 
   useEffect(() => {
     if (isAuthenticated) {
