@@ -40,6 +40,14 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         toDate: format(new Date(), 'yyyy-MM-dd'),
     });
 
+    // Dynamic parameters for Drill-down APIs
+    const [drillDownParams, setDrillDownParams] = useState({
+        page: 0,
+        size: 10,
+        sortField: 'paymentDate',
+        sortOrder: 'desc' as 'asc' | 'desc',
+    });
+
     const { data, isError, isFetching, refetch } = useSearchPaymentsQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
@@ -123,10 +131,16 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
                 // Call both APIs simultaneously
                 const [claimResult] = await Promise.all([
-                    triggerGetRemittance(row.transactionNo).unwrap(),
+                    triggerGetRemittance({
+                        claimId: row.transactionNo,
+                        page: drillDownParams.page,
+                        size: drillDownParams.size,
+                        sort: drillDownParams.sortField,
+                        desc: drillDownParams.sortOrder === 'desc'
+                    }).unwrap(),
                     triggerSearchServiceLines({
-                        page: 1,
-                        size: 10,
+                        page: drillDownParams.page + 1,
+                        size: drillDownParams.size,
                         sort: 'lineNumber',
                         desc: false,
                         check: row.transactionNo
@@ -146,8 +160,6 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
                 dispatch(setSelectedClaimIndex(0));
                 const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
                 dispatch(setRemittanceDetail(selectedClaim));
-                // Service lines are already fetched and will be available to the Detail screen via cache if needed, 
-                // but we ensure the initial load is done.
                 dispatch(setShowRemittanceDetail(true));
             }
         } catch (err) {
@@ -155,7 +167,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         } finally {
             dispatch(setGlobalDrillingDown(false));
         }
-    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines]);
+    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
@@ -184,16 +196,23 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const onPageChange = useCallback((p: number) => setQueryParams(prev => prev.page === p ? prev : { ...prev, page: p }), []);
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => prev.size === s ? prev : { ...prev, size: s, page: 0 }), []);
 
+    // Expose drill-down parameter updates
+    const onDrillDownParamsChange = useCallback((params: Partial<typeof drillDownParams>) => {
+        setDrillDownParams(prev => ({ ...prev, ...params }));
+    }, []);
+
     return {
         payments: data?.data?.content ?? [],
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
+        drillDownParams,
         handleDrillDown,
         handleRangeChange,
         handleFilterChange,
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        onDrillDownParamsChange,
         isError,
         dispatch
     };

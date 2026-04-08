@@ -4,8 +4,8 @@ import { themeConfig } from '@/theme/themeConfig';
 export const containerStyles: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
-  gap: 2,
-  flexWrap: 'wrap',
+  gap: 1.5,
+  flexWrap: 'nowrap',
 };
 
 export const rangeBoxStyles: SxProps<Theme> = {
@@ -16,12 +16,14 @@ export const rangeBoxStyles: SxProps<Theme> = {
 
 export const labelStyles: SxProps<Theme> = {
   fontWeight: 500,
+  fontSize: '0.75rem',
+  color: themeConfig.colors.slate[500],
 };
 
 export const selectStyles: SxProps<Theme> = {
   height: 32,
-  minWidth: 120,
-  fontSize: '0.85rem',
+  minWidth: 100,
+  fontSize: '0.8rem',
   backgroundColor: themeConfig.colors.surface,
   borderRadius: 1.5,
   '& .MuiOutlinedInput-notchedOutline': {
@@ -31,22 +33,24 @@ export const selectStyles: SxProps<Theme> = {
 
 export const datePickersContainerStyles = (isMobile: boolean): SxProps<Theme> => ({
   display: 'flex',
-  alignItems: isMobile ? 'flex-start' : 'center',
-  gap: isMobile ? 1 : 2,
-  flexDirection: isMobile ? 'column' : 'row',
-  width: isMobile ? '100%' : 'auto'
+  alignItems: 'center',
+  gap: 1,
+  flexDirection: 'row', // Force row for compact view
+  width: 'auto'
 });
 
 export const datePickerItemStyles = (isMobile: boolean): SxProps<Theme> => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 1,
-  width: isMobile ? '100%' : 'auto'
+  gap: 0.5,
+  width: 'auto'
 });
 
 export const dateLabelStyles: SxProps<Theme> = {
   fontWeight: 600,
-  minWidth: 40,
+  fontSize: '0.7rem',
+  minWidth: 'auto',
+  color: themeConfig.colors.slate[400],
 };
 
 export const getDatePickerSx = (isMobile: boolean): SxProps<Theme> => ({
@@ -54,11 +58,11 @@ export const getDatePickerSx = (isMobile: boolean): SxProps<Theme> => ({
     height: 32, 
     fontSize: '0.75rem', 
     borderRadius: 1.5, 
-    width: isMobile ? '100%' : 140,
+    width: 120, // Smaller width
     backgroundColor: themeConfig.colors.surface,
   },
   '& .MuiOutlinedInput-notchedOutline': { borderColor: themeConfig.colors.border },
-  flex: isMobile ? 1 : 'unset',
+  flex: 'unset',
 });
 
 export const slotProps = (isMobile: boolean) => ({

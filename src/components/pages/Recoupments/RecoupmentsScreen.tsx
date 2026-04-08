@@ -42,7 +42,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             ),
         },
         { id: 'recoupmentId', label: 'Recoupment ID', minWidth: 140, accessor: (r) => r.recoupmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.recoupmentId}</Typography> },
-        { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, render: (r) => r.payer },
+        { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer },
         {
             id: 'claim',
             label: 'Claim / Patient',
@@ -74,6 +74,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             label: 'Reason',
             minWidth: 200,
             accessor: (r) => r.reason,
+            filterOptions: ['Duplicate', 'Overpayment', 'Incorrect Rate', 'Coordination of Benefits'],
             render: (r) => (
                 <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{r.reason}</Typography>
             ),

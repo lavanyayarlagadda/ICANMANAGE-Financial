@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -11,11 +11,16 @@ import {
   TextField,
   MenuItem,
   Button,
+  Menu,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DescriptionIcon from '@mui/icons-material/Description';
 import { GlassDialog, SectionSidebar, ModernUploadZone, DynamicTableContainer } from '../ReconciliationScreen.styles';
 import { ReconciliationRow, ReconciliationStatus } from '../ReconciliationScreen.hook';
 import { themeConfig } from '@/theme/themeConfig';
@@ -29,8 +34,6 @@ interface EftDetailsDialogProps {
   setSelectedTxNo: (val: string) => void;
   uploadedFileName: string | null;
   setUploadedFileName: (val: string) => void;
-  selectedAssignee: string;
-  setSelectedAssignee: (val: string) => void;
   setSubmitConfirmOpen: (val: boolean) => void;
   setBaiDataOpen: (val: boolean) => void;
   setPdfPreviewOpen: (val: boolean) => void;
@@ -40,8 +43,8 @@ const PopupTable: React.FC<{
   headers: string[];
   rows: (string | number)[][];
   onCellClick?: (val: string) => void;
-  onDeleteClick?: (row: (string | number)[]) => void;
-}> = ({ headers, rows, onCellClick }) => (
+  onDeleteClick?: (ri: number) => void;
+}> = ({ headers, rows, onCellClick, onDeleteClick }) => (
   <DynamicTableContainer>
     <table>
       <thead>
@@ -58,7 +61,13 @@ const PopupTable: React.FC<{
                 style={typeof cell === 'string' && cell.endsWith('.pdf') ? { color: themeConfig.colors.primary, textDecoration: 'underline', cursor: 'pointer', fontWeight: 700 } : {}}
                 onClick={() => typeof cell === 'string' && cell.endsWith('.pdf') ? onCellClick?.(cell) : null}
               >
-                {cell}
+                {cell === 'Delete' ? (
+                  <IconButton size="small" color="error" onClick={() => onDeleteClick?.(ri)}>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                ) : (
+                  cell
+                )}
               </td>
             ))}
           </tr>
@@ -81,8 +90,6 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
   setSelectedTxNo,
   uploadedFileName,
   setUploadedFileName,
-  selectedAssignee,
-  setSelectedAssignee,
   setSubmitConfirmOpen,
   setBaiDataOpen,
   setPdfPreviewOpen
@@ -125,10 +132,10 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
       <Divider sx={{ opacity: 0.5 }} />
 
       <DialogContent sx={{ p: { xs: 2, sm: 3 }, backgroundColor: '#fdfdfd' }}>
-        {/* Actions Row - Balanced Layout */}
-        <Grid container spacing={{ xs: 2, md: 4 }} sx={{ mb: 4, alignItems: 'stretch' }}>
+        {/* Actions Row - Reorganized */}
+        <Grid container spacing={{ xs: 2, md: 2 }} sx={{ mb: 4, alignItems: 'stretch' }}>
           {/* 1. TRANSACTION SEARCH */}
-          <Grid size={{ xs: 12, md: isMyQueue ? 6 : 4 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Box sx={{ height: '100%', p: 2, borderRadius: '12px', background: themeConfig.colors.slate[50], border: `1px solid ${themeConfig.colors.slate[200]}` }}>
               <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: 'block', color: themeConfig.colors.slate[500], textTransform: 'uppercase' }}>Scan/Search Transaction</Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
@@ -146,7 +153,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
           </Grid>
 
           {/* 2. UPLOAD ZONE */}
-          <Grid size={{ xs: 12, md: isMyQueue ? 6 : 4 }}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Box sx={{ height: '100%', p: 2, borderRadius: '12px', background: themeConfig.colors.slate[50], border: `1px solid ${themeConfig.colors.slate[200]}`, display: 'flex', flexDirection: 'column' }}>
               <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: 'block', color: themeConfig.colors.slate[500], textTransform: 'uppercase' }}>Documentation</Typography>
               <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', height: '100%' }}>
@@ -177,37 +184,6 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
             </Box>
           </Grid>
 
-          {/* 3. ASSIGNMENT - Hidden in My Queue */}
-          {!isMyQueue && (
-            <Grid size={{ xs: 12, md: 4 }}>
-              <Box sx={{ height: '100%', p: 2, borderRadius: '12px', background: themeConfig.colors.slate[50], border: `1px solid ${themeConfig.colors.slate[200]}` }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: 'block', color: themeConfig.colors.slate[500], textTransform: 'uppercase' }}>Staff Assignment</Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <TextField
-                    select
-                    size="small"
-                    fullWidth
-                    value={selectedAssignee}
-                    onChange={(e) => setSelectedAssignee(e.target.value)}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px', backgroundColor: '#fff' } }}
-                  >
-                    <MenuItem value="All">Select User</MenuItem>
-                    <MenuItem value="Naga">Naga Kiran</MenuItem>
-                    <MenuItem value="Lavanya">Lavanya S</MenuItem>
-                  </TextField>
-                  <Button
-                    variant="contained"
-                    disabled={selectedAssignee === 'All'}
-                    onClick={() => alert(`Transaction ${selectedTxNo} assigned to ${selectedAssignee}`)}
-                    color="primary"
-                    sx={{ textTransform: 'none', borderRadius: '8px', fontWeight: 800, px: 3, boxShadow: 'none' }}
-                  >
-                    Assign
-                  </Button>
-                </Box>
-              </Box>
-            </Grid>
-          )}
         </Grid>
 
         {/* Reusable Sectioned Content */}
@@ -220,10 +196,10 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
             <PopupTable
               headers={['File Received Date', 'Amount', 'Payor', 'Location', 'File Name']}
               rows={[['06/05/2025', '$292.88', 'SELF PAY', 'Ohio', '2025_SET5PROD.pdf']]}
-              onCellClick={() => setBaiDataOpen(true)}
+              onCellClick={(val) => val.endsWith('.pdf') ? setPdfPreviewOpen(true) : setBaiDataOpen(true)}
             />
           </Box>
-
+ 
           {/* REMIT SECTION */}
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: '16px', overflow: 'hidden', border: `1px solid ${themeConfig.colors.slate[200]}`, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
             <SectionSidebar bgColor={themeConfig.colors.emerald[100]}>
@@ -232,10 +208,10 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
             <PopupTable
               headers={['File Received Date', 'Amount', 'Payor', 'File Name']}
               rows={[['06/28/2025', '$1,240.20', 'Blue Cross Blue Shield', 'REMIT_AUG_22.pdf']]}
-              onCellClick={() => setPdfPreviewOpen(true)}
+              onCellClick={(val) => val.endsWith('.pdf') ? setPdfPreviewOpen(true) : null}
             />
           </Box>
-
+ 
           {/* CASH POSTING SECTION */}
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, borderRadius: '16px', overflow: 'hidden', border: `1px solid ${themeConfig.colors.slate[200]}`, boxShadow: '0 4px 6px -1px rgba(0,0,0,0.02)' }}>
             <SectionSidebar bgColor={themeConfig.colors.purple[100]}>
@@ -244,19 +220,22 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
             <PopupTable
               headers={['File Received Date', 'Amount', 'Batch Id', 'Batch Owner', 'File Name']}
               rows={[['06/30/2025', '$292.88', '778945', 'ICAN', 'POST_82775.pdf']]}
+              onCellClick={(val) => val.endsWith('.pdf') ? setPdfPreviewOpen(true) : null}
             />
           </Box>
         </Box>
-
+ 
         {/* History of Uploaded Documentation */}
         <Box sx={{ mt: 5 }}>
           <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 900, color: themeConfig.colors.slate[800], display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CheckCircleOutlineIcon sx={{ fontSize: 18, color: themeConfig.colors.success }} />
+            <DescriptionIcon sx={{ fontSize: 18, color: themeConfig.colors.primary }} />
             Document Submission History
           </Typography>
           <PopupTable
             headers={['File Name', 'Uploaded By', 'Action']}
             rows={[['payment-variance-analysis.pdf', 'ICAN_SYSTEM', 'Delete']]}
+            onCellClick={(val) => val.endsWith('.pdf') ? setPdfPreviewOpen(true) : null}
+            onDeleteClick={() => alert('Document deleted')}
           />
         </Box>
       </DialogContent>

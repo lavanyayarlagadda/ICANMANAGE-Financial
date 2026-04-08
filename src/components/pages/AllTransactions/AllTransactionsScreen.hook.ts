@@ -31,6 +31,14 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         toDate: format(new Date(), 'yyyy-MM-dd'),
     });
 
+    // Dynamic parameters for Drill-down APIs
+    const [drillDownParams, setDrillDownParams] = useState({
+        page: 0,
+        size: 10,
+        sortField: 'paymentDate',
+        sortOrder: 'desc' as 'asc' | 'desc',
+    });
+
     const { data, isFetching, isError, refetch } = useSearchAllTransactionsQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
@@ -88,18 +96,22 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
 
     const handleDrillDown = useCallback(async (row: PaymentTransaction) => {
         try {
-
             dispatch(setGlobalDrillingDown(true));
             if (row.transactionNo) {
                 dispatch(setSelectedPaymentId(row.transactionNo));
-
-                // Call both APIs simultaneously
+                
                 const [claimResult] = await Promise.all([
-                    triggerGetRemittance(row.transactionNo).unwrap(),
+                    triggerGetRemittance({
+                        claimId: row.transactionNo,
+                        page: drillDownParams.page,
+                        size: drillDownParams.size,
+                        sort: drillDownParams.sortField,
+                        desc: drillDownParams.sortOrder === 'desc'
+                    }).unwrap(),
                     triggerSearchServiceLines({
-                        page: 1,
-                        size: 10,
-                        sort: 'lineNumber',
+                        page: drillDownParams.page + 1,
+                        size: drillDownParams.size,
+                        sort: 'lineNumber', // Service lines usually sorted by line number by default
                         desc: false,
                         check: row.transactionNo
                     }).unwrap()
@@ -118,8 +130,6 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
                 dispatch(setSelectedClaimIndex(0));
                 const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
                 dispatch(setRemittanceDetail(selectedClaim));
-                // Service lines are already fetched and will be available to the Detail screen via cache if needed, 
-                // but we ensure the initial load is done.
                 dispatch(setShowRemittanceDetail(true));
             }
         } catch (err) {
@@ -127,7 +137,9 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         } finally {
             dispatch(setGlobalDrillingDown(false));
         }
-    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines]); const handleEdit = useCallback((r: AllTransaction) => dispatch(openEditDialog(r)), [dispatch]);
+    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams]);
+
+    const handleEdit = useCallback((r: AllTransaction) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'transaction' })), [dispatch]);
 
     const handleRangeChange = useCallback((range: string) => {
@@ -144,10 +156,16 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
+    // Expose drill-down parameter updates
+    const onDrillDownParamsChange = useCallback((params: Partial<typeof drillDownParams>) => {
+        setDrillDownParams(prev => ({ ...prev, ...params }));
+    }, []);
+
     return {
         filteredTransactions: transactions,
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
+        drillDownParams,
         isMindPath,
         handleDrillDown,
         handleEdit,
@@ -156,6 +174,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        onDrillDownParamsChange,
         isError,
         dispatch
     };

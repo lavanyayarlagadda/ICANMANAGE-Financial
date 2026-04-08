@@ -106,7 +106,7 @@ export function DataTableToolbar<T>({
           <ActionLink variant="body2" onClick={() => handleSelectionChange(new Set(sortedData.map(rowKey)))}>
             Select Max
           </ActionLink>
-          
+
           {(activeFilterCount > 0 || customToolbarContent) && (
             <Divider orientation="vertical" flexItem sx={{ mx: 1, height: 16, alignSelf: 'center' }} />
           )}
@@ -131,6 +131,18 @@ export function DataTableToolbar<T>({
 
         <ToolbarRight isMobile={isMobile}>
           {customToolbarContent}
+
+          {filterableColumns.length > 0 && (
+            <FilterButton
+              size="small"
+              onClick={() => setShowFilters(!showFilters)}
+              color={showFilters ? 'primary' : 'default'}
+              sx={{ flexShrink: 0 }}
+            >
+              <FilterListIcon fontSize="small" />
+            </FilterButton>
+          )}
+
           {searchable && (
             <SearchField
               isMobile={isMobile}
@@ -160,16 +172,6 @@ export function DataTableToolbar<T>({
           )}
 
           <ActionGroup>
-            {filterableColumns.length > 0 && (
-              <FilterButton
-                size="small"
-                onClick={() => setShowFilters(!showFilters)}
-                color={showFilters ? 'primary' : 'default'}
-              >
-                <FilterListIcon fontSize="small" />
-              </FilterButton>
-            )}
-
             {download && (
               <>
                 <ExportButton
@@ -209,29 +211,41 @@ export function DataTableToolbar<T>({
 
       <Collapse in={showFilters}>
         <FilterWrapper>
-          {filterableColumns.map((col) => (
-            <FormControl key={col.id} size="small" sx={{ minWidth: 140 }}>
-              <Select
-                displayEmpty
-                value={columnFilters[col.id] || ''}
-                onChange={(e) => {
-                  const next = { ...columnFilters, [col.id]: String(e.target.value) };
-                  setColumnFilters(next);
-                  onFilterChange?.(next);
-                  setInternalPage(0);
-                }}
-                renderValue={(v) => v || <Typography variant="caption" color="text.secondary">{col.label}</Typography>}
-              >
-                <MenuItem value=""><em>All {col.label}</em></MenuItem>
-                {col.filterOptions.map((opt) => (
-                  <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          ))}
+          {/* <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
+            <FilterListIcon fontSize="small" color="primary" />
+            <Typography variant="body2" fontWeight={700} color="primary">Quick Filters:</Typography>
+          </Box> */}
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+            {filterableColumns.map((col) => (
+              <FormControl key={col.id} size="small" sx={{ minWidth: 140 }}>
+                <Select
+                  displayEmpty
+                  value={columnFilters[col.id] || ''}
+                  onChange={(e) => {
+                    const next = { ...columnFilters, [col.id]: String(e.target.value) };
+                    setColumnFilters(next);
+                    onFilterChange?.(next);
+                    setInternalPage(0);
+                  }}
+                  renderValue={(v) => v || <Typography variant="caption" color="text.secondary">All {col.label}</Typography>}
+                  sx={{
+                    height: 32,
+                    fontSize: '0.8125rem',
+                    backgroundColor: '#fff',
+                    borderRadius: '6px',
+                    '& .MuiSelect-select': { py: 0 }
+                  }}
+                >
+                  <MenuItem value=""><em>Show All</em></MenuItem>
+                  {col.filterOptions.map((opt) => (
+                    <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ))}
+          </Box>
         </FilterWrapper>
       </Collapse>
     </ToolbarContainer>
   );
 }
-

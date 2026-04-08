@@ -2,8 +2,9 @@ import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { OtherAdjustmentRecord } from '@/interfaces/financials';
-import { useSearchOtherAdjustmentsQuery } from '@/store/api/financialsApi';
+import { useSearchOtherAdjustmentsQuery, useLazyExportOtherAdjustmentsQuery } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
 
 export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -29,6 +30,8 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
 
     const adjustments = useMemo(() => data?.data?.content ?? [], [data]);
 
+    const [triggerExportOtherAdjustments] = useLazyExportOtherAdjustmentsQuery();
+
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
@@ -38,12 +41,25 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         return () => { dispatch(setIsGlobalFetching(false)); };
     }, [isFetching, dispatch]);
 
-    const handleExport = useCallback((formatType: 'pdf' | 'xlsx') => {
-        dispatch(setActiveExportType(formatType));
-        setTimeout(() => {
-            dispatch(setActiveExportType(null));
-        }, 1500);
-    }, [dispatch]);
+    const handleExport = useCallback(async (exportFormat: 'pdf' | 'xlsx') => {
+        dispatch(setActiveExportType(exportFormat));
+        try {
+            const blob = await triggerExportOtherAdjustments({
+                fromDate: queryParams.fromDate,
+                toDate: queryParams.toDate,
+                format: exportFormat
+            }).unwrap();
+            
+            const filename = `adjustments_${queryParams.fromDate}_to_${queryParams.toDate}.${exportFormat}`;
+            downloadFileFromBlob(blob, filename);
+        } catch (error) {
+            console.error('Export failed:', error);
+        } finally {
+            setTimeout(() => {
+                dispatch(setActiveExportType(null));
+            }, 1200);
+        }
+    }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExportOtherAdjustments]);
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {

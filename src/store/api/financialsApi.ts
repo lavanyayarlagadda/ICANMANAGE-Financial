@@ -71,8 +71,11 @@ export const financialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Financials"],
     }),
-    getRemittanceClaims: builder.query<RemittanceDetail[], string>({
-      query: (claimId) => `financials/payments/remittance-claims/${claimId}`,
+    getRemittanceClaims: builder.query<RemittanceDetail[], { claimId: string; page: number; size: number; sort: string; desc: boolean }>({
+      query: ({ claimId, ...params }) => ({
+        url: `financials/payments/remittance-claims/${claimId}`,
+        params
+      }),
       transformResponse: (
         response: RawRemittanceClaimsResponse,
       ): RemittanceClaimsResponse => normalizeRemittanceClaims(response),
@@ -105,6 +108,26 @@ export const financialsApi = baseApi.injectEndpoints({
     >({
       query: (params) => ({
         url: `financials/export/pip`,
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    exportRecoupments: builder.query<
+      Blob,
+      DateRangeParams & { format: "pdf" | "xlsx" }
+    >({
+      query: (params) => ({
+        url: `financials/export/transactions/recoupments`,
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    exportOtherAdjustments: builder.query<
+      Blob,
+      DateRangeParams & { format: "pdf" | "xlsx" }
+    >({
+      query: (params) => ({
+        url: `financials/export/transactions/adjustments`,
         params,
         responseHandler: (response) => response.blob(),
       }),
@@ -323,6 +346,8 @@ export const {
   useLazySearchServiceLinesQuery,
   useLazyExportPaymentsQuery,
   useLazyExportPipQuery,
+  useLazyExportRecoupmentsQuery,
+  useLazyExportOtherAdjustmentsQuery,
   useSearchFeeScheduleVarianceQuery,
   useGetFeeScheduleVarianceSummaryQuery,
   useSearchPaymentVarianceQuery,

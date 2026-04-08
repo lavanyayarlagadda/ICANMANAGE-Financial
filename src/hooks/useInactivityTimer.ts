@@ -24,7 +24,7 @@ export const useInactivityTimer = () => {
         if (timeoutMinutes > 0) {
             timeoutId.current = setTimeout(() => {
                 dispatch(logout());
-                navigate('/login');
+                navigate('/login', { replace: true });
             }, timeoutMinutes * 60 * 1000);
         }
     };

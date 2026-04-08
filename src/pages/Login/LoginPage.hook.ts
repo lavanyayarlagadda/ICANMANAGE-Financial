@@ -48,12 +48,8 @@ export const useLoginPage = () => {
         refreshToken: result.refreshToken,
       }));
 
-      // Always land on the default landing page regardless of where we came from
-      // const landingPageRoute = result.user.role === 'Admin' ? '/financials/all-transactions' : '/collections';
-      const landingPageRoute = '/financials/payments';
-      const redirectTo = landingPageRoute;
-
-      navigate(redirectTo, { replace: true });
+      // Force navigation to the All Transactions screen (Transactions 1st sub-tab) every time
+      navigate('/financials/all-transactions', { replace: true });
     } catch (err: any) {
       console.error('Login failed:', err);
       setErrorMsg(err.data?.message || 'Invalid username or password');

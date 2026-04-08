@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import {
   Typography,
   Box,
   CircularProgress,
   IconButton,
+  MenuItem,
 } from '@mui/material';
 import { ChatBubbleOutline } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { formatCurrency } from '@/utils/formatters';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { useReconciliation, ReconciliationStatus, ReconciliationRow } from './ReconciliationScreen.hook';
@@ -17,16 +19,20 @@ import { themeConfig } from '@/theme/themeConfig';
 // Sub Components
 import AdvancedSearchDialog from './components/AdvancedSearchDialog';
 import EftDetailsDialog from './components/EftDetailsDialog';
-import ReconciliationFilters from './components/ReconciliationFilters';
 import SummaryStats from './components/SummaryStats';
 import LocationTabs from './components/LocationTabs';
 import PdfPreviewDialog from './components/PdfPreviewDialog';
 import BaiDataDialog from './components/BaiDataDialog';
 import SubmitConfirmDialog from './components/SubmitConfirmDialog';
+import ReconciliationFilters from './components/ReconciliationFilters';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import CommentsDialog from './components/CommentsDialog';
 import EditDetailsDialog from './components/EditDialog';
+import AssignUserDialog from './components/AssignUserDialog';
+import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
+import { InputAdornment, TextField } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 const ReconciliationScreen: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -43,198 +49,227 @@ const ReconciliationScreen: React.FC = () => {
     locations,
     activeLocation,
     setActiveLocation,
-    ageRanges,
-    activeAge,
-    setActiveAge,
     searchFilters,
     setSearchFilters,
     applyFilters,
     handleGlobalTransactionSearch,
+    handleRangeChange,
+    activeAge,
+    setActiveAge,
+    ageRanges
   } = reconciliation;
 
-  const [advancedSearchOpen, setAdvancedSearchOpen] = React.useState(false);
-  const [ageOpen, setAgeOpen] = React.useState(false);
-  const [dateMode, setDateMode] = React.useState<'range' | 'day'>('range');
-
-  // EFT & Drill-down State
-  const [eftDialogOpen, setEftDialogOpen] = React.useState(false);
-  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
-  const [selectedRow, setSelectedRow] = React.useState<ReconciliationRow | null>(null);
-  const [selectedTxNo, setSelectedTxNo] = React.useState('');
-  const [pdfPreviewOpen, setPdfPreviewOpen] = React.useState(false);
-  const [submitConfirmOpen, setSubmitConfirmOpen] = React.useState(false);
-  const [baiDataOpen, setBaiDataOpen] = React.useState(false);
-  const [selectedAssignee, setSelectedAssignee] = React.useState('All');
-  const [uploadedFileName, setUploadedFileName] = React.useState<string | null>(null);
+  // UI State
+  const [eftDialogOpen, setEftDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<ReconciliationRow | null>(null);
+  const [selectedTxNo, setSelectedTxNo] = useState('');
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+  const [submitConfirmOpen, setSubmitConfirmOpen] = useState(false);
+  const [baiDataOpen, setBaiDataOpen] = useState(false);
+  const [assignUserOpen, setAssignUserOpen] = useState(false);
+  const [selectedAssignee, setSelectedAssignee] = useState('All');
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [dateMode, setDateMode] = useState<'range' | 'day'>('range');
+  const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false);
 
   // Comments Dialog state
-  const [commentsDialogOpen, setCommentsDialogOpen] = React.useState(false);
-  const [commentsRow, setCommentsRow] = React.useState<ReconciliationRow | null>(null);
+  const [commentsDialogOpen, setCommentsDialogOpen] = useState(false);
+  const [commentsRow, setCommentsRow] = useState<ReconciliationRow | null>(null);
 
   // Sync internal view with global sub-tab
-  React.useEffect(() => {
+  useEffect(() => {
     const subTabMap: Record<number, ReconciliationStatus> = {
       0: 'unreconciled',
       1: 'reconciled',
       2: 'my-queue',
     };
     const targetView = subTabMap[activeSubTab] || 'unreconciled';
-    handleToggle(targetView);
-  }, [activeSubTab, handleToggle]);
+    if (view !== targetView) {
+      handleToggle(targetView);
+    }
+  }, [activeSubTab, handleToggle, view]);
 
   // Sync Global Action Triggers
-  const reloadCount = React.useRef(actionTriggers.reload);
-  const printCount = React.useRef(actionTriggers.print);
-  const exportCount = React.useRef(actionTriggers.export);
+  const reloadCount = useRef(actionTriggers.reload);
+  const printCount = useRef(actionTriggers.print);
+  const exportCount = useRef(actionTriggers.export);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {
       applyFilters();
       reloadCount.current = actionTriggers.reload;
     }
-  }, [actionTriggers.reload]);
+  }, [actionTriggers.reload, applyFilters]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (actionTriggers.print > printCount.current) {
       window.print();
       printCount.current = actionTriggers.print;
     }
   }, [actionTriggers.print]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (actionTriggers.export > exportCount.current) {
       alert('Exporting Reconciliation Data to Excel...');
       exportCount.current = actionTriggers.export;
     }
   }, [actionTriggers.export]);
 
-  // Days list for Day Wise mode
-  const daysInView = React.useMemo(() => {
-    try {
-      const start = searchFilters.fromDate ? new Date(searchFilters.fromDate) : startOfMonth(new Date());
-      const end = searchFilters.toDate ? new Date(searchFilters.toDate) : endOfMonth(new Date());
-      if (start > end) return [start];
-      return eachDayOfInterval({ start, end });
-    } catch (e) {
-      return eachDayOfInterval({ start: startOfMonth(new Date()), end: endOfMonth(new Date()) });
-    }
-  }, [searchFilters.fromDate, searchFilters.toDate]);
+  const columns = useMemo<DataColumn<ReconciliationRow>[]>(() => {
+    return headerData
+      .filter(h => h.id !== 'actions' || view !== 'reconciled')
+      .map((header) => ({
+        id: header.id as keyof ReconciliationRow,
+        label: header.label,
+        align: header.align,
+        filterOptions: view === 'reconciled'
+          ? (header.id === 'complexStatus' ? header.filterOptions : undefined)
+          : header.filterOptions,
+        accessor: (row) => {
+          const val = row[header.id as keyof ReconciliationRow];
+          if (Array.isArray(val)) return val.join(', ');
+          return (val as string | number) ?? '';
+        },
+        render: (row) => {
+          const val = row[header.id as keyof ReconciliationRow];
 
-  const columns: DataColumn<ReconciliationRow>[] = headerData
-    .filter(h => h.id !== 'actions' || view !== 'reconciled')
-    .map((header) => ({
-      id: header.id as keyof ReconciliationRow,
-      label: header.label,
-      align: header.align,
-      accessor: (row) => {
-        const val = row[header.id as keyof ReconciliationRow];
-        if (Array.isArray(val)) return val.join(', ');
-        return (val as string | number) ?? '';
-      },
-      render: (row) => {
-        const val = row[header.id as keyof ReconciliationRow];
-
-        if (header.id === 'actions') {
-          return (
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <IconButton
-                size="small"
-                color="info"
-                sx={{ '&:hover': { backgroundColor: 'info.light' } }}
-                onClick={() => {
-                  setSelectedRow(row);
-                  setSelectedTxNo(row.transactionNo);
-                  setEditDialogOpen(true);
-                }}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                sx={{ color: themeConfig.colors.primary }}
-                onClick={() => {
-                  setCommentsRow(row);
-                  setCommentsDialogOpen(true);
-                }}
-              >
-                <ChatBubbleOutline fontSize="small" />
-              </IconButton>
-            </Box>
-          );
-        }
-
-        if (header.isCurrency) {
-          const content = (
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 700,
-                color: 'inherit'
-              }}
-            >
-              {formatCurrency(Number(val))}
-            </Typography>
-          );
-          return header.highlightOnZero && Number(val) === 0 ? <HighlightCell>{formatCurrency(Number(val))}</HighlightCell> : content;
-        }
-
-        if (header.id === 'reconcileDate') {
+          if (header.id === 'actions') {
             return (
-                <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
-                    {val as string}
-                </Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <IconButton
+                  size="small"
+                  color="info"
+                  sx={{ '&:hover': { backgroundColor: 'info.light' } }}
+                  onClick={() => {
+                    setSelectedRow(row);
+                    setSelectedTxNo(row.transactionNo);
+                    setEditDialogOpen(true);
+                  }}
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  sx={{ color: themeConfig.colors.slate[600] }}
+                  onClick={() => {
+                    setSelectedRow(row);
+                    setSelectedTxNo(row.transactionNo);
+                    setAssignUserOpen(true);
+                  }}
+                >
+                  <PersonAddIcon fontSize="small" />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  sx={{ color: themeConfig.colors.primary }}
+                  onClick={() => {
+                    setCommentsRow(row);
+                    setCommentsDialogOpen(true);
+                  }}
+                >
+                  <ChatBubbleOutline fontSize="small" />
+                </IconButton>
+              </Box>
             );
-        }
+          }
 
-        if (header.isLink) {
-          return (
-            <Typography
-              variant="body2"
-              sx={{ fontWeight: 700, color: row.isEdited ? themeConfig.colors.success : 'primary.main', cursor: 'pointer', textDecoration: 'underline' }}
-              onClick={() => {
-                setSelectedRow(row);
-                setSelectedTxNo(String(val));
-                setEftDialogOpen(true);
-              }}
-            >
-              {String(val ?? '-')}
-            </Typography>
-          );
-        }
+          if (header.isCurrency) {
+            const content = (
+              <Typography variant="body2" sx={{ fontWeight: 700, color: 'inherit' }}>
+                {formatCurrency(Number(val))}
+              </Typography>
+            );
+            return header.highlightOnZero && Number(val) === 0 ? <HighlightCell>{formatCurrency(Number(val))}</HighlightCell> : content;
+          }
 
-        return (val as string | number) ?? '-';
-      }
-    }));
+          if (header.id === 'reconcileDate') {
+            return (
+              <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
+                {val as string}
+              </Typography>
+            );
+          }
+
+          if (header.isLink) {
+            return (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 700,
+                    color: row.isEdited ? themeConfig.colors.success : 'primary.main',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onClick={() => {
+                    setSelectedRow(row);
+                    setSelectedTxNo(String(val));
+                    setEftDialogOpen(true);
+                  }}
+                >
+                  {String(val ?? '-')}
+                </Typography>
+                {view === 'reconciled' && (
+                  <IconButton
+                    size="small"
+                    sx={{
+                      p: 0.2,
+                      color: themeConfig.colors.slate[400],
+                      '&:hover': { color: themeConfig.colors.primary, backgroundColor: themeConfig.colors.slate[100] }
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCommentsRow(row);
+                      setCommentsDialogOpen(true);
+                    }}
+                  >
+                    <ChatBubbleOutline sx={{ fontSize: 16 }} />
+                  </IconButton>
+                )}
+              </Box>
+            );
+          }
+
+          return (val as string | number) ?? '-';
+        }
+      }));
+  }, [headerData, view, themeConfig]);
+
+  const handleSearchWrapper = useCallback((txNo: string) => {
+    handleGlobalTransactionSearch(txNo);
+  }, [handleGlobalTransactionSearch]);
+
+  const handleSetTransactionNo = useCallback((val: string) => {
+    setSearchFilters(prev => ({ ...prev, transactionNo: val }));
+  }, [setSearchFilters]);
 
   return (
     <Box sx={{ p: 3, pt: 1 }}>
-      <ReconciliationFilters
-        view={view}
-        dateMode={dateMode}
-        setDateMode={setDateMode}
-        searchFilters={searchFilters}
-        setSearchFilters={setSearchFilters}
-        applyFilters={applyFilters}
-        setAdvancedSearchOpen={setAdvancedSearchOpen}
-        daysInView={daysInView}
-      />
-
       <Box sx={{ mb: 4 }}>
         <LocationTabs
           view={view}
           locations={locations}
           activeLocation={activeLocation}
           setActiveLocation={setActiveLocation}
-          ageOpen={ageOpen}
-          setAgeOpen={setAgeOpen}
-          ageRanges={ageRanges}
-          activeAge={activeAge}
-          setActiveAge={setActiveAge}
-          transactionNo={searchFilters.transactionNo || ''}
-          setTransactionNo={(val) => setSearchFilters({ ...searchFilters, transactionNo: val })}
-          handleSearch={handleGlobalTransactionSearch}
         />
         <SummaryStats stats={stats} />
+        {/* <ReconciliationFilters
+          view={view}
+          dateMode={dateMode}
+          setDateMode={setDateMode}
+          searchFilters={searchFilters}
+          setSearchFilters={setSearchFilters}
+          applyFilters={applyFilters}
+          setAdvancedSearchOpen={setAdvancedSearchOpen}
+          activeAge={activeAge}
+          setActiveAge={setActiveAge}
+          ageRanges={ageRanges}
+          daysInView={eachDayOfInterval({ start: startOfMonth(new Date()), end: endOfMonth(new Date()) })}
+        /> */}
       </Box>
 
       {loading ? (
@@ -251,6 +286,11 @@ const ReconciliationScreen: React.FC = () => {
           searchable={false}
           download={false}
           dense={true}
+          onFilterChange={(filters) => {
+            if (view === 'reconciled') {
+              setActiveAge(filters.complexStatus || null);
+            }
+          }}
           getRowStyle={(row) => ({
             backgroundColor: row.isEdited ? themeConfig.colors.slate[50] : 'transparent',
             color: row.isEdited ? themeConfig.colors.primary : 'inherit',
@@ -263,18 +303,43 @@ const ReconciliationScreen: React.FC = () => {
               background: row.isEdited ? themeConfig.colors.slate[100] + ' !important' : themeConfig.colors.slate[50] + ' !important'
             }
           })}
+          customToolbarContent={(
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'nowrap' }}>
+              {view !== 'reconciled' && (
+                <>
+                  <Box sx={{ flexShrink: 0 }}>
+                    <RangeDropdown onChange={handleRangeChange} />
+                  </Box>
+
+                  <TextField
+                    size="small"
+                    placeholder="Search Tx No"
+                    value={searchFilters.transactionNo || ''}
+                    onChange={(e) => handleSetTransactionNo(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearchWrapper(searchFilters.transactionNo || '')}
+                    sx={{
+                      width: '160px',
+                      '& .MuiOutlinedInput-root': {
+                        height: '32px',
+                        borderRadius: '6px',
+                        backgroundColor: '#fff',
+                        fontSize: '12px'
+                      }
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon fontSize="small" sx={{ color: themeConfig.colors.slate[400] }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </>
+              )}
+            </Box>
+          )}
         />
       )}
-
-      {/* Drill-down Dialogs */}
-      <AdvancedSearchDialog
-        open={advancedSearchOpen}
-        onClose={() => setAdvancedSearchOpen(false)}
-        view={view}
-        searchFilters={searchFilters}
-        setSearchFilters={setSearchFilters}
-        onSearch={handleGlobalTransactionSearch}
-      />
 
       <EftDetailsDialog
         view={view}
@@ -285,8 +350,6 @@ const ReconciliationScreen: React.FC = () => {
         setSelectedTxNo={setSelectedTxNo}
         uploadedFileName={uploadedFileName}
         setUploadedFileName={setUploadedFileName}
-        selectedAssignee={selectedAssignee}
-        setSelectedAssignee={setSelectedAssignee}
         setSubmitConfirmOpen={setSubmitConfirmOpen}
         setBaiDataOpen={setBaiDataOpen}
         setPdfPreviewOpen={setPdfPreviewOpen}
@@ -301,23 +364,37 @@ const ReconciliationScreen: React.FC = () => {
         onClose={() => setPdfPreviewOpen(false)}
         txNo={selectedTxNo}
       />
-
       <BaiDataDialog
         open={baiDataOpen}
         onClose={() => setBaiDataOpen(false)}
         txNo={selectedTxNo}
       />
-
       <SubmitConfirmDialog
         open={submitConfirmOpen}
         onClose={() => setSubmitConfirmOpen(false)}
         onConfirm={() => { setSubmitConfirmOpen(false); alert('File uploaded successfully!'); }}
       />
-
+      <AdvancedSearchDialog
+        open={advancedSearchOpen}
+        onClose={() => setAdvancedSearchOpen(false)}
+        view={view}
+        searchFilters={searchFilters}
+        setSearchFilters={setSearchFilters}
+        onSearch={handleSearchWrapper}
+      />
       <CommentsDialog
         open={commentsDialogOpen}
         onClose={() => setCommentsDialogOpen(false)}
         row={commentsRow}
+      />
+      <AssignUserDialog
+        open={assignUserOpen}
+        onClose={() => setAssignUserOpen(false)}
+        txNo={selectedTxNo}
+        onAssign={(user) => {
+          setSelectedAssignee(user);
+          alert(`Transaction ${selectedTxNo} assigned to ${user}`);
+        }}
       />
     </Box>
   );

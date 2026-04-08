@@ -44,7 +44,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             ),
         },
         { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => r.effectiveDate },
-        { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type ?? '', render: (r) => r.type },
+        { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type ?? '', filterOptions: ['PAPER_CHECK', 'EFT', 'CREDIT_CARD'], render: (r) => r.type },
         // { id: 'description', label: 'Description', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         {
             id: 'transactionNo',
@@ -61,7 +61,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Typography>
             ),
         },
-        { id: 'payer', label: 'Payer', minWidth: 180, accessor: (r) => r.payer ?? '', render: (r) => r.payer },
+        { id: 'payer', label: 'Payer', minWidth: 180, accessor: (r) => r.payer ?? '', filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer },
         { id: 'amount', label: 'Amount', minWidth: 110, align: 'right', accessor: (r) => r.amount ?? 0, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount ?? 0)}</Box> },
         { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'right', accessor: (r) => r.openBalance ?? 0, render: (r) => r.openBalance != null ? formatCurrency(r.openBalance) : 'N/A' },
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },

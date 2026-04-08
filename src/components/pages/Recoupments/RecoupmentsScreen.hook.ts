@@ -2,8 +2,9 @@ import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsReloading, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { RecoupmentRecord } from '@/interfaces/financials';
-import { useSearchRecoupmentsQuery } from '@/store/api/financialsApi';
+import { useSearchRecoupmentsQuery, useLazyExportRecoupmentsQuery } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
 
 export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -29,6 +30,8 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
 
     const recoupments = useMemo(() => data?.data?.content ?? [], [data]);
 
+    const [triggerExportRecoupments] = useLazyExportRecoupmentsQuery();
+
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
@@ -38,12 +41,25 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         return () => { dispatch(setIsGlobalFetching(false)); };
     }, [isFetching, dispatch]);
 
-    const handleExport = useCallback((format: 'pdf' | 'xlsx') => {
-        dispatch(setActiveExportType(format));
-        setTimeout(() => {
-            dispatch(setActiveExportType(null));
-        }, 1200);
-    }, [dispatch]);
+    const handleExport = useCallback(async (exportFormat: 'pdf' | 'xlsx') => {
+        dispatch(setActiveExportType(exportFormat));
+        try {
+            const blob = await triggerExportRecoupments({
+                fromDate: queryParams.fromDate,
+                toDate: queryParams.toDate,
+                format: exportFormat
+            }).unwrap();
+            
+            const filename = `recoupments_${queryParams.fromDate}_to_${queryParams.toDate}.${exportFormat}`;
+            downloadFileFromBlob(blob, filename);
+        } catch (error) {
+            console.error('Export failed:', error);
+        } finally {
+            setTimeout(() => {
+                dispatch(setActiveExportType(null));
+            }, 1200);
+        }
+    }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExportRecoupments]);
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
