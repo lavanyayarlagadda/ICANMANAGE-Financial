@@ -69,37 +69,47 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const drawerContent = (
     <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Collections Section */}
-      {/* {canViewCollections && (
+      {getMenuStatus('Collections') !== 'Hidden' && (
         <List disablePadding>
           <Tooltip title={sidebarCollapsed ? 'Collections' : ''} placement="right">
-            <ListItemButton
-              disabled={getMenuStatus('Collections') === MENU_STATUS.DISABLED}
-              selected={ui.activePage === 'collections'}
-              onClick={() => getMenuStatus('Collections') !== MENU_STATUS.DISABLED && handleNavClick('collections')}
-              sx={NavItemStyles(sidebarCollapsed, theme)}
-            >
-              <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}><ReceiptLongIcon fontSize="small" /></ListItemIcon>
-              {!sidebarCollapsed && <ListItemText primary="Collections" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
-            </ListItemButton>
+            <span>
+              <ListItemButton
+                disabled={getMenuStatus('Collections') === 'Disabled'}
+                selected={ui.activePage === 'collections'}
+                onClick={() => handleNavClick('collections')}
+                sx={NavItemStyles(sidebarCollapsed, theme)}
+              >
+                <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}>
+                  <ReceiptLongIcon fontSize="small" />
+                </ListItemIcon>
+                {!sidebarCollapsed && <ListItemText primary="Collections" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
+              </ListItemButton>
+            </span>
           </Tooltip>
         </List>
-      )} */}
+      )}
 
-      {/* <Divider sx={{ mx: sidebarCollapsed ? 0.5 : 2, my: 1 }} /> */}
+      {getMenuStatus('Collections') !== 'Hidden' && getMenuStatus('Financials') !== 'Hidden' && (
+        <Divider sx={{ mx: sidebarCollapsed ? 0.5 : 2, my: 1 }} />
+      )}
 
       {/* Financials Section */}
-      {canViewFinancials && (
+      {getMenuStatus('Financials') !== 'Hidden' && (
         <List disablePadding>
           <Tooltip title={sidebarCollapsed ? 'Financials' : ''} placement="right">
-            <ListItemButton
-              disabled={getMenuStatus('Financials') === MENU_STATUS.DISABLED}
-              selected={ui.activePage === 'financials'}
-              onClick={() => getMenuStatus('Financials') !== MENU_STATUS.DISABLED && handleNavClick('financials', '/financials/payments')}
-              sx={NavItemStyles(sidebarCollapsed, theme)}
-            >
-              <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}><AccountBalanceIcon fontSize="small" /></ListItemIcon>
-              {!sidebarCollapsed && <ListItemText primary="Financials" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
-            </ListItemButton>
+            <span>
+              <ListItemButton
+                disabled={getMenuStatus('Financials') === 'Disabled'}
+                selected={ui.activePage === 'financials'}
+                onClick={() => handleNavClick('financials', '/financials/all-transactions')}
+                sx={NavItemStyles(sidebarCollapsed, theme)}
+              >
+                <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}>
+                  <AccountBalanceIcon fontSize="small" />
+                </ListItemIcon>
+                {!sidebarCollapsed && <ListItemText primary="Financials" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
+              </ListItemButton>
+            </span>
           </Tooltip>
         </List>
       )}

@@ -2,6 +2,7 @@ import { useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 export const mainTabs = [
   { id: 0, label: 'Transactions', path: '/financials/all-transactions' },
@@ -9,25 +10,25 @@ export const mainTabs = [
   { id: 2, label: 'Statements', path: '/financials/statements/pip' },
   { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis/fee-schedule' },
   { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast/forecast' },
-  { id: 5, label: 'Reconciliation', path: '/financials/reconciliation/unreconciled' },
+  // { id: 5, label: 'Reconciliation', path: '/financials/reconciliation/unreconciled' },
 ];
 
-export const reconciliationSubTabs = [
-  { id: 0, label: 'Unreconciled', path: '/financials/reconciliation/unreconciled' },
-  { id: 1, label: 'Reconciled', path: '/financials/reconciliation/reconciled' },
-  { id: 2, label: 'My Queue', path: '/financials/reconciliation/my-queue' },
-];
+// export const reconciliationSubTabs = [
+//   { id: 0, label: 'Unreconciled', path: '/financials/reconciliation/unreconciled' },
+//   { id: 1, label: 'Reconciled', path: '/financials/reconciliation/reconciled' },
+//   { id: 2, label: 'My Queue', path: '/financials/reconciliation/my-queue' },
+// ];
 
 export const transactionSubTabs = [
   { id: 0, label: 'All Transactions', path: '/financials/all-transactions' },
   { id: 1, label: 'Payments', path: '/financials/payments' },
   { id: 2, label: 'Recoupments', path: '/financials/recoupments' },
-  { id: 3, label: 'Adjustments', path: '/financials/other-adjustments' },
+  { id: 3, label: 'Other Adjustments', path: '/financials/other-adjustments' },
 ];
 
 export const statementsSubTabs = [
-  { id: 0, label: 'PIP Statements', path: '/financials/statements/pip' },
-  { id: 1, label: 'Forward Balance', path: '/financials/statements/forward-balance' },
+  { id: 0, label: 'PIP', path: '/financials/statements/pip' },
+  { id: 1, label: 'Forward Balances', path: '/financials/statements/forward-balance' },
   { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts' },
 ];
 
@@ -59,6 +60,8 @@ export const useFinancialsTabs = ({
   const { activeTab, activeSubTab, isReloading } = useAppSelector((s) => s.ui);
   const user = useAppSelector((s) => s.auth.user);
   const { selectedTenantId } = useAppSelector((s) => s.tenant);
+
+  const { getMenuStatus } = useUserPermissions();
 
   const isMindPath = useMemo(
     () =>
@@ -93,10 +96,6 @@ export const useFinancialsTabs = ({
       if (path.includes('/forecast')) dispatch(setActiveSubTab(0));
       else if (path.includes('/summary')) dispatch(setActiveSubTab(1));
       else if (path.includes('/payer-performance')) dispatch(setActiveSubTab(2));
-    } else if (path.includes('/reconciliation')) {
-      dispatch(setActiveTab(5));
-      const subIndex = reconciliationSubTabs.findIndex(st => path.includes(st.path));
-      dispatch(setActiveSubTab(subIndex !== -1 ? subIndex : 0));
     }
   }, [location.pathname, dispatch]);
 
@@ -110,14 +109,33 @@ export const useFinancialsTabs = ({
   }, [activeTab, isMindPath, navigate, location.pathname]);
 
   const handleMainTabChange = useCallback((index: number, path: string) => {
+    if (getMenuStatus(mainTabs[index].label, 'Financials') === 'Disabled') return;
     dispatch(setActiveTab(index));
     navigate(path);
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, getMenuStatus]);
 
   const handleSubTabChange = useCallback((index: number, path: string) => {
+    // Determine the relevant sub-tab label for the click handler
+    let label = '';
+    const currentSubTabs =
+      activeTab === 0 ? transactionSubTabs :
+        activeTab === 2 ? statementsSubTabs :
+          activeTab === 3 ? varianceSubTabs :
+            activeTab === 4 ? trendsSubTabs : [];
+    
+    label = currentSubTabs[index]?.label || '';
+    
+    const parentLabel = 
+      activeTab === 0 ? 'Transactions' :
+      activeTab === 2 ? 'Statements' :
+      activeTab === 3 ? 'Variance Analysis' :
+      activeTab === 4 ? 'Trends & Forecast' : 'Financials';
+
+    if (getMenuStatus(label, parentLabel) === 'Disabled') return;
+
     dispatch(setActiveSubTab(index));
     navigate(path);
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, activeTab, getMenuStatus]);
 
   const canShowActions = useMemo(() => activeTab === 0 || activeTab === 2 || activeTab === 3 || activeTab === 5, [activeTab]);
   const shouldShowPrint = showPrint ?? canShowActions;
@@ -129,8 +147,25 @@ export const useFinancialsTabs = ({
   const showSubTabsRow = hasSubTabs || hasActions;
 
   const filteredMainTabs = useMemo(() => {
-    return mainTabs.filter(tab => !(tab.id === 2 && isMindPath));
-  }, [isMindPath]);
+    return mainTabs.filter((tab) => {
+      // Containers that don't directly map to a single security module 
+      // but should be visible if Financials is accessible.
+      if (['Transactions', 'Bank Deposits', 'Statements'].includes(tab.label)) {
+        if (getMenuStatus('Financials') === 'Hidden') return false;
+        if (tab.id === 2 && isMindPath) return false;
+        return true;
+      }
+
+      const status = getMenuStatus(tab.label, 'Financials');
+      if (status === 'Hidden') return false;
+      return true;
+    });
+  }, [isMindPath, getMenuStatus]);
+
+  const filteredTransactionSubTabs = useMemo(() => transactionSubTabs.filter(st => getMenuStatus(st.label, 'Transactions') !== 'Hidden'), [getMenuStatus]);
+  const filteredStatementsSubTabs = useMemo(() => statementsSubTabs.filter(st => getMenuStatus(st.label, 'Statements') !== 'Hidden' && !(st.label === 'PIP' && isMindPath)), [getMenuStatus, isMindPath]);
+  const filteredVarianceSubTabs = useMemo(() => varianceSubTabs.filter(st => getMenuStatus(st.label, 'Variance Analysis') !== 'Hidden'), [getMenuStatus]);
+  const filteredTrendsSubTabs = useMemo(() => trendsSubTabs.filter(st => getMenuStatus(st.label, 'Trends & Forecast') !== 'Hidden'), [getMenuStatus]);
 
   return {
     activeTab,
@@ -142,7 +177,12 @@ export const useFinancialsTabs = ({
     shouldShowExport,
     showSubTabsRow,
     filteredMainTabs,
+    filteredTransactionSubTabs,
+    filteredStatementsSubTabs,
+    filteredVarianceSubTabs,
+    filteredTrendsSubTabs,
     handleMainTabChange,
     handleSubTabChange,
+    getMenuStatus
   };
 };

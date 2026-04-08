@@ -3,7 +3,7 @@ import { Box, Typography, useTheme, useMediaQuery, Select, MenuItem, SelectChang
 import Button from '@/components/atoms/Button/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { useFinancialsTabs, mainTabs, transactionSubTabs, statementsSubTabs, varianceSubTabs, trendsSubTabs, reconciliationSubTabs } from './FinancialsTabs.hook';
+import { useFinancialsTabs, mainTabs, transactionSubTabs, statementsSubTabs, varianceSubTabs, trendsSubTabs } from './FinancialsTabs.hook';
 import { themeConfig } from '@/theme/themeConfig';
 import * as styles from './FinancialsTabs.styles';
 
@@ -31,8 +31,13 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
     shouldShowExport,
     showSubTabsRow,
     filteredMainTabs,
+    filteredTransactionSubTabs,
+    filteredStatementsSubTabs,
+    filteredVarianceSubTabs,
+    filteredTrendsSubTabs,
     handleMainTabChange,
     handleSubTabChange,
+    getMenuStatus,
   } = useFinancialsTabs(props);
 
   return (
@@ -55,7 +60,12 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 sx={styles.tabletSelectStyles(theme)}
               >
                 {filteredMainTabs.map((tab) => (
-                  <MenuItem key={tab.id} value={tab.id} sx={{ fontWeight: 500, fontSize: '14px' }}>
+                  <MenuItem
+                    key={tab.id}
+                    value={tab.id}
+                    disabled={getMenuStatus(tab.label, 'Financials') === 'Disabled'}
+                    sx={{ fontWeight: 500, fontSize: '14px' }}
+                  >
                     {tab.label}
                   </MenuItem>
                 ))}
@@ -78,14 +88,14 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 '& .MuiTabs-flexContainer': { gap: 0.5 },
                 '& .MuiTabs-scroller': { overflow: 'hidden !important' },
                 '& .MuiTabs-scrollButtons': {
-                    width: '32px',
-                    borderRadius: '4px',
-                    backgroundColor: alpha(themeConfig.colors.slate[100], 0.8),
-                    mx: 0.5,
-                    color: themeConfig.colors.primary,
-                    transition: 'all 0.2s',
-                    '&:hover': { backgroundColor: themeConfig.colors.slate[200] },
-                    '&.Mui-disabled': { display: 'none' }
+                  width: '32px',
+                  borderRadius: '4px',
+                  backgroundColor: alpha(themeConfig.colors.slate[100], 0.8),
+                  mx: 0.5,
+                  color: themeConfig.colors.primary,
+                  transition: 'all 0.2s',
+                  '&:hover': { backgroundColor: themeConfig.colors.slate[200] },
+                  '&.Mui-disabled': { display: 'none' }
                 },
                 '& .MuiTab-root': {
                   minHeight: '40px',
@@ -96,18 +106,22 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 }
               }}
             >
-              {filteredMainTabs.map((tab) => (
-                <Tab
-                  key={tab.id}
-                  value={tab.id}
-                  label={
-                    <Box sx={styles.mainTabItemStyles(activeTab === tab.id)}>
-                      {tab.label}
-                    </Box>
-                  }
-                  disableRipple
-                />
-              ))}
+              {filteredMainTabs.map((tab) => {
+                const isDisabled = getMenuStatus(tab.label, 'Financials') === 'Disabled';
+                return (
+                  <Tab
+                    key={tab.id}
+                    value={tab.id}
+                    disabled={isDisabled}
+                    label={
+                      <Box sx={styles.mainTabItemStyles(activeTab === tab.id, isDisabled)}>
+                        {tab.label}
+                      </Box>
+                    }
+                    disableRipple
+                  />
+                );
+              })}
             </Tabs>
           )}
         </Box>
@@ -123,11 +137,10 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
               allowScrollButtonsMobile
               onChange={(_, val) => {
                 const currentSubTabs =
-                  activeTab === 0 ? transactionSubTabs :
-                    activeTab === 2 ? statementsSubTabs.filter(st => !(st.label === 'PIP Statements' && isMindPath)) :
-                      activeTab === 3 ? varianceSubTabs :
-                        activeTab === 4 ? trendsSubTabs :
-                          activeTab === 5 ? reconciliationSubTabs : [];
+                  activeTab === 0 ? filteredTransactionSubTabs :
+                    activeTab === 2 ? filteredStatementsSubTabs :
+                      activeTab === 3 ? filteredVarianceSubTabs :
+                        activeTab === 4 ? filteredTrendsSubTabs : [];
 
                 const subTab = currentSubTabs.find(st => st.id === val);
                 if (subTab) handleSubTabChange(subTab.id, subTab.path);
@@ -138,11 +151,11 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 '& .MuiTabs-indicator': { display: 'none' },
                 '& .MuiTabs-flexContainer': { gap: 1 },
                 '& .MuiTabs-scrollButtons': {
-                    width: '28px',
-                    borderRadius: '4px',
-                    backgroundColor: alpha(themeConfig.colors.slate[100], 0.3),
-                    transition: 'all 0.2s',
-                    '&.Mui-disabled': { display: 'none' }
+                  width: '28px',
+                  borderRadius: '4px',
+                  backgroundColor: alpha(themeConfig.colors.slate[100], 0.3),
+                  transition: 'all 0.2s',
+                  '&.Mui-disabled': { display: 'none' }
                 },
                 '& .MuiTab-root': {
                   minHeight: 'auto',
@@ -153,68 +166,70 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 }
               }}
             >
-              {activeTab === 0 && transactionSubTabs.map((subTab) => (
-                <Tab
-                  key={subTab.id}
-                  value={subTab.id}
-                  label={
-                    <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                      {subTab.label}
-                    </Box>
-                  }
-                  disableRipple
-                />
-              ))}
-              {activeTab === 2 && statementsSubTabs
-                .filter(subTab => !(subTab.label === 'PIP Statements' && isMindPath))
-                .map((subTab) => (
+              {activeTab === 0 && filteredTransactionSubTabs.map((subTab) => {
+                const isDisabled = getMenuStatus(subTab.label, 'Transactions') === 'Disabled';
+                return (
                   <Tab
                     key={subTab.id}
                     value={subTab.id}
+                    disabled={isDisabled}
                     label={
-                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
+                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, isDisabled)}>
                         {subTab.label}
                       </Box>
                     }
                     disableRipple
                   />
-                ))}
-              {activeTab === 3 && varianceSubTabs.map((subTab) => (
-                <Tab
-                  key={subTab.id}
-                  value={subTab.id}
-                  label={
-                    <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                      {subTab.label}
-                    </Box>
-                  }
-                  disableRipple
-                />
-              ))}
-              {activeTab === 4 && trendsSubTabs.map((subTab) => (
-                <Tab
-                  key={subTab.id}
-                  value={subTab.id}
-                  label={
-                    <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                      {subTab.label}
-                    </Box>
-                  }
-                  disableRipple
-                />
-              ))}
-              {activeTab === 5 && reconciliationSubTabs.map((subTab) => (
-                <Tab
-                  key={subTab.id}
-                  value={subTab.id}
-                  label={
-                    <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                      {subTab.label}
-                    </Box>
-                  }
-                  disableRipple
-                />
-              ))}
+                );
+              })}
+              {activeTab === 2 && filteredStatementsSubTabs.map((subTab) => {
+                const isDisabled = getMenuStatus(subTab.label, 'Statements') === 'Disabled';
+                return (
+                  <Tab
+                    key={subTab.id}
+                    value={subTab.id}
+                    disabled={isDisabled}
+                    label={
+                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, isDisabled)}>
+                        {subTab.label}
+                      </Box>
+                    }
+                    disableRipple
+                  />
+                );
+              })}
+              {activeTab === 3 && filteredVarianceSubTabs.map((subTab) => {
+                const isDisabled = getMenuStatus(subTab.label, 'Variance Analysis') === 'Disabled';
+                return (
+                  <Tab
+                    key={subTab.id}
+                    value={subTab.id}
+                    disabled={isDisabled}
+                    label={
+                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, isDisabled)}>
+                        {subTab.label}
+                      </Box>
+                    }
+                    disableRipple
+                  />
+                );
+              })}
+              {activeTab === 4 && filteredTrendsSubTabs.map((subTab) => {
+                const isDisabled = getMenuStatus(subTab.label, 'Trends & Forecast') === 'Disabled';
+                return (
+                  <Tab
+                    key={subTab.id}
+                    value={subTab.id}
+                    disabled={isDisabled}
+                    label={
+                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, isDisabled)}>
+                        {subTab.label}
+                      </Box>
+                    }
+                    disableRipple
+                  />
+                );
+              })}
             </Tabs>
           </Box>
 

@@ -6,7 +6,7 @@ import {
   IconButton,
   MenuItem,
 } from '@mui/material';
-import { ChatBubbleOutline } from '@mui/icons-material';
+import { ChatBubbleOutline, InsertComment } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { formatCurrency } from '@/utils/formatters';
@@ -168,7 +168,7 @@ const ReconciliationScreen: React.FC = () => {
                     setCommentsDialogOpen(true);
                   }}
                 >
-                  <ChatBubbleOutline fontSize="small" />
+                  <InsertComment fontSize="small" />
                 </IconButton>
               </Box>
             );
@@ -227,7 +227,7 @@ const ReconciliationScreen: React.FC = () => {
                       setCommentsDialogOpen(true);
                     }}
                   >
-                    <ChatBubbleOutline sx={{ fontSize: 16 }} />
+                    <InsertComment sx={{ fontSize: 16 }} />
                   </IconButton>
                 )}
               </Box>

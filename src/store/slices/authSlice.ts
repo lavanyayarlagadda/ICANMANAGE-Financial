@@ -7,6 +7,7 @@ export interface MenuAccess {
     menuName: string;
     status: MenuStatus;
     subModules?: MenuAccess[];
+    modules?: MenuAccess[];
 }
 
 export interface User {
@@ -30,6 +31,7 @@ const menuAccessSchema: z.ZodType<MenuAccess> = z.object({
     menuName: z.string(),
     status: menuStatusSchema,
     subModules: z.lazy(() => z.array(menuAccessSchema)).optional(),
+    modules: z.lazy(() => z.array(menuAccessSchema)).optional(),
 }).passthrough() as any;
 
 const userSchema: z.ZodType<User> = z.object({
@@ -111,6 +113,10 @@ const authSlice = createSlice({
             localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
             localStorage.setItem(TOKEN_KEY, accessToken);
             localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+
+            if (user.inactivityTimeout) {
+                localStorage.setItem('ican_inactivity_timeout', user.inactivityTimeout);
+            }
         },
         updateToken(state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) {
             state.accessToken = action.payload.accessToken;
