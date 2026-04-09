@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { financialsApi } from '@/store/api/financialsApi';
@@ -23,7 +23,12 @@ export const useDashboardLayout = () => {
     const isWaitingForTenants = permissions.isCognitiveUser && !tenant.selectedTenantId && tenant.tenants.length === 0;
     const isOverlayActive = ui.activeExportType || ui.isReloading || ui.isDrillingDown || ui.isGlobalFetching || financials.loading || tenant.isLoading || isWaitingForTenants;
 
+    const isFirstRender = useRef(true);
     useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
         if (tenant.selectedTenantId) {
             dispatch(financialsApi.util.invalidateTags(['Financials']));
         }

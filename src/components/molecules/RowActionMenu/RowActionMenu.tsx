@@ -16,7 +16,7 @@ export interface ActionMenuItem {
 }
 
 interface RowActionMenuProps {
-  onView: () => void;
+  onView?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
   extraActions?: ActionMenuItem[];
@@ -46,10 +46,12 @@ const RowActionMenu: React.FC<RowActionMenuProps> = ({ onView, onEdit, onDelete,
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         slotProps={{ paper: { sx: styles.menuPaperProps } }}
       >
-        <MenuItem onClick={() => handleAction(onView)}>
-          <ListItemIcon><VisibilityIcon fontSize="small" /></ListItemIcon>
-          <ListItemText>View Details</ListItemText>
-        </MenuItem>
+        {onView &&
+          <MenuItem onClick={() => handleAction(onView)}>
+            <ListItemIcon><VisibilityIcon fontSize="small" /></ListItemIcon>
+            <ListItemText>View Details</ListItemText>
+          </MenuItem>
+        }
         {onEdit && (
           <MenuItem onClick={() => handleAction(onEdit)}>
             <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>

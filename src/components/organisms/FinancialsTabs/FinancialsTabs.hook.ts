@@ -68,37 +68,8 @@ export const useFinancialsTabs = ({
   );
 
   useEffect(() => {
-    const path = location.pathname;
-    if (path.includes('/all-transactions') || path.includes('/payments') || path.includes('/recoupments') || path.includes('/other-adjustments')) {
-      dispatch(setActiveTab(0));
-      const subIndex = transactionSubTabs.findIndex(st => path.includes(st.path));
-      if (subIndex !== -1) dispatch(setActiveSubTab(subIndex));
-    } else if (path.includes('/collections')) {
-      dispatch(setActiveTab(0));
-      dispatch(setActiveSubTab(1));
-    } else if (path.includes('/bank-deposits')) {
-      dispatch(setActiveTab(1));
-      dispatch(setActiveSubTab(0));
-    } else if (path.includes('/statements') || path.includes('/pip')) {
-      dispatch(setActiveTab(2));
-      if (path.includes('/pip')) dispatch(setActiveSubTab(0));
-      else if (path.includes('/forward-balance')) dispatch(setActiveSubTab(1));
-      else if (path.includes('/suspense-accounts')) dispatch(setActiveSubTab(2));
-    } else if (path.includes('/variance-analysis')) {
-      dispatch(setActiveTab(3));
-      if (path.includes('/fee-schedule')) dispatch(setActiveSubTab(0));
-      else if (path.includes('/payment')) dispatch(setActiveSubTab(1));
-    } else if (path.includes('/trends-forecast')) {
-      dispatch(setActiveTab(4));
-      if (path.includes('/forecast')) dispatch(setActiveSubTab(0));
-      else if (path.includes('/summary')) dispatch(setActiveSubTab(1));
-      else if (path.includes('/payer-performance')) dispatch(setActiveSubTab(2));
-    } else if (path.includes('/reconciliation')) {
-      dispatch(setActiveTab(5));
-      const subIndex = reconciliationSubTabs.findIndex(st => path.includes(st.path));
-      dispatch(setActiveSubTab(subIndex !== -1 ? subIndex : 0));
-    }
-  }, [location.pathname, dispatch]);
+    // Rely on FinancialsPage to sync path with activeTab/SubTab to avoid redundancy
+  }, []);
 
   useEffect(() => {
     const pathPart = location.pathname.split('/financials/')[1] || '';
@@ -110,23 +81,24 @@ export const useFinancialsTabs = ({
   }, [activeTab, isMindPath, navigate, location.pathname]);
 
   const handleMainTabChange = useCallback((index: number, path: string) => {
-    dispatch(setActiveTab(index));
+    if (activeTab !== index) dispatch(setActiveTab(index));
     navigate(path);
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, activeTab]);
 
   const handleSubTabChange = useCallback((index: number, path: string) => {
-    dispatch(setActiveSubTab(index));
+    if (activeSubTab !== index) dispatch(setActiveSubTab(index));
     navigate(path);
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, activeSubTab]);
 
-  const canShowActions = useMemo(() => activeTab === 0 || activeTab === 2 || activeTab === 3 || activeTab === 5, [activeTab]);
-  const shouldShowPrint = showPrint ?? canShowActions;
+  const isExecutiveSummary = activeTab === 4 && activeSubTab === 1;
+  const canShowActions = useMemo(() => [0, 1, 2, 3, 4, 5].includes(activeTab), [activeTab]);
+  const shouldShowPrint = showPrint ?? (canShowActions && !isExecutiveSummary);
   const shouldShowReload = showReload ?? canShowActions;
-  const shouldShowExport = showExportWizard ?? canShowActions;
+  const shouldShowExport = showExportWizard ?? (canShowActions && !isExecutiveSummary);
 
   const hasSubTabs = useMemo(() => [0, 2, 3, 4, 5].includes(activeTab), [activeTab]);
   const hasActions = shouldShowPrint || shouldShowReload || shouldShowExport;
-  const showSubTabsRow = hasSubTabs || hasActions;
+  const showSubTabsRow = (hasSubTabs || hasActions) && activeTab !== -1;
 
   const filteredMainTabs = useMemo(() => {
     return mainTabs.filter(tab => !(tab.id === 2 && isMindPath));
@@ -141,6 +113,7 @@ export const useFinancialsTabs = ({
     shouldShowReload,
     shouldShowExport,
     showSubTabsRow,
+    hasSubTabs,
     filteredMainTabs,
     handleMainTabChange,
     handleSubTabChange,

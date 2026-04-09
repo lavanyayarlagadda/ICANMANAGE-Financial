@@ -16,7 +16,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         adjustments,
         totalElements,
         queryParams,
-        handleView,
+        handleDrillDown,
         handleEdit,
         handleDelete,
         handleRangeChange,
@@ -33,13 +33,13 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
-                    onView={() => handleView(r)}
+                    onView={() => handleDrillDown(r)}
                 // onEdit={() => handleEdit(r)}
                 // onDelete={() => handleDelete(r.id)}
                 />
             ),
         },
-        { id: 'adjustmentId', label: 'Adjustment ID', minWidth: 140, accessor: (r) => r.adjustmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.adjustmentId}</Typography> },
+        { id: 'adjustmentId', label: 'Transaction Number', minWidth: 160, accessor: (r) => r.adjustmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.adjustmentId}</Typography> },
         { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
         {
             id: 'type',
@@ -65,7 +65,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         },
         { id: 'referenceId', label: 'Reference ID', minWidth: 110, accessor: (r) => r.referenceId, render: (r) => r.referenceId },
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Applied', 'Pending', 'Under Review'], render: (r) => <StatusBadge status={r.status} /> },
-    ], [theme, handleView, handleEdit, handleDelete]);
+    ], [theme, handleDrillDown, handleEdit, handleDelete]);
 
     if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading adjustments.</Box>;
 

@@ -165,7 +165,7 @@ export interface RecoupmentRecord {
   recoupmentId: string;
   payer: string;
   claimId: string;
-  patientName: string;
+  claimPatient: string;
   originalPaymentAmount: number;
   recoupmentAmount: number;
   recoupmentDate: string;

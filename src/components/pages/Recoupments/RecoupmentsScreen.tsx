@@ -18,7 +18,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         totalElements,
         queryParams,
         stats,
-        handleView,
+        handleDrillDown,
         handleEdit,
         handleDelete,
         handleRangeChange,
@@ -35,23 +35,30 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
-                    onView={() => handleView(r)}
+                    onView={() => handleDrillDown(r as any)}
                 // onEdit={() => handleEdit(r)}
                 // onDelete={() => handleDelete(r.id)}
                 />
             ),
         },
         { id: 'recoupmentId', label: 'Recoupment ID', minWidth: 140, accessor: (r) => r.recoupmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.recoupmentId}</Typography> },
+        {
+            id: 'transactionNo',
+            label: 'Transaction Number',
+            minWidth: 160,
+            accessor: (r) => (r as any).transactionNo ?? '-',
+            render: (r) => (r as any).transactionNo ?? '-'
+        },
         { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer },
         {
             id: 'claim',
             label: 'Claim / Patient',
             minWidth: 180,
-            accessor: (r) => r.patientName,
+            accessor: (r) => r.claimPatient,
             render: (r) => (
                 <Box>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.claimId}</Typography>
-                    <Typography variant="caption" color="text.secondary">{r.patientName}</Typography>
+                    {/* <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.claimId}</Typography> */}
+                    <Typography variant="caption" color="text.secondary">{r.claimPatient}</Typography>
                 </Box>
             ),
         },
@@ -81,7 +88,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         },
         // { id: 'description', label: 'Description', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
-    ], [theme, handleView, handleEdit, handleDelete]);
+    ], [theme, handleDrillDown, handleEdit, handleDelete]);
 
     if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading recoupments.</Box>;
 

@@ -37,6 +37,13 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             ),
         },
         { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => r.effectiveDate },
+        { 
+            id: 'transactionNo', 
+            label: 'Transaction Number', 
+            minWidth: 160, 
+            accessor: (r) => (r as any).transactionNo ?? '-', 
+            render: (r) => (r as any).transactionNo ?? '-' 
+        },
         {
             id: 'transactionType',
             label: 'Category',

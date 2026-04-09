@@ -23,6 +23,7 @@ import { useTrendsScreen } from './TrendsScreen.hook';
 
 import { ForecastDashboardResponse } from '@/interfaces/api';
 import { PayerPerformanceRecord } from '@/interfaces/financials';
+import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 
 const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
@@ -38,7 +39,8 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         totalElementsPayer,
         handleRangeChange,
         handlePageChange,
-        handleRowsPerPageChange
+        handleRowsPerPageChange,
+        handleDrillDown
     } = useTrendsScreen({ skip });
 
     const teamColumns = useMemo<DataColumn<ForecastDashboardResponse['data'][0]>[]>(() => [
@@ -108,11 +110,29 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 paginated={false}
                 searchable={false}
                 dictionaryId="forecast-trends"
+                download={false}
             />
         </>
     ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns]);
 
     const payerColumns = useMemo<DataColumn<PayerPerformanceRecord>[]>(() => [
+        {
+            id: 'actions',
+            label: 'Actions',
+            minWidth: 60,
+            render: (r) => (
+                <RowActionMenu
+                    onView={() => handleDrillDown(r)}
+                />
+            ),
+        },
+        { 
+            id: 'transactionNo', 
+            label: 'TRANSACTION #', 
+            minWidth: 140, 
+            accessor: (row) => row.id, 
+            render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.id}</Typography> 
+        },
         { id: 'payerName', label: 'PAYOR', minWidth: 150, accessor: (row) => row.payerName, render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{row.payerName}</Typography> },
         { id: 'volume', label: 'VOLUME', align: 'right', render: (row) => row.volume, accessor: (row) => row.volume },
         { id: 'depositCount', label: 'DEPOSITS', align: 'right', render: (row) => row.depositCount, accessor: (row) => row.depositCount },
@@ -146,7 +166,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             ),
             accessor: (row) => row.status,
         },
-    ], [theme]);
+    ], [theme, handleDrillDown]);
 
     const payerPerformanceContent = useMemo(() => (
         <>
@@ -164,7 +184,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 onPageChange={handlePageChange}
                 onRowsPerPageChange={handleRowsPerPageChange}
                 dictionaryId="payer-performance"
-                download
+                download={false}
             />
         </>
     ), [payerPerformanceRecords, totalElementsPayer, handlePageChange, handleRowsPerPageChange, payerColumns]);

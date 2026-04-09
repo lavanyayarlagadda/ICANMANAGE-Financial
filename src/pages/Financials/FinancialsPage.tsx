@@ -85,7 +85,7 @@ const FinancialsPage: React.FC = () => {
             <IconButton onClick={handleBackToPayments} size="small" sx={{ border: `1px solid ${theme.palette.divider}` }}>
               <ArrowBackIcon fontSize="small" />
             </IconButton>
-            <BackText>Back to Payments</BackText>
+            <BackText>Back</BackText>
           </BackButtonWrapper>
           <RemittanceDetailScreen />
         </Box>

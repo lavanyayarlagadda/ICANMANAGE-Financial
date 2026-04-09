@@ -30,10 +30,15 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             render: (r) => (
                 <RowActionMenu
                     onView={() => handleDrillDown(r)}
-                // onEdit={() => handleEdit(r)}
-                // onDelete={() => handleDelete(r.id)}
                 />
             ),
+        },
+        {
+            id: 'transactionNo',
+            label: 'TRANSACTION #',
+            minWidth: 140,
+            accessor: (r) => (r as any).claimId || (r as any).id || '-',
+            render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{(r as any).claimId || (r as any).id || '-'}</Typography>
         },
         {
             id: 'paymentDate',
@@ -60,7 +65,6 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             accessor: (r) => r.payerName || '',
             render: (r) => <Typography variant="body2">{r.payerName}</Typography>
         },
-        // { id: 'description', label: 'DESCRIPTION', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => <Typography variant="body2">{r.description ?? '-'}</Typography> },
         {
             id: 'expectedAllowed',
             label: 'EXPECTED ALLOWED',

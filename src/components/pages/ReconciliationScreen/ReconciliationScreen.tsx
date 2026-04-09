@@ -12,6 +12,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { formatCurrency } from '@/utils/formatters';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { useReconciliation, ReconciliationStatus, ReconciliationRow } from './ReconciliationScreen.hook';
+import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { HighlightCell } from './ReconciliationScreen.styles';
 import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { themeConfig } from '@/theme/themeConfig';
@@ -136,41 +137,32 @@ const ReconciliationScreen: React.FC = () => {
 
           if (header.id === 'actions') {
             return (
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <IconButton
-                  size="small"
-                  color="info"
-                  sx={{ '&:hover': { backgroundColor: 'info.light' } }}
-                  onClick={() => {
-                    setSelectedRow(row);
-                    setSelectedTxNo(row.transactionNo);
-                    setEditDialogOpen(true);
-                  }}
-                >
-                  <EditIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  sx={{ color: themeConfig.colors.slate[600] }}
-                  onClick={() => {
-                    setSelectedRow(row);
-                    setSelectedTxNo(row.transactionNo);
-                    setAssignUserOpen(true);
-                  }}
-                >
-                  <PersonAddIcon fontSize="small" />
-                </IconButton>
-                <IconButton
-                  size="small"
-                  sx={{ color: themeConfig.colors.primary }}
-                  onClick={() => {
-                    setCommentsRow(row);
-                    setCommentsDialogOpen(true);
-                  }}
-                >
-                  <ChatBubbleOutline fontSize="small" />
-                </IconButton>
-              </Box>
+              <RowActionMenu
+                onEdit={() => {
+                  setSelectedRow(row);
+                  setSelectedTxNo(row.transactionNo);
+                  setEditDialogOpen(true);
+                }}
+                extraActions={[
+                  {
+                    label: 'Assign User',
+                    icon: <PersonAddIcon fontSize="small" />,
+                    onClick: () => {
+                      setSelectedRow(row);
+                      setSelectedTxNo(row.transactionNo);
+                      setAssignUserOpen(true);
+                    }
+                  },
+                  {
+                    label: 'Comment',
+                    icon: <ChatBubbleOutline fontSize="small" />,
+                    onClick: () => {
+                      setCommentsRow(row);
+                      setCommentsDialogOpen(true);
+                    }
+                  }
+                ]}
+              />
             );
           }
 

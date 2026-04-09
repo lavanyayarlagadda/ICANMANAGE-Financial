@@ -97,13 +97,15 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     const handleDrillDown = useCallback(async (row: PaymentTransaction) => {
         try {
             dispatch(setGlobalDrillingDown(true));
-            if (row.transactionNo) {
-                dispatch(setSelectedPaymentId(row.transactionNo));
-                
+            const identifier = row.transactionNo || row.id || '';
+            if (identifier) {
+                dispatch(setSelectedPaymentId(identifier));
+
+                // Call both APIs simultaneously
                 const [claimResult] = await Promise.all([
                     triggerGetRemittance({
-                        claimId: row.transactionNo,
-                        page: drillDownParams.page,
+                        claimId: identifier,
+                        page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
                         desc: drillDownParams.sortOrder === 'desc'
@@ -111,9 +113,9 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
                     triggerSearchServiceLines({
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
-                        sort: 'lineNumber', // Service lines usually sorted by line number by default
-                        desc: false,
-                        check: row.transactionNo
+                        sort: drillDownParams.sortField,
+                        desc: drillDownParams.sortOrder === 'desc',
+                        check: identifier
                     }).unwrap()
                 ]);
 

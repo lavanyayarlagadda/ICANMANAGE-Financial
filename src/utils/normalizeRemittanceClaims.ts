@@ -10,7 +10,7 @@ export const isRemittanceDetail = (value: unknown): value is RemittanceDetail =>
   return (
     typeof candidate.paymentDate === 'string' &&
     typeof candidate.transactionNo === 'string' &&
-    typeof candidate.paymentAmount === 'number' &&
+    (typeof candidate.paymentAmount === 'number' || typeof candidate.paymentAmount === 'string') &&
     typeof candidate.payerName === 'string'
   );
 };

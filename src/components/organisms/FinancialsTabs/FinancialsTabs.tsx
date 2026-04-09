@@ -30,6 +30,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
     shouldShowReload,
     shouldShowExport,
     showSubTabsRow,
+    hasSubTabs,
     filteredMainTabs,
     handleMainTabChange,
     handleSubTabChange,
@@ -116,58 +117,45 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
       {showSubTabsRow && (
         <Box sx={styles.subTabsRowStyles(isMobile)}>
           <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-            <Tabs
-              value={activeSubTab}
-              variant="scrollable"
-              scrollButtons="auto"
-              allowScrollButtonsMobile
-              onChange={(_, val) => {
-                const currentSubTabs =
-                  activeTab === 0 ? transactionSubTabs :
-                    activeTab === 2 ? statementsSubTabs.filter(st => !(st.label === 'PIP Statements' && isMindPath)) :
-                      activeTab === 3 ? varianceSubTabs :
-                        activeTab === 4 ? trendsSubTabs :
-                          activeTab === 5 ? reconciliationSubTabs : [];
+            {hasSubTabs && (
+              <Tabs
+                value={activeSubTab}
+                variant="scrollable"
+                scrollButtons="auto"
+                allowScrollButtonsMobile
+                onChange={(_, val) => {
+                  const currentSubTabs =
+                    activeTab === 0 ? transactionSubTabs :
+                      activeTab === 2 ? statementsSubTabs.filter(st => !(st.label === 'PIP Statements' && isMindPath)) :
+                        activeTab === 3 ? varianceSubTabs :
+                          activeTab === 4 ? trendsSubTabs :
+                            activeTab === 5 ? reconciliationSubTabs : [];
 
-                const subTab = currentSubTabs.find(st => st.id === val);
-                if (subTab) handleSubTabChange(subTab.id, subTab.path);
-              }}
-              sx={{
-                width: '100%',
-                minHeight: 'auto',
-                '& .MuiTabs-indicator': { display: 'none' },
-                '& .MuiTabs-flexContainer': { gap: 1 },
-                '& .MuiTabs-scrollButtons': {
+                  const subTab = currentSubTabs.find(st => st.id === val);
+                  if (subTab) handleSubTabChange(subTab.id, subTab.path);
+                }}
+                sx={{
+                  width: '100%',
+                  minHeight: 'auto',
+                  '& .MuiTabs-indicator': { display: 'none' },
+                  '& .MuiTabs-flexContainer': { gap: 1 },
+                  '& .MuiTabs-scrollButtons': {
                     width: '28px',
                     borderRadius: '4px',
                     backgroundColor: alpha(themeConfig.colors.slate[100], 0.3),
                     transition: 'all 0.2s',
                     '&.Mui-disabled': { display: 'none' }
-                },
-                '& .MuiTab-root': {
-                  minHeight: 'auto',
-                  minWidth: 'auto',
-                  p: 0,
-                  textTransform: 'none',
-                  opacity: 1
-                }
-              }}
-            >
-              {activeTab === 0 && transactionSubTabs.map((subTab) => (
-                <Tab
-                  key={subTab.id}
-                  value={subTab.id}
-                  label={
-                    <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                      {subTab.label}
-                    </Box>
+                  },
+                  '& .MuiTab-root': {
+                    minHeight: 'auto',
+                    minWidth: 'auto',
+                    p: 0,
+                    textTransform: 'none',
+                    opacity: 1
                   }
-                  disableRipple
-                />
-              ))}
-              {activeTab === 2 && statementsSubTabs
-                .filter(subTab => !(subTab.label === 'PIP Statements' && isMindPath))
-                .map((subTab) => (
+                }}
+              >
+                {activeTab === 0 && transactionSubTabs.map((subTab) => (
                   <Tab
                     key={subTab.id}
                     value={subTab.id}
@@ -179,43 +167,58 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                     disableRipple
                   />
                 ))}
-              {activeTab === 3 && varianceSubTabs.map((subTab) => (
-                <Tab
-                  key={subTab.id}
-                  value={subTab.id}
-                  label={
-                    <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                      {subTab.label}
-                    </Box>
-                  }
-                  disableRipple
-                />
-              ))}
-              {activeTab === 4 && trendsSubTabs.map((subTab) => (
-                <Tab
-                  key={subTab.id}
-                  value={subTab.id}
-                  label={
-                    <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                      {subTab.label}
-                    </Box>
-                  }
-                  disableRipple
-                />
-              ))}
-              {activeTab === 5 && reconciliationSubTabs.map((subTab) => (
-                <Tab
-                  key={subTab.id}
-                  value={subTab.id}
-                  label={
-                    <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                      {subTab.label}
-                    </Box>
-                  }
-                  disableRipple
-                />
-              ))}
-            </Tabs>
+                {activeTab === 2 && statementsSubTabs
+                  .filter(subTab => !(subTab.label === 'PIP Statements' && isMindPath))
+                  .map((subTab) => (
+                    <Tab
+                      key={subTab.id}
+                      value={subTab.id}
+                      label={
+                        <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
+                          {subTab.label}
+                        </Box>
+                      }
+                      disableRipple
+                    />
+                  ))}
+                {activeTab === 3 && varianceSubTabs.map((subTab) => (
+                  <Tab
+                    key={subTab.id}
+                    value={subTab.id}
+                    label={
+                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
+                        {subTab.label}
+                      </Box>
+                    }
+                    disableRipple
+                  />
+                ))}
+                {activeTab === 4 && trendsSubTabs.map((subTab) => (
+                  <Tab
+                    key={subTab.id}
+                    value={subTab.id}
+                    label={
+                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
+                        {subTab.label}
+                      </Box>
+                    }
+                    disableRipple
+                  />
+                ))}
+                {activeTab === 5 && reconciliationSubTabs.map((subTab) => (
+                  <Tab
+                    key={subTab.id}
+                    value={subTab.id}
+                    label={
+                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
+                        {subTab.label}
+                      </Box>
+                    }
+                    disableRipple
+                  />
+                ))}
+              </Tabs>
+            )}
           </Box>
 
           <Box sx={styles.actionsGroupStyles(isMobile)}>

@@ -1,5 +1,9 @@
 import React, { useMemo, useCallback } from 'react';
 import {
+    Chip,
+    alpha,
+    Tabs,
+    Tab,
     Box,
     Typography,
     useTheme,
@@ -8,8 +12,7 @@ import {
     FormControlLabel,
     Grid,
     IconButton,
-    Chip,
-    alpha
+
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -88,6 +91,12 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             ),
         },
         {
+            id: 'transactionNo',
+            label: 'TRANSACTION #',
+            accessor: (row) => row.id,
+            render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.id}</Typography>,
+        },
+        {
             id: 'reference',
             label: 'REF / DATE',
             accessor: (row) => row.reference,
@@ -104,7 +113,6 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             accessor: (row) => row.payerName,
             render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
         },
-        // { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
         {
             id: 'bankAmt',
             label: 'BANK AMT',
@@ -234,12 +242,56 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             </ScreenHeader>
 
             <Box sx={{ mb: 3 }}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', mb: 1, display: 'block' }}>View Entity</Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    {entities.map((e) => (
-                        <EntityChip key={e.id} label={e.name} onClick={() => setSelectedEntityId(e.id)} isSelected={selectedEntityId === e.id} />
-                    ))}
-                </Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', mb: 1.5, display: 'block', letterSpacing: '0.05em' }}>View Entity</Typography>
+                <Tabs
+                    value={selectedEntityId}
+                    onChange={(_, val) => setSelectedEntityId(val)}
+                    variant="scrollable"
+                    scrollButtons={true}
+                    allowScrollButtonsMobile
+                    sx={{
+                        minHeight: 'auto',
+                        '& .MuiTabs-indicator': { display: 'none' },
+                        '& .MuiTabs-flexContainer': { gap: 1 },
+                        '& .MuiTabs-scrollButtons': {
+                            width: 28,
+                            borderRadius: '4px',
+                            backgroundColor: alpha(themeConfig.colors.slate[100], 0.3),
+                            '&.Mui-disabled': { opacity: 0 }
+                        }
+                    }}
+                >
+                    {entities.map((e) => {
+                        const isActive = selectedEntityId === e.id;
+                        return (
+                            <Tab
+                                key={e.id}
+                                value={e.id}
+                                sx={{
+                                    textTransform: 'none',
+                                    fontWeight: 500,
+                                    fontSize: '13px',
+                                    minHeight: 'auto',
+                                    p: 0,
+                                    opacity: 1,
+                                    '& .MuiBox-root': {
+                                        px: 2,
+                                        py: 0.6,
+                                        borderRadius: '16px',
+                                        transition: 'all 0.2s',
+                                        backgroundColor: isActive ? themeConfig.colors.tabs.activeBgHover : 'transparent',
+                                        color: isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive,
+                                        '&:hover': {
+                                            backgroundColor: isActive ? alpha(themeConfig.colors.primary, 0.8) : themeConfig.colors.tabs.subBg,
+                                        }
+                                    }
+                                }}
+                                label={<Box>{e.name}</Box>}
+                                disableRipple
+                            />
+                        );
+                    })}
+                </Tabs>
             </Box>
 
             <ToolbarWrapper>
@@ -267,13 +319,13 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="Total Collections" value={formatCurrency(summaryStats.totalBankAmt)} variant="highlight" backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="TOTAL COLLECTIONS" value={formatCurrency(summaryStats.totalBankAmt)} variant="highlight" backgroundColor={theme.palette.background.paper} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="Reconciliation Rate" value={`${summaryStats.reconRate}%`} variant={summaryStats.exceptions > 0 ? "negative" : "positive"} backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="RECONCILIATION RATE" value={`${summaryStats.reconRate}%`} variant={summaryStats.exceptions > 0 ? "negative" : "positive"} backgroundColor={theme.palette.background.paper} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="Action Required" value={String(summaryStats.exceptions)} backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="ACTION REQUIRED" value={String(summaryStats.exceptions)} backgroundColor={theme.palette.background.paper} />
                 </Grid>
             </Grid>
 
@@ -295,6 +347,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                         sortCol={queryParams.sortField}
                         sortDir={queryParams.sortOrder}
                         onSortChange={handleSortChange}
+                        download={false}
                     />
                 </Box>
             ))}

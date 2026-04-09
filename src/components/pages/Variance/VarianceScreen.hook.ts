@@ -19,6 +19,7 @@ import {
   useSearchPaymentVarianceQuery,
   useGetPaymentVarianceSummaryQuery,
   useLazyGetRemittanceClaimsQuery,
+  useLazySearchServiceLinesQuery,
   useLazyExportFeeScheduleVarianceQuery,
   useLazyExportPaymentVarianceQuery
 } from '@/store/api/financialsApi';
@@ -37,6 +38,13 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
         toDate: format(new Date(), 'yyyy-MM-dd'),
+    });
+
+    const [drillDownParams, setDrillDownParams] = useState({
+        page: 0,
+        size: 10,
+        sortField: 'paymentDate',
+        sortOrder: 'desc' as 'asc' | 'desc',
     });
 
     const reloadCount = React.useRef(actionTriggers.reload);
@@ -73,6 +81,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
   const [triggerExportFee] = useLazyExportFeeScheduleVarianceQuery();
   const [triggerExportPayment] = useLazyExportPaymentVarianceQuery();
+  const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
             const doReload = async () => {
@@ -95,33 +104,49 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const handleDrillDown = useCallback(async (row: FeeScheduleVariance | PaymentVariance) => {
         try {
             dispatch(setGlobalDrillingDown(true));
-            const identifier = row.id || '';
-            if (!identifier) return;
+            const identifier = (row as any).claimId || (row as any).transactionNo || row.id || '';
+            if (identifier) {
+                dispatch(setSelectedPaymentId(identifier));
 
-            dispatch(setSelectedPaymentId(identifier));
+                // Call both APIs simultaneously
+                const [claimResult] = await Promise.all([
+                    triggerGetRemittance({
+                        claimId: identifier,
+                        page: drillDownParams.page + 1,
+                        size: drillDownParams.size,
+                        sort: drillDownParams.sortField,
+                        desc: drillDownParams.sortOrder === 'desc'
+                    }).unwrap(),
+                    triggerSearchServiceLines({
+                        page: drillDownParams.page + 1,
+                        size: drillDownParams.size,
+                        sort: drillDownParams.sortField,
+                        desc: drillDownParams.sortOrder === 'desc',
+                        check: identifier
+                    }).unwrap()
+                ]);
 
-            const claimResult = await triggerGetRemittance(identifier).unwrap();
-            const claimsArr = normalizeRemittanceClaims(claimResult);
+                const claimsArr = normalizeRemittanceClaims(claimResult);
 
-            if (claimsArr.length === 0) {
-                dispatch(setRemittanceClaims([]));
-                dispatch(setRemittanceDetail(null));
+                if (claimsArr.length === 0) {
+                    dispatch(setRemittanceClaims([]));
+                    dispatch(setRemittanceDetail(null));
+                    dispatch(setShowRemittanceDetail(true));
+                    return;
+                }
+
+                dispatch(setRemittanceClaims(claimsArr));
+                dispatch(setSelectedClaimIndex(0));
+                const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
+                dispatch(setRemittanceDetail(selectedClaim));
                 dispatch(setShowRemittanceDetail(true));
-                return;
             }
-
-            dispatch(setRemittanceClaims(claimsArr));
-            dispatch(setSelectedClaimIndex(0));
-            const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
-            dispatch(setRemittanceDetail(selectedClaim));
-            dispatch(setShowRemittanceDetail(true));
         } catch (err) {
             console.error('Failed to fetch remittance details:', err);
         } finally {
             dispatch(setGlobalDrillingDown(false));
-            dispatch(setIsReloading(false));
         }
-    }, [dispatch, triggerGetRemittance]);
+    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams]);
 
     useEffect(() => {
         dispatch(setIsGlobalFetching(feeFetching || paymentFetching));
@@ -195,6 +220,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         activeSubTab,
         actionTriggers,
         queryParams,
+        drillDownParams,
         feeData,
         feeSummaryData,
         paymentData,
@@ -204,6 +230,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         handleSortChange,
         handlePageChange,
         handleRowsPerPageChange,
+        onDrillDownParamsChange: (params: Partial<typeof drillDownParams>) => setDrillDownParams(prev => ({ ...prev, ...params })),
         refetchFee,
         refetchPayment,
         dispatch

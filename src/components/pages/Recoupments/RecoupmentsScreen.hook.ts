@@ -1,10 +1,31 @@
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsReloading, setIsGlobalFetching } from '@/store/slices/uiSlice';
-import { RecoupmentRecord } from '@/interfaces/financials';
-import { useSearchRecoupmentsQuery, useLazyExportRecoupmentsQuery } from '@/store/api/financialsApi';
+import { 
+    openViewDialog, 
+    openEditDialog, 
+    openConfirmDelete, 
+    setActiveExportType, 
+    setIsReloading, 
+    setIsGlobalFetching,
+    setIsDrillingDown as setGlobalDrillingDown
+} from '@/store/slices/uiSlice';
+import { 
+    setShowRemittanceDetail, 
+    setSelectedPaymentId, 
+    setRemittanceDetail, 
+    setRemittanceClaims, 
+    setSelectedClaimIndex 
+} from '@/store/slices/financialsSlice';
+import { RecoupmentRecord, RemittanceDetail, PaymentTransaction } from '@/interfaces/financials';
+import { 
+    useSearchRecoupmentsQuery, 
+    useLazyExportRecoupmentsQuery,
+    useLazyGetRemittanceClaimsQuery,
+    useLazySearchServiceLinesQuery 
+} from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 
 export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -19,6 +40,13 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         toDate: format(new Date(), 'yyyy-MM-dd'),
     });
 
+    const [drillDownParams, setDrillDownParams] = useState({
+        page: 0,
+        size: 10,
+        sortField: 'paymentDate',
+        sortOrder: 'desc' as 'asc' | 'desc',
+    });
+
     const { data, isFetching, isError, refetch } = useSearchRecoupmentsQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
@@ -31,6 +59,8 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
     const recoupments = useMemo(() => data?.data?.content ?? [], [data]);
 
     const [triggerExportRecoupments] = useLazyExportRecoupmentsQuery();
+    const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
+    const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
@@ -88,7 +118,52 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         return { totalRecouped, totalOriginal };
     }, [recoupments]);
 
-    const handleView = useCallback((r: RecoupmentRecord) => dispatch(openViewDialog(r)), [dispatch]);
+    const handleDrillDown = useCallback(async (row: any) => {
+        try {
+            dispatch(setGlobalDrillingDown(true));
+            const identifier = row.claimId || row.transactionNo || row.recoupmentId || row.id || '';
+            if (identifier) {
+                dispatch(setSelectedPaymentId(identifier));
+
+                const [claimResult] = await Promise.all([
+                    triggerGetRemittance({
+                        claimId: identifier,
+                        page: drillDownParams.page + 1,
+                        size: drillDownParams.size,
+                        sort: drillDownParams.sortField,
+                        desc: drillDownParams.sortOrder === 'desc'
+                    }).unwrap(),
+                    triggerSearchServiceLines({
+                        page: drillDownParams.page + 1,
+                        size: drillDownParams.size,
+                        sort: drillDownParams.sortField,
+                        desc: drillDownParams.sortOrder === 'desc',
+                        check: identifier
+                    }).unwrap()
+                ]);
+
+                const claimsArr = normalizeRemittanceClaims(claimResult);
+
+                if (claimsArr.length === 0) {
+                    dispatch(setRemittanceClaims([]));
+                    dispatch(setRemittanceDetail(null));
+                    dispatch(setShowRemittanceDetail(true));
+                    return;
+                }
+
+                dispatch(setRemittanceClaims(claimsArr));
+                dispatch(setSelectedClaimIndex(0));
+                const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
+                dispatch(setRemittanceDetail(selectedClaim));
+                dispatch(setShowRemittanceDetail(true));
+            }
+        } catch (err) {
+            console.error('Failed to fetch remittance drill-down data:', err);
+        } finally {
+            dispatch(setGlobalDrillingDown(false));
+        }
+    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams]);
+
     const handleEdit = useCallback((r: RecoupmentRecord) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'recoupment' })), [dispatch]);
 
@@ -110,8 +185,9 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         recoupments,
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
+        drillDownParams,
         stats,
-        handleView,
+        handleDrillDown,
         handleEdit,
         handleDelete,
         handleRangeChange,

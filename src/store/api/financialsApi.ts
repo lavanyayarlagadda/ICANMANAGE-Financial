@@ -86,7 +86,7 @@ export const financialsApi = baseApi.injectEndpoints({
       ServiceLineSearchRequest
     >({
       query: (body) => ({
-        url: "/financials/payments/service-lines/search ",
+        url: "/financials/payments/service-lines/search",
         method: "POST",
         body,
       }),

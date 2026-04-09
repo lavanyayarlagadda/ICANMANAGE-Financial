@@ -7,6 +7,8 @@ import {
     ListItemText,
     ListItemAvatar,
     CircularProgress,
+    Stack,
+    Pagination
 } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { formatCurrency } from '@/utils/formatters';
@@ -29,6 +31,9 @@ const RemittanceDetailScreen: React.FC = () => {
     const {
         detail,
         claims,
+        isClaimsFetching,
+        claimsQueryParams,
+        handleClaimsPageChange,
         selectedIndex,
         serviceLines,
         totalElements,
@@ -78,12 +83,18 @@ const RemittanceDetailScreen: React.FC = () => {
 
     return (
         <ScreenWrapper>
-            <SectionHeader variant="h6">Remittance Detail (Claims)</SectionHeader>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <SectionHeader variant="h6">Remittance Detail (Claims)</SectionHeader>
+                {isClaimsFetching && <CircularProgress size={20} />}
+            </Box>
             <PatientNameHeader variant="subtitle1">Claim Detail – {detail?.patientName || 'N/A'}</PatientNameHeader>
 
-            {claims && claims.length > 1 && (
+            {claims && (
                 <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>Affected Claims in this Transaction ({claims.length})</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Affected Claims in this Transaction</Typography>
+                        {/* We could add a mini pagination here if total claims > size */}
+                    </Box>
                     <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
                         <List disablePadding>
                             {claims.map((claim: RemittanceDetail, idx: number) => (
@@ -93,6 +104,15 @@ const RemittanceDetailScreen: React.FC = () => {
                                 </StyledListItemButton>
                             ))}
                         </List>
+                        {/* Simple pager for claims */}
+                        <Box sx={{ p: 1, display: 'flex', justifyContent: 'center', borderTop: '1px solid', borderColor: 'divider' }}>
+                            <Pagination 
+                                size="small" 
+                                count={10} // Placeholder: Ideally we'd have totalElements for claims too
+                                page={claimsQueryParams.page + 1} 
+                                onChange={(_, p) => handleClaimsPageChange(p - 1)} 
+                            />
+                        </Box>
                     </Paper>
                 </Box>
             )}
@@ -125,4 +145,3 @@ const RemittanceDetailScreen: React.FC = () => {
 };
 
 export default RemittanceDetailScreen;
-

@@ -1,10 +1,30 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
-import { OtherAdjustmentRecord } from '@/interfaces/financials';
-import { useSearchOtherAdjustmentsQuery, useLazyExportOtherAdjustmentsQuery } from '@/store/api/financialsApi';
+import {
+    openViewDialog,
+    openEditDialog,
+    openConfirmDelete,
+    setActiveExportType,
+    setIsGlobalFetching,
+    setIsDrillingDown as setGlobalDrillingDown
+} from '@/store/slices/uiSlice';
+import {
+    setShowRemittanceDetail,
+    setSelectedPaymentId,
+    setRemittanceDetail,
+    setRemittanceClaims,
+    setSelectedClaimIndex
+} from '@/store/slices/financialsSlice';
+import { OtherAdjustmentRecord, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
+import {
+    useSearchOtherAdjustmentsQuery,
+    useLazyExportOtherAdjustmentsQuery,
+    useLazyGetRemittanceClaimsQuery,
+    useLazySearchServiceLinesQuery
+} from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 
 export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -27,10 +47,17 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip });
-
+    const [drillDownParams, setDrillDownParams] = useState({
+        page: 0,
+        size: 10,
+        sortField: 'paymentDate',
+        sortOrder: 'desc' as 'asc' | 'desc',
+    });
     const adjustments = useMemo(() => data?.data?.content ?? [], [data]);
 
     const [triggerExportOtherAdjustments] = useLazyExportOtherAdjustmentsQuery();
+    const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
+    const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
@@ -49,7 +76,7 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
                 toDate: queryParams.toDate,
                 format: exportFormat
             }).unwrap();
-            
+
             const filename = `adjustments_${queryParams.fromDate}_to_${queryParams.toDate}.${exportFormat}`;
             downloadFileFromBlob(blob, filename);
         } catch (error) {
@@ -82,7 +109,53 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         }
     }, [actionTriggers.reload, refetch]);
 
-    const handleView = useCallback((r: OtherAdjustmentRecord) => dispatch(openViewDialog(r)), [dispatch]);
+    const handleDrillDown = useCallback(async (row: any) => {
+        try {
+            dispatch(setGlobalDrillingDown(true));
+            const identifier = row.claimId || row.transactionNo || row.adjustmentId || row.id || '';
+            if (identifier) {
+                dispatch(setSelectedPaymentId(identifier));
+
+                // Call both APIs simultaneously
+                const [claimResult] = await Promise.all([
+                    triggerGetRemittance({
+                        claimId: identifier,
+                        page: drillDownParams.page + 1,
+                        size: drillDownParams.size,
+                        sort: drillDownParams.sortField,
+                        desc: drillDownParams.sortOrder === 'desc'
+                    }).unwrap(),
+                    triggerSearchServiceLines({
+                        page: drillDownParams.page + 1,
+                        size: drillDownParams.size,
+                        sort: drillDownParams.sortField,
+                        desc: drillDownParams.sortOrder === 'desc',
+                        check: identifier
+                    }).unwrap()
+                ]);
+
+                const claimsArr = normalizeRemittanceClaims(claimResult);
+
+                if (claimsArr.length === 0) {
+                    dispatch(setRemittanceClaims([]));
+                    dispatch(setRemittanceDetail(null));
+                    dispatch(setShowRemittanceDetail(true));
+                    return;
+                }
+
+                dispatch(setRemittanceClaims(claimsArr));
+                dispatch(setSelectedClaimIndex(0));
+                const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
+                dispatch(setRemittanceDetail(selectedClaim));
+                dispatch(setShowRemittanceDetail(true));
+            }
+        } catch (err) {
+            console.error('Failed to fetch remittance drill-down data:', err);
+        } finally {
+            dispatch(setGlobalDrillingDown(false));
+        }
+    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams]);
+
     const handleEdit = useCallback((r: OtherAdjustmentRecord) => dispatch(openEditDialog(r)), [dispatch]);
     const handleDelete = useCallback((id: string) => dispatch(openConfirmDelete({ id, type: 'adjustment' })), [dispatch]);
 
@@ -104,7 +177,7 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         adjustments,
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
-        handleView,
+        handleDrillDown,
         handleEdit,
         handleDelete,
         handleRangeChange,
