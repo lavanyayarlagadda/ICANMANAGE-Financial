@@ -67,11 +67,15 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
 
     useEffect(() => {
-        if (!isActualSkip) {
-            dispatch(setIsGlobalFetching(isAnyFetching));
+        if (isActualSkip) {
+            dispatch(setIsGlobalFetching(false));
+            return;
         }
+
+        dispatch(setIsGlobalFetching(isAnyFetching));
+
         return () => {
-            if (!isActualSkip) dispatch(setIsGlobalFetching(false));
+            dispatch(setIsGlobalFetching(false));
         };
     }, [isAnyFetching, isActualSkip, dispatch]);
 

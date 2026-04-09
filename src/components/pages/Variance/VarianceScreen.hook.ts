@@ -149,9 +149,13 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     }, [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams]);
 
     useEffect(() => {
+        if (skip) {
+            dispatch(setIsGlobalFetching(false));
+            return;
+        }
         dispatch(setIsGlobalFetching(feeFetching || paymentFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [feeFetching, paymentFetching, dispatch]);
+    }, [feeFetching, paymentFetching, skip, dispatch]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {

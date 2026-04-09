@@ -43,7 +43,7 @@ export const useFinancialsPage = () => {
         'payments': { tab: 0, subTab: 1 },
         'recoupments': { tab: 0, subTab: 2 },
         'other-adjustments': { tab: 0, subTab: 3 },
-        'pip': { tab: 0, subTab: 3 },
+        'pip': { tab: 2, subTab: 0 },
         'bank-deposits': { tab: 1, subTab: 0 },
         'statements': { tab: 2, subTab: 0 },
         'statements/pip': { tab: 2, subTab: 0 },

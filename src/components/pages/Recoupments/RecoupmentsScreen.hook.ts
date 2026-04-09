@@ -67,9 +67,13 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
     const reloadCount = useRef(actionTriggers.reload);
 
     useEffect(() => {
+        if (skip) {
+            dispatch(setIsGlobalFetching(false));
+            return;
+        }
         dispatch(setIsGlobalFetching(isFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, dispatch]);
+    }, [isFetching, skip, dispatch]);
 
     const handleExport = useCallback(async (exportFormat: 'pdf' | 'xlsx') => {
         dispatch(setActiveExportType(exportFormat));

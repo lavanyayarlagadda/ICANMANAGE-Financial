@@ -32,9 +32,13 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     }, { skip });
 
     useEffect(() => {
+        if (skip) {
+            dispatch(setIsGlobalFetching(false));
+            return;
+        }
         dispatch(setIsGlobalFetching(isFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, dispatch]);
+    }, [isFetching, skip, dispatch]);
 
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {

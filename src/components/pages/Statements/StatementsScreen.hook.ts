@@ -38,13 +38,13 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
     }, { skip: skip || !isNoticesTab });
 
     useEffect(() => {
-        if (isNoticesTab) {
-            dispatch(setIsGlobalFetching(isFetchingNotices));
+        if (!isNoticesTab || skip) {
+            dispatch(setIsGlobalFetching(false));
+            return;
         }
-        return () => { 
-            if (isNoticesTab) dispatch(setIsGlobalFetching(false)); 
-        };
-    }, [isFetchingNotices, isNoticesTab, dispatch]);
+        dispatch(setIsGlobalFetching(isFetchingNotices));
+        return () => { dispatch(setIsGlobalFetching(false)); };
+    }, [isFetchingNotices, isNoticesTab, skip, dispatch]);
 
     const forwardBalanceNotices = useMemo(() => noticeData?.data?.content ?? [], [noticeData]);
 
