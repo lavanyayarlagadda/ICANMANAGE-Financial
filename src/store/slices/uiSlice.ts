@@ -137,6 +137,13 @@ const uiSlice = createSlice({
     setIsGlobalFetching: (state, action: PayloadAction<boolean>) => {
       state.isGlobalFetching = action.payload;
     },
+    resetUiState: (state) => {
+      return {
+        ...initialState,
+        sidebarOpen: state.sidebarOpen,
+        sidebarCollapsed: state.sidebarCollapsed,
+      };
+    },
   },
 });
 
@@ -163,5 +170,6 @@ export const {
   setIsReloading,
   setIsDrillingDown,
   setIsGlobalFetching,
+  resetUiState,
 } = uiSlice.actions;
 export default uiSlice.reducer;

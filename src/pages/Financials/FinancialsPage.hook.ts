@@ -22,6 +22,8 @@ import {
   deleteCollection,
 } from '@/store/slices/financialsSlice';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { useGetMeDetailsQuery, MenuItem } from '@/store/api/userApi';
+import { getNavigationStructure, DynamicTab } from '@/utils/navigationUtils';
 
 export const useFinancialsPage = () => {
   const dispatch = useAppDispatch();
@@ -32,48 +34,49 @@ export const useFinancialsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { data: userDetails, isLoading: isLoadingDetails } = useGetMeDetailsQuery();
+  const authUser = useAppSelector((s) => s.auth.user);
+  const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
+  const { financialsTabs } = useMemo(() => getNavigationStructure(menus), [menus]);
+
   useEffect(() => {
     if (location.pathname.startsWith('/collections')) {
       dispatch(setActivePage('collections'));
     } else if (location.pathname.startsWith('/financials')) {
       dispatch(setActivePage('financials'));
+      
       const pathPart = location.pathname.split('/financials/')[1] || '';
-      const pathMap: Record<string, { tab: number; subTab: number }> = {
-        'all-transactions': { tab: 0, subTab: 0 },
-        'payments': { tab: 0, subTab: 1 },
-        'recoupments': { tab: 0, subTab: 2 },
-        'other-adjustments': { tab: 0, subTab: 3 },
-        'pip': { tab: 2, subTab: 0 },
-        'bank-deposits': { tab: 1, subTab: 0 },
-        'statements': { tab: 2, subTab: 0 },
-        'statements/pip': { tab: 2, subTab: 0 },
-        'statements/forward-balance': { tab: 2, subTab: 1 },
-        'variance-analysis': { tab: 3, subTab: 0 },
-        'trends-forecast': { tab: 4, subTab: 0 },
-        'reconciliation': { tab: 5, subTab: 0 },
-        'reconciliation/unreconciled': { tab: 5, subTab: 0 },
-        'reconciliation/reconciled': { tab: 5, subTab: 1 },
-        'reconciliation/my-queue': { tab: 5, subTab: 2 },
-      };
+      
+      // Build dynamic path map from financialsTabs
+      const pathMap: Record<string, { tab: number; subTab: number }> = {};
+      financialsTabs.forEach(mainTab => {
+        // Main tabs can have components too (no sub-tabs case)
+        const mainPath = mainTab.path.split('/financials/')[1] || '';
+        if (mainPath) pathMap[mainPath] = { tab: mainTab.id, subTab: 0 };
+
+        mainTab.subTabs?.forEach(subTab => {
+          const subPath = subTab.path.split('/financials/')[1] || '';
+          if (subPath) pathMap[subPath] = { tab: mainTab.id, subTab: subTab.id };
+        });
+      });
 
       const match = pathMap[pathPart];
-
-      if (!canViewPip && (pathPart === 'pip' || pathPart === 'statements/pip' || pathPart === 'statements')) {
-        const target = pathPart.startsWith('statements') 
-          ? '/financials/statements/forward-balance' 
-          : '/financials/all-transactions';
-        navigate(target, { replace: true });
-        return;
-      }
 
       if (match) {
         if (uiState.activeTab !== match.tab) dispatch(setActiveTab(match.tab));
         if (uiState.activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
-      } else if (pathPart === '') {
-        navigate('/financials/all-transactions', { replace: true });
+      } else {
+        // Current path is invalid or hidden, redirect to first available tab
+        const firstTab = financialsTabs[0];
+        if (firstTab) {
+            const defaultPath = firstTab.subTabs?.[0]?.path || firstTab.path;
+            if (location.pathname !== defaultPath) {
+                navigate(defaultPath, { replace: true });
+            }
+        }
       }
     }
-  }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, canViewPip]);
+  }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, financialsTabs]);
 
   const handleDelete = useCallback(() => {
     if (!uiState.confirmDeleteId) return;
@@ -103,10 +106,26 @@ export const useFinancialsPage = () => {
   const handleReload = useCallback(() => dispatch(triggerReload()), [dispatch]);
   const handleExport = useCallback(() => dispatch(triggerExport()), [dispatch]);
 
+  const isRestricted = useMemo(() => {
+    const activeMain = financialsTabs.find((t: DynamicTab) => t.id === uiState.activeTab);
+    if (!activeMain) return false;
+    if (activeMain.status === 'Disabled') return true;
+    
+    if (activeMain.subTabs) {
+      const activeSub = activeMain.subTabs.find((st: DynamicTab) => st.id === uiState.activeSubTab);
+      if (activeSub && activeSub.status === 'Disabled') return true;
+    }
+    
+    return false;
+  }, [financialsTabs, uiState.activeTab, uiState.activeSubTab]);
+
   return {
     ...uiState,
+    financialsTabs,
     showRemittanceDetail,
     addDialogOpen,
+    isRestricted,
+    isLoadingUserDetails: isLoadingDetails,
     setAddDialogOpen,
     handleDelete,
     handleEditSave,

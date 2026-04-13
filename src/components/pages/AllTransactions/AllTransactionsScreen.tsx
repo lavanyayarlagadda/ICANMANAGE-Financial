@@ -37,12 +37,12 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             ),
         },
         { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => r.effectiveDate },
-        { 
-            id: 'transactionNo', 
-            label: 'Transaction Number', 
-            minWidth: 160, 
-            accessor: (r) => (r as any).transactionNo ?? '-', 
-            render: (r) => (r as any).transactionNo ?? '-' 
+        {
+            id: 'transactionNo',
+            label: 'Transaction Number',
+            minWidth: 160,
+            accessor: (r) => (r as any).transactionNo ?? '-',
+            render: (r) => (r as any).transactionNo ?? '-'
         },
         {
             id: 'transactionType',
@@ -62,7 +62,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             },
         },
         { id: 'type', label: 'Type', minWidth: 100, accessor: (r) => r.type ?? '', filterOptions: ['CHECK', 'EFT', 'BULK'], render: (r) => r.type },
-        { id: 'description', label: 'Description', minWidth: 240, accessor: (r) => r.description ?? '', render: (r) => r.description },
+        // { id: 'description', label: 'Description', minWidth: 240, accessor: (r) => r.description ?? '', render: (r) => r.description },
         { id: 'sourceProvider', label: 'Source / Provider', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
         {
             id: 'amount',

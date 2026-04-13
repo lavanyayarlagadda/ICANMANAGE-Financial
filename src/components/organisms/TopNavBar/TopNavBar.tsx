@@ -123,11 +123,11 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
               </Box>
               <Divider />
 
-              {/* <MenuItem onClick={openProfile} sx={{ py: 1.5 }}>
+              <MenuItem onClick={openProfile} sx={{ py: 1.5 }}>
                 <ListItemIcon><LockOutlinedIcon fontSize="small" /></ListItemIcon>
                 <Typography variant="body2">Profile & Password</Typography>
-              </MenuItem> */}
-              {/* {user.role !== 'user' && (
+              </MenuItem>
+              {user.role === 'Admin' && (
                 <>
                   <Divider />
                   <Box sx={{ px: 2, py: 1 }}>
@@ -140,7 +140,7 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                     <Typography variant="body2">Demo & Security</Typography>
                   </MenuItem>
                 </>
-              )} */}
+              )}
 
               <Divider />
 

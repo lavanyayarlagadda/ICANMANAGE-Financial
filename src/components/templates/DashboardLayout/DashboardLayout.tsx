@@ -17,8 +17,8 @@ import {
   Tooltip,
   CircularProgress,
 } from '@mui/material';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import { NAV_CONFIG } from '@/config/navigation';
 import TopNavBar from '@/components/organisms/TopNavBar/TopNavBar';
 import Footer from '@/components/organisms/Footer/Footer';
 import { MENU_STATUS } from '@/config/constants';
@@ -44,9 +44,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const {
       isOverlayActive,
       isWaitingForTenants,
-      canViewPip,
-      canViewCollections,
-      canViewFinancials,
+      sidebar,
       getMenuStatus,
       handleNavClick,
       handleMenuToggle,
@@ -68,41 +66,36 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const drawerContent = (
     <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Collections Section */}
-      {/* {canViewCollections && (
-        <List disablePadding>
-          <Tooltip title={sidebarCollapsed ? 'Collections' : ''} placement="right">
-            <ListItemButton
-              disabled={getMenuStatus('Collections') === MENU_STATUS.DISABLED}
-              selected={ui.activePage === 'collections'}
-              onClick={() => getMenuStatus('Collections') !== MENU_STATUS.DISABLED && handleNavClick('collections')}
-              sx={NavItemStyles(sidebarCollapsed, theme)}
-            >
-              <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}><ReceiptLongIcon fontSize="small" /></ListItemIcon>
-              {!sidebarCollapsed && <ListItemText primary="Collections" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
-            </ListItemButton>
-          </Tooltip>
-        </List>
-      )} */}
+      {sidebar.map((item) => {
+        const config = NAV_CONFIG[item.label];
+        const Icon = config?.icon || AccountBalanceIcon;
+        const status = getMenuStatus(item.label);
+        
+        if (status === 'Hidden') return null;
 
-      {/* <Divider sx={{ mx: sidebarCollapsed ? 0.5 : 2, my: 1 }} /> */}
-
-      {/* Financials Section */}
-      {canViewFinancials && (
-        <List disablePadding>
-          <Tooltip title={sidebarCollapsed ? 'Financials' : ''} placement="right">
-            <ListItemButton
-              disabled={getMenuStatus('Financials') === MENU_STATUS.DISABLED}
-              selected={ui.activePage === 'financials'}
-              onClick={() => getMenuStatus('Financials') !== MENU_STATUS.DISABLED && handleNavClick('financials', '/financials/payments')}
-              sx={NavItemStyles(sidebarCollapsed, theme)}
-            >
-              <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}><AccountBalanceIcon fontSize="small" /></ListItemIcon>
-              {!sidebarCollapsed && <ListItemText primary="Financials" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
-            </ListItemButton>
-          </Tooltip>
-        </List>
-      )}
+        return (
+          <List key={item.id} disablePadding>
+            <Tooltip title={sidebarCollapsed ? item.label : ''} placement="right">
+              <ListItemButton
+                disabled={status === 'Disabled'}
+                selected={ui.activePage === item.label.toLowerCase()}
+                onClick={() => status !== 'Disabled' && handleNavClick(item.label.toLowerCase() as any, item.path)}
+                sx={NavItemStyles(sidebarCollapsed, theme)}
+              >
+                <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}>
+                  <Icon fontSize="small" />
+                </ListItemIcon>
+                {!sidebarCollapsed && (
+                  <ListItemText 
+                    primary={item.label} 
+                    primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} 
+                  />
+                )}
+              </ListItemButton>
+            </Tooltip>
+          </List>
+        );
+      })}
     </Box>
   );
 

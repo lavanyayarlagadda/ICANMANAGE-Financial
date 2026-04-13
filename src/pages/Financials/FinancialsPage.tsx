@@ -1,15 +1,24 @@
 import React, { Suspense, lazy, useMemo } from 'react';
-import { Box, IconButton, useTheme, CircularProgress } from '@mui/material';
+import { Box, IconButton, useTheme, CircularProgress, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import SecurityIcon from '@mui/icons-material/Security';
 import DashboardLayout from '@/components/templates/DashboardLayout/DashboardLayout';
 import FinancialsTabs from '@/components/organisms/FinancialsTabs/FinancialsTabs';
 import ViewDialog from '@/components/molecules/ViewDialog/ViewDialog';
 import EditDialog from '@/components/molecules/EditDialog/EditDialog';
 import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog/ConfirmDeleteDialog';
 import AddNewDialog from '@/components/molecules/AddNewDialog/AddNewDialog';
-import { PageWrapper, BackButtonWrapper, BackText } from './FinancialsPage.styles';
+import { 
+    PageWrapper, 
+    BackButtonWrapper, 
+    BackText,
+    RestrictedContainer,
+    RestrictedTitle,
+    RestrictedBody
+} from './FinancialsPage.styles';
 import { useFinancialsPage } from './FinancialsPage.hook';
 import { closeViewDialog, closeEditDialog, closeConfirmDelete } from '@/store/slices/uiSlice';
+import { themeConfig } from '@/theme/themeConfig';
 import ReconciliationScreen from '@/components/pages/ReconciliationScreen/ReconciliationScreen';
 
 const PaymentsScreen = lazy(() => import('@/components/pages/Payments/PaymentsScreen'));
@@ -34,7 +43,9 @@ const FinancialsPage: React.FC = () => {
   const {
     activeTab,
     activeSubTab,
+    isRestricted,
     activePage,
+    financialsTabs,
     viewDialogOpen,
     viewDialogData,
     editDialogOpen,
@@ -50,28 +61,33 @@ const FinancialsPage: React.FC = () => {
     handlePrint,
     handleReload,
     handleExport,
+    isLoadingUserDetails,
     dispatch,
   } = useFinancialsPage();
 
   const tabContent = useMemo(() => {
-    if (activeTab === 0) {
-      switch (activeSubTab) {
-        case 0: return <AllTransactionsScreen skip={false} />;
-        case 1: return <PaymentsScreen skip={false} />;
-        case 2: return <RecoupmentsScreen skip={false} />;
-        case 3: return <OtherAdjustmentsScreen skip={false} />;
-        default: return <AllTransactionsScreen skip={false} />;
-      }
+    const mainTab = financialsTabs.find(t => t.id === activeTab);
+    if (!mainTab) return <AllTransactionsScreen skip={false} />;
+
+    if (mainTab.subTabs && mainTab.subTabs.length > 0) {
+        const subTab = mainTab.subTabs.find(st => st.id === activeSubTab) || mainTab.subTabs[0];
+        const Component = subTab.component;
+        if (Component) return <Component skip={false} />;
+
+        // Fallback for screens like "Statements" or "Variance" which still have their own internal sub-tab logic or are compound
+        // If we want to strictly use our dynamic structure for everything, we might need to adjust those screens.
+        // For now, let's see if the main component can handle it.
+        const MainComponent = mainTab.component;
+        if (MainComponent) return <MainComponent skip={false} />;
+        
+        return <AllTransactionsScreen skip={false} />;
     }
 
-    if (activeTab === 1) return <BankDepositsScreen skip={false} />;
-    if (activeTab === 2) return <StatementsScreen skip={false} />;
-    if (activeTab === 3) return <VarianceScreen skip={false} />;
-    if (activeTab === 4) return <TrendsScreen skip={false} />;
-    if (activeTab === 5) return <ReconciliationScreen />;
+    const Component = mainTab.component;
+    if (Component) return <Component skip={false} />;
 
     return <AllTransactionsScreen skip={false} />;
-  }, [activeTab, activeSubTab]);
+  }, [activeTab, activeSubTab, financialsTabs]);
 
   const mainContent = useMemo(() => {
     if (activePage === 'collections') {
@@ -92,17 +108,37 @@ const FinancialsPage: React.FC = () => {
       );
     }
 
+    if (isLoadingUserDetails) {
+        return <TabLoadingFallback />;
+    }
+
     return (
       <>
-        <FinancialsTabs
-          onPrint={handlePrint}
-          onReload={handleReload}
-          onExportWizard={handleExport}
-        />
-        {tabContent}
+        <FinancialsTabs 
+        onPrint={handlePrint}
+        onReload={handleReload}
+        onExportWizard={handleExport}
+      />
+      
+      {isRestricted ? (
+          <RestrictedContainer>
+              <SecurityIcon sx={{ fontSize: 64, color: '#CBD5E1', mb: 2 }} />
+              <RestrictedTitle variant="h5">
+                  Access Restricted
+              </RestrictedTitle>
+              <RestrictedBody variant="body1">
+                  You don't have the necessary permissions to view this module. 
+                  Please contact your administrator for access.
+              </RestrictedBody>
+          </RestrictedContainer>
+      ) : (
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, px: 2, pt: 1 }}>
+            {tabContent}
+          </Box>
+      )}
       </>
     );
-  }, [activePage, showRemittanceDetail, theme, handleBackToPayments, handlePrint, handleReload, handleExport, tabContent]);
+  }, [activePage, showRemittanceDetail, theme, handleBackToPayments, handlePrint, handleReload, handleExport, tabContent, isRestricted]);
 
   return (
     <DashboardLayout>

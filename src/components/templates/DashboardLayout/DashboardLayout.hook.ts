@@ -1,25 +1,27 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { financialsApi } from '@/store/api/financialsApi';
-import { 
-  toggleMobileMenu, 
-  closeMobileMenu, 
-  closeSnackbar 
+import {
+    toggleMobileMenu,
+    closeMobileMenu,
+    closeSnackbar
 } from '@/store/slices/uiSlice';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { useGetMeDetailsQuery, MenuItem } from '@/store/api/userApi';
+import { getNavigationStructure } from '@/utils/navigationUtils';
 import { MENU_STATUS } from '@/config/constants';
 
 export const useDashboardLayout = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    
+
     const ui = useAppSelector((s) => s.ui);
     const financials = useAppSelector((s) => s.financials);
     const tenant = useAppSelector((s) => s.tenant);
-    
+
     const permissions = useUserPermissions();
-    
+
     const isWaitingForTenants = permissions.isCognitiveUser && !tenant.selectedTenantId && tenant.tenants.length === 0;
     const isOverlayActive = ui.activeExportType || ui.isReloading || ui.isDrillingDown || ui.isGlobalFetching || financials.loading || tenant.isLoading || isWaitingForTenants;
 
@@ -55,10 +57,17 @@ export const useDashboardLayout = () => {
         dispatch(closeMobileMenu());
     }, [dispatch]);
 
+    const { data: userDetails } = useGetMeDetailsQuery();
+    const authUser = useAppSelector((s) => s.auth.user);
+    const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
+    const { sidebar, financialsTabs } = useMemo(() => getNavigationStructure(menus), [menus]);
+
     return {
         ui,
         financials,
         tenant,
+        sidebar,
+        financialsTabs,
         isOverlayActive,
         isWaitingForTenants,
         ...permissions,

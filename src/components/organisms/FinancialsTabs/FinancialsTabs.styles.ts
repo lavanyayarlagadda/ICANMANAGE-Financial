@@ -31,19 +31,26 @@ export const tabletSelectStyles = (theme: Theme): SxProps<Theme> => ({
   '& .MuiOutlinedInput-notchedOutline': { borderColor: theme.palette.divider },
 });
 
-export const mainTabItemStyles = (isActive: boolean): SxProps<Theme> => ({
+export const mainTabItemStyles = (isActive: boolean, isDisabled?: boolean): SxProps<Theme> => ({
   px: 2,
   py: 1,
   borderRadius: '6px',
-  cursor: 'pointer',
-  backgroundColor: isActive ? themeConfig.colors.tabs.activeBg : themeConfig.colors.tabs.inactiveBg,
-  color: isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive,
+  cursor: isDisabled ? 'not-allowed' : 'pointer',
+  backgroundColor: isDisabled 
+    ? themeConfig.colors.slate[50] 
+    : (isActive ? themeConfig.colors.tabs.activeBg : themeConfig.colors.tabs.inactiveBg),
+  color: isDisabled 
+    ? themeConfig.colors.slate[300] 
+    : (isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive),
   fontWeight: isActive ? 600 : 500,
   fontSize: '13px',
   whiteSpace: 'nowrap',
   transition: 'all 0.2s',
+  opacity: isDisabled ? 0.6 : 1,
   '&:hover': {
-    backgroundColor: isActive ? themeConfig.colors.tabs.activeBgHover : themeConfig.colors.tabs.inactiveBgHover,
+    backgroundColor: isDisabled 
+      ? themeConfig.colors.slate[50] 
+      : (isActive ? themeConfig.colors.tabs.activeBgHover : themeConfig.colors.tabs.inactiveBgHover),
   },
 });
 
@@ -58,19 +65,26 @@ export const subTabsRowStyles = (isMobile: boolean): SxProps<Theme> => ({
   gap: 2,
 });
 
-export const subTabItemStyles = (isActive: boolean): SxProps<Theme> => ({
+export const subTabItemStyles = (isActive: boolean, isDisabled?: boolean): SxProps<Theme> => ({
   px: 1.5,
   py: 0.5,
   borderRadius: '16px',
-  cursor: 'pointer',
-  backgroundColor: isActive ? themeConfig.colors.tabs.activeBgHover : 'transparent',
-  color: isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive,
+  cursor: isDisabled ? 'not-allowed' : 'pointer',
+  backgroundColor: isDisabled 
+    ? alpha(themeConfig.colors.slate[100], 0.5) 
+    : (isActive ? themeConfig.colors.tabs.activeBgHover : 'transparent'),
+  color: isDisabled 
+    ? themeConfig.colors.slate[300] 
+    : (isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive),
   fontWeight: 500,
   fontSize: '13px',
   whiteSpace: 'nowrap',
   transition: 'all 0.2s',
+  border: isDisabled ? `1px dashed ${themeConfig.colors.slate[200]}` : 'none',
   '&:hover': {
-    backgroundColor: isActive ? alpha(themeConfig.colors.primary, 0.8) : themeConfig.colors.tabs.subBg,
+    backgroundColor: isDisabled 
+      ? alpha(themeConfig.colors.slate[100], 0.5) 
+      : (isActive ? alpha(themeConfig.colors.primary, 0.8) : themeConfig.colors.tabs.subBg),
   },
 });
 

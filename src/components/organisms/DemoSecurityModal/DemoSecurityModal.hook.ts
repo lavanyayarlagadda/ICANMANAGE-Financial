@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SelectChangeEvent } from '@mui/material';
-import { LOGIN_API_RESPONSE, USER_DETAILS_API_RESPONSE, MenuAccess, MenuStatus } from '@/utils/dummyData';
+import { useGetMeDetailsQuery, useGetUserMenuConfigQuery, useUpdateUserMenuConfigMutation, EffectiveMenuItem, EffectiveMenuModule, EffectiveSubMenuItem, MenuOverride } from '@/store/api/userApi';
+import { MenuStatus } from '@/utils/dummyData';
 
 interface UseDemoSecurityModalProps {
   currentUser: { id: string; username: string; firstName: string; lastName: string; role: string };
+  open: boolean;
   onClose: () => void;
 }
 
@@ -17,55 +19,52 @@ const isMenuStatus = (value: string): value is MenuStatus =>
 const isPasswordPolicy = (value: string): value is PasswordPolicy =>
   PASSWORD_POLICY_OPTIONS.includes(value as PasswordPolicy);
 
-export const useDemoSecurityModal = ({ currentUser, onClose }: UseDemoSecurityModalProps) => {
+export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecurityModalProps) => {
+  const { data: meDetails, isLoading: isLoadingUsers } = useGetMeDetailsQuery();
   const [selectedUser, setSelectedUser] = useState(currentUser.id);
+  const { data: menuConfig, isLoading: isLoadingMenu } = useGetUserMenuConfigQuery(
+    { userId: selectedUser }, 
+    { skip: !selectedUser || !open }
+  );
+  const [updateMenuConfig, { isLoading: isSaving }] = useUpdateUserMenuConfigMutation();
+
   const [inactivityTimeout, setInactivityTimeout] = useState(() => localStorage.getItem('ican_inactivity_timeout') || '15');
   const [passwordPolicy, setPasswordPolicy] = useState<PasswordPolicy>('30 Days');
 
   // Module Visibility State
   const [moduleSelectionEnabled, setModuleSelectionEnabled] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [moduleStatuses, setModuleStatuses] = useState<Record<string, MenuStatus>>({});
+  const [moduleStatuses, setModuleStatuses] = useState<Record<number, MenuStatus>>({});
 
   useEffect(() => {
-    const loginUser = LOGIN_API_RESPONSE.find(u => u.id === selectedUser);
-    const userDetails = USER_DETAILS_API_RESPONSE.find(u => u.userId === selectedUser);
-    const userBeingEdited = loginUser && userDetails ? { ...loginUser, ...userDetails } : null;
-
-    if (userBeingEdited && userBeingEdited.menus) {
-      const statusMap: Record<string, MenuStatus> = {};
-      const populateMap = (menusToMap: MenuAccess[]) => {
-        menusToMap.forEach(m => {
-          statusMap[m.menuName] = m.status;
-          if (m.subModules) populateMap(m.subModules);
+    if (menuConfig) {
+      setModuleSelectionEnabled(menuConfig.customMenuEnabled);
+      const statusMap: Record<number, MenuStatus> = {};
+      
+      const populateMap = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
+        items.forEach(item => {
+          statusMap[item.menuId] = item.effectiveStatus;
+          if ('modules' in item && item.modules) populateMap(item.modules);
+          if ('subModules' in item && item.subModules) populateMap(item.subModules);
         });
       };
-      populateMap(userBeingEdited.menus);
+      
+      populateMap(menuConfig.menus);
       setModuleStatuses(statusMap);
-      setInactivityTimeout(userBeingEdited.inactivityTimeout || '15');
-      setPasswordPolicy(
-        userBeingEdited.passwordPolicy && isPasswordPolicy(userBeingEdited.passwordPolicy)
-          ? userBeingEdited.passwordPolicy
-          : '30 Days'
-      );
-    } else {
-      setModuleStatuses({});
-      setInactivityTimeout('15');
-      setPasswordPolicy('30 Days');
     }
-  }, [selectedUser]);
+  }, [menuConfig]);
 
   const handleUserChange = useCallback((event: SelectChangeEvent<string>) => {
     setSelectedUser(event.target.value);
   }, []);
 
-  const handleModuleStatusChange = useCallback((moduleName: string, status: MenuStatus) => {
-    setModuleStatuses(prev => ({ ...prev, [moduleName]: status }));
+  const handleModuleStatusChange = useCallback((menuId: number, status: MenuStatus) => {
+    setModuleStatuses(prev => ({ ...prev, [menuId]: status }));
   }, []);
 
-  const handleModuleStatusSelectChange = useCallback((moduleName: string, event: SelectChangeEvent<string>) => {
+  const handleModuleStatusSelectChange = useCallback((menuId: number, event: SelectChangeEvent<string>) => {
     if (isMenuStatus(event.target.value)) {
-      handleModuleStatusChange(moduleName, event.target.value);
+      handleModuleStatusChange(menuId, event.target.value);
     }
   }, [handleModuleStatusChange]);
 
@@ -75,22 +74,41 @@ export const useDemoSecurityModal = ({ currentUser, onClose }: UseDemoSecurityMo
     }
   }, []);
 
-  const handleSave = useCallback(() => {
-    localStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
-    window.dispatchEvent(new Event('ican_inactivity_timeout_changed'));
-    onClose();
-  }, [inactivityTimeout, onClose]);
+  const handleSave = useCallback(async () => {
+    try {
+      // Build overrides by comparing current statuses with initial ones from menuConfig
+      const overrides: MenuOverride[] = [];
+      const compareAndCollect = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
+        items.forEach(item => {
+          if (moduleStatuses[item.menuId] !== item.effectiveStatus) {
+            overrides.push({ menuId: item.menuId, status: moduleStatuses[item.menuId] });
+          }
+          if ('modules' in item && item.modules) compareAndCollect(item.modules);
+          if ('subModules' in item && item.subModules) compareAndCollect(item.subModules);
+        });
+      };
 
-  const userBeingEdited = useMemo(() => {
-    const currentLoginUser = LOGIN_API_RESPONSE.find(u => u.id === selectedUser);
-    const currentUserDetails = USER_DETAILS_API_RESPONSE.find(u => u.userId === selectedUser);
-    return currentLoginUser && currentUserDetails ? { ...currentLoginUser, ...currentUserDetails } : null;
-  }, [selectedUser]);
+      if (menuConfig) {
+        compareAndCollect(menuConfig.menus);
+      }
 
-  const selectedUsername = useMemo(() => 
-    userBeingEdited ? userBeingEdited.username : currentUser.username, 
-    [userBeingEdited, currentUser.username]
-  );
+      await updateMenuConfig({
+        userId: selectedUser,
+        customMenuEnabled: moduleSelectionEnabled,
+        overrides,
+      }).unwrap();
+
+      localStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
+      window.dispatchEvent(new Event('ican_inactivity_timeout_changed'));
+      onClose();
+    } catch (error) {
+      console.error('Failed to save menu config:', error);
+    }
+  }, [selectedUser, moduleSelectionEnabled, moduleStatuses, menuConfig, updateMenuConfig, inactivityTimeout, onClose]);
+
+  const users = meDetails?.users || [];
+  const userBeingEdited = users.find(u => u.id === selectedUser);
+  const selectedUsername = userBeingEdited ? userBeingEdited.username : currentUser.username;
 
   return {
     selectedUser,
@@ -101,6 +119,10 @@ export const useDemoSecurityModal = ({ currentUser, onClose }: UseDemoSecurityMo
     moduleStatuses,
     userBeingEdited,
     selectedUsername,
+    users,
+    menus: menuConfig?.menus || [],
+    isLoading: isLoadingUsers || isLoadingMenu,
+    isSaving,
     setInactivityTimeout,
     setPasswordPolicy,
     setModuleSelectionEnabled,

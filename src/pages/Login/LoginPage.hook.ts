@@ -3,13 +3,14 @@ import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppSelector } from '@/store';
 import { setCredentials } from '@/store/slices/authSlice';
+import { resetUiState } from '@/store/slices/uiSlice';
 import { STATIC_AUTH_TOKEN, STATIC_REFRESH_TOKEN, DUMMY_USER } from '@/constants/auth';
 import { useLoginMutation } from '@/store/api/authApi';
 
 export const useLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [username, setUsername] = useState('ajohnson');
-  const [password, setPassword] = useState('password123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [login, { isLoading }] = useLoginMutation();
 
@@ -40,6 +41,9 @@ export const useLoginPage = () => {
 
     try {
       const result = await login({ username, password }).unwrap();
+
+      // Reset UI state (tabs, etc) before setting new user
+      dispatch(resetUiState());
 
       // Success! Store credentials and navigate
       dispatch(setCredentials({

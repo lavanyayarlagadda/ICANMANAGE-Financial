@@ -53,7 +53,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         { id: 'accountNumber', label: 'Account #', minWidth: 140, accessor: (r) => r.accountNumber, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.accountNumber}</Typography> },
         { id: 'patientName', label: 'Patient Name', minWidth: 160, accessor: (r) => r.patientName, render: (r) => r.patientName },
         { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, render: (r) => r.payer },
-        { id: 'description', label: 'Description', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
+        // { id: 'description', label: 'Description', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         { id: 'totalDue', label: 'Total Due', minWidth: 110, align: 'right', accessor: (r) => r.totalDue, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.totalDue)}</Box> },
         { id: 'amountCollected', label: 'Collected', minWidth: 110, align: 'right', accessor: (r) => r.amountCollected, render: (r) => <Box sx={{ fontFamily: 'monospace', color: 'success.main' }}>{formatCurrency(r.amountCollected)}</Box> },
         {

@@ -21,9 +21,7 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckIcon from '@mui/icons-material/Check';
-import Accordion from '@/components/atoms/Accordion/Accordion';
-import { themeConfig } from '@/theme';
-import { LOGIN_API_RESPONSE } from '@/utils/dummyData';
+import { themeConfig } from '@/theme/themeConfig';
 import { useDemoSecurityModal, MODULE_STATUS_OPTIONS, PASSWORD_POLICY_OPTIONS } from './DemoSecurityModal.hook';
 import * as styles from './DemoSecurityModal.styles';
 
@@ -43,6 +41,10 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
         moduleStatuses,
         userBeingEdited,
         selectedUsername,
+        users,
+        menus,
+        isLoading,
+        isSaving,
         setInactivityTimeout,
         setModuleSelectionEnabled,
         setSearchQuery,
@@ -50,7 +52,66 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
         handleModuleStatusSelectChange,
         handlePasswordPolicyChange,
         handleSave,
-    } = useDemoSecurityModal({ currentUser, onClose });
+    } = useDemoSecurityModal({ currentUser, open, onClose });
+
+    const renderTree = (items: any[], level = 0): React.ReactNode => {
+        const filteredItems = items.filter(item => 
+            item.menuName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            ('modules' in item && item.modules?.some((m: any) => m.menuName.toLowerCase().includes(searchQuery.toLowerCase()))) ||
+            ('subModules' in item && item.subModules?.some((s: any) => s.menuName.toLowerCase().includes(searchQuery.toLowerCase())))
+        );
+
+        if (filteredItems.length === 0 && searchQuery) return null;
+
+        return filteredItems.map((item, index) => {
+            const hasChildren = ('modules' in item && item.modules && item.modules.length > 0) || 
+                               ('subModules' in item && item.subModules && item.subModules.length > 0);
+            
+            const currentStatus = moduleStatuses[item.menuId] || 'Hidden';
+            
+            // Level-specific styles
+            const isLevel0 = level === 0;
+            const isLevel1 = level === 1;
+            const isLevel2 = level === 2;
+
+            return (
+                <React.Fragment key={item.menuId}>
+                    <Box sx={styles.treeItemStyles(level, isLevel0, isLevel1)}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, pr: 1 }}>
+                            {isLevel2 && (
+                                <Box sx={styles.treeBulletStyles} />
+                            )}
+                            <Typography sx={styles.treeTextStyles(isLevel0, isLevel1)}>
+                                {item.menuName}
+                            </Typography>
+                        </Box>
+                        <FormControl size="small" sx={{ width: { xs: 100, sm: 110 }, flexShrink: 0 }}>
+                            <Select
+                                value={currentStatus}
+                                onChange={(e) => handleModuleStatusSelectChange(item.menuId, e)}
+                                disabled={!moduleSelectionEnabled}
+                                sx={{
+                                    ...styles.statusSelectStyles,
+                                    fontSize: isLevel0 ? '0.85rem' : '0.8rem',
+                                    height: isLevel0 ? '32px' : '28px'
+                                }}
+                            >
+                                {MODULE_STATUS_OPTIONS.map(statusOption => (
+                                    <MenuItem key={statusOption} value={statusOption} sx={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        {currentStatus === statusOption ? <CheckIcon sx={{ fontSize: 14 }} /> : <Box sx={{ width: 14 }} />}
+                                        {statusOption}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    {hasChildren && currentStatus !== 'Hidden' && (
+                        renderTree(item.modules || item.subModules, level + 1)
+                    )}
+                </React.Fragment>
+            );
+        });
+    };
 
     return (
         <Dialog
@@ -92,7 +153,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                 displayEmpty
                                 sx={{ backgroundColor: themeConfig.colors.surface, borderRadius: 1 }}
                             >
-                                {LOGIN_API_RESPONSE.map(u => (
+                                {users.map(u => (
                                     <MenuItem key={u.id} value={u.id}>
                                         {u.username} ({u.role.charAt(0).toUpperCase() + u.role.slice(1)}) {u.id === currentUser.id ? '(You)' : ''}
                                     </MenuItem>
@@ -140,60 +201,13 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                         />
                     </Box>
 
-                    {moduleSelectionEnabled && userBeingEdited?.menus && (
+                    {isLoading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                            <Typography>Loading user configuration...</Typography>
+                        </Box>
+                    ) : moduleSelectionEnabled && menus && (
                         <Box sx={styles.accordionListStyles}>
-                            {userBeingEdited.menus.map((menuItem, index) => (
-                                <React.Fragment key={menuItem.menuName}>
-                                    <Accordion hideBorderTop={index === 0}>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: { xs: 1.5, sm: 2 }, pl: { xs: 2, sm: 5 } }}>
-                                            <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem', flex: 1, pr: 1, wordBreak: 'break-word' }}>
-                                                {menuItem.menuName}
-                                            </Typography>
-                                            <FormControl size="small" sx={{ width: { xs: 110, sm: 120 }, flexShrink: 0 }}>
-                                                <Select
-                                                    value={moduleStatuses[menuItem.menuName] || 'Hidden'}
-                                                    onChange={(e) => handleModuleStatusSelectChange(menuItem.menuName, e)}
-                                                    disabled={!moduleSelectionEnabled}
-                                                    sx={styles.statusSelectStyles}
-                                                >
-                                                    {MODULE_STATUS_OPTIONS.map(statusOption => (
-                                                        <MenuItem key={statusOption} value={statusOption} sx={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                            {moduleStatuses[menuItem.menuName] === statusOption ? <CheckIcon fontSize="small" /> : <Box sx={{ width: 20 }} />}
-                                                            {statusOption}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </FormControl>
-                                        </Box>
-                                    </Accordion>
-                                    {menuItem.subModules && moduleStatuses[menuItem.menuName] !== 'Hidden' && (
-                                        <Accordion summary={`${menuItem.menuName} Sub-Modules`}>
-                                            {menuItem.subModules.map((subItem, sIdx, sArr) => (
-                                                <Box key={subItem.menuName} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: { xs: 1.5, sm: 2 }, pl: { xs: 3, sm: 5 }, borderBottom: sIdx < sArr.length - 1 ? `1px solid ${themeConfig.colors.border}` : 'none' }}>
-                                                    <Typography sx={{ color: themeConfig.colors.primary, fontSize: '0.85rem', flex: 1, pr: 1, wordBreak: 'break-word' }}>
-                                                        {subItem.menuName}
-                                                    </Typography>
-                                                    <FormControl size="small" sx={{ width: { xs: 110, sm: 120 }, flexShrink: 0 }}>
-                                                        <Select
-                                                            value={moduleStatuses[subItem.menuName] || 'Hidden'}
-                                                            onChange={(e) => handleModuleStatusSelectChange(subItem.menuName, e)}
-                                                            disabled={moduleStatuses[menuItem.menuName] === 'Disabled' || !moduleSelectionEnabled}
-                                                            sx={styles.statusSelectStyles}
-                                                        >
-                                                            {MODULE_STATUS_OPTIONS.map(statusOption => (
-                                                                <MenuItem key={statusOption} value={statusOption} sx={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                                    {moduleStatuses[subItem.menuName] === statusOption ? <CheckIcon fontSize="small" /> : <Box sx={{ width: 20 }} />}
-                                                                    {statusOption}
-                                                                </MenuItem>
-                                                            ))}
-                                                        </Select>
-                                                    </FormControl>
-                                                </Box>
-                                            ))}
-                                        </Accordion>
-                                    )}
-                                </React.Fragment>
-                            ))}
+                            {renderTree(menus)}
                         </Box>
                     )}
                 </Box>
@@ -221,8 +235,22 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
             <DialogActions sx={{ px: { xs: 2, sm: 3 }, pb: 2, justifyContent: 'space-between' }}>
                 <Box component="img" src="/cognitiveLogo.svg" alt="Logo" sx={{ height: 28, display: { xs: 'none', sm: 'block' } }} />
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button onClick={onClose} variant="outlined" sx={{ borderColor: themeConfig.colors.border, color: themeConfig.colors.text.primary }}>Cancel</Button>
-                    <Button onClick={handleSave} variant="contained" sx={{ backgroundColor: themeConfig.colors.primary }}>Save Changes</Button>
+                    <Button 
+                        onClick={onClose} 
+                        variant="outlined" 
+                        disabled={isSaving}
+                        sx={{ borderColor: themeConfig.colors.border, color: themeConfig.colors.text.primary }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={handleSave} 
+                        variant="contained" 
+                        disabled={isSaving}
+                        sx={{ backgroundColor: themeConfig.colors.primary }}
+                    >
+                        {isSaving ? 'Saving...' : 'Save Changes'}
+                    </Button>
                 </Box>
             </DialogActions>
         </Dialog>

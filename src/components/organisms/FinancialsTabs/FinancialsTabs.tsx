@@ -3,7 +3,7 @@ import { Box, Typography, useTheme, useMediaQuery, Select, MenuItem, SelectChang
 import Button from '@/components/atoms/Button/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { useFinancialsTabs, mainTabs, transactionSubTabs, statementsSubTabs, varianceSubTabs, trendsSubTabs, reconciliationSubTabs } from './FinancialsTabs.hook';
+import { useFinancialsTabs } from './FinancialsTabs.hook';
 import { themeConfig } from '@/theme/themeConfig';
 import * as styles from './FinancialsTabs.styles';
 
@@ -32,6 +32,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
     showSubTabsRow,
     hasSubTabs,
     filteredMainTabs,
+    currentSubTabs,
     handleMainTabChange,
     handleSubTabChange,
   } = useFinancialsTabs(props);
@@ -56,7 +57,12 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 sx={styles.tabletSelectStyles(theme)}
               >
                 {filteredMainTabs.map((tab) => (
-                  <MenuItem key={tab.id} value={tab.id} sx={{ fontWeight: 500, fontSize: '14px' }}>
+                  <MenuItem 
+                    key={tab.id} 
+                    value={tab.id} 
+                    disabled={tab.status === 'Disabled'}
+                    sx={{ fontWeight: 500, fontSize: '14px' }}
+                  >
                     {tab.label}
                   </MenuItem>
                 ))}
@@ -70,7 +76,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
               allowScrollButtonsMobile
               onChange={(_, val) => {
                 const tab = filteredMainTabs.find(t => t.id === val);
-                if (tab) handleMainTabChange(tab.id, tab.path);
+                if (tab && tab.status !== 'Disabled') handleMainTabChange(tab.id, tab.path);
               }}
               sx={{
                 width: '100%',
@@ -101,8 +107,9 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 <Tab
                   key={tab.id}
                   value={tab.id}
+                  disabled={tab.status === 'Disabled'}
                   label={
-                    <Box sx={styles.mainTabItemStyles(activeTab === tab.id)}>
+                    <Box sx={styles.mainTabItemStyles(activeTab === tab.id, tab.status === 'Disabled')}>
                       {tab.label}
                     </Box>
                   }
@@ -124,15 +131,8 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 scrollButtons="auto"
                 allowScrollButtonsMobile
                 onChange={(_, val) => {
-                  const currentSubTabs =
-                    activeTab === 0 ? transactionSubTabs :
-                      activeTab === 2 ? statementsSubTabs.filter(st => !(st.label === 'PIP Statements' && isMindPath)) :
-                        activeTab === 3 ? varianceSubTabs :
-                          activeTab === 4 ? trendsSubTabs :
-                            activeTab === 5 ? reconciliationSubTabs : [];
-
                   const subTab = currentSubTabs.find(st => st.id === val);
-                  if (subTab) handleSubTabChange(subTab.id, subTab.path);
+                  if (subTab && subTab.status !== 'Disabled') handleSubTabChange(subTab.id, subTab.path);
                 }}
                 sx={{
                   width: '100%',
@@ -155,62 +155,13 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                   }
                 }}
               >
-                {activeTab === 0 && transactionSubTabs.map((subTab) => (
+                {currentSubTabs.map((subTab) => (
                   <Tab
                     key={subTab.id}
                     value={subTab.id}
+                    disabled={subTab.status === 'Disabled'}
                     label={
-                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                        {subTab.label}
-                      </Box>
-                    }
-                    disableRipple
-                  />
-                ))}
-                {activeTab === 2 && statementsSubTabs
-                  .filter(subTab => !(subTab.label === 'PIP Statements' && isMindPath))
-                  .map((subTab) => (
-                    <Tab
-                      key={subTab.id}
-                      value={subTab.id}
-                      label={
-                        <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                          {subTab.label}
-                        </Box>
-                      }
-                      disableRipple
-                    />
-                  ))}
-                {activeTab === 3 && varianceSubTabs.map((subTab) => (
-                  <Tab
-                    key={subTab.id}
-                    value={subTab.id}
-                    label={
-                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                        {subTab.label}
-                      </Box>
-                    }
-                    disableRipple
-                  />
-                ))}
-                {activeTab === 4 && trendsSubTabs.map((subTab) => (
-                  <Tab
-                    key={subTab.id}
-                    value={subTab.id}
-                    label={
-                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
-                        {subTab.label}
-                      </Box>
-                    }
-                    disableRipple
-                  />
-                ))}
-                {activeTab === 5 && reconciliationSubTabs.map((subTab) => (
-                  <Tab
-                    key={subTab.id}
-                    value={subTab.id}
-                    label={
-                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id)}>
+                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, subTab.status === 'Disabled')}>
                         {subTab.label}
                       </Box>
                     }

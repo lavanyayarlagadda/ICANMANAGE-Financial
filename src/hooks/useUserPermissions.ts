@@ -1,18 +1,20 @@
+import { useMemo } from 'react';
 import { useAppSelector } from '@/store';
 import { COMPANIES } from '@/config/constants';
-import { useMemo } from 'react';
-import { MenuAccess } from '@/store/slices/authSlice';
+import { useGetMeDetailsQuery, MenuItem, MenuModule, SubMenuItem } from '@/store/api/userApi';
 
 /**
  * Hook to determine user permissions based on company and assigned menus.
  */
 export const useUserPermissions = () => {
-  const user = useAppSelector((state) => state.auth.user);
+  const { data: userDetails } = useGetMeDetailsQuery();
+  const authUser = useAppSelector((state) => state.auth.user);
+  const { selectedTenantId } = useAppSelector((s) => s.tenant);
+
+  const user = userDetails || authUser;
   const menus = user?.menus || [];
 
   const company = user?.company?.toLowerCase();
-    const { selectedTenantId } = useAppSelector((s) => s.tenant);
-
   const isMindPath = company === COMPANIES.MINDPATH ||  
       selectedTenantId?.toLowerCase() === 'mindpath';
   const isCognitiveUser = company === COMPANIES.COGNITIVE_HEALTH_IT;
@@ -21,18 +23,24 @@ export const useUserPermissions = () => {
    * Checks the status of a specific menu item.
    */
   const getMenuStatus = useMemo(() => (label: string) => {
-    const findStatus = (menusArray: MenuAccess[]): string | null => {
-      for (const m of menusArray) {
-        if (m.menuName?.toLowerCase() === label.toLowerCase()) return m.status;
-        if (m.subModules) {
-          const sub = findStatus(m.subModules);
-          if (sub) return sub;
+    const findStatus = (menusArray: MenuItem[] | MenuModule[] | SubMenuItem[]): string | null => {
+      for (const item of menusArray) {
+        if (item.menuName?.toLowerCase() === label.toLowerCase()) return item.status;
+        
+        // Use type assertions or check for property existence for recursion
+        if ('modules' in item && item.modules) {
+          const status = findStatus(item.modules);
+          if (status) return status;
+        }
+        if ('subModules' in item && item.subModules) {
+          const status = findStatus(item.subModules);
+          if (status) return status;
         }
       }
       return null;
     };
     
-    if (!menus || menus.length === 0) return 'Visible';
+    if (!menus || menus.length === 0) return 'Active';
     return findStatus(menus) || 'Hidden';
   }, [menus]);
 
@@ -48,5 +56,7 @@ export const useUserPermissions = () => {
     canViewFinancials,
     getMenuStatus,
     company,
+    accessibleModules: user?.accessibleModules || [],
+    user,
   };
 };

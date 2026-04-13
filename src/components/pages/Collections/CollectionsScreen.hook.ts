@@ -1,13 +1,84 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store';
-import { openViewDialog, openEditDialog, openConfirmDelete, setIsGlobalFetching } from '@/store/slices/uiSlice';
+import { useState, useMemo, useCallback } from 'react';
+import { useAppDispatch } from '@/store';
+import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
 import { CollectionAccount } from '@/interfaces/financials';
-import { useSearchCollectionsQuery } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
+
+const DUMMY_COLLECTIONS: CollectionAccount[] = [
+    {
+        id: '1',
+        accountNumber: 'ACC-2024-001',
+        patientName: 'John Doe',
+        payer: 'United Healthcare',
+        totalDue: 2500.00,
+        amountCollected: 1500.00,
+        balance: 1000.00,
+        lastActivityDate: '2024-03-15',
+        assignedTo: 'Sarah Smith',
+        aging: '31-60',
+        priority: 'High',
+        status: 'Open'
+    },
+    {
+        id: '2',
+        accountNumber: 'ACC-2024-002',
+        patientName: 'Jane Smith',
+        payer: 'Aetna',
+        totalDue: 1200.00,
+        amountCollected: 1200.00,
+        balance: 0.00,
+        lastActivityDate: '2024-03-20',
+        assignedTo: 'Sarah Smith',
+        aging: 'N/A',
+        priority: 'Low',
+        status: 'Closed'
+    },
+    {
+        id: '3',
+        accountNumber: 'ACC-2024-003',
+        patientName: 'Robert Brown',
+        payer: 'Blue Shield',
+        totalDue: 5000.00,
+        amountCollected: 1000.00,
+        balance: 4000.00,
+        lastActivityDate: '2024-03-10',
+        assignedTo: 'Mike Miller',
+        aging: '61-90',
+        priority: 'High',
+        status: 'In Progress'
+    },
+    {
+        id: '4',
+        accountNumber: 'ACC-2024-004',
+        patientName: 'Emily Wilson',
+        payer: 'Medicare',
+        totalDue: 850.00,
+        amountCollected: 425.00,
+        balance: 425.00,
+        lastActivityDate: '2024-03-18',
+        assignedTo: 'Sarah Smith',
+        aging: '0-30',
+        priority: 'Medium',
+        status: 'Open'
+    },
+    {
+        id: '5',
+        accountNumber: 'ACC-2024-005',
+        patientName: 'Michael Davis',
+        payer: 'Aetna',
+        totalDue: 2100.00,
+        amountCollected: 0.00,
+        balance: 2100.00,
+        lastActivityDate: '2024-03-05',
+        assignedTo: 'Mike Miller',
+        aging: '91-120',
+        priority: 'High',
+        status: 'Open'
+    }
+];
 
 export const useCollectionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    const { actionTriggers } = useAppSelector(s => s.ui);
     
     const [queryParams, setQueryParams] = useState({
         page: 0,
@@ -18,22 +89,8 @@ export const useCollectionsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         toDate: format(new Date(), 'yyyy-MM-dd'),
     });
 
-    const { data: searchData, isFetching: isSearching, isError: isSearchError, refetch: refetchSearch } = useSearchCollectionsQuery({
-        page: queryParams.page + 1,
-        size: queryParams.size,
-        sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
-        fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
-    }, { skip });
-
-    useEffect(() => {
-        dispatch(setIsGlobalFetching(isSearching));
-        return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isSearching, dispatch]);
-
-    const collections = useMemo(() => searchData?.data?.content ?? [], [searchData]);
-    const totalElements = searchData?.data?.totalElements ?? 0;
+    const collections = useMemo(() => DUMMY_COLLECTIONS, []);
+    const totalElements = DUMMY_COLLECTIONS.length;
 
     const stats = useMemo(() => {
         const totalDue = collections.reduce((sum, r) => sum + r.totalDue, 0);
@@ -73,7 +130,7 @@ export const useCollectionsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         handleSortChange,
         handlePageChange,
         handleRowsPerPageChange,
-        isError: isSearchError,
+        isError: false,
         dispatch
     };
 };
