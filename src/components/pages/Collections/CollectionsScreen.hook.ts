@@ -45,7 +45,7 @@ const DUMMY_COLLECTIONS: CollectionAccount[] = [
         assignedTo: 'Mike Miller',
         aging: '61-90',
         priority: 'High',
-        status: 'In Progress'
+        status: 'Closed'
     },
     {
         id: '4',
@@ -79,7 +79,7 @@ const DUMMY_COLLECTIONS: CollectionAccount[] = [
 
 export const useCollectionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    
+
     const [queryParams, setQueryParams] = useState({
         page: 0,
         size: 10,
