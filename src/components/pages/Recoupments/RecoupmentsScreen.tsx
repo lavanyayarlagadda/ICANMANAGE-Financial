@@ -93,7 +93,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading recoupments.</Box>;
 
     return (
-        <Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>
             <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Original Payments" value={formatCurrency(stats.totalOriginal)} variant="highlight" /></Grid>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Recouped" value={formatCurrency(stats.totalRecouped)} variant="negative" /></Grid>

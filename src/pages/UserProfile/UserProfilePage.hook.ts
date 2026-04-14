@@ -3,12 +3,14 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '@/store';
 import { MenuAccess } from '@/store/slices/authSlice';
-import { useGetMeDetailsQuery, MenuItem } from '@/store/api/userApi';
+import { useGetMeDetailsQuery, MenuItem, useUpdateMePreferencesMutation } from '@/store/api/userApi';
 
 export const useUserProfilePage = () => {
     const navigate = useNavigate();
     const { data: userDetails, isLoading: isLoadingDetails } = useGetMeDetailsQuery();
     const authUser = useSelector((state: RootState) => state.auth.user);
+    
+    const [updatePreferences, { isLoading: isUpdatingPreferences }] = useUpdateMePreferencesMutation();
     
     // Fallback to authUser if userDetails is not yet loaded
     const user = userDetails || authUser;
@@ -93,10 +95,15 @@ export const useUserProfilePage = () => {
         setTimeout(() => setSuccessMessage(''), 3000);
     }, []);
 
-    const handleSavePreferences = useCallback(() => {
-        setSuccessMessage('Preferences saved successfully.');
-        setTimeout(() => setSuccessMessage(''), 3000);
-    }, []);
+    const handleSavePreferences = useCallback(async () => {
+        try {
+            await updatePreferences({ defaultLandingPage: landingPage }).unwrap();
+            setSuccessMessage('Preferences saved successfully.');
+            setTimeout(() => setSuccessMessage(''), 3000);
+        } catch (error) {
+            console.error('Failed to update preferences:', error);
+        }
+    }, [updatePreferences, landingPage]);
 
     const handleBack = useCallback(() => navigate(-1), [navigate]);
 
@@ -121,6 +128,6 @@ export const useUserProfilePage = () => {
         handleBack,
         isModuleVisible,
         isModuleDisabled,
-        isLoadingDetails,
+        isLoadingDetails: isLoadingDetails || isUpdatingPreferences,
     };
 };

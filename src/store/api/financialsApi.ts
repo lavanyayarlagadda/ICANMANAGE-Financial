@@ -132,6 +132,56 @@ export const financialsApi = baseApi.injectEndpoints({
         responseHandler: (response) => response.blob(),
       }),
     }),
+    exportAllTransactions: builder.query<
+      Blob,
+      DateRangeParams & { format: "pdf" | "xlsx" }
+    >({
+      query: (params) => ({
+        url: `financials/export/transactions/all`,
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    exportBankDeposits: builder.query<
+      Blob,
+      DateRangeParams & { format: "pdf" | "xlsx" }
+    >({
+      query: (params) => ({
+        url: `financials/export/bank-deposits`,
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    exportForwardBalanceNotices: builder.query<
+      Blob,
+      DateRangeParams & { format: "pdf" | "xlsx" }
+    >({
+      query: (params) => ({
+        url: `financials/export/forward-balance-notices`,
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    exportSuspenseAccounts: builder.query<
+      Blob,
+      DateRangeParams & { format: "pdf" | "xlsx" }
+    >({
+      query: (params) => ({
+        url: `financials/export/suspense-accounts`,
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+    exportCollections: builder.query<
+      Blob,
+      DateRangeParams & { format: "pdf" | "xlsx" }
+    >({
+      query: (params) => ({
+        url: `financials/export/collections`,
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
     searchFeeScheduleVariance: builder.query<
       FeeScheduleVarianceDetailsResponse,
       PipSearchRequest
@@ -284,7 +334,7 @@ export const financialsApi = baseApi.injectEndpoints({
       TableSearchRequest
     >({
       query: (body) => ({
-        url: "financials/recoupments",
+        url: "/financials/transactions/recoupments",
         method: "POST",
         body,
       }),
@@ -295,7 +345,7 @@ export const financialsApi = baseApi.injectEndpoints({
       TableSearchRequest
     >({
       query: (body) => ({
-        url: "financials/other-adjustments",
+        url: "financials/transactions/adjustments",
         method: "POST",
         body,
       }),
@@ -362,6 +412,11 @@ export const {
   useGetPayerPerformanceQuery,
   useLazyExportFeeScheduleVarianceQuery,
   useLazyExportPaymentVarianceQuery,
+  useLazyExportAllTransactionsQuery,
+  useLazyExportBankDepositsQuery,
+  useLazyExportForwardBalanceNoticesQuery,
+  useLazyExportSuspenseAccountsQuery,
+  useLazyExportCollectionsQuery,
   useSearchAllTransactionsQuery,
   useSearchRecoupmentsQuery,
   useSearchOtherAdjustmentsQuery,

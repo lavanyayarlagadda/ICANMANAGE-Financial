@@ -25,7 +25,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
     activeTab,
     activeSubTab,
     isReloading,
-    isMindPath,
+    // isMindPath,
     shouldShowPrint,
     shouldShowReload,
     shouldShowExport,
@@ -57,9 +57,9 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 sx={styles.tabletSelectStyles(theme)}
               >
                 {filteredMainTabs.map((tab) => (
-                  <MenuItem 
-                    key={tab.id} 
-                    value={tab.id} 
+                  <MenuItem
+                    key={tab.id}
+                    value={tab.id}
                     disabled={tab.status === 'Disabled'}
                     sx={{ fontWeight: 500, fontSize: '14px' }}
                   >
@@ -85,14 +85,14 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 '& .MuiTabs-flexContainer': { gap: 0.5 },
                 '& .MuiTabs-scroller': { overflow: 'hidden !important' },
                 '& .MuiTabs-scrollButtons': {
-                    width: '32px',
-                    borderRadius: '4px',
-                    backgroundColor: alpha(themeConfig.colors.slate[100], 0.8),
-                    mx: 0.5,
-                    color: themeConfig.colors.primary,
-                    transition: 'all 0.2s',
-                    '&:hover': { backgroundColor: themeConfig.colors.slate[200] },
-                    '&.Mui-disabled': { display: 'none' }
+                  width: '32px',
+                  borderRadius: '4px',
+                  backgroundColor: alpha(themeConfig.colors.slate[100], 0.8),
+                  mx: 0.5,
+                  color: themeConfig.colors.primary,
+                  transition: 'all 0.2s',
+                  '&:hover': { backgroundColor: themeConfig.colors.slate[200] },
+                  '&.Mui-disabled': { display: 'none' }
                 },
                 '& .MuiTab-root': {
                   minHeight: '40px',

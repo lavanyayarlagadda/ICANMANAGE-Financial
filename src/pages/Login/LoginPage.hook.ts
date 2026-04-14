@@ -6,6 +6,8 @@ import { setCredentials } from '@/store/slices/authSlice';
 import { resetUiState } from '@/store/slices/uiSlice';
 import { STATIC_AUTH_TOKEN, STATIC_REFRESH_TOKEN, DUMMY_USER } from '@/constants/auth';
 import { useLoginMutation } from '@/store/api/authApi';
+import { baseApi } from '@/store/api/baseApi';
+import { NAV_CONFIG } from '@/config/navigation';
 
 export const useLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,15 +19,13 @@ export const useLoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
-
-  const from = '/financials/all-transactions';
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(from, { replace: true });
+      navigate('/', { replace: true });
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, navigate]);
 
   const togglePasswordVisibility = useCallback(() => setShowPassword((show) => !show), []);
   const handleMouseDownPassword = useCallback((event: React.MouseEvent<HTMLButtonElement>) => event.preventDefault(), []);
@@ -44,16 +44,20 @@ export const useLoginPage = () => {
 
       // Reset UI state (tabs, etc) before setting new user
       dispatch(resetUiState());
+      
+      // Wipe prior cached user queries (like /me/details) and tenants
+      dispatch(baseApi.util.resetApiState());
+      localStorage.removeItem('ican_selected_tenant');
 
-      // Success! Store credentials and navigate
+      // Success! Store credentials and navigate to root resolver
       dispatch(setCredentials({
         user: result.user,
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
       }));
 
-      // Force navigation to the All Transactions screen (Transactions 1st sub-tab) every time
-      navigate('/financials/all-transactions', { replace: true });
+      // Navigate to / which delegates to RootRedirect for fetching the live defaultLandingPage
+      navigate('/', { replace: true });
     } catch (err: any) {
       console.error('Login failed:', err);
       setErrorMsg(err.data?.message || 'Invalid username or password');

@@ -29,7 +29,7 @@ export const useFinancialsPage = () => {
   const dispatch = useAppDispatch();
   const uiState = useAppSelector((s) => s.ui);
   const { showRemittanceDetail } = useAppSelector((s) => s.financials);
-  const { canViewPip } = useUserPermissions();
+  // const { canViewPip } = useUserPermissions();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,9 +44,9 @@ export const useFinancialsPage = () => {
       dispatch(setActivePage('collections'));
     } else if (location.pathname.startsWith('/financials')) {
       dispatch(setActivePage('financials'));
-      
+
       const pathPart = location.pathname.split('/financials/')[1] || '';
-      
+
       // Build dynamic path map from financialsTabs
       const pathMap: Record<string, { tab: number; subTab: number }> = {};
       financialsTabs.forEach(mainTab => {
@@ -69,10 +69,10 @@ export const useFinancialsPage = () => {
         // Current path is invalid or hidden, redirect to first available tab
         const firstTab = financialsTabs[0];
         if (firstTab) {
-            const defaultPath = firstTab.subTabs?.[0]?.path || firstTab.path;
-            if (location.pathname !== defaultPath) {
-                navigate(defaultPath, { replace: true });
-            }
+          const defaultPath = firstTab.subTabs?.[0]?.path || firstTab.path;
+          if (location.pathname !== defaultPath) {
+            navigate(defaultPath, { replace: true });
+          }
         }
       }
     }
@@ -110,12 +110,12 @@ export const useFinancialsPage = () => {
     const activeMain = financialsTabs.find((t: DynamicTab) => t.id === uiState.activeTab);
     if (!activeMain) return false;
     if (activeMain.status === 'Disabled') return true;
-    
+
     if (activeMain.subTabs) {
       const activeSub = activeMain.subTabs.find((st: DynamicTab) => st.id === uiState.activeSubTab);
       if (activeSub && activeSub.status === 'Disabled') return true;
     }
-    
+
     return false;
   }, [financialsTabs, uiState.activeTab, uiState.activeSubTab]);
 

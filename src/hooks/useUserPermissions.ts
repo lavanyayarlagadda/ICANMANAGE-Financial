@@ -14,8 +14,8 @@ export const useUserPermissions = () => {
   const menus = user?.menus || [];
 
   const company = user?.company?.toLowerCase();
-  const isMindPath = company === COMPANIES.MINDPATH ||
-    selectedTenantId?.toLowerCase() === 'mindpath';
+  // const isMindPath = company === COMPANIES.MINDPATH ||
+  //   selectedTenantId?.toLowerCase() === 'mindpath';
   const isCognitiveUser = company === COMPANIES.COGNITIVE_HEALTH_IT;
 
   /**
@@ -43,14 +43,14 @@ export const useUserPermissions = () => {
     return findStatus(menus) || 'Hidden';
   }, [menus]);
 
-  const canViewPip = !isMindPath && getMenuStatus('PIP') !== 'Hidden';
+  // const canViewPip = !isMindPath && getMenuStatus('PIP') !== 'Hidden';
   const canViewCollections = getMenuStatus('Collections') !== 'Hidden';
   const canViewFinancials = getMenuStatus('Financials') !== 'Hidden';
 
   return {
-    isMindPath,
+    // isMindPath,
     isCognitiveUser,
-    canViewPip,
+    // canViewPip,
     canViewCollections,
     canViewFinancials,
     getMenuStatus,

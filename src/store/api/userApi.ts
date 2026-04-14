@@ -9,6 +9,13 @@ export interface UserDetail {
   email?: string;
 }
 
+export interface UserDropdownItem {
+  userId: number;
+  username: string;
+  fkCustId: number;
+  tenantId: string;
+}
+
 export interface MenuItem {
   menuId: number;
   menuName: string;
@@ -40,7 +47,8 @@ export interface MeDetailsResponse {
   defaultLandingPage: string;
   inactivityTimeout: string;
   passwordPolicy: string;
-  users?: UserDetail[]; // Keep it optional just in case it's returned by another call or I misread
+  users?: UserDetail[];
+  usersDropdown?: UserDropdownItem[];
 }
 
 export interface EffectiveSubMenuItem {
@@ -94,10 +102,17 @@ export interface UpdateMenuConfigRequest {
   overrides: MenuOverride[];
 }
 
+export interface UpdatePreferencesRequest {
+  defaultLandingPage: string;
+}
+
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getMeDetails: builder.query<MeDetailsResponse, void>({
       query: () => '/me/details',
+      transformResponse: (response: { data: MeDetailsResponse } | MeDetailsResponse) => {
+        return 'data' in response && response.data ? (response.data as MeDetailsResponse) : (response as MeDetailsResponse);
+      },
       providesTags: ['Auth', 'UserPermissions'],
     }),
     getUserMenuConfig: builder.query<EffectiveMenuResponse, { userId: string; effectiveRole?: string }>({
@@ -105,6 +120,9 @@ export const userApi = baseApi.injectEndpoints({
         url: `/admin/users/${userId}/menu-config`,
         params: { effectiveRole },
       }),
+      transformResponse: (response: { data: EffectiveMenuResponse } | EffectiveMenuResponse) => {
+        return 'data' in response && response.data ? (response.data as EffectiveMenuResponse) : (response as EffectiveMenuResponse);
+      },
       providesTags: (result, error, { userId }) => [{ type: 'Auth', id: `MENU_${userId}` }, 'UserPermissions'],
     }),
     updateUserMenuConfig: builder.mutation<void, UpdateMenuConfigRequest>({
@@ -115,6 +133,14 @@ export const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, { userId }) => [{ type: 'Auth', id: `MENU_${userId}` }, 'UserPermissions'],
     }),
+    updateMePreferences: builder.mutation<void, UpdatePreferencesRequest>({
+      query: (body) => ({
+        url: `/me/preferences`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['UserPermissions', 'Auth'],
+    }),
   }),
 });
 
@@ -122,4 +148,5 @@ export const {
   useGetMeDetailsQuery,
   useGetUserMenuConfigQuery,
   useUpdateUserMenuConfigMutation,
+  useUpdateMePreferencesMutation,
 } = userApi;

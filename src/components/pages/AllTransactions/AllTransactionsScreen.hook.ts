@@ -2,7 +2,7 @@ import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
-import { useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery } from '@/store/api/financialsApi';
+import { useLazyExportAllTransactionsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery } from '@/store/api/financialsApi';
 import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { setRemittanceClaims, setRemittanceDetail, setSelectedClaimIndex, setSelectedPaymentId, setShowRemittanceDetail, setGlobalFilters } from '@/store/slices/financialsSlice';
@@ -10,6 +10,7 @@ import {
     setIsDrillingDown as setGlobalDrillingDown,
 } from '@/store/slices/uiSlice';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
 
 
 export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
@@ -19,10 +20,10 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     const { actionTriggers } = useAppSelector((s: RootState) => s.ui);
     const { globalFilters } = useAppSelector((s: RootState) => s.financials);
 
-    const isMindPath = useMemo(
-        () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
-        [user, selectedTenantId]
-    );
+    // const isMindPath = useMemo(
+    //     () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
+    //     [user, selectedTenantId]
+    // );
 
     const [queryParams, setQueryParams] = useState({
         page: 0,
@@ -52,8 +53,8 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
 
     const transactions = useMemo(() => {
         const raw = data?.data?.content ?? [];
-        return isMindPath ? raw.filter(t => t.transactionType !== 'PIP') : raw;
-    }, [data, isMindPath]);
+        return raw;
+    }, [data]);
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
@@ -68,12 +69,29 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         return () => { dispatch(setIsGlobalFetching(false)); };
     }, [isFetching, skip, dispatch]);
 
-    const handleExport = useCallback((formatType: 'pdf' | 'xlsx') => {
-        dispatch(setActiveExportType(formatType));
-        setTimeout(() => {
+    const [triggerExport] = useLazyExportAllTransactionsQuery();
+
+    const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
+        try {
+            dispatch(setActiveExportType(formatType));
+            const result = await triggerExport({
+                fromDate: queryParams.fromDate,
+                toDate: queryParams.toDate,
+                format: formatType
+            }).unwrap();
+
+            if (result !== undefined) {
+                downloadFileFromBlob(
+                    result,
+                    `All_Transactions_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
+                );
+            }
+        } catch (err) {
+            console.error('All Transactions Export failed:', err);
+        } finally {
             dispatch(setActiveExportType(null));
-        }, 1500);
-    }, [dispatch]);
+        }
+    }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
@@ -191,7 +209,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         queryParams,
         globalFilters,
         drillDownParams,
-        isMindPath,
+        // isMindPath,
         handleDrillDown,
         handleEdit,
         handleDelete,

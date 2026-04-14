@@ -161,19 +161,24 @@ export interface ReconciliationPerformanceResponse {
 
 export interface ForecastDashboardResponse {
   data: {
-    team: string;
-    reconciledCheckCountPct: string;
-    unreconciledCheckCountPct: string;
-    checkCountPctByTeam: string;
-    reconciledCheckCount: string;
-    unreconciledCheckCount: string;
-    reconciledAmountPct: string;
-    unreconciledAmountPct: string;
-    amountPctByTeam: string;
-    totalAmountPosted: string;
-    totalAmountNotPosted: string;
-    avgDaysToReconcile: string | null;
-  }[];
+    content: {
+      team: string;
+      reconciledCheckCountPct: string;
+      unreconciledCheckCountPct: string;
+      checkCountPctByTeam: string;
+      reconciledCheckCount: string;
+      unreconciledCheckCount: string;
+      reconciledAmountPct: string;
+      unreconciledAmountPct: string;
+      amountPctByTeam: string;
+      totalAmountPosted: string;
+      totalAmountNotPosted: string;
+      avgDaysToReconcile: string | null;
+    }[];
+    totalElements: number;
+    size: number;
+    number: number;
+  };
   message: string | null;
 }
 

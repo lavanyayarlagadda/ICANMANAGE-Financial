@@ -3,6 +3,11 @@ import { Box, Typography } from '@mui/material';
 
 export const ScreenWrapper = styled(Box)(({ theme }) => ({
   position: 'relative',
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  height: '100%',
+  minHeight: 0,
 }));
 
 export const TransactionNumber = styled(Typography)(({ theme }) => ({

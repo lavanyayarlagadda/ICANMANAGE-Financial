@@ -1,12 +1,15 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { setIsGlobalFetching } from '@/store/slices/uiSlice';
-import { useSearchBankDepositsBodyQuery } from '@/store/api/financialsApi';
+import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice';
+import { useSearchBankDepositsBodyQuery, useLazyExportBankDepositsQuery } from '@/store/api/financialsApi';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { subMonths, format } from 'date-fns';
 
 export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
+    const exportCount = useRef(actionTriggers.export);
+    const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
 
     const [selectedEntityId, setSelectedEntityId] = useState<'all' | string>('all');
@@ -39,6 +42,44 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         dispatch(setIsGlobalFetching(isFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
     }, [isFetching, skip, dispatch]);
+
+    const [triggerExport] = useLazyExportBankDepositsQuery();
+
+    const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
+        try {
+            dispatch(setActiveExportType(formatType));
+            const result = await triggerExport({
+                fromDate: queryParams.fromDate,
+                toDate: queryParams.toDate,
+                format: formatType
+            }).unwrap();
+
+            if (result !== undefined) {
+                downloadFileFromBlob(
+                    result,
+                    `Bank_Deposits_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
+                );
+            }
+        } catch (err) {
+            console.error('Bank Deposits Export failed:', err);
+        } finally {
+            dispatch(setActiveExportType(null));
+        }
+    }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
+
+    useEffect(() => {
+        if (actionTriggers.export > exportCount.current) {
+            handleExport('xlsx');
+            exportCount.current = actionTriggers.export;
+        }
+    }, [actionTriggers.export, handleExport]);
+
+    useEffect(() => {
+        if (actionTriggers.print > printCount.current) {
+            handleExport('pdf');
+            printCount.current = actionTriggers.print;
+        }
+    }, [actionTriggers.print, handleExport]);
 
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {

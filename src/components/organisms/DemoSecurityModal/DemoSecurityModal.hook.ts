@@ -21,8 +21,8 @@ const isPasswordPolicy = (value: string): value is PasswordPolicy =>
 
 export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecurityModalProps) => {
   const { data: meDetails, isLoading: isLoadingUsers } = useGetMeDetailsQuery();
-  const [selectedUser, setSelectedUser] = useState(currentUser.id);
-  const { data: menuConfig, isLoading: isLoadingMenu } = useGetUserMenuConfigQuery(
+  const [selectedUser, setSelectedUser] = useState('');
+  const { data: menuConfig, isLoading: isLoadingMenu, isFetching: isFetchingMenu } = useGetUserMenuConfigQuery(
     { userId: selectedUser }, 
     { skip: !selectedUser || !open }
   );
@@ -36,9 +36,26 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
   const [searchQuery, setSearchQuery] = useState('');
   const [moduleStatuses, setModuleStatuses] = useState<Record<number, MenuStatus>>({});
 
+  const users = useMemo(() => {
+    return meDetails?.users || meDetails?.usersDropdown?.map(u => ({ id: String(u.userId), username: u.username, firstName: '', lastName: '', role: 'User' })) || [];
+  }, [meDetails]);
+
+  // Set default user to the first one available
+  useEffect(() => {
+    if (open && users.length > 0 && !selectedUser) {
+      setSelectedUser(users[0].id);
+    }
+  }, [open, users, selectedUser]);
+
+  // Reset selected user when modal closes
+  useEffect(() => {
+    if (!open) {
+      setSelectedUser('');
+    }
+  }, [open]);
+
   useEffect(() => {
     if (menuConfig) {
-      setModuleSelectionEnabled(menuConfig.customMenuEnabled);
       const statusMap: Record<number, MenuStatus> = {};
       
       const populateMap = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
@@ -59,8 +76,38 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
   }, []);
 
   const handleModuleStatusChange = useCallback((menuId: number, status: MenuStatus) => {
-    setModuleStatuses(prev => ({ ...prev, [menuId]: status }));
-  }, []);
+    setModuleStatuses(prev => {
+      const next = { ...prev, [menuId]: status };
+      
+      // Cascade Hidden/Disabled status to all sub-modules
+      if (status === 'Hidden' || status === 'Disabled') {
+        const cascade = (items: any[]) => {
+          for (const item of items) {
+            if (item.menuId === menuId) {
+              const applyRecursive = (children: any[]) => {
+                children.forEach(child => {
+                  next[child.menuId] = status;
+                  if (child.modules) applyRecursive(child.modules);
+                  if (child.subModules) applyRecursive(child.subModules);
+                });
+              };
+              if (item.modules) applyRecursive(item.modules);
+              if (item.subModules) applyRecursive(item.subModules);
+              return true;
+            }
+            if (item.modules && cascade(item.modules)) return true;
+            if (item.subModules && cascade(item.subModules)) return true;
+          }
+          return false;
+        };
+
+        if (menuConfig?.menus) {
+          cascade(menuConfig.menus);
+        }
+      }
+      return next;
+    });
+  }, [menuConfig]);
 
   const handleModuleStatusSelectChange = useCallback((menuId: number, event: SelectChangeEvent<string>) => {
     if (isMenuStatus(event.target.value)) {
@@ -106,7 +153,6 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
     }
   }, [selectedUser, moduleSelectionEnabled, moduleStatuses, menuConfig, updateMenuConfig, inactivityTimeout, onClose]);
 
-  const users = meDetails?.users || [];
   const userBeingEdited = users.find(u => u.id === selectedUser);
   const selectedUsername = userBeingEdited ? userBeingEdited.username : currentUser.username;
 
@@ -121,7 +167,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
     selectedUsername,
     users,
     menus: menuConfig?.menus || [],
-    isLoading: isLoadingUsers || isLoadingMenu,
+    isLoading: isLoadingUsers || isLoadingMenu || isFetchingMenu,
     isSaving,
     setInactivityTimeout,
     setPasswordPolicy,

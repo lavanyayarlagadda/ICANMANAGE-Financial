@@ -29,12 +29,12 @@ export const useFinancialsTabs = ({
 
   const { financialsTabs } = useMemo(() => getNavigationStructure(menus), [menus]);
 
-  const isMindPath = useMemo(
-    () =>
-      authUser?.company?.toLowerCase() === 'mindpath' ||
-      selectedTenantId?.toLowerCase() === 'mindpath',
-    [authUser, selectedTenantId]
-  );
+  // const isMindPath = useMemo(
+  //   () =>
+  //     authUser?.company?.toLowerCase() === 'mindpath' ||
+  //     selectedTenantId?.toLowerCase() === 'mindpath',
+  //   [authUser, selectedTenantId]
+  // );
 
   const handleMainTabChange = useCallback((index: number, path: string) => {
     if (activeTab !== index) dispatch(setActiveTab(index));
@@ -63,7 +63,7 @@ export const useFinancialsTabs = ({
     activeTab,
     activeSubTab,
     isReloading,
-    isMindPath,
+    // isMindPath,
     shouldShowPrint,
     shouldShowReload,
     shouldShowExport,

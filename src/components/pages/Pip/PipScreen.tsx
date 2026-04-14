@@ -55,7 +55,7 @@ export const NpiSection: React.FC<NpiProps> = ({ allocation }) => (
 
 const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   const {
-    canViewPip,
+    // canViewPip,
     pipRecords,
     totalElements,
     pipSummary,
@@ -97,7 +97,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     return <Box>{row.npiDetails.map((allocation) => <NpiSection key={allocation.npiPayerName} allocation={allocation} />)}</Box>;
   }, []);
 
-  if (!canViewPip) return null;
+  // if (!canViewPip) return null;
   if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading PIP records.</Box>;
 
   return (

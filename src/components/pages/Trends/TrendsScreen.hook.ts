@@ -1,32 +1,32 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
-import { 
-    setIsGlobalFetching, 
-    setIsReloading, 
-    setIsDrillingDown as setGlobalDrillingDown, 
-    setActiveExportType 
+import {
+    setIsGlobalFetching,
+    setIsReloading,
+    setIsDrillingDown as setGlobalDrillingDown,
+    setActiveExportType
 } from '@/store/slices/uiSlice';
-import { 
-    setShowRemittanceDetail, 
-    setSelectedPaymentId, 
-    setRemittanceDetail, 
-    setRemittanceClaims, 
+import {
+    setShowRemittanceDetail,
+    setSelectedPaymentId,
+    setRemittanceDetail,
+    setRemittanceClaims,
     setSelectedClaimIndex,
     setGlobalFilters
 } from '@/store/slices/financialsSlice';
 import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import {
-  useGetForecastSummaryQuery,
-  useGetReconciliationPerformanceQuery,
-  useGetForecastDashboardQuery,
-  useGetExecutiveSummaryQuery,
-  useGetPaymentMixQuery,
-  useGetAdjustmentBreakdownQuery,
-  useGetPayerPerformanceQuery,
-  useLazyGetRemittanceClaimsQuery,
-  useLazySearchServiceLinesQuery,
+    useGetForecastSummaryQuery,
+    useGetReconciliationPerformanceQuery,
+    useGetForecastDashboardQuery,
+    useGetExecutiveSummaryQuery,
+    useGetPaymentMixQuery,
+    useGetAdjustmentBreakdownQuery,
+    useGetPayerPerformanceQuery,
+    useLazyGetRemittanceClaimsQuery,
+    useLazySearchServiceLinesQuery,
 } from '@/store/api/financialsApi';
 import { PayerPerformanceRecord, RemittanceDetail } from '@/interfaces/financials';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
@@ -41,10 +41,10 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
 
     const location = useLocation();
 
-    const isMindPath = useMemo(
-        () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
-        [user, selectedTenantId]
-    );
+    // const isMindPath = useMemo(
+    //     () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
+    //     [user, selectedTenantId]
+    // );
 
     const isForecastPath = useMemo(() => location.pathname.includes('/forecast'), [location.pathname]);
     const isSummaryPath = useMemo(() => location.pathname.includes('/summary'), [location.pathname]);
@@ -185,11 +185,12 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
 
     return {
         activeSubTab,
-        isMindPath,
+        // isMindPath,
         trendsData,
         forecastSummary,
         reconPerformance,
-        dashboardData,
+        dashboardData: dashboardData?.data?.content ?? [],
+        totalElementsDashboard: dashboardData?.data?.totalElements ?? 0,
         execSummary,
         paymentMix,
         adjBreakdown,

@@ -9,7 +9,7 @@ import { useUserPermissions } from "@/hooks/useUserPermissions";
 export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
-    const { canViewPip } = useUserPermissions();
+    // const { canViewPip } = useUserPermissions();
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
@@ -24,7 +24,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         toDate: format(new Date(), 'yyyy-MM-dd'),
     });
 
-    const isActualSkip = skip || !canViewPip;
+    const isActualSkip = skip;
 
     const { data, isError, isFetching, refetch } = useSearchPipQuery({
         page: queryParams.page + 1,
@@ -138,7 +138,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const handleRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
     return {
-        canViewPip,
+        // canViewPip,
         pipRecords: data?.data?.content ?? [],
         totalElements: data?.data?.totalElements ?? 0,
         pipSummary: pipSummaryData?.data,

@@ -80,7 +80,7 @@ const initialState: FinancialsState = {
   globalFilters: {
     fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
     toDate: format(new Date(), 'yyyy-MM-dd'),
-    rangeLabel: '6 months',
+    rangeLabel: '1 month',
   },
 };
 

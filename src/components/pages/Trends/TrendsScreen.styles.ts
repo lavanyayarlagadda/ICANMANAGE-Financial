@@ -3,6 +3,11 @@ import { Box, Typography, Card } from '@mui/material';
 
 export const TrendsWrapper = styled(Box)(({ theme }) => ({
   padding: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  height: '100%',
+  minHeight: 0,
 }));
 
 export const SectionHeader = styled(Box)(({ theme }) => ({

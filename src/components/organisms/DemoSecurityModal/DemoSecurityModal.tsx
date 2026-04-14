@@ -155,7 +155,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                             >
                                 {users.map(u => (
                                     <MenuItem key={u.id} value={u.id}>
-                                        {u.username} ({u.role.charAt(0).toUpperCase() + u.role.slice(1)}) {u.id === currentUser.id ? '(You)' : ''}
+                                        {u.username} {u.role ? `(${u.role.charAt(0).toUpperCase() + u.role.slice(1)})` : ''} {u.id === currentUser.id ? '(You)' : ''}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -183,23 +183,25 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                         </Box>
                     </Box>
 
-                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: { xs: 1, sm: 2 }, mb: 2 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>Visible Navigation Items</Typography>
-                        <TextField
-                            placeholder="Search modules..."
-                            size="small"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon fontSize="small" sx={{ color: themeConfig.colors.text.secondary }} />
-                                    </InputAdornment>
-                                ),
-                            }}
-                            sx={styles.searchFieldStyles}
-                        />
-                    </Box>
+                    {moduleSelectionEnabled && (
+                        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: { xs: 1, sm: 2 }, mb: 2 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>Visible Navigation Items</Typography>
+                            <TextField
+                                placeholder="Search modules..."
+                                size="small"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchIcon fontSize="small" sx={{ color: themeConfig.colors.text.secondary }} />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                sx={styles.searchFieldStyles}
+                            />
+                        </Box>
+                    )}
 
                     {isLoading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>

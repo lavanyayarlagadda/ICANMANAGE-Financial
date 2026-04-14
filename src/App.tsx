@@ -10,6 +10,10 @@ import { store } from '@/store';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { GlobalHooksWrapper } from '@/components/GlobalHooksWrapper';
 
+import { NAV_CONFIG } from '@/config/navigation';
+import { useAppSelector } from '@/store';
+import { useGetMeDetailsQuery } from '@/store/api/userApi';
+
 const FinancialsPage = lazy(() => import('@/pages/Financials/FinancialsPage'));
 const LoginPage = lazy(() => import('@/pages/Login/LoginPage'));
 const UserProfilePage = lazy(() => import('@/pages/UserProfile/UserProfilePage'));
@@ -20,6 +24,20 @@ const LoadingFallback = () => (
     <CircularProgress size={40} />
   </Box>
 );
+
+const RootRedirect = () => {
+  const { data: userDetails, isLoading } = useGetMeDetailsQuery();
+  const user = useAppSelector((state) => state.auth.user);
+  
+  if (isLoading) {
+    return <LoadingFallback />;
+  }
+
+  const defaultPage = userDetails?.defaultLandingPage || user?.defaultLandingPage || 'Transactions';
+  const toPath = NAV_CONFIG[defaultPage]?.path || '/financials/all-transactions';
+  
+  return <Navigate to={toPath} replace />;
+};
 
 const App = () => (
   <Provider store={store}>
@@ -41,7 +59,11 @@ const App = () => (
                 {/* Protected Routes */}
                 <Route
                   path="/"
-                  element={<Navigate to="/financials/payments" replace />}
+                  element={
+                    <ProtectedRoute>
+                      <RootRedirect />
+                    </ProtectedRoute>
+                  }
                 />
                 <Route
                   path="/financials/*"

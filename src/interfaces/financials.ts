@@ -189,7 +189,7 @@ export interface OtherAdjustmentRecord {
 export interface AllTransaction {
   id: string;
   effectiveDate: string;
-  transactionType: TransactionType;
+  category: TransactionType;
   type: string;
   description: string;
   sourceProvider: string;

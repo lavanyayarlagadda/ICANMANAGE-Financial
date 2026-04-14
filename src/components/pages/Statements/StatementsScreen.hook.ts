@@ -13,12 +13,12 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
     const user = useAppSelector((s: RootState) => s.auth.user);
     const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
 
-    const isMindPath = useMemo(
-        () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
-        [user, selectedTenantId]
-    );
+    // const isMindPath = useMemo(
+    //     () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
+    //     [user, selectedTenantId]
+    // );
 
-    const finalActiveSubTab = (isMindPath && activeSubTab === 0) ? 1 : activeSubTab;
+    const finalActiveSubTab = (activeSubTab === 0) ? 1 : activeSubTab;
 
     const [queryParams, setQueryParams] = useState({
         page: 0,

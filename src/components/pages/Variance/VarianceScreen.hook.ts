@@ -1,33 +1,34 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import {
-  setIsReloading, 
-  setIsGlobalFetching, 
-  setIsDrillingDown as setGlobalDrillingDown ,
-  setActiveExportType
+    setIsReloading,
+    setIsGlobalFetching,
+    setIsDrillingDown as setGlobalDrillingDown,
+    setActiveExportType
 } from '@/store/slices/uiSlice';
-import { 
-  setShowRemittanceDetail, 
-  setSelectedPaymentId, 
-  setRemittanceDetail, 
-  setRemittanceClaims, 
-  setSelectedClaimIndex,
-  setGlobalFilters
+import {
+    setShowRemittanceDetail,
+    setSelectedPaymentId,
+    setRemittanceDetail,
+    setRemittanceClaims,
+    setSelectedClaimIndex,
+    setGlobalFilters
 } from '@/store/slices/financialsSlice';
 import {
-  useSearchFeeScheduleVarianceQuery,
-  useGetFeeScheduleVarianceSummaryQuery,
-  useSearchPaymentVarianceQuery,
-  useGetPaymentVarianceSummaryQuery,
-  useLazyGetRemittanceClaimsQuery,
-  useLazySearchServiceLinesQuery,
-  useLazyExportFeeScheduleVarianceQuery,
-  useLazyExportPaymentVarianceQuery
+    useSearchFeeScheduleVarianceQuery,
+    useGetFeeScheduleVarianceSummaryQuery,
+    useSearchPaymentVarianceQuery,
+    useGetPaymentVarianceSummaryQuery,
+    useLazyGetRemittanceClaimsQuery,
+    useLazySearchServiceLinesQuery,
+    useLazyExportFeeScheduleVarianceQuery,
+    useLazyExportPaymentVarianceQuery
 } from '@/store/api/financialsApi';
 import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { FeeScheduleVariance, PaymentVariance, RemittanceDetail } from '@/interfaces/financials';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
 
 export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -82,12 +83,12 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip: skip || activeSubTab !== 1 });
-  const exportCount = useRef(actionTriggers.export);
-  const printCount = useRef(actionTriggers.print);
+    const exportCount = useRef(actionTriggers.export);
+    const printCount = useRef(actionTriggers.print);
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
-  const [triggerExportFee] = useLazyExportFeeScheduleVarianceQuery();
-  const [triggerExportPayment] = useLazyExportPaymentVarianceQuery();
-  const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
+    const [triggerExportFee] = useLazyExportFeeScheduleVarianceQuery();
+    const [triggerExportPayment] = useLazyExportPaymentVarianceQuery();
+    const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
             const doReload = async () => {
@@ -185,53 +186,46 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             }
         }
     }, [dispatch]);
- const handleExport = async (format: 'pdf' | 'xlsx') => {
-    try {
-      dispatch(setActiveExportType(format));
-      
-      const params = {
-        fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate,
-        format
-      };
+    const handleExport = async (format: 'pdf' | 'xlsx') => {
+        try {
+            dispatch(setActiveExportType(format));
 
-      let blob: Blob;
-      if (activeSubTab === 0) {
-        blob = await triggerExportFee(params).unwrap();
-      } else {
-        blob = await triggerExportPayment(params).unwrap();
-      }
+            const params = {
+                fromDate: queryParams.fromDate,
+                toDate: queryParams.toDate,
+                format
+            };
 
-      // Create a URL for the blob and trigger download
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `${activeSubTab === 0 ? 'fee-schedule-variance' : 'payment-variance'}-${queryParams.fromDate}-to-${queryParams.toDate}.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
+            let blob: Blob;
+            if (activeSubTab === 0) {
+                blob = await triggerExportFee(params).unwrap();
+            } else {
+                blob = await triggerExportPayment(params).unwrap();
+            }
 
-    } catch (error) {
-      console.error('Export failed:', error);
-      alert('Failed to export. Please try again.');
-    } finally {
-      dispatch(setActiveExportType(null));
-    }
-  };
+            const filename = `${activeSubTab === 0 ? 'fee-schedule-variance' : 'payment-variance'}-${queryParams.fromDate}-to-${queryParams.toDate}.${format}`;
+            downloadFileFromBlob(blob, filename);
+
+        } catch (error) {
+            console.error('Export failed:', error);
+            alert('Failed to export. Please try again.');
+        } finally {
+            dispatch(setActiveExportType(null));
+        }
+    };
     useEffect(() => {
-    if (actionTriggers.export > exportCount.current) {
-      handleExport('xlsx');
-      exportCount.current = actionTriggers.export;
-    }
-  }, [actionTriggers.export]);
+        if (actionTriggers.export > exportCount.current) {
+            handleExport('xlsx');
+            exportCount.current = actionTriggers.export;
+        }
+    }, [actionTriggers.export]);
 
-  useEffect(() => {
-    if (actionTriggers.print > printCount.current) {
-      handleExport('pdf');
-      printCount.current = actionTriggers.print;
-    }
-  }, [actionTriggers.print]);
+    useEffect(() => {
+        if (actionTriggers.print > printCount.current) {
+            handleExport('pdf');
+            printCount.current = actionTriggers.print;
+        }
+    }, [actionTriggers.print]);
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
     }, []);

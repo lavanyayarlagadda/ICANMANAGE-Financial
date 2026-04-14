@@ -13,6 +13,7 @@ import {
     useMediaQuery,
     Alert,
     IconButton,
+    CircularProgress,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout/DashboardLayout';
@@ -67,6 +68,7 @@ const UserProfilePage: React.FC = () => {
         handleBack,
         isModuleVisible,
         isModuleDisabled,
+        isLoadingDetails,
     } = useUserProfilePage();
 
     if (!user) return null;
@@ -151,7 +153,15 @@ const UserProfilePage: React.FC = () => {
                             ))}
                         </Select>
                         <Box sx={styles.actionsBoxStyles}>
-                            <Button variant="contained" startIcon={<SaveIcon fontSize="small" />} onClick={handleSavePreferences} sx={{ backgroundColor: themeConfig.colors.primary }}>Save Preferences</Button>
+                            <Button 
+                                variant="contained" 
+                                disabled={isLoadingDetails}
+                                startIcon={isLoadingDetails ? <CircularProgress size={16} color="inherit" /> : <SaveIcon fontSize="small" />} 
+                                onClick={handleSavePreferences} 
+                                sx={{ backgroundColor: themeConfig.colors.primary }}
+                            >
+                                {isLoadingDetails ? 'Saving...' : 'Save Preferences'}
+                            </Button>
                         </Box>
                     </Card>
                 </TabPanel>

@@ -11,7 +11,7 @@ export interface RangeDropdownProps {
 }
 
 const RangeDropdown: React.FC<RangeDropdownProps> = ({
-  value = '6 months',
+  value = '1 month',
   onChange,
   options = ['1 month', '3 months', '6 months', '1 year', 'Custom']
 }) => {

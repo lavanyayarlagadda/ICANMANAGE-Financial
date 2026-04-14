@@ -6,6 +6,8 @@ import { logout } from '@/store/slices/authSlice';
 import { toggleSidebarCollapse } from '@/store/slices/uiSlice';
 import { setSelectedTenantId, setTenants, setTenantLoading } from '@/store/slices/tenantSlice';
 import { useGetTenantsQuery } from '@/store/api/tenantApi';
+import { useGetMeDetailsQuery } from '@/store/api/userApi';
+import { baseApi } from '@/store/api/baseApi';
 
 interface UseTopNavBarProps {
   onMenuToggle: () => void;
@@ -23,6 +25,8 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   const { data: tenantData, isLoading: isTenantsLoading } = useGetTenantsQuery(undefined, {
     skip: !isCognitiveUser,
   });
+  
+  const { refetch: refetchMeDetails } = useGetMeDetailsQuery();
 
   useEffect(() => {
     dispatch(setTenantLoading(isTenantsLoading));
@@ -31,15 +35,20 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   useEffect(() => {
     if (tenantData && tenantData.length > 0) {
       dispatch(setTenants(tenantData));
-      if (!selectedTenantId) {
+      
+      const isSelectedValid = selectedTenantId && tenantData.some(t => t.tenantId === selectedTenantId);
+      if (!isSelectedValid) {
         dispatch(setSelectedTenantId(tenantData[0].tenantId));
       }
     }
   }, [tenantData, dispatch, selectedTenantId]);
 
   const handleTenantChange = useCallback((event: SelectChangeEvent) => {
-    dispatch(setSelectedTenantId(event.target.value));
-  }, [dispatch]);
+    const newTenantId = event.target.value;
+    dispatch(setSelectedTenantId(newTenantId));
+    // Trigger refetch of profile/details to update permissions for the new tenant
+    refetchMeDetails();
+  }, [dispatch, refetchMeDetails]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
@@ -55,7 +64,9 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
 
   const handleLogout = useCallback(() => {
     handleClose();
+    localStorage.removeItem('ican_selected_tenant');
     dispatch(logout());
+    dispatch(baseApi.util.resetApiState());
     navigate('/login');
   }, [handleClose, dispatch, navigate]);
 

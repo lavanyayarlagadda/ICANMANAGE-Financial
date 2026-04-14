@@ -21,7 +21,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
-        isMindPath,
+        // isMindPath,
         isError,
         globalFilters
     } = useAllTransactionsScreen({ skip });
@@ -50,13 +50,13 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             id: 'transactionType',
             label: 'Category',
             minWidth: 140,
-            accessor: (r) => r.transactionType ?? '',
-            filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', ...(!isMindPath ? ['PIP'] : [])],
+            accessor: (r) => r.category ?? '',
+            filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT'],
             render: (r) => {
-                const colors = transactionTypeColors[r.transactionType] || { bg: themeConfig.colors.slate[100], text: themeConfig.colors.slate[600] };
+                const colors = transactionTypeColors[r.category] || { bg: themeConfig.colors.slate[100], text: themeConfig.colors.slate[600] };
                 return (
                     <Chip
-                        label={(r.transactionType ?? '').replace('_', ' ')}
+                        label={(r.category ?? '').replace('_', ' ')}
                         size="small"
                         sx={{ backgroundColor: colors.bg, color: colors.text, fontWeight: 600, fontSize: '0.7rem' }}
                     />
@@ -96,7 +96,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             ) : '–',
         },
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: ['Reconciled', 'Partially Applied', 'Pending', 'Denied'], render: (r) => <StatusBadge status={r.status} /> },
-    ], [isMindPath, theme.palette.error.main, theme.palette.text.primary]);
+    ], [theme.palette.error.main, theme.palette.text.primary]);
 
     if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading transactions.</Box>;
 
