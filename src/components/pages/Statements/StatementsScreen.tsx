@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Box, Typography, IconButton, Chip, Grid } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { ForwardBalanceNotice, OffsetEvent } from '@/interfaces/financials';
 import PipScreen from '../Pip/PipScreen';
 import DataTable from '@/components/molecules/DataTable/DataTable';
@@ -56,7 +56,8 @@ const ForwardBalanceNoticesTable = ({
     onPageChange,
     onRowsPerPageChange,
     onSortChange,
-    onRangeChange
+    onRangeChange,
+    rangeLabel
 }: {
     data: ForwardBalanceNotice[],
     totalElements: number,
@@ -64,7 +65,8 @@ const ForwardBalanceNoticesTable = ({
     onPageChange: (p: number) => void,
     onRowsPerPageChange: (s: number) => void,
     onSortChange: (colId: string, dir: 'asc' | 'desc') => void,
-    onRangeChange: (range: string) => void
+    onRangeChange: (range: string) => void,
+    rangeLabel: string
 }) => {
     const { expandedRows, toggleRow } = useForwardBalanceNoticesTable();
 
@@ -88,8 +90,9 @@ const ForwardBalanceNoticesTable = ({
         {
             id: 'notificationDate',
             label: 'NOTIFICATION DATE',
+            align: 'center',
             accessor: (row) => row.notificationDate,
-            render: (row) => <Typography variant="body2" sx={{ fontWeight: 700 }}>{row.notificationDate}</Typography>,
+            render: (row) => <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatDate(row.notificationDate)}</Typography>,
         },
         {
             id: 'provider',
@@ -106,14 +109,14 @@ const ForwardBalanceNoticesTable = ({
         {
             id: 'originalAmount',
             label: 'ORIGINAL AMOUNT',
-            align: 'right',
+            align: 'center',
             accessor: (row) => row.originalAmount,
             render: (row) => <Typography variant="body2" sx={{ fontWeight: 700, color: 'error.main' }}>{formatCurrency(row.originalAmount)}</Typography>,
         },
         {
             id: 'remainingBalance',
             label: 'REMAINING BALANCE',
-            align: 'right',
+            align: 'center',
             accessor: (row) => row.remainingBalance,
             render: (row) => <Typography variant="body2" sx={{ fontWeight: 700, color: 'error.main' }}>{formatCurrency(row.remainingBalance)}</Typography>,
         },
@@ -133,7 +136,7 @@ const ForwardBalanceNoticesTable = ({
             expandedRows={expandedRows}
             expandedContent={(row) => <Box sx={{ p: 1 }}>{row.offsets.map((offset, idx) => <OffsetSection key={idx} offset={offset} />)}</Box>}
             exportTitle="Forward Balance Notices"
-            customToolbarContent={<RangeDropdown onChange={onRangeChange} />}
+            customToolbarContent={<RangeDropdown value={rangeLabel} onChange={onRangeChange} />}
             dictionaryId="statements"
             serverSide
             totalElements={totalElements}
@@ -161,7 +164,8 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
-        stats
+        stats,
+        globalFilters
     } = useStatementsScreen({ skip });
 
     return (
@@ -192,6 +196,7 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     onRowsPerPageChange={onRowsPerPageChange}
                     onSortChange={handleSortChange}
                     onRangeChange={handleRangeChange}
+                    rangeLabel={globalFilters.rangeLabel}
                 />
             ) : (
                 <SuspenseAccountsScreen skip={finalActiveSubTab !== 2} />

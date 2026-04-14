@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import { Box, Typography, IconButton, Grid, useTheme } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -20,7 +20,7 @@ import { FeeScheduleVariance, PaymentVariance } from '@/interfaces/financials';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 
 const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-    const { activeSubTab, queryParams, feeData, feeSummaryData, paymentData, paymentSummaryData, handleDrillDown, handleRangeChange, handleSortChange, handlePageChange, handleRowsPerPageChange } = useVarianceScreen({ skip });
+    const { activeSubTab, queryParams, globalFilters, feeData, feeSummaryData, paymentData, paymentSummaryData, handleDrillDown, handleRangeChange, handleSortChange, handlePageChange, handleRowsPerPageChange } = useVarianceScreen({ skip });
     const theme = useTheme();
     const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
         {
@@ -37,15 +37,17 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             id: 'transactionNo',
             label: 'TRANSACTION #',
             minWidth: 140,
-            accessor: (r) => (r as any).claimId || (r as any).id || '-',
-            render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{(r as any).claimId || (r as any).id || '-'}</Typography>
+            align: 'center',
+            accessor: (r) => (r as any).transactionNo || (r as any).id || '-',
+            render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{(r as any).transactionNo || (r as any).id || '-'}</Typography>
         },
         {
             id: 'paymentDate',
             label: 'PAYMENT DATE',
             minWidth: 120,
+            align: 'center',
             accessor: (r) => r.paymentDate || '',
-            render: (r) => <Typography variant="body2">{r.paymentDate}</Typography>
+            render: (r) => <Typography variant="body2">{formatDate(r.paymentDate)}</Typography>
         },
         {
             id: 'patientName',
@@ -69,7 +71,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             id: 'expectedAllowed',
             label: 'EXPECTED ALLOWED',
             minWidth: 140,
-            align: 'right',
+            align: 'center',
             accessor: (r) => Number(r.expectedAllowed),
             render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(Number(r.expectedAllowed))}</Typography>
         },
@@ -77,7 +79,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             id: 'actualAllowed',
             label: 'ACTUAL ALLOWED',
             minWidth: 140,
-            align: 'right',
+            align: 'center',
             accessor: (r) => Number(r.actualAllowed),
             render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(Number(r.actualAllowed))}</Typography>
         },
@@ -85,7 +87,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             id: 'variance',
             label: 'VARIANCE',
             minWidth: 110,
-            align: 'right',
+            align: 'center',
             accessor: (r) => Number(r.variance),
             render: (r) => (
                 <Typography
@@ -126,7 +128,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             <DataTable
                 columns={feeColumns} data={activeSubTab === 0 ? (feeData?.data?.content ?? []) : (paymentData?.data?.content ?? [])}
                 rowKey={(r) => r.id || `${r.patientName}-${r.variance}`} exportTitle="Variance Analysis"
-                customToolbarContent={<RangeDropdown onChange={handleRangeChange} />} serverSide
+                customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />} serverSide
                 totalElements={activeSubTab === 0 ? (feeData?.data?.totalElements ?? 0) : (paymentData?.data?.totalElements ?? 0)}
                 page={queryParams.page} rowsPerPage={queryParams.size} sortCol={queryParams.sortField}
                 sortDir={queryParams.sortOrder} onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}

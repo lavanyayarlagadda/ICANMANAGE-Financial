@@ -1,14 +1,17 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store';
+import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { useSearchForwardBalanceNoticesQuery } from '@/store/api/financialsApi';
-import { subMonths, format } from 'date-fns';
+import { format } from 'date-fns';
+import { calculateDatesFromLabel } from '@/utils/dateUtils';
+import { setGlobalFilters } from '@/store/slices/financialsSlice';
 
 export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    const { activeSubTab } = useAppSelector((s) => s.ui);
-    const user = useAppSelector((s) => s.auth.user);
-    const { selectedTenantId } = useAppSelector((s) => s.tenant);
+    const { activeSubTab } = useAppSelector((s: RootState) => s.ui);
+    const { globalFilters } = useAppSelector((s: RootState) => s.financials);
+    const user = useAppSelector((s: RootState) => s.auth.user);
+    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
 
     const isMindPath = useMemo(
         () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
@@ -22,8 +25,8 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         size: 10,
         sortField: 'notificationDate',
         sortOrder: 'desc' as 'asc' | 'desc',
-        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-        toDate: format(new Date(), 'yyyy-MM-dd'),
+        fromDate: globalFilters.fromDate,
+        toDate: globalFilters.toDate,
     });
 
     const isNoticesTab = finalActiveSubTab === 1;
@@ -58,8 +61,18 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
             setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+            // Update global filters for persistence - label is 'Custom' if it's a date string
+            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+        } else {
+            // It's a preset label
+            const dates = calculateDatesFromLabel(range);
+            if (dates) {
+                setQueryParams(prev => ({ ...prev, fromDate: dates.from, toDate: dates.to, page: 0 }));
+                // Update global filters for persistence - preserve the label
+                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+            }
         }
-    }, []);
+    }, [dispatch]);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
@@ -74,6 +87,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         forwardBalanceNotices,
         totalElements: noticeData?.data?.totalElements ?? 0,
         queryParams,
+        globalFilters,
         handleRangeChange,
         handleSortChange,
         onPageChange,

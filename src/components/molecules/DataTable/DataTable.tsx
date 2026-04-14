@@ -11,6 +11,7 @@ import autoTable from 'jspdf-autotable';
 import DictionaryDrawer from '../DictionaryDrawer/DictionaryDrawer';
 import { useDataTable, DataColumn, SortDirection, AccessorColumn, FilterableColumn } from './DataTable.hook';
 import { MainContainer } from './DataTable.styles';
+import { formatCurrency } from '@/utils/formatters';
 import { DataTableToolbar } from './DataTableToolbar';
 import { DataTableDesktop } from './DataTableDesktop';
 import { DataTableMobile } from './DataTableMobile';
@@ -138,7 +139,14 @@ function DataTable<T>({
 
   const handleCSVExport = () => {
     const headers = exportableColumns.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
-    const rows = sortedData.map((row) => exportableColumns.map((col) => String(col.accessor(row))));
+    const rows = sortedData.map((row) => exportableColumns.map((col) => {
+      const val = col.accessor(row);
+      // If it's a currency column or contains amount, format it
+      if (col.id.toLowerCase().includes('amount') || col.id.toLowerCase().includes('balance') || col.id.toLowerCase().includes('variance')) {
+        return val === null || val === undefined || isNaN(Number(val)) ? '' : formatCurrency(Number(val));
+      }
+      return val === null || val === undefined ? '' : String(val);
+    }));
     const csvContent = [headers.join(','), ...rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -151,7 +159,13 @@ function DataTable<T>({
 
   const handlePDFExport = () => {
     const headers = exportableColumns.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
-    const rows = sortedData.map((row) => exportableColumns.map((col) => String(col.accessor(row))));
+    const rows = sortedData.map((row) => exportableColumns.map((col) => {
+      const val = col.accessor(row);
+      if (col.id.toLowerCase().includes('amount') || col.id.toLowerCase().includes('balance') || col.id.toLowerCase().includes('variance')) {
+        return val === null || val === undefined || isNaN(Number(val)) ? '' : formatCurrency(Number(val));
+      }
+      return val === null || val === undefined ? '' : String(val);
+    }));
     const doc = new jsPDF({ orientation: headers.length > 6 ? 'landscape' : 'portrait' });
     doc.setFontSize(14).text(exportTitle, 14, 18);
     autoTable(doc, {
@@ -171,6 +185,7 @@ function DataTable<T>({
         selectable={props.selectable}
         selectedKeys={selectedKeys}
         sortedData={sortedData}
+        totalCount={totalCount}
         rowKey={rowKey}
         handleSelectionChange={handleSelectionChange}
         isMobile={isMobile}
@@ -242,6 +257,7 @@ function DataTable<T>({
           count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
+          labelDisplayedRows={({ count, page }) => `Page ${page + 1} of ${Math.ceil(count / rowsPerPage)}`}
           onPageChange={(_, p) => {
             if (props.onPageChange) props.onPageChange(p);
             else setInternalPage(p);

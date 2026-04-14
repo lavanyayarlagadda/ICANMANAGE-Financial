@@ -6,7 +6,7 @@ import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { AllTransaction } from '@/interfaces/financials';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { themeConfig } from '@/theme/themeConfig';
 import { AmountText, BalanceText, transactionTypeColors } from './AllTransactionsScreen.styles';
 import { useAllTransactionsScreen } from './AllTransactionsScreen.hook';
@@ -16,13 +16,14 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         filteredTransactions,
         totalElements,
         queryParams,
-        isMindPath,
         handleDrillDown,
         handleRangeChange,
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        isMindPath,
         isError,
+        globalFilters
     } = useAllTransactionsScreen({ skip });
     const theme = useTheme();
 
@@ -36,11 +37,12 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
                     onView={() => handleDrillDown(r)} />
             ),
         },
-        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => r.effectiveDate },
+        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, align: 'center', accessor: (r) => r.effectiveDate ?? '', render: (r) => formatDate(r.effectiveDate) },
         {
             id: 'transactionNo',
             label: 'Transaction Number',
             minWidth: 160,
+            align: 'center',
             accessor: (r) => (r as any).transactionNo ?? '-',
             render: (r) => (r as any).transactionNo ?? '-'
         },
@@ -68,7 +70,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             id: 'amount',
             label: 'Amount',
             minWidth: 120,
-            align: 'right',
+            align: 'center',
             accessor: (r) => r.amount ?? 0,
             render: (r) => (
                 <Typography
@@ -87,13 +89,13 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             id: 'openBalance',
             label: 'Open Balance',
             minWidth: 120,
-            align: 'right',
+            align: 'center',
             accessor: (r) => r.openBalance ?? 0,
             render: (r) => r.openBalance != null ? (
                 <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.openBalance)}</Typography>
             ) : '–',
         },
-        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: ['All', 'Reconciled', 'Partially Applied', 'Pending'], render: (r) => <StatusBadge status={r.status} /> },
+        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: ['Reconciled', 'Partially Applied', 'Pending', 'Denied'], render: (r) => <StatusBadge status={r.status} /> },
     ], [isMindPath, theme.palette.error.main, theme.palette.text.primary]);
 
     if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading transactions.</Box>;
@@ -104,7 +106,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             data={filteredTransactions}
             rowKey={(r) => r.id ?? ''}
             exportTitle="All Transactions"
-            customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
+            customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}
             dictionaryId="all-transaction"
             serverSide
             totalElements={totalElements}

@@ -19,7 +19,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { BankDepositItem } from '@/interfaces/financials';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -93,17 +93,19 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         {
             id: 'transactionNo',
             label: 'TRANSACTION #',
+            align: 'center',
             accessor: (row) => row.id,
             render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.id}</Typography>,
         },
         {
             id: 'reference',
             label: 'REF / DATE',
-            accessor: (row) => row.reference,
+            align: 'center',
+            accessor: (row) => row.id, // using id as fallback for search
             render: (row) => (
                 <Box>
                     <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>{row.reference}</Typography>
-                    <Typography variant="caption" color="text.secondary">{row.date}</Typography>
+                    <Typography variant="caption" color="text.secondary">{formatDate(row.date)}</Typography>
                 </Box>
             ),
         },
@@ -116,21 +118,21 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         {
             id: 'bankAmt',
             label: 'BANK AMT',
-            align: 'right',
+            align: 'center',
             accessor: (row) => row.bankAmt,
             render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.bankAmt)}</Typography>,
         },
         {
             id: 'remitAmt',
             label: 'REMIT AMT',
-            align: 'right',
+            align: 'center',
             accessor: (row) => row.remitAmt,
             render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.remitAmt)}</Typography>,
         },
         {
             id: 'variance',
             label: 'VARIANCE',
-            align: 'right',
+            align: 'center',
             accessor: (row) => row.variance,
             render: (row) => (
                 <Typography

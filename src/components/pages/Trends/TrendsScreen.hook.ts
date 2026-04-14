@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useAppSelector, useAppDispatch } from '@/store';
+import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { 
     setIsGlobalFetching, 
     setIsReloading, 
@@ -12,9 +12,11 @@ import {
     setSelectedPaymentId, 
     setRemittanceDetail, 
     setRemittanceClaims, 
-    setSelectedClaimIndex 
+    setSelectedClaimIndex,
+    setGlobalFilters
 } from '@/store/slices/financialsSlice';
-import { format, subMonths } from 'date-fns';
+import { format } from 'date-fns';
+import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import {
   useGetForecastSummaryQuery,
   useGetReconciliationPerformanceQuery,
@@ -31,10 +33,11 @@ import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalize
 
 export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    const trendsData = useAppSelector((s) => s.financials.trendsData);
-    const user = useAppSelector((s) => s.auth.user);
-    const { selectedTenantId } = useAppSelector((s) => s.tenant);
-    const { activeSubTab, actionTriggers } = useAppSelector((s) => s.ui);
+    const trendsData = useAppSelector((s: RootState) => s.financials.trendsData);
+    const user = useAppSelector((s: RootState) => s.auth.user);
+    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
+    const { activeSubTab, actionTriggers } = useAppSelector((s: RootState) => s.ui);
+    const { globalFilters } = useAppSelector((s: RootState) => s.financials);
 
     const location = useLocation();
 
@@ -52,8 +55,8 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         size: 10,
         sortField: '',
         sortOrder: 'desc' as 'asc' | 'desc',
-        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-        toDate: format(new Date(), 'yyyy-MM-dd'),
+        fromDate: globalFilters.fromDate,
+        toDate: globalFilters.toDate,
     });
 
     const [drillDownParams, setDrillDownParams] = useState({
@@ -160,8 +163,18 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
                 if (prev.fromDate === from && prev.toDate === to) return prev;
                 return { ...prev, fromDate: from, toDate: to, page: 0 };
             });
+            // Update global filters for persistence - label is 'Custom' if it's a date string
+            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+        } else {
+            // It's a preset label
+            const dates = calculateDatesFromLabel(range);
+            if (dates) {
+                setQueryParams(prev => ({ ...prev, fromDate: dates.from, toDate: dates.to, page: 0 }));
+                // Update global filters for persistence - preserve the label
+                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+            }
         }
-    }, []);
+    }, [dispatch]);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
@@ -183,6 +196,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         payerPerformanceRecords: payerPerformance?.data?.content ?? [],
         totalElementsPayer: payerPerformance?.data?.totalElements ?? 0,
         queryParams,
+        globalFilters,
         drillDownParams,
         handleRangeChange,
         handleSortChange,

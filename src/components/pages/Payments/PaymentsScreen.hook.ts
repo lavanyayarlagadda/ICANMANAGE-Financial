@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store';
+import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import {
     openEditDialog,
     openConfirmDelete,
@@ -13,9 +13,11 @@ import {
     setSelectedPaymentId,
     setRemittanceDetail,
     setRemittanceClaims,
-    setSelectedClaimIndex
+    setSelectedClaimIndex,
+    setGlobalFilters
 } from '@/store/slices/financialsSlice';
-import { subMonths, format } from 'date-fns';
+import { format } from 'date-fns';
+import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import {
     useSearchPaymentsQuery,
     useLazyExportPaymentsQuery,
@@ -28,7 +30,8 @@ import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalize
 
 export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    const { actionTriggers } = useAppSelector(s => s.ui);
+    const { actionTriggers } = useAppSelector((s: RootState) => s.ui);
+    const { globalFilters } = useAppSelector((s: RootState) => s.financials);
 
     const [queryParams, setQueryParams] = useState({
         page: 0,
@@ -36,8 +39,8 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sortField: '',
         sortOrder: 'desc' as 'asc' | 'desc',
         status: null as string | null,
-        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-        toDate: format(new Date(), 'yyyy-MM-dd'),
+        fromDate: globalFilters.fromDate,
+        toDate: globalFilters.toDate,
     });
 
     // Dynamic parameters for Drill-down APIs
@@ -181,8 +184,21 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
                 if (prev.fromDate === from && prev.toDate === to) return prev;
                 return { ...prev, fromDate: from, toDate: to, page: 0 };
             });
+            // Update global filters for persistence - label is 'Custom' if it's a date string
+            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+        } else {
+            // It's a preset label
+            const dates = calculateDatesFromLabel(range);
+            if (dates) {
+                setQueryParams(prev => {
+                    if (prev.fromDate === dates.from && prev.toDate === dates.to) return prev;
+                    return { ...prev, fromDate: dates.from, toDate: dates.to, page: 0 };
+                });
+                // Update global filters for persistence - preserve the label
+                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+            }
         }
-    }, []);
+    }, [dispatch]);
 
     const handleFilterChange = useCallback((filters: Record<string, string>) => {
         if (filters.status !== undefined) {
@@ -210,6 +226,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         payments: data?.data?.content ?? [],
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
+        globalFilters,
         drillDownParams,
         handleDrillDown,
         handleRangeChange,

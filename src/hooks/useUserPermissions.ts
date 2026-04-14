@@ -4,9 +4,7 @@ import { COMPANIES } from '@/config/constants';
 import { useGetMeDetailsQuery, MenuItem, MenuModule, SubMenuItem } from '@/store/api/userApi';
 import { MenuAccess } from '@/store/slices/authSlice';
 
-/**
- * Hook to determine user permissions based on company and assigned menus.
- */
+
 export const useUserPermissions = () => {
   const { data: userDetails } = useGetMeDetailsQuery();
   const authUser = useAppSelector((state) => state.auth.user);
@@ -16,8 +14,8 @@ export const useUserPermissions = () => {
   const menus = user?.menus || [];
 
   const company = user?.company?.toLowerCase();
-  const isMindPath = company === COMPANIES.MINDPATH ||  
-      selectedTenantId?.toLowerCase() === 'mindpath';
+  const isMindPath = company === COMPANIES.MINDPATH ||
+    selectedTenantId?.toLowerCase() === 'mindpath';
   const isCognitiveUser = company === COMPANIES.COGNITIVE_HEALTH_IT;
 
   /**
@@ -27,7 +25,7 @@ export const useUserPermissions = () => {
     const findStatus = (menusArray: (MenuItem | MenuModule | SubMenuItem | MenuAccess)[]): string | null => {
       for (const item of menusArray) {
         if (item.menuName?.toLowerCase() === label.toLowerCase()) return item.status;
-        
+
         // Use type assertions or check for property existence for recursion
         if ('modules' in item && item.modules) {
           const status = findStatus(item.modules);
@@ -40,7 +38,7 @@ export const useUserPermissions = () => {
       }
       return null;
     };
-    
+
     if (!menus || menus.length === 0) return 'Active';
     return findStatus(menus) || 'Hidden';
   }, [menus]);

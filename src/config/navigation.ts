@@ -65,6 +65,7 @@ export const NAV_CONFIG: Record<string, NavMetadata> = {
     },
     'Forward Balances': {
         path: '/financials/statements/forward-balance',
+        component: StatementsScreen,
     },
     'Suspense Accounts': {
         path: '/financials/statements/suspense-accounts',
@@ -72,24 +73,31 @@ export const NAV_CONFIG: Record<string, NavMetadata> = {
     },
     'Variance Analysis': {
         path: '/financials/variance-analysis/fee-schedule',
+        component: VarianceScreen,
     },
     'Fee Schedule Variance': {
         path: '/financials/variance-analysis/fee-schedule',
+        component: VarianceScreen,
     },
     'Payment Variance': {
         path: '/financials/variance-analysis/payment',
+        component: VarianceScreen,
     },
     'Trends & Forecast': {
         path: '/financials/trends-forecast/forecast',
+        component: TrendsScreen,
     },
     'Forecast Trends': {
         path: '/financials/trends-forecast/forecast',
+        component: TrendsScreen,
     },
     'Executive Summary': {
         path: '/financials/trends-forecast/summary',
+        component: TrendsScreen,
     },
     'Payer Performance': {
         path: '/financials/trends-forecast/payer-performance',
+        component: TrendsScreen,
     },
     'Reconciliation': {
         path: '/financials/reconciliation/unreconciled',

@@ -76,6 +76,7 @@ export function DataTableDesktop<T>({
         stickyHeader 
         size={dense ? "small" : "medium"}
         sx={{ 
+          minWidth: 'max-content',
           '& .MuiTableCell-root': { p: dense ? 0.5 : 1, minHeight: dense ? 32 : 40 }, 
           '& .MuiTableHead-root .MuiTableCell-root': { py: dense ? 0.5 : 1, minHeight: dense ? 40 : 48 } 
         }}

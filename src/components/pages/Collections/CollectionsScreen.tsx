@@ -7,7 +7,7 @@ import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { CollectionAccount } from '@/interfaces/financials';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import {
     ScreenWrapper,
     HeaderBox,
@@ -50,25 +50,14 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 />
             ),
         },
-        { id: 'accountNumber', label: 'Account #', minWidth: 140, accessor: (r) => r.accountNumber, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.accountNumber}</Typography> },
+        { id: 'accountNumber', label: 'Account #', minWidth: 140, align: 'center', accessor: (r) => r.accountNumber, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.accountNumber}</Typography> },
         { id: 'patientName', label: 'Patient Name', minWidth: 160, accessor: (r) => r.patientName, render: (r) => r.patientName },
         { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, render: (r) => r.payer },
         // { id: 'description', label: 'Description', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
-        { id: 'totalDue', label: 'Total Due', minWidth: 110, align: 'right', accessor: (r) => r.totalDue, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.totalDue)}</Box> },
-        { id: 'amountCollected', label: 'Collected', minWidth: 110, align: 'right', accessor: (r) => r.amountCollected, render: (r) => <Box sx={{ fontFamily: 'monospace', color: 'success.main' }}>{formatCurrency(r.amountCollected)}</Box> },
-        {
-            id: 'balance',
-            label: 'Balance',
-            minWidth: 110,
-            align: 'right',
-            accessor: (r) => r.balance,
-            render: (r) => (
-                <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600, color: r.balance > 0 ? theme.palette.error.main : theme.palette.success.main }}>
-                    {formatCurrency(r.balance)}
-                </Typography>
-            ),
-        },
-        { id: 'lastActivityDate', label: 'Last Activity', minWidth: 110, accessor: (r) => r.lastActivityDate, render: (r) => r.lastActivityDate },
+        { id: 'totalDue', label: 'Total Due', minWidth: 110, align: 'center', accessor: (r) => r.totalDue, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.totalDue)}</Box> },
+        { id: 'amountCollected', label: 'Collected', minWidth: 110, align: 'center', accessor: (r) => r.amountCollected, render: (r) => <Box sx={{ fontFamily: 'monospace', color: 'success.main' }}>{formatCurrency(r.amountCollected)}</Box> },
+        { id: 'balance', label: 'Balance', minWidth: 110, align: 'center', accessor: (r) => r.balance, render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600, color: r.balance > 0 ? theme.palette.error.main : theme.palette.success.main }}>{formatCurrency(r.balance)}</Typography> },
+        { id: 'lastActivityDate', label: 'Last Activity', minWidth: 110, align: 'center', accessor: (r) => r.lastActivityDate, render: (r) => formatDate(r.lastActivityDate) },
         { id: 'assignedTo', label: 'Assigned To', minWidth: 110, accessor: (r) => r.assignedTo, render: (r) => r.assignedTo },
         {
             id: 'aging',

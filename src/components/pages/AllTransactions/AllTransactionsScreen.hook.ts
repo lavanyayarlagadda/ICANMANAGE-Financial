@@ -1,10 +1,11 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store';
+import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import { useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery } from '@/store/api/financialsApi';
-import { subMonths, format } from 'date-fns';
-import { setRemittanceClaims, setRemittanceDetail, setSelectedClaimIndex, setSelectedPaymentId, setShowRemittanceDetail } from '@/store/slices/financialsSlice';
+import { format } from 'date-fns';
+import { calculateDatesFromLabel } from '@/utils/dateUtils';
+import { setRemittanceClaims, setRemittanceDetail, setSelectedClaimIndex, setSelectedPaymentId, setShowRemittanceDetail, setGlobalFilters } from '@/store/slices/financialsSlice';
 import {
     setIsDrillingDown as setGlobalDrillingDown,
 } from '@/store/slices/uiSlice';
@@ -13,9 +14,10 @@ import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalize
 
 export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    const user = useAppSelector((s) => s.auth.user);
-    const { selectedTenantId } = useAppSelector((s) => s.tenant);
-    const { actionTriggers } = useAppSelector(s => s.ui);
+    const user = useAppSelector((s: RootState) => s.auth.user);
+    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
+    const { actionTriggers } = useAppSelector((s: RootState) => s.ui);
+    const { globalFilters } = useAppSelector((s: RootState) => s.financials);
 
     const isMindPath = useMemo(
         () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
@@ -27,8 +29,8 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         size: 10,
         sortField: 'effectiveDate',
         sortOrder: 'desc' as 'asc' | 'desc',
-        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-        toDate: format(new Date(), 'yyyy-MM-dd'),
+        fromDate: globalFilters.fromDate,
+        toDate: globalFilters.toDate,
     });
 
     // Dynamic parameters for Drill-down APIs
@@ -151,9 +153,25 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
-            setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+            setQueryParams(prev => {
+                if (prev.fromDate === from && prev.toDate === to) return prev;
+                return { ...prev, fromDate: from, toDate: to, page: 0 };
+            });
+            // Update global filters for persistence - label is 'Custom' if it's a date string
+            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+        } else {
+            // It's a preset label
+            const dates = calculateDatesFromLabel(range);
+            if (dates) {
+                setQueryParams(prev => {
+                    if (prev.fromDate === dates.from && prev.toDate === dates.to) return prev;
+                    return { ...prev, fromDate: dates.from, toDate: dates.to, page: 0 };
+                });
+                // Update global filters for persistence - preserve the label
+                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+            }
         }
-    }, []);
+    }, [dispatch]);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
@@ -171,6 +189,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         filteredTransactions: transactions,
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
+        globalFilters,
         drillDownParams,
         isMindPath,
         handleDrillDown,

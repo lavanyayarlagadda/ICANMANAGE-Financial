@@ -56,6 +56,7 @@ interface DataTableToolbarProps<T> {
   setShowFilters: (val: boolean) => void;
   columnFilters: Record<string, string>;
   setColumnFilters: (filters: Record<string, string>) => void;
+  totalCount?: number;
   onFilterChange?: (filters: Record<string, string>) => void;
   download?: boolean;
   onDownload?: () => void;
@@ -83,6 +84,7 @@ export function DataTableToolbar<T>({
   setShowFilters,
   columnFilters,
   setColumnFilters,
+  totalCount,
   onFilterChange,
   download,
   onDownload,
@@ -116,7 +118,7 @@ export function DataTableToolbar<T>({
       <ToolbarRow isMobile={isMobile}>
         <ToolbarLeft>
           <RecordsText variant="caption">
-            {sortedData.length} records
+            {totalCount ?? sortedData.length} records
           </RecordsText>
           {activeFilterCount > 0 && (
             <Chip

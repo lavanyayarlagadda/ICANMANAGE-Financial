@@ -12,6 +12,7 @@ import {
   BankDepositEntity,
   ForwardBalanceNotice,
 } from '@/interfaces/financials';
+import { subMonths, format } from 'date-fns';
 
 import {
   mockPayments,
@@ -49,6 +50,11 @@ interface FinancialsState {
   showRemittanceDetail: boolean;
   addDialogOpen: boolean;
   addDialogType: string;
+  globalFilters: {
+    fromDate: string;
+    toDate: string;
+    rangeLabel: string;
+  };
 }
 
 const initialState: FinancialsState = {
@@ -71,6 +77,11 @@ const initialState: FinancialsState = {
   showRemittanceDetail: false,
   addDialogOpen: false,
   addDialogType: '',
+  globalFilters: {
+    fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
+    toDate: format(new Date(), 'yyyy-MM-dd'),
+    rangeLabel: '6 months',
+  },
 };
 
 const financialsSlice = createSlice({
@@ -130,6 +141,9 @@ const financialsSlice = createSlice({
         entity.items = entity.items.filter(i => i.id !== action.payload.itemId);
       }
     },
+    setGlobalFilters: (state, action: PayloadAction<{ fromDate: string; toDate: string; rangeLabel: string }>) => {
+      state.globalFilters = action.payload;
+    },
   },
 });
 
@@ -150,6 +164,7 @@ export const {
   deleteAllTransaction,
   deleteCollection,
   deleteBankDeposit,
+  setGlobalFilters,
 } = financialsSlice.actions;
 export default financialsSlice.reducer;
 

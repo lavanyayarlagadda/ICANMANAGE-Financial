@@ -40,7 +40,8 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleRangeChange,
         handlePageChange,
         handleRowsPerPageChange,
-        handleDrillDown
+        handleDrillDown,
+        globalFilters
     } = useTrendsScreen({ skip });
 
     const teamColumns = useMemo<DataColumn<ForecastDashboardResponse['data'][0]>[]>(() => [
@@ -48,6 +49,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             id: 'team',
             label: 'TEAM',
             minWidth: 150,
+            align: 'center',
             render: (row) => (
                 <Typography variant="body2" sx={{ fontWeight: row.team === 'OVERALL' ? 700 : 500 }}>
                     {row.team}
@@ -56,17 +58,17 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             accessor: (row) => row.team,
         },
         // { id: 'description', label: 'DESCRIPTION', minWidth: 150, accessor: (row) => (row as any).description ?? '-', render: (row) => (row as any).description ?? '-' },
-        { id: 'reconciledCheckCountPct', label: 'RECONCILED CHECK %', align: 'right', render: (row) => `${row.reconciledCheckCountPct}%`, accessor: (row) => row.reconciledCheckCountPct },
-        { id: 'unreconciledCheckCountPct', label: 'UNRECONCILED CHECK %', align: 'right', render: (row) => `${row.unreconciledCheckCountPct}%`, accessor: (row) => row.unreconciledCheckCountPct },
-        { id: 'checkCountPctByTeam', label: 'CHECK % BY TEAM', align: 'right', render: (row) => `${row.checkCountPctByTeam}%`, accessor: (row) => row.checkCountPctByTeam },
-        { id: 'reconciledCheckCount', label: 'RECONCILED COUNT', align: 'right', render: (row) => row.reconciledCheckCount, accessor: (row) => row.reconciledCheckCount },
-        { id: 'unreconciledCheckCount', label: 'UNRECONCILED COUNT', align: 'right', render: (row) => row.unreconciledCheckCount, accessor: (row) => row.unreconciledCheckCount },
-        { id: 'reconciledAmountPct', label: 'RECONCILED AMT %', align: 'right', render: (row) => `${row.reconciledAmountPct}%`, accessor: (row) => row.reconciledAmountPct },
-        { id: 'unreconciledAmountPct', label: 'UNRECONCILED AMT %', align: 'right', render: (row) => `${row.unreconciledAmountPct}%`, accessor: (row) => row.unreconciledAmountPct },
-        { id: 'amountPctByTeam', label: 'AMT % BY TEAM', align: 'right', render: (row) => `${row.amountPctByTeam}%`, accessor: (row) => row.amountPctByTeam },
-        { id: 'totalAmountPosted', label: 'TOTAL POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountPosted)), accessor: (row) => row.totalAmountPosted },
-        { id: 'totalAmountNotPosted', label: 'TOTAL NOT POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountNotPosted)), accessor: (row) => row.totalAmountNotPosted },
-        { id: 'avgDaysToReconcile', label: 'AVG DAYS', align: 'right', render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile ?? '' },
+        { id: 'reconciledCheckCountPct', label: 'RECONCILED CHECK %', align: 'center', render: (row) => `${row.reconciledCheckCountPct}%`, accessor: (row) => row.reconciledCheckCountPct },
+        { id: 'unreconciledCheckCountPct', label: 'UNRECONCILED CHECK %', align: 'center', render: (row) => `${row.unreconciledCheckCountPct}%`, accessor: (row) => row.unreconciledCheckCountPct },
+        { id: 'checkCountPctByTeam', label: 'CHECK % BY TEAM', align: 'center', render: (row) => `${row.checkCountPctByTeam}%`, accessor: (row) => row.checkCountPctByTeam },
+        { id: 'reconciledCheckCount', label: 'RECONCILED COUNT', align: 'center', render: (row) => row.reconciledCheckCount, accessor: (row) => row.reconciledCheckCount },
+        { id: 'unreconciledCheckCount', label: 'UNRECONCILED COUNT', align: 'center', render: (row) => row.unreconciledCheckCount, accessor: (row) => row.unreconciledCheckCount },
+        { id: 'reconciledAmountPct', label: 'RECONCILED AMT %', align: 'center', render: (row) => `${row.reconciledAmountPct}%`, accessor: (row) => row.reconciledAmountPct },
+        { id: 'unreconciledAmountPct', label: 'UNRECONCILED AMT %', align: 'center', render: (row) => `${row.unreconciledAmountPct}%`, accessor: (row) => row.unreconciledAmountPct },
+        { id: 'amountPctByTeam', label: 'AMT % BY TEAM', align: 'center', render: (row) => `${row.amountPctByTeam}%`, accessor: (row) => row.amountPctByTeam },
+        { id: 'totalAmountPosted', label: 'TOTAL POSTED', align: 'center', render: (row) => formatCurrency(Number(row.totalAmountPosted)), accessor: (row) => row.totalAmountPosted },
+        { id: 'totalAmountNotPosted', label: 'TOTAL NOT POSTED', align: 'center', render: (row) => formatCurrency(Number(row.totalAmountNotPosted)), accessor: (row) => row.totalAmountNotPosted },
+        { id: 'avgDaysToReconcile', label: 'AVG DAYS', align: 'center', render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile ?? '' },
     ], []);
 
     const forecastTrendsContent = useMemo(() => (
@@ -83,7 +85,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             </Grid>
             <LegendWrapper>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Performance</Typography>
-                <RangeDropdown onChange={handleRangeChange} />
+                <RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />
             </LegendWrapper>
             <ChartContainer>
                 <ResponsiveContainer width="100%" height={350}>
@@ -95,7 +97,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
                         <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                         <YAxis tickFormatter={(v) => `$${v}M`} tick={{ fontSize: 12 }} />
-                        <Tooltip />
+                        <Tooltip formatter={(v: number) => [`$${v.toFixed(2)}M`, 'Amount']} />
                         <Legend />
                         <Area type="monotone" dataKey="actual" fill={alpha(theme.palette.primary.main, 0.15)} stroke="none" />
                         <Line type="monotone" dataKey="actual" name="Actual" stroke={theme.palette.primary.main} strokeWidth={3} dot={{ r: 4, fill: theme.palette.primary.main }} />

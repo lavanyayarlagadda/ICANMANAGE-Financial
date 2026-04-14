@@ -146,7 +146,7 @@ const UserProfilePage: React.FC = () => {
                             <Typography variant="caption" color="primary">Current: {landingPage}</Typography>
                         </Box>
                         <Select fullWidth size="small" disabled={user?.role === 'user' || user?.username === 'demo'} value={landingPage} onChange={(e) => setLandingPage(e.target.value)} sx={{ ...styles.textFieldStyles, mb: 3 }}>
-                            {user?.accessibleModules.filter(module => isModuleVisible(module)).map(module => (
+                            {user?.accessibleModules?.filter(module => isModuleVisible(module)).map(module => (
                                 <MenuItem key={module} value={module} disabled={isModuleDisabled(module)}>{module}</MenuItem>
                             ))}
                         </Select>

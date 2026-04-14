@@ -1,3 +1,5 @@
+import { format, parseISO, isValid } from 'date-fns';
+
 /**
  * Utility functions for formatting values throughout the application.
  * Reusable across all components.
@@ -6,13 +8,30 @@
 /**
  * Format a number as USD currency string.
  */
-export const formatCurrency = (value: number): string => {
+export const formatCurrency = (value: number | null | undefined): string => {
+  if (value === null || value === undefined || isNaN(value)) {
+    return '$0.00';
+  }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value);
+};
+
+/**
+ * Format a date string as MM-DD-YYYY.
+ */
+export const formatDate = (dateStr: string | null | undefined): string => {
+  if (!dateStr) return '';
+  // Handle already formatted dates or invalid inputs
+  try {
+    const date = parseISO(dateStr);
+    return isValid(date) ? format(date, 'MM-dd-yyyy') : dateStr;
+  } catch (e) {
+    return dateStr;
+  }
 };
 
 /**
