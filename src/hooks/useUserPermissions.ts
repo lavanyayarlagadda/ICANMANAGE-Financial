@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useAppSelector } from '@/store';
 import { COMPANIES } from '@/config/constants';
 import { useGetMeDetailsQuery, MenuItem, MenuModule, SubMenuItem } from '@/store/api/userApi';
+import { MenuAccess } from '@/store/slices/authSlice';
 
 /**
  * Hook to determine user permissions based on company and assigned menus.
@@ -23,7 +24,7 @@ export const useUserPermissions = () => {
    * Checks the status of a specific menu item.
    */
   const getMenuStatus = useMemo(() => (label: string) => {
-    const findStatus = (menusArray: MenuItem[] | MenuModule[] | SubMenuItem[]): string | null => {
+    const findStatus = (menusArray: (MenuItem | MenuModule | SubMenuItem | MenuAccess)[]): string | null => {
       for (const item of menusArray) {
         if (item.menuName?.toLowerCase() === label.toLowerCase()) return item.status;
         
