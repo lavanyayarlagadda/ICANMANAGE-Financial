@@ -154,9 +154,10 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                 sx={{ backgroundColor: themeConfig.colors.surface, borderRadius: 1 }}
                             >
                                 {users.map(u => (
-                                    <MenuItem key={u.id} value={u.id}>
-                                        {u.username} {u.role ? `(${u.role.charAt(0).toUpperCase() + u.role.slice(1)})` : ''} {u.id === currentUser.id ? '(You)' : ''}
-                                    </MenuItem>
+                                  <MenuItem key={u.id} value={u.id}>
+  {u.username}
+  {u.id === currentUser.id ? ' (You)' : ''}
+</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
