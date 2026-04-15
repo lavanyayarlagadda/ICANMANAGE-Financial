@@ -107,7 +107,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             </ChartContainer>
             <DataTable
                 columns={teamColumns}
-                data={dashboardData?.data || []}
+                data={dashboardData || []}
                 rowKey={(r) => r.team}
                 paginated={false}
                 searchable={false}
@@ -128,12 +128,12 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 />
             ),
         },
-        { 
-            id: 'transactionNo', 
-            label: 'TRANSACTION #', 
-            minWidth: 140, 
-            accessor: (row) => row.id, 
-            render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.id}</Typography> 
+        {
+            id: 'transactionNo',
+            label: 'TRANSACTION #',
+            minWidth: 140,
+            accessor: (row) => row.id,
+            render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.id}</Typography>
         },
         { id: 'payerName', label: 'PAYOR', minWidth: 150, accessor: (row) => row.payerName, render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{row.payerName}</Typography> },
         { id: 'volume', label: 'VOLUME', align: 'right', render: (row) => row.volume, accessor: (row) => row.volume },

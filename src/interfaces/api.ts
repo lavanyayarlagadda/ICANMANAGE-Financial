@@ -1,14 +1,14 @@
-import { 
-  PaymentTransaction, 
-  CollectionAccount, 
-  BankDepositEntity, 
-  PipRecord, 
-  RemittanceDetail, 
-  ServiceLine, 
-  FeeScheduleVariance, 
-  PaymentVariance, 
-  FeeScheduleVarianceSummary, 
-  PaymentVarianceSummary, 
+import {
+  PaymentTransaction,
+  CollectionAccount,
+  BankDepositEntity,
+  PipRecord,
+  RemittanceDetail,
+  ServiceLine,
+  FeeScheduleVariance,
+  PaymentVariance,
+  FeeScheduleVarianceSummary,
+  PaymentVarianceSummary,
   PayerPerformanceRecord,
   RecoupmentRecord,
   OtherAdjustmentRecord,
@@ -16,17 +16,17 @@ import {
   ForwardBalanceNotice
 } from './financials';
 
-export type { 
-  PaymentTransaction, 
-  CollectionAccount, 
-  BankDepositEntity, 
-  PipRecord, 
-  RemittanceDetail, 
-  ServiceLine, 
-  FeeScheduleVariance, 
-  PaymentVariance, 
-  FeeScheduleVarianceSummary, 
-  PaymentVarianceSummary, 
+export type {
+  PaymentTransaction,
+  CollectionAccount,
+  BankDepositEntity,
+  PipRecord,
+  RemittanceDetail,
+  ServiceLine,
+  FeeScheduleVariance,
+  PaymentVariance,
+  FeeScheduleVarianceSummary,
+  PaymentVarianceSummary,
   PayerPerformanceRecord,
   RecoupmentRecord,
   OtherAdjustmentRecord,
@@ -161,24 +161,19 @@ export interface ReconciliationPerformanceResponse {
 
 export interface ForecastDashboardResponse {
   data: {
-    content: {
-      team: string;
-      reconciledCheckCountPct: string;
-      unreconciledCheckCountPct: string;
-      checkCountPctByTeam: string;
-      reconciledCheckCount: string;
-      unreconciledCheckCount: string;
-      reconciledAmountPct: string;
-      unreconciledAmountPct: string;
-      amountPctByTeam: string;
-      totalAmountPosted: string;
-      totalAmountNotPosted: string;
-      avgDaysToReconcile: string | null;
-    }[];
-    totalElements: number;
-    size: number;
-    number: number;
-  };
+    team: string;
+    reconciledCheckCountPct: string;
+    unreconciledCheckCountPct: string;
+    checkCountPctByTeam: string;
+    reconciledCheckCount: string;
+    unreconciledCheckCount: string;
+    reconciledAmountPct: string;
+    unreconciledAmountPct: string;
+    amountPctByTeam: string;
+    totalAmountPosted: string;
+    totalAmountNotPosted: string;
+    avgDaysToReconcile: string | null;
+  }[];
   message: string | null;
 }
 

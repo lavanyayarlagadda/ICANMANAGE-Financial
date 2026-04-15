@@ -158,6 +158,9 @@ export const ScrollableTableContainer = styled(TableContainer)(({ theme }) => ({
       background: theme.palette.grey[400],
     },
   },
+  scrollbarWidth: 'thin',
+  scrollbarColor: `${theme.palette.grey[400]} ${theme.palette.grey[50]}`,
+
 }));
 
 /* ROW */

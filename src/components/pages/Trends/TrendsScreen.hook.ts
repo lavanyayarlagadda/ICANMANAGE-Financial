@@ -51,10 +51,10 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const isPayerPath = useMemo(() => location.pathname.includes('/payer-performance'), [location.pathname]);
 
     const [queryParams, setQueryParams] = useState({
-        page: 0,
-        size: 10,
-        sortField: '',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        // page: 0,
+        // size: 10,
+        // sortField: '',
+        // sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
     });
@@ -189,8 +189,8 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         trendsData,
         forecastSummary,
         reconPerformance,
-        dashboardData: dashboardData?.data?.content ?? [],
-        totalElementsDashboard: dashboardData?.data?.totalElements ?? 0,
+        dashboardData: dashboardData?.data ?? [],
+        totalElementsDashboard: dashboardData?.data?.length ?? 0,
         execSummary,
         paymentMix,
         adjBreakdown,
