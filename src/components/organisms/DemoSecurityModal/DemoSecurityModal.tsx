@@ -54,7 +54,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
         handleSave,
     } = useDemoSecurityModal({ currentUser, open, onClose });
 
-    const renderTree = (items: any[], level = 0): React.ReactNode => {
+    const renderTree = (items: any[], level = 0, isParentDisabled = false): React.ReactNode => {
         const filteredItems = items.filter(item => 
             item.menuName.toLowerCase().includes(searchQuery.toLowerCase()) ||
             ('modules' in item && item.modules?.some((m: any) => m.menuName.toLowerCase().includes(searchQuery.toLowerCase()))) ||
@@ -68,20 +68,24 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                ('subModules' in item && item.subModules && item.subModules.length > 0);
             
             const currentStatus = moduleStatuses[item.menuId] || 'Hidden';
+            const isCurrentlyDisabled = currentStatus === 'Disabled';
             
             // Level-specific styles
             const isLevel0 = level === 0;
             const isLevel1 = level === 1;
             const isLevel2 = level === 2;
 
+            // If a parent is disabled, the child dropdown should be disabled
+            const shouldDisableDropdown = !moduleSelectionEnabled || isParentDisabled;
+
             return (
                 <React.Fragment key={item.menuId}>
-                    <Box sx={styles.treeItemStyles(level, isLevel0, isLevel1)}>
+                    <Box sx={styles.treeItemStyles(level, isLevel0, isLevel1, isParentDisabled)}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, pr: 1 }}>
                             {isLevel2 && (
                                 <Box sx={styles.treeBulletStyles} />
                             )}
-                            <Typography sx={styles.treeTextStyles(isLevel0, isLevel1)}>
+                            <Typography sx={styles.treeTextStyles(isLevel0, isLevel1, isParentDisabled)}>
                                 {item.menuName}
                             </Typography>
                         </Box>
@@ -89,7 +93,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                             <Select
                                 value={currentStatus}
                                 onChange={(e) => handleModuleStatusSelectChange(item.menuId, e)}
-                                disabled={!moduleSelectionEnabled}
+                                disabled={shouldDisableDropdown}
                                 sx={{
                                     ...styles.statusSelectStyles,
                                     fontSize: isLevel0 ? '0.85rem' : '0.8rem',
@@ -106,7 +110,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                         </FormControl>
                     </Box>
                     {hasChildren && currentStatus !== 'Hidden' && (
-                        renderTree(item.modules || item.subModules, level + 1)
+                        renderTree(item.modules || item.subModules, level + 1, isCurrentlyDisabled || isParentDisabled)
                     )}
                 </React.Fragment>
             );

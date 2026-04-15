@@ -38,7 +38,7 @@ export const statusSelectStyles: SxProps<Theme> = {
   backgroundColor: themeConfig.colors.surface,
   '& .MuiSelect-select': { display: 'flex', alignItems: 'center', pr: '28px !important' },
 };
-export const treeItemStyles = (level: number, isLevel0: boolean, isLevel1: boolean): SxProps<Theme> => ({
+export const treeItemStyles = (level: number, isLevel0: boolean, isLevel1: boolean, isParentDisabled: boolean): SxProps<Theme> => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
@@ -47,17 +47,20 @@ export const treeItemStyles = (level: number, isLevel0: boolean, isLevel1: boole
   borderBottom: `1px solid ${themeConfig.colors.border}`,
   backgroundColor: isLevel0 ? 'transparent' : (isLevel1 ? alpha(themeConfig.colors.primary, 0.03) : alpha(themeConfig.colors.primary, 0.01)),
   transition: 'background-color 0.2s',
+  opacity: isParentDisabled ? 0.7 : 1,
+  cursor: isParentDisabled ? 'not-allowed' : 'default',
   '&:hover': {
-    backgroundColor: alpha(themeConfig.colors.primary, 0.05)
+    backgroundColor: isParentDisabled ? 'transparent' : alpha(themeConfig.colors.primary, 0.05)
   }
 });
 
-export const treeTextStyles = (isLevel0: boolean, isLevel1: boolean): SxProps<Theme> => ({
-  color: isLevel0 ? themeConfig.colors.primary : (isLevel1 ? 'text.primary' : 'text.secondary'),
+export const treeTextStyles = (isLevel0: boolean, isLevel1: boolean, isParentDisabled: boolean): SxProps<Theme> => ({
+  color: isParentDisabled ? 'text.disabled' : (isLevel0 ? themeConfig.colors.primary : (isLevel1 ? 'text.primary' : 'text.secondary')),
   fontSize: isLevel0 ? '0.9rem' : (isLevel1 ? '0.825rem' : '0.775rem'),
   fontWeight: isLevel0 ? 700 : (isLevel1 ? 600 : 500),
   wordBreak: 'break-word',
-  letterSpacing: isLevel0 ? '0.01em' : 'normal'
+  letterSpacing: isLevel0 ? '0.01em' : 'normal',
+  fontStyle: isParentDisabled ? 'italic' : 'normal'
 });
 
 export const treeBulletStyles: SxProps<Theme> = {

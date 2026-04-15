@@ -85,32 +85,68 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
     setModuleStatuses(prev => {
       const next = { ...prev, [menuId]: status };
       
-      // Cascade Hidden/Disabled status to all sub-modules
-      if (status === 'Hidden' || status === 'Disabled') {
-        const cascade = (items: any[]) => {
-          for (const item of items) {
-            if (item.menuId === menuId) {
-              const applyRecursive = (children: any[]) => {
-                children.forEach(child => {
-                  next[child.menuId] = status;
-                  if (child.modules) applyRecursive(child.modules);
-                  if (child.subModules) applyRecursive(child.subModules);
-                });
-              };
-              if (item.modules) applyRecursive(item.modules);
-              if (item.subModules) applyRecursive(item.subModules);
-              return true;
-            }
-            if (item.modules && cascade(item.modules)) return true;
-            if (item.subModules && cascade(item.subModules)) return true;
-          }
-          return false;
-        };
+      if (!menuConfig?.menus) return next;
 
-        if (menuConfig?.menus) {
-          cascade(menuConfig.menus);
+      // 1. Cascade DOWN for ALL statuses (Active, Hidden, Disabled)
+      const cascadeDown = (items: any[], targetId: number, targetStatus: MenuStatus) => {
+        let found = false;
+        for (const item of items) {
+          if (item.menuId === targetId) {
+            found = true;
+            const setRecursive = (children: any[]) => {
+              children.forEach(child => {
+                next[child.menuId] = targetStatus;
+                if (child.modules) setRecursive(child.modules);
+                if (child.subModules) setRecursive(child.subModules);
+              });
+            };
+            if (item.modules) setRecursive(item.modules);
+            if (item.subModules) setRecursive(item.subModules);
+          } else {
+            const children = item.modules || item.subModules;
+            if (children && cascadeDown(children, targetId, targetStatus)) {
+              found = true;
+            }
+          }
         }
-      }
+        return found;
+      };
+
+      // Cascade down for any status change to ensure consistency
+      cascadeDown(menuConfig.menus, menuId, status);
+
+      // 2. Cascade UP: Update parents based on children's state
+      // This ensures that if you activate a child, the parent becomes active,
+      // and if all children are hidden/disabled, the parent follows.
+      const updateParentStatuses = (items: any[]) => {
+        items.forEach(item => {
+          const children = item.modules || item.subModules;
+          if (children && children.length > 0) {
+            updateParentStatuses(children); // Process children first (post-order)
+
+            // Skip upward check if the item itself was the one explicitly changed by the user
+            if (item.menuId === menuId) return;
+
+            const allHiddenOrDisabled = children.every((child: any) => 
+              next[child.menuId] === 'Hidden' || next[child.menuId] === 'Disabled'
+            );
+
+            if (allHiddenOrDisabled) {
+              const allDisabled = children.every((child: any) => next[child.menuId] === 'Disabled');
+              next[item.menuId] = allDisabled ? 'Disabled' : 'Hidden';
+            } else {
+              // If at least one child is Active, the parent must be Active to be usable
+              const hasActiveChild = children.some((child: any) => next[child.menuId] === 'Active');
+              if (hasActiveChild) {
+                next[item.menuId] = 'Active';
+              }
+            }
+          }
+        });
+      };
+
+      updateParentStatuses(menuConfig.menus);
+
       return next;
     });
   }, [menuConfig]);
@@ -131,18 +167,20 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
     try {
       // Build overrides by comparing current statuses with initial ones from menuConfig
       const overrides: MenuOverride[] = [];
-      const compareAndCollect = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
+      const collectAllOverrides = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
         items.forEach(item => {
-          if (moduleStatuses[item.menuId] !== item.effectiveStatus) {
-            overrides.push({ menuId: item.menuId, status: moduleStatuses[item.menuId] });
+          // Send all overrides that exist in our state, regardless of whether they match the current effective status
+          // This ensures the backend receives the full intended state for any item we've touched
+          if (moduleStatuses[item.menuId] !== undefined) {
+             overrides.push({ menuId: item.menuId, status: moduleStatuses[item.menuId] });
           }
-          if ('modules' in item && item.modules) compareAndCollect(item.modules);
-          if ('subModules' in item && item.subModules) compareAndCollect(item.subModules);
+          if ('modules' in item && item.modules) collectAllOverrides(item.modules);
+          if ('subModules' in item && item.subModules) collectAllOverrides(item.subModules);
         });
       };
 
       if (menuConfig) {
-        compareAndCollect(menuConfig.menus);
+        collectAllOverrides(menuConfig.menus);
       }
 
       await updateMenuConfig({
