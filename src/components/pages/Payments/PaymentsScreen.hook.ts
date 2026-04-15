@@ -22,7 +22,8 @@ import {
     useSearchPaymentsQuery,
     useLazyExportPaymentsQuery,
     useLazyGetRemittanceClaimsQuery,
-    useLazySearchServiceLinesQuery
+    useLazySearchServiceLinesQuery,
+    useGetPaymentStatusQuery
 } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
@@ -63,10 +64,14 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const [triggerExport] = useLazyExportPaymentsQuery();
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
+    const { data: statusData } = useGetPaymentStatusQuery();
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
+    const statusOptions = useMemo(() => {
+        return statusData?.map((item: any) => item.postingStatus) || [];
+    }, [statusData]);
 
     useEffect(() => {
         if (skip) {
@@ -236,6 +241,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         onRowsPerPageChange,
         onDrillDownParamsChange,
         isError,
-        dispatch
+        dispatch,
+        statusOptions
     };
 };

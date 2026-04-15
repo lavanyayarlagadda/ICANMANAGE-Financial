@@ -33,7 +33,7 @@ export const NAV_CONFIG: Record<string, NavMetadata> = {
         icon: AccountBalanceIcon,
     },
     'Transactions': {
-        path: '/financials/all-transactions',
+        path: '/financials/transactions',
     },
     'All Transactions': {
         path: '/financials/all-transactions',
@@ -56,7 +56,7 @@ export const NAV_CONFIG: Record<string, NavMetadata> = {
         component: BankDepositsScreen,
     },
     'Statements': {
-        path: '/financials/statements/pip',
+        path: '/financials/statements',
         component: StatementsScreen,
     },
     'PIP': {

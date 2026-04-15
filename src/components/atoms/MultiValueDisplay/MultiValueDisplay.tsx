@@ -16,6 +16,8 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
   displayCount = 2,
   maxWidth = 140
 }) => {
+  if (!value) return <Typography variant="body2" color="text.secondary">-</Typography>;
+
   const {
     items,
     searchQuery,
@@ -28,7 +30,6 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
     anchorEl,
   } = useMultiValueDisplay(value);
 
-  if (!value) return <Typography variant="body2" color="text.secondary">-</Typography>;
   if (items.length === 0) return <Typography variant="body2" color="text.secondary">-</Typography>;
 
   const hasMore = items.length > displayCount;

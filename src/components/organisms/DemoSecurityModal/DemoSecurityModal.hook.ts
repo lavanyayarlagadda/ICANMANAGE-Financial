@@ -39,17 +39,18 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
   const users = useMemo(() => {
     return meDetails?.users || meDetails?.usersDropdown?.map(u => ({ id: String(u.userId), username: u.username, firstName: '', lastName: '', role: 'User' })) || [];
   }, [meDetails]);
-useEffect(() => {
-  if ( users && users.length > 0 ) {
-    const loggedInUser = users.find(u => u.id === currentUser.id);
-
-    if (loggedInUser) {
-      setSelectedUser(loggedInUser.id);
-    } else {
-      setSelectedUser(users[0].id);
+  useEffect(() => {
+    // Automatically select a user when the modal opens or users list loads
+    if (open && !selectedUser && users && users.length > 0) {
+      const loggedInUser = users.find(u => u.id === currentUser.id);
+      if (loggedInUser) {
+        setSelectedUser(loggedInUser.id);
+      } else {
+        // Fallback: select the first user from the list if current user is not found
+        setSelectedUser(users[0].id);
+      }
     }
-  }
-}, [users, currentUser]);
+  }, [users, currentUser, open, selectedUser]);
 
 
   // Reset selected user when modal closes

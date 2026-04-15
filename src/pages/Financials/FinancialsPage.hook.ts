@@ -40,22 +40,25 @@ export const useFinancialsPage = () => {
   const { financialsTabs } = useMemo(() => getNavigationStructure(menus), [menus]);
 
   useEffect(() => {
+    if (isLoadingDetails) return; // Wait for menus to load before resolving paths
+
     if (location.pathname.startsWith('/collections')) {
       dispatch(setActivePage('collections'));
     } else if (location.pathname.startsWith('/financials')) {
       dispatch(setActivePage('financials'));
 
-      const pathPart = location.pathname.split('/financials/')[1] || '';
+      // Normalize path for matching (lower case and remove trailing slash)
+      const normalizedCurrentPath = location.pathname.toLowerCase().replace(/\/$/, '');
+      const pathPart = normalizedCurrentPath.split('/financials/')[1] || '';
 
       // Build dynamic path map from financialsTabs
       const pathMap: Record<string, { tab: number; subTab: number }> = {};
       financialsTabs.forEach(mainTab => {
-        // Main tabs can have components too (no sub-tabs case)
-        const mainPath = mainTab.path.split('/financials/')[1] || '';
+        const mainPath = mainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
         if (mainPath) pathMap[mainPath] = { tab: mainTab.id, subTab: 0 };
 
         mainTab.subTabs?.forEach(subTab => {
-          const subPath = subTab.path.split('/financials/')[1] || '';
+          const subPath = subTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
           if (subPath) pathMap[subPath] = { tab: mainTab.id, subTab: subTab.id };
         });
       });
@@ -65,18 +68,26 @@ export const useFinancialsPage = () => {
       if (match) {
         if (uiState.activeTab !== match.tab) dispatch(setActiveTab(match.tab));
         if (uiState.activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
-      } else {
-        // Current path is invalid or hidden, redirect to first available tab
+
+        // If the path corresponds exactly to a main module, redirect to its first subtab's route
+        const activeMainTab = financialsTabs.find(t => t.id === match.tab);
+        if (activeMainTab && activeMainTab.subTabs && activeMainTab.subTabs.length > 0) {
+          const mainPathPart = activeMainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
+          if (pathPart === mainPathPart) {
+            navigate(activeMainTab.subTabs[0].path, { replace: true });
+          }
+        }
+      } else if (pathPart === '') {
+        // We are exactly at /financials, redirect to first available tab
         const firstTab = financialsTabs[0];
         if (firstTab) {
           const defaultPath = firstTab.subTabs?.[0]?.path || firstTab.path;
-          if (location.pathname !== defaultPath) {
-            navigate(defaultPath, { replace: true });
-          }
+          navigate(defaultPath, { replace: true });
         }
       }
+      // If no match but pathPart is not empty, we might be on a valid sub-route handled by a component
     }
-  }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, financialsTabs]);
+  }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, financialsTabs, isLoadingDetails]);
 
   const handleDelete = useCallback(() => {
     if (!uiState.confirmDeleteId) return;

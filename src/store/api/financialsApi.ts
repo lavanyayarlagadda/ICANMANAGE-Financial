@@ -52,6 +52,13 @@ export const financialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Financials"],
     }),
+    getPaymentStatus: builder.query<any, void>({
+      query: () => '/financials/posting-status/list',
+      transformResponse: (response: { data: any } | any) => {
+        return 'data' in response && response.data ? (response.data as any) : (response as any);
+      },
+    }),
+
     searchPip: builder.query<PipSearchResponse, PipSearchRequest>({
       query: (body) => ({
         url: "financials/pip/search",
@@ -424,4 +431,5 @@ export const {
   useSearchForwardBalanceNoticesQuery,
   useSearchSuspenseAccountsQuery,
   useSearchCollectionsQuery,
+  useGetPaymentStatusQuery
 } = financialsApi;

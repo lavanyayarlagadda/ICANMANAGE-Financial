@@ -26,6 +26,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         onRowsPerPageChange,
         isError,
         dispatch,
+        statusOptions
     } = usePaymentsScreen({ skip });
 
     const columns = useMemo<DataColumn<PaymentTransaction>[]>(() => [
@@ -66,7 +67,10 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         { id: 'payer', label: 'Payer', minWidth: 180, accessor: (r) => r.payer ?? '', filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare', 'Blue Shield', 'Humana', 'Kaiser Permanente'], render: (r) => r.payer },
         { id: 'amount', label: 'Amount', minWidth: 110, align: 'center', accessor: (r) => r.amount ?? 0, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount ?? 0)}</Box> },
         { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'center', accessor: (r) => r.openBalance ?? 0, render: (r) => formatCurrency(r.openBalance) },
-        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: ['Reconciled', 'Partially Applied', 'Pending', 'Denied', 'Under Review'], render: (r) => <StatusBadge status={r.status} /> },
+        {
+            id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: statusOptions,
+            render: (r) => <StatusBadge status={r.status} />
+        },
     ], [dispatch, handleDrillDown]);
 
     if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments.</Box>;
@@ -79,7 +83,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 rowKey={(r) => r.id ?? ''}
                 exportTitle="Payments"
                 customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}
-                dictionaryId="all-transactions"
+                dictionaryId="payments"
                 serverSide
                 totalElements={totalElements}
                 page={queryParams.page}

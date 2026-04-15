@@ -4,7 +4,7 @@ export const useMultiValueDisplay = (value: string) => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const items = value.split(',').map(s => s.trim()).filter(Boolean);
+  const items = (value || '').split(',').map(s => s.trim()).filter(Boolean);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
