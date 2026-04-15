@@ -70,7 +70,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
     const statusOptions = useMemo(() => {
-        return statusData?.map((item: any) => item.postingStatus) || [];
+        return statusData?.data?.map((item: any) => item.postingStatus) || [];
     }, [statusData]);
 
     useEffect(() => {

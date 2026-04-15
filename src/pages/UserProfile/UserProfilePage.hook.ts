@@ -5,6 +5,8 @@ import { RootState } from '@/store';
 import { MenuAccess } from '@/store/slices/authSlice';
 import { useGetMeDetailsQuery, MenuItem, useUpdateMePreferencesMutation } from '@/store/api/userApi';
 
+import { NAV_CONFIG } from '@/config/navigation';
+
 export const useUserProfilePage = () => {
     const navigate = useNavigate();
     const { data: userDetails, isLoading: isLoadingDetails } = useGetMeDetailsQuery();
@@ -98,12 +100,20 @@ export const useUserProfilePage = () => {
     const handleSavePreferences = useCallback(async () => {
         try {
             await updatePreferences({ defaultLandingPage: landingPage }).unwrap();
-            setSuccessMessage('Preferences saved successfully.');
-            setTimeout(() => setSuccessMessage(''), 3000);
+            setSuccessMessage('Preferences saved successfully. Redirecting to your new landing page...');
+            
+            // Map landingPage label to its configured path
+            const config = NAV_CONFIG[landingPage];
+            const targetPath = config?.path || '/financials/all-transactions';
+            
+            setTimeout(() => {
+                setSuccessMessage('');
+                navigate(targetPath);
+            }, 1500);
         } catch (error) {
             console.error('Failed to update preferences:', error);
         }
-    }, [updatePreferences, landingPage]);
+    }, [updatePreferences, landingPage, navigate]);
 
     const handleBack = useCallback(() => navigate(-1), [navigate]);
 

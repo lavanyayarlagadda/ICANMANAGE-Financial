@@ -40,12 +40,16 @@ export const useFinancialsPage = () => {
   const { financialsTabs } = useMemo(() => getNavigationStructure(menus), [menus]);
 
   useEffect(() => {
+    // 1. Handle Active Page switching (instantly update layout based on URL)
+    if (location.pathname.startsWith('/collections')) {
+      if (uiState.activePage !== 'collections') dispatch(setActivePage('collections'));
+    } else if (location.pathname.startsWith('/financials')) {
+      if (uiState.activePage !== 'financials') dispatch(setActivePage('financials'));
+    }
+
     if (isLoadingDetails) return; // Wait for menus to load before resolving paths
 
-    if (location.pathname.startsWith('/collections')) {
-      dispatch(setActivePage('collections'));
-    } else if (location.pathname.startsWith('/financials')) {
-      dispatch(setActivePage('financials'));
+    if (location.pathname.startsWith('/financials')) {
 
       // Normalize path for matching (lower case and remove trailing slash)
       const normalizedCurrentPath = location.pathname.toLowerCase().replace(/\/$/, '');
@@ -74,7 +78,13 @@ export const useFinancialsPage = () => {
         if (activeMainTab && activeMainTab.subTabs && activeMainTab.subTabs.length > 0) {
           const mainPathPart = activeMainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
           if (pathPart === mainPathPart) {
-            navigate(activeMainTab.subTabs[0].path, { replace: true });
+            const firstSubTabPath = activeMainTab.subTabs[0].path;
+            const subPathPart = firstSubTabPath.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
+            
+            // Only redirect if we're at the module base path and not already at the subtab path
+            if (pathPart !== subPathPart) {
+              navigate(firstSubTabPath, { replace: true });
+            }
           }
         }
       } else if (pathPart === '') {
@@ -87,7 +97,7 @@ export const useFinancialsPage = () => {
       }
       // If no match but pathPart is not empty, we might be on a valid sub-route handled by a component
     }
-  }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, financialsTabs, isLoadingDetails]);
+  }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, uiState.activePage, financialsTabs, isLoadingDetails]);
 
   const handleDelete = useCallback(() => {
     if (!uiState.confirmDeleteId) return;
