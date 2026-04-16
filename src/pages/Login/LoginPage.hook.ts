@@ -58,9 +58,10 @@ export const useLoginPage = () => {
 
       // Navigate to / which delegates to RootRedirect for fetching the live defaultLandingPage
       navigate('/', { replace: true });
-    } catch (err: any) {
+    } catch (err) {
       console.error('Login failed:', err);
-      setErrorMsg(err.data?.message || 'Invalid username or password');
+      const error = err as { data?: { message?: string } };
+      setErrorMsg(error.data?.message || 'Invalid username or password');
     }
   };
 

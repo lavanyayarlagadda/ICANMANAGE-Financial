@@ -22,14 +22,14 @@ import { NAV_CONFIG } from '@/config/navigation';
 import TopNavBar from '@/components/organisms/TopNavBar/TopNavBar';
 import Footer from '@/components/organisms/Footer/Footer';
 import { MENU_STATUS } from '@/config/constants';
-import { 
-  DRAWER_WIDTH, 
-  DRAWER_COLLAPSED_WIDTH, 
-  PageWrapper, 
-  MainContentWrapper, 
-  ContentArea, 
-  GlobalOverlay, 
-  NavItemStyles 
+import {
+  DRAWER_WIDTH,
+  DRAWER_COLLAPSED_WIDTH,
+  PageWrapper,
+  MainContentWrapper,
+  ContentArea,
+  GlobalOverlay,
+  NavItemStyles
 } from './DashboardLayout.styles';
 import { useDashboardLayout } from './DashboardLayout.hook';
 
@@ -40,26 +40,26 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
+
   const {
-      isOverlayActive,
-      isWaitingForTenants,
-      sidebar,
-      getMenuStatus,
-      handleNavClick,
-      handleMenuToggle,
-      handleSnackbarClose,
-      handleMobileMenuClose,
-      tenant,
-      ui
+    isOverlayActive,
+    isWaitingForTenants,
+    sidebar,
+    getMenuStatus,
+    handleNavClick,
+    handleMenuToggle,
+    handleSnackbarClose,
+    handleMobileMenuClose,
+    tenant,
+    ui
   } = useDashboardLayout();
 
   const {
-      mobileMenuOpen,
-      sidebarCollapsed,
-      snackbarOpen,
-      snackbarMessage,
-      snackbarSeverity,
+    mobileMenuOpen,
+    sidebarCollapsed,
+    snackbarOpen,
+    snackbarMessage,
+    snackbarSeverity,
   } = ui;
 
   const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
@@ -70,7 +70,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         const config = NAV_CONFIG[item.label];
         const Icon = config?.icon || AccountBalanceIcon;
         const status = getMenuStatus(item.label);
-        
+
         if (status === 'Hidden') return null;
 
         return (
@@ -79,16 +79,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               <ListItemButton
                 disabled={status === 'Disabled'}
                 selected={ui.activePage === item.label.toLowerCase()}
-                onClick={() => status !== 'Disabled' && handleNavClick(item.label.toLowerCase() as any, item.path)}
+                onClick={() => status !== 'Disabled' && handleNavClick(item.label.toLowerCase(), item.path)}
                 sx={NavItemStyles(sidebarCollapsed, theme)}
               >
                 <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}>
                   <Icon fontSize="small" />
                 </ListItemIcon>
                 {!sidebarCollapsed && (
-                  <ListItemText 
-                    primary={item.label} 
-                    primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} 
+                  <ListItemText
+                    primary={item.label}
+                    primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
                   />
                 )}
               </ListItemButton>

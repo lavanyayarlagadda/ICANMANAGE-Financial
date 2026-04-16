@@ -38,8 +38,8 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             label: 'TRANSACTION #',
             minWidth: 140,
             align: 'center',
-            accessor: (r) => (r as any).transactionNo || (r as any).id || '-',
-            render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{(r as any).transactionNo || (r as any).id || '-'}</Typography>
+            accessor: (r) => r.transactionNo || r.id || '-',
+            render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{r.transactionNo || r.id || '-'}</Typography>
         },
         {
             id: 'paymentDate',

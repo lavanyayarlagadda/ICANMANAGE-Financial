@@ -71,7 +71,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: statusOptions,
             render: (r) => <StatusBadge status={r.status} />
         },
-    ], [dispatch, handleDrillDown]);
+    ], [dispatch, handleDrillDown, statusOptions]);
 
     if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments.</Box>;
 

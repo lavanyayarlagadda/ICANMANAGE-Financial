@@ -21,10 +21,11 @@ import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import {
     useSearchPaymentsQuery,
     useLazyExportPaymentsQuery,
-    useLazyGetRemittanceClaimsQuery,
     useLazySearchServiceLinesQuery,
+    useLazyGetRemittanceClaimsQuery,
     useGetPaymentStatusQuery
 } from '@/store/api/financialsApi';
+import { PaymentQueryParams, TableQueryParams } from '@/interfaces/api';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
@@ -34,7 +35,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const { actionTriggers } = useAppSelector((s: RootState) => s.ui);
     const { globalFilters } = useAppSelector((s: RootState) => s.financials);
 
-    const [queryParams, setQueryParams] = useState({
+    const [queryParams, setQueryParams] = useState<PaymentQueryParams>({
         page: 0,
         size: 10,
         sortField: '',
@@ -70,7 +71,10 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
     const statusOptions = useMemo(() => {
-        return statusData?.data?.map((item: any) => item.postingStatus) || [];
+        if (statusData?.data && Array.isArray(statusData?.data)) {
+            return statusData?.data?.map((item) => item.postingStatus) || [];
+        }
+        return [];
     }, [statusData]);
 
     useEffect(() => {

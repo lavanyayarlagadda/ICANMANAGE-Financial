@@ -57,7 +57,6 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             ),
             accessor: (row) => row.team,
         },
-        // { id: 'description', label: 'DESCRIPTION', minWidth: 150, accessor: (row) => (row as any).description ?? '-', render: (row) => (row as any).description ?? '-' },
         { id: 'reconciledCheckCountPct', label: 'RECONCILED CHECK %', align: 'center', render: (row) => `${row.reconciledCheckCountPct}%`, accessor: (row) => row.reconciledCheckCountPct },
         { id: 'unreconciledCheckCountPct', label: 'UNRECONCILED CHECK %', align: 'center', render: (row) => `${row.unreconciledCheckCountPct}%`, accessor: (row) => row.unreconciledCheckCountPct },
         { id: 'checkCountPctByTeam', label: 'CHECK % BY TEAM', align: 'center', render: (row) => `${row.checkCountPctByTeam}%`, accessor: (row) => row.checkCountPctByTeam },

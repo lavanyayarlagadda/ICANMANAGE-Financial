@@ -1,28 +1,29 @@
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { 
-    openViewDialog, 
-    openEditDialog, 
-    openConfirmDelete, 
-    setActiveExportType, 
-    setIsReloading, 
+import {
+    openViewDialog,
+    openEditDialog,
+    openConfirmDelete,
+    setActiveExportType,
+    setIsReloading,
     setIsGlobalFetching,
     setIsDrillingDown as setGlobalDrillingDown
 } from '@/store/slices/uiSlice';
-import { 
-    setShowRemittanceDetail, 
-    setSelectedPaymentId, 
-    setRemittanceDetail, 
-    setRemittanceClaims, 
-    setSelectedClaimIndex 
+import {
+    setShowRemittanceDetail,
+    setSelectedPaymentId,
+    setRemittanceDetail,
+    setRemittanceClaims,
+    setSelectedClaimIndex
 } from '@/store/slices/financialsSlice';
 import { RecoupmentRecord, RemittanceDetail, PaymentTransaction } from '@/interfaces/financials';
-import { 
-    useSearchRecoupmentsQuery, 
+import {
     useLazyExportRecoupmentsQuery,
     useLazyGetRemittanceClaimsQuery,
-    useLazySearchServiceLinesQuery 
+    useLazySearchServiceLinesQuery,
+    useSearchRecoupmentsQuery
 } from '@/store/api/financialsApi';
+import { TableQueryParams } from '@/interfaces/api';
 import { subMonths, format } from 'date-fns';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
@@ -31,7 +32,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
 
-    const [queryParams, setQueryParams] = useState({
+    const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
         size: 10,
         sortField: '',
@@ -83,7 +84,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
                 toDate: queryParams.toDate,
                 format: exportFormat
             }).unwrap();
-            
+
             const filename = `recoupments_${queryParams.fromDate}_to_${queryParams.toDate}.${exportFormat}`;
             downloadFileFromBlob(blob, filename);
         } catch (error) {
@@ -122,10 +123,10 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         return { totalRecouped, totalOriginal };
     }, [recoupments]);
 
-    const handleDrillDown = useCallback(async (row: any) => {
+    const handleDrillDown = useCallback(async (row: RecoupmentRecord) => {
         try {
             dispatch(setGlobalDrillingDown(true));
-            const identifier = row.claimId || row.transactionNo || row.recoupmentId || row.id || '';
+            const identifier = row.claimId || row.recoupmentId || row.id || '';
             if (identifier) {
                 dispatch(setSelectedPaymentId(identifier));
 

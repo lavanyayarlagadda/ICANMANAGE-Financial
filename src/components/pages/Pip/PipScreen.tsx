@@ -112,9 +112,9 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         expandedContent={renderExpandedContent} exportTitle="PIP Records" dictionaryId="statements"
         serverSide totalElements={totalElements} page={queryParams.page} rowsPerPage={queryParams.size}
         sortCol={queryParams.sortField} sortDir={queryParams.sortOrder}
+        download={false}
         onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}
         customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
-        download={false} onDownload={() => handleExport('xlsx')}
       />
     </Box>
   );

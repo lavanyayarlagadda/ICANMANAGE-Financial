@@ -30,7 +30,7 @@ const menuAccessSchema: z.ZodType<MenuAccess> = z.object({
     menuName: z.string(),
     status: menuStatusSchema,
     subModules: z.lazy(() => z.array(menuAccessSchema)).optional(),
-}).passthrough() as any;
+}).passthrough();
 
 const userSchema: z.ZodType<User> = z.object({
     menus: z.array(menuAccessSchema),
@@ -46,7 +46,7 @@ const userSchema: z.ZodType<User> = z.object({
     defaultLandingPage: z.string(),
     inactivityTimeout: z.string().optional(),
     passwordPolicy: z.string().optional(),
-}).passthrough() as any;
+}).passthrough();
 
 interface AuthState {
     isAuthenticated: boolean;

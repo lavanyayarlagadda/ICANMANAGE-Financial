@@ -3,6 +3,7 @@ import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import { useLazyExportAllTransactionsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery } from '@/store/api/financialsApi';
+import { TableQueryParams } from '@/interfaces/api';
 import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { setRemittanceClaims, setRemittanceDetail, setSelectedClaimIndex, setSelectedPaymentId, setShowRemittanceDetail, setGlobalFilters } from '@/store/slices/financialsSlice';
@@ -25,7 +26,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     //     [user, selectedTenantId]
     // );
 
-    const [queryParams, setQueryParams] = useState({
+    const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
         size: 10,
         sortField: 'effectiveDate',

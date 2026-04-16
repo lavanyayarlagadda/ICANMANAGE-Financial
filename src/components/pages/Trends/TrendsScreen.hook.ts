@@ -50,11 +50,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const isSummaryPath = useMemo(() => location.pathname.includes('/summary'), [location.pathname]);
     const isPayerPath = useMemo(() => location.pathname.includes('/payer-performance'), [location.pathname]);
 
-    const [queryParams, setQueryParams] = useState({
-        // page: 0,
-        // size: 10,
-        // sortField: '',
-        // sortOrder: 'desc' as 'asc' | 'desc',
+    const [queryParams, setQueryParams] = useState<any>({
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
     });
@@ -112,7 +108,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         try {
             dispatch(setGlobalDrillingDown(true));
             // Use identifier from the row. If identifier is missing, we use row.id
-            const identifier = (row as any).transactionNo || row.id || '';
+            const identifier = row.id || '';
             if (identifier) {
                 dispatch(setSelectedPaymentId(identifier));
 
@@ -159,7 +155,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
-            setQueryParams(prev => {
+            setQueryParams((prev: { fromDate: string; toDate: string; }) => {
                 if (prev.fromDate === from && prev.toDate === to) return prev;
                 return { ...prev, fromDate: from, toDate: to, page: 0 };
             });
@@ -169,7 +165,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
             // It's a preset label
             const dates = calculateDatesFromLabel(range);
             if (dates) {
-                setQueryParams(prev => ({ ...prev, fromDate: dates.from, toDate: dates.to, page: 0 }));
+                setQueryParams((prev: any) => ({ ...prev, fromDate: dates.from, toDate: dates.to, page: 0 }));
                 // Update global filters for persistence - preserve the label
                 dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
             }
@@ -177,11 +173,11 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     }, [dispatch]);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
-        setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
+        setQueryParams((prev: any) => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
     }, []);
 
-    const handlePageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
-    const handleRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
+    const handlePageChange = useCallback((p: number) => setQueryParams((prev: any) => ({ ...prev, page: p })), []);
+    const handleRowsPerPageChange = useCallback((s: number) => setQueryParams((prev: any) => ({ ...prev, size: s, page: 0 })), []);
 
     return {
         activeSubTab,

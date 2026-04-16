@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   TablePagination,
   useTheme,
@@ -63,14 +63,14 @@ function DataTable<T>({
   searchable = false,
   exportTitle = 'Data Export',
   dictionaryId,
-   disableHover = false,
+  disableHover = false,
   getRowStyle,
   dense = false,
   ...props
 }: DataTableProps<T>) {
   const hasAccessor = (column: DataColumn<T>): column is AccessorColumn<T> => !!column.accessor;
   const hasFilterOptions = (column: DataColumn<T>): column is FilterableColumn<T> =>
-    Array.isArray(column.filterOptions) && column.filterOptions.length > 0;
+    !!column.filterOptions && Array.isArray(column.filterOptions);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -110,7 +110,11 @@ function DataTable<T>({
   });
 
   const isSortable = (col: DataColumn<T>) => !!(col.accessor && !col.disableSort);
-  const filterableColumns = columns.filter(hasFilterOptions);
+
+  const filterableColumns = useMemo(() =>
+    columns.filter((col): col is FilterableColumn<T> =>
+      Array.isArray(col.filterOptions) && col.filterOptions.length > 0
+    ), [columns]);
   const exportableColumns = columns.filter((c): c is AccessorColumn<T> => c.id !== 'actions' && hasAccessor(c));
   const paginatedData = paginated && !props.serverSide
     ? sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -143,7 +147,8 @@ function DataTable<T>({
       const val = col.accessor(row);
       // If it's a currency column or contains amount, format it
       if (col.id.toLowerCase().includes('amount') || col.id.toLowerCase().includes('balance') || col.id.toLowerCase().includes('variance')) {
-        return val === null || val === undefined || isNaN(Number(val)) ? '' : formatCurrency(Number(val));
+        const numVal = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.-]+/g, ''));
+        return isNaN(numVal) ? (val === null || val === undefined ? '' : String(val)) : formatCurrency(numVal);
       }
       return val === null || val === undefined ? '' : String(val);
     }));
@@ -162,7 +167,8 @@ function DataTable<T>({
     const rows = sortedData.map((row) => exportableColumns.map((col) => {
       const val = col.accessor(row);
       if (col.id.toLowerCase().includes('amount') || col.id.toLowerCase().includes('balance') || col.id.toLowerCase().includes('variance')) {
-        return val === null || val === undefined || isNaN(Number(val)) ? '' : formatCurrency(Number(val));
+        const numVal = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.-]+/g, ''));
+        return isNaN(numVal) ? (val === null || val === undefined ? '' : String(val)) : formatCurrency(numVal);
       }
       return val === null || val === undefined ? '' : String(val);
     }));

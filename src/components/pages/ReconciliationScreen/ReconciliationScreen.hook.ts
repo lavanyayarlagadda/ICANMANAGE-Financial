@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { TableQueryParams } from '@/interfaces/api';
 import { RECONCILIATION_DUMMY_DATA } from './ReconciliationDummyData';
 
 export type ReconciliationStatus = 'unreconciled' | 'reconciled' | 'my-queue';
@@ -67,7 +68,7 @@ export const useReconciliation = () => {
     transactionNo: '',
   });
 
-  const [queryParams, setQueryParams] = useState({
+  const [queryParams, setQueryParams] = useState<TableQueryParams>({
     page: 0,
     size: 10,
     sortField: 'effectiveDate',

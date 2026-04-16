@@ -30,6 +30,7 @@ import { themeConfig } from '@/theme/themeConfig';
 import { useTheme } from '@mui/material/styles';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import DataTable from '@/components/molecules/DataTable/DataTable';
+import { SuspenseAccountSearchResponse, TableQueryParams } from '@/interfaces/api';
 
 
 const ManageAccountsModal = ({ open, onClose }: { open: boolean, onClose: () => void }) => {
@@ -100,14 +101,45 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         periods
     } = useSuspenseAccountsScreen({ skip });
 
-    const renderTable = (data: any[], type: 'account' | 'payer' | 'month') => {
+    interface AccountRow {
+        id: string;
+        accountType: string;
+        items: number;
+        balances: Record<string, number | null>;
+        totalBalance: number;
+    }
+
+    interface PayerRow {
+        payer: string;
+        items: number;
+        medicare: number | null;
+        remittance: number | null;
+        patient: number | null;
+        cross: number | null;
+        tax: number | null;
+        total: number;
+    }
+
+    interface MonthRow {
+        month: string;
+        medicare: number | null;
+        remittance: number | null;
+        patient: number | null;
+        cross: number | null;
+        tax: number | null;
+        total: number;
+    }
+
+    type SuspenseRow = AccountRow | PayerRow | MonthRow;
+
+    const renderTable = (data: SuspenseRow[], type: 'account' | 'payer' | 'month') => {
         const headers = type === 'account' 
             ? ['ACCOUNT TYPE', 'ITEMS', ...periods, 'TOTAL BALANCE']
             : type === 'payer'
                 ? ['FACILITY / PAYER', 'ITEMS', 'MEDICARE', 'REMIT', 'PATIENT', 'CROSS', 'TAX', 'TOTAL']
                 : ['MONTH', 'MEDICARE', 'REMIT', 'PATIENT', 'CROSS', 'TAX', 'TOTAL'];
 
-        const tableColumns: DataColumn<any>[] = headers.map((label, index) => {
+        const tableColumns: DataColumn<SuspenseRow>[] = headers.map((label, index) => {
             let id: string;
             if (type === 'account') {
                 if (index === 0) id = 'accountType';
@@ -115,17 +147,33 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
                 else if (index === headers.length - 1) id = 'totalBalance';
                 else id = periods[index - 2];
             } else {
-                const dataKeys = Object.keys(data[0] || {});
+                const row = data[0] as unknown as Record<string, unknown>;
+                const dataKeys = Object.keys(row || {});
                 id = dataKeys[index] || `col_${index}`;
             }
 
             return {
-                id: id as any,
+                id: id,
                 label: label,
                 align: index >= (type === 'month' ? 1 : 2) ? 'right' : 'left',
-                accessor: (row) => row.balances ? (row.balances[id] !== undefined ? row.balances[id] : row[id]) : row[id],
+                accessor: (row) => {
+                    const r = row as unknown as Record<string, unknown>;
+                    if ('balances' in r && r.balances && typeof r.balances === 'object') {
+                        const balances = r.balances as Record<string, number | null>;
+                        if (balances[id] !== undefined) return balances[id] as string | number | null;
+                    }
+                    return r[id] as string | number | null;
+                },
                 render: (row) => {
-                    const val = row.balances ? (row.balances[id] !== undefined ? row.balances[id] : row[id]) : row[id];
+                    const r = row as unknown as Record<string, unknown>;
+                    let val: unknown;
+                    if ('balances' in r && r.balances && typeof r.balances === 'object') {
+                        const balances = r.balances as Record<string, number | null>;
+                        val = balances[id] !== undefined ? balances[id] : r[id];
+                    } else {
+                        val = r[id];
+                    }
+
                     if (id === 'accountType' || id === 'account' || id === 'payer' || id === 'month') {
                         const accountInfo = SUSPENSE_ACCOUNTS.find(s => s.label === val);
                         if (accountInfo) {
@@ -164,7 +212,10 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             <DataTable
                 columns={tableColumns}
                 data={data}
-                rowKey={(r) => String(r.id || r.account || r.payer || r.month)}
+                rowKey={(r) => {
+                    const row = r as unknown as Record<string, unknown>;
+                    return String(row.id || row.account || row.payer || row.month || '');
+                }}
                 paginated={false}
                 searchable={false}
                 download={false}

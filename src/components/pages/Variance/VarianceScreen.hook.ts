@@ -27,6 +27,7 @@ import {
 import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { FeeScheduleVariance, PaymentVariance, RemittanceDetail } from '@/interfaces/financials';
+import { TableQueryParams } from '@/interfaces/api';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 
@@ -38,7 +39,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         globalFilters: s.financials.globalFilters
     }));
 
-    const [queryParams, setQueryParams] = useState({
+    const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
         size: 10,
         sortField: 'paymentDate',
@@ -111,7 +112,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const handleDrillDown = useCallback(async (row: FeeScheduleVariance | PaymentVariance) => {
         try {
             dispatch(setGlobalDrillingDown(true));
-            const identifier = (row as any).claimId || (row as any).transactionNo || row.id || '';
+            const identifier = row.claimId || row.transactionNo || row.id || '';
             if (identifier) {
                 dispatch(setSelectedPaymentId(identifier));
 

@@ -19,7 +19,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 export interface NavMetadata {
     path: string;
     icon?: React.ElementType;
-    component?: React.ComponentType<any>;
+    component?: React.ComponentType;
 }
 
 export const NAV_CONFIG: Record<string, NavMetadata> = {

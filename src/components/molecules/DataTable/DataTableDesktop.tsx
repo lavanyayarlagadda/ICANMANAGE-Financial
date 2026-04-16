@@ -40,9 +40,9 @@ interface DataTableDesktopProps<T> {
   handleSelectOne: (key: string, checked: boolean) => void;
   expandedContent?: (row: T) => React.ReactNode;
   expandedRows?: Set<string>;
-    disableHover?: boolean;
-    getRowStyle?: (row: T) => React.CSSProperties;
-    dense?: boolean;
+  disableHover?: boolean;
+  getRowStyle?: (row: T) => React.CSSProperties;
+  dense?: boolean;
 }
 
 export function DataTableDesktop<T>({
@@ -64,7 +64,7 @@ export function DataTableDesktop<T>({
   handleSelectOne,
   expandedContent,
   expandedRows,
-     disableHover = false,
+  disableHover = false,
   getRowStyle,
   dense = false,
 }: DataTableDesktopProps<T>) {
@@ -72,13 +72,13 @@ export function DataTableDesktop<T>({
 
   return (
     <ScrollableTableContainer>
-      <Table 
-        stickyHeader 
+      <Table
+        stickyHeader
         size={dense ? "small" : "medium"}
-        sx={{ 
+        sx={{
           minWidth: 'max-content',
-          '& .MuiTableCell-root': { p: dense ? 0.5 : 1, minHeight: dense ? 32 : 40 }, 
-          '& .MuiTableHead-root .MuiTableCell-root': { py: dense ? 0.5 : 1, minHeight: dense ? 40 : 48 } 
+          '& .MuiTableCell-root': { p: dense ? 0.5 : 1, minHeight: dense ? 32 : 40 },
+          '& .MuiTableHead-root .MuiTableCell-root': { py: dense ? 0.5 : 1, minHeight: dense ? 40 : 48 }
         }}
       >
         <TableHead>
@@ -106,11 +106,16 @@ export function DataTableDesktop<T>({
                     direction={sortCol === col.id ? sortDir : 'asc'}
                     onClick={() => handleSort(col.id)}
                     sx={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: col.align === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start',
                       '& .MuiTableSortLabel-icon': {
                         opacity: sortCol === col.id ? 1 : 0.3,
+                        marginLeft: '4px',
+                        marginRight: 0,
+                        order: 1, // Ensure icon is always after label
                       },
                     }}
-                    hideSortIcon={false}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       {col.label}

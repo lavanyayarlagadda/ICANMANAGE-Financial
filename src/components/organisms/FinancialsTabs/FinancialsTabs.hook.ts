@@ -10,12 +10,14 @@ interface UseFinancialsTabsProps {
   showPrint?: boolean;
   showReload?: boolean;
   showExportWizard?: boolean;
+  isRestricted?: boolean;
 }
 
 export const useFinancialsTabs = ({
   showPrint,
   showReload,
   showExportWizard,
+  isRestricted,
 }: UseFinancialsTabsProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,8 +28,9 @@ export const useFinancialsTabs = ({
   const { selectedTenantId } = useAppSelector((s) => s.tenant);
 
   const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
+  const accessibleModules = useMemo(() => userDetails?.accessibleModules || authUser?.accessibleModules || [], [userDetails, authUser]);
 
-  const { financialsTabs } = useMemo(() => getNavigationStructure(menus), [menus]);
+  const { financialsTabs } = useMemo(() => getNavigationStructure(menus, accessibleModules), [menus, accessibleModules]);
 
   // const isMindPath = useMemo(
   //   () =>
@@ -60,7 +63,7 @@ export const useFinancialsTabs = ({
   const currentSubTabs = currentMainTab?.subTabs || [];
 
   const isExecutiveSummary = currentMainTab?.label === 'Trends & Forecast' && activeSubTab === 1;
-  const canShowActions = financialsTabs.length > 0;
+  const canShowActions = financialsTabs.length > 0 && !isRestricted && activeTab !== -1;
   const shouldShowPrint = showPrint ?? (canShowActions && !isExecutiveSummary);
   const shouldShowReload = showReload ?? canShowActions;
   const shouldShowExport = showExportWizard ?? (canShowActions && !isExecutiveSummary);

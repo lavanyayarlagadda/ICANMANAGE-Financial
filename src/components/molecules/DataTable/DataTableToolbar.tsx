@@ -133,45 +133,46 @@ export function DataTableToolbar<T>({
 
         <ToolbarRight isMobile={isMobile}>
           {customToolbarContent}
+          
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
+            {filterableColumns.length > 0 && (
+              <FilterButton
+                size="small"
+                onClick={() => setShowFilters(!showFilters)}
+                color={showFilters ? 'primary' : 'default'}
+              >
+                <FilterListIcon fontSize="small" />
+              </FilterButton>
+            )}
 
-          {filterableColumns.length > 0 && (
-            <FilterButton
-              size="small"
-              onClick={() => setShowFilters(!showFilters)}
-              color={showFilters ? 'primary' : 'default'}
-              sx={{ flexShrink: 0 }}
-            >
-              <FilterListIcon fontSize="small" />
-            </FilterButton>
-          )}
-
-          {searchable && (
-            <SearchField
-              isMobile={isMobile}
-              size="small"
-              placeholder="Search…"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                onSearchChange?.(e.target.value);
-                setInternalPage(0);
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
-                endAdornment: search && (
-                  <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => { setSearch(''); onSearchChange?.(''); }}>
-                      <ClearIcon fontSize="small" />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          )}
+            {searchable && (
+              <SearchField
+                isMobile={isMobile}
+                size="small"
+                placeholder="Search…"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  onSearchChange?.(e.target.value);
+                  setInternalPage(0);
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" color="action" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: search && (
+                    <InputAdornment position="end">
+                      <IconButton size="small" onClick={() => { setSearch(''); onSearchChange?.(''); }}>
+                        <ClearIcon fontSize="small" />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          </Box>
 
           <ActionGroup>
             {download && (

@@ -67,7 +67,7 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
     const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
-    const responseData = (data as any)?.data || data;
+    const responseData = data;
 
     return {
         viewType,

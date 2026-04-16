@@ -14,9 +14,10 @@ interface FinancialsTabsProps {
   showPrint?: boolean;
   showReload?: boolean;
   showExportWizard?: boolean;
+  isRestricted?: boolean;
 }
 
-const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onExportWizard, ...props }) => {
+const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onExportWizard, isRestricted, ...props }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
@@ -35,7 +36,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
     currentSubTabs,
     handleMainTabChange,
     handleSubTabChange,
-  } = useFinancialsTabs(props);
+  } = useFinancialsTabs({ ...props, isRestricted });
 
   return (
     <Box sx={styles.containerStyles}>

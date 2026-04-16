@@ -22,6 +22,7 @@ import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckIcon from '@mui/icons-material/Check';
 import { themeConfig } from '@/theme/themeConfig';
+import { EffectiveMenuItem, EffectiveMenuModule, EffectiveSubMenuItem } from '@/store/api/userApi';
 import { useDemoSecurityModal, MODULE_STATUS_OPTIONS, PASSWORD_POLICY_OPTIONS } from './DemoSecurityModal.hook';
 import * as styles from './DemoSecurityModal.styles';
 
@@ -54,11 +55,11 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
         handleSave,
     } = useDemoSecurityModal({ currentUser, open, onClose });
 
-    const renderTree = (items: any[], level = 0, isParentDisabled = false): React.ReactNode => {
+    const renderTree = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[], level = 0, isParentDisabled = false): React.ReactNode => {
         const filteredItems = items.filter(item => 
             item.menuName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            ('modules' in item && item.modules?.some((m: any) => m.menuName.toLowerCase().includes(searchQuery.toLowerCase()))) ||
-            ('subModules' in item && item.subModules?.some((s: any) => s.menuName.toLowerCase().includes(searchQuery.toLowerCase())))
+            ('modules' in item && item.modules?.some((m) => m.menuName.toLowerCase().includes(searchQuery.toLowerCase()))) ||
+            ('subModules' in item && item.subModules?.some((s) => s.menuName.toLowerCase().includes(searchQuery.toLowerCase())))
         );
 
         if (filteredItems.length === 0 && searchQuery) return null;

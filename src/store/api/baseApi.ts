@@ -42,13 +42,14 @@ const baseQuery = fetchBaseQuery({
     // Add tenant ID header, but ONLY for specific company users and NOT for getTenants call
     const isSpecialCompanyUser = state.auth.user?.company?.toLowerCase() === COMPANIES.COGNITIVE_HEALTH_IT;
     const tenants = state.tenant?.tenants || [];
+    console.log(tenants, "tenants");
     const selectedTenantId = state.tenant?.selectedTenantId;
     const selectedTenant = tenants.find(t => t.tenantId === selectedTenantId) || tenants[0];
-    
+
     if (isSpecialCompanyUser && endpoint !== 'getTenants') {
-      const tenantHeaderValue = selectedTenant?.displayName || selectedTenantId;
+      const tenantHeaderValue = selectedTenant?.tenantId;
       if (tenantHeaderValue) {
-        headers.set('x-tenantid', tenantHeaderValue);
+        headers.set('X-Tenant-Id', tenantHeaderValue);
       }
     }
 

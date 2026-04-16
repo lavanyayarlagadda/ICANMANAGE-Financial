@@ -16,21 +16,17 @@ import {
     setSelectedClaimIndex
 } from '@/store/slices/financialsSlice';
 import { OtherAdjustmentRecord, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
-import {
-    useSearchOtherAdjustmentsQuery,
-    useLazyExportOtherAdjustmentsQuery,
-    useLazyGetRemittanceClaimsQuery,
-    useLazySearchServiceLinesQuery
-} from '@/store/api/financialsApi';
+import { TableQueryParams } from '@/interfaces/api';
 import { subMonths, format } from 'date-fns';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
+import { useLazyExportOtherAdjustmentsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchOtherAdjustmentsQuery } from '@/store/api/financialsApi';
 
 export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
 
-    const [queryParams, setQueryParams] = useState({
+    const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
         size: 10,
         sortField: 'effectiveDate',
@@ -113,10 +109,10 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         }
     }, [actionTriggers.reload, refetch]);
 
-    const handleDrillDown = useCallback(async (row: any) => {
+    const handleDrillDown = useCallback(async (row: OtherAdjustmentRecord) => {
         try {
             dispatch(setGlobalDrillingDown(true));
-            const identifier = row.claimId || row.transactionNo || row.adjustmentId || row.id || '';
+            const identifier = row.adjustmentId || row.referenceId || row.id || '';
             if (identifier) {
                 dispatch(setSelectedPaymentId(identifier));
 

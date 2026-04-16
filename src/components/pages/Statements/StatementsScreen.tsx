@@ -4,6 +4,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { ForwardBalanceNotice, OffsetEvent } from '@/interfaces/financials';
+import { TableQueryParams } from '@/interfaces/api';
 import PipScreen from '../Pip/PipScreen';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -61,7 +62,7 @@ const ForwardBalanceNoticesTable = ({
 }: {
     data: ForwardBalanceNotice[],
     totalElements: number,
-    queryParams: any,
+    queryParams: TableQueryParams,
     onPageChange: (p: number) => void,
     onRowsPerPageChange: (s: number) => void,
     onSortChange: (colId: string, dir: 'asc' | 'desc') => void,

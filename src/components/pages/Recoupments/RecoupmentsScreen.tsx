@@ -35,7 +35,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
-                    onView={() => handleDrillDown(r as any)}
+                    onView={() => handleDrillDown(r)}
                 // onEdit={() => handleEdit(r)}
                 // onDelete={() => handleDelete(r.id)}
                 />
@@ -46,8 +46,8 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             id: 'transactionNo',
             label: 'Transaction Number',
             minWidth: 160,
-            accessor: (r) => (r as any).transactionNo ?? '-',
-            render: (r) => (r as any).transactionNo ?? '-'
+            accessor: (r) => r.transactionNo ?? '-',
+            render: (r) => r.transactionNo ?? '-'
         },
         { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer },
         {

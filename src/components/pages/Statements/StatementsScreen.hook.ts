@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { useSearchForwardBalanceNoticesQuery } from '@/store/api/financialsApi';
+import { TableQueryParams } from '@/interfaces/api';
 import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
@@ -20,7 +21,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
 
     const finalActiveSubTab = (activeSubTab === 0) ? 1 : activeSubTab;
 
-    const [queryParams, setQueryParams] = useState({
+    const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
         size: 10,
         sortField: 'notificationDate',

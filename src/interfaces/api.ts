@@ -68,6 +68,10 @@ export interface PipSearchRequest {
   desc: boolean;
   fromDate: string;
   toDate: string;
+  status?: string | null;
+  category?: string | null;
+  type?: string | null;
+  payer?: string | null;
 }
 
 export interface PipSearchResponse {
@@ -295,3 +299,26 @@ export interface SuspenseAccountSearchResponse {
   totalElements: number;
 }
 
+
+export interface TableQueryParams {
+  page: number;
+  size: number;
+  sortField: string;
+  sortOrder: 'asc' | 'desc';
+  fromDate: string;
+  toDate: string;
+}
+
+export interface PaymentQueryParams extends TableQueryParams {
+  status: string | null;
+}
+
+export interface PaymentPostingStatus {
+  postingStatusMasterId: number;
+  postingStatus: string;
+}
+
+export interface PaymentStatusResponse {
+  data: PaymentPostingStatus[];
+  message: string | null;
+}

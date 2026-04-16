@@ -172,6 +172,7 @@ export interface RecoupmentRecord {
   reason: string;
   description?: string;
   status: TransactionStatus;
+  transactionNo?: string;
 }
 
 export interface OtherAdjustmentRecord {
@@ -196,6 +197,7 @@ export interface AllTransaction {
   amount: number;
   openBalance: number | null;
   status: TransactionStatus;
+  transactionNo?: string;
 }
 
 export interface CollectionAccount {
@@ -284,6 +286,8 @@ export interface FeeScheduleVariance {
   actualAllowed: string | number;
   variance: string | number;
   adjustmentCode?: string;
+  claimId?: string;
+  transactionNo?: string;
 }
 
 export interface PaymentVariance {
@@ -296,6 +300,8 @@ export interface PaymentVariance {
   actualAllowed: string | number;
   variance: string | number;
   adjustmentCode?: string;
+  claimId?: string;
+  transactionNo?: string;
 }
 
 export interface FeeScheduleVarianceSummary {

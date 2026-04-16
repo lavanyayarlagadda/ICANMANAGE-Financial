@@ -9,7 +9,7 @@ export interface DataColumn<T> {
   render: (row: T) => React.ReactNode;
   hideOnMobile?: boolean;
   primary?: boolean;
-  accessor?: (row: T) => string | number;
+  accessor?: (row: T) => string | number | null;
   disableSort?: boolean;
   filterOptions?: string[];
   exportLabel?: string;

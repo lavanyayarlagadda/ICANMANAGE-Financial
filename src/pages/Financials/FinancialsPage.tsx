@@ -118,6 +118,7 @@ const FinancialsPage: React.FC = () => {
         onPrint={handlePrint}
         onReload={handleReload}
         onExportWizard={handleExport}
+        isRestricted={isRestricted}
       />
       
       {isRestricted ? (

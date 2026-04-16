@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAppSelector, useAppDispatch } from "@/store";
 import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
 import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery } from "@/store/api/financialsApi";
+import { TableQueryParams } from "@/interfaces/api";
 import { format, subMonths } from 'date-fns';
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
@@ -15,7 +16,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
 
-    const [queryParams, setQueryParams] = useState({
+    const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
         size: 10,
         sortField: '',

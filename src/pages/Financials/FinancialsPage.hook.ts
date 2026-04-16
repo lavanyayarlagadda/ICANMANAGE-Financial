@@ -24,6 +24,7 @@ import {
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { useGetMeDetailsQuery, MenuItem } from '@/store/api/userApi';
 import { getNavigationStructure, DynamicTab } from '@/utils/navigationUtils';
+import { NAV_CONFIG } from '@/config/navigation';
 
 export const useFinancialsPage = () => {
   const dispatch = useAppDispatch();
@@ -38,6 +39,21 @@ export const useFinancialsPage = () => {
   const authUser = useAppSelector((s) => s.auth.user);
   const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
   const { financialsTabs } = useMemo(() => getNavigationStructure(menus), [menus]);
+
+  // Build dynamic path map from financialsTabs
+  const pathMap = useMemo(() => {
+    const map: Record<string, { tab: number; subTab: number }> = {};
+    financialsTabs.forEach(mainTab => {
+      const mainPath = mainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
+      if (mainPath) map[mainPath] = { tab: mainTab.id, subTab: 0 };
+
+      mainTab.subTabs?.forEach(subTab => {
+        const subPath = subTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
+        if (subPath) map[subPath] = { tab: mainTab.id, subTab: subTab.id };
+      });
+    });
+    return map;
+  }, [financialsTabs]);
 
   useEffect(() => {
     // 1. Handle Active Page switching (instantly update layout based on URL)
@@ -54,18 +70,6 @@ export const useFinancialsPage = () => {
       // Normalize path for matching (lower case and remove trailing slash)
       const normalizedCurrentPath = location.pathname.toLowerCase().replace(/\/$/, '');
       const pathPart = normalizedCurrentPath.split('/financials/')[1] || '';
-
-      // Build dynamic path map from financialsTabs
-      const pathMap: Record<string, { tab: number; subTab: number }> = {};
-      financialsTabs.forEach(mainTab => {
-        const mainPath = mainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
-        if (mainPath) pathMap[mainPath] = { tab: mainTab.id, subTab: 0 };
-
-        mainTab.subTabs?.forEach(subTab => {
-          const subPath = subTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
-          if (subPath) pathMap[subPath] = { tab: mainTab.id, subTab: subTab.id };
-        });
-      });
 
       const match = pathMap[pathPart];
 
@@ -94,10 +98,14 @@ export const useFinancialsPage = () => {
           const defaultPath = firstTab.subTabs?.[0]?.path || firstTab.path;
           navigate(defaultPath, { replace: true });
         }
+      } else {
+        // Unknown or restricted path - clear active tabs
+        if (uiState.activeTab !== -1) dispatch(setActiveTab(-1));
+        if (uiState.activeSubTab !== 0) dispatch(setActiveSubTab(0));
       }
       // If no match but pathPart is not empty, we might be on a valid sub-route handled by a component
     }
-  }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, uiState.activePage, financialsTabs, isLoadingDetails]);
+  }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, uiState.activePage, financialsTabs, isLoadingDetails, pathMap]);
 
   const handleDelete = useCallback(() => {
     if (!uiState.confirmDeleteId) return;
@@ -128,17 +136,36 @@ export const useFinancialsPage = () => {
   const handleExport = useCallback(() => dispatch(triggerExport()), [dispatch]);
 
   const isRestricted = useMemo(() => {
-    const activeMain = financialsTabs.find((t: DynamicTab) => t.id === uiState.activeTab);
-    if (!activeMain) return false;
-    if (activeMain.status === 'Disabled') return true;
+    // 1. If we have a match in the pathMap, check for 'Disabled' status
+    const pathPart = location.pathname.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
+    const match = pathMap[pathPart];
 
-    if (activeMain.subTabs) {
-      const activeSub = activeMain.subTabs.find((st: DynamicTab) => st.id === uiState.activeSubTab);
-      if (activeSub && activeSub.status === 'Disabled') return true;
+    if (match) {
+        const activeMain = financialsTabs.find((t: DynamicTab) => t.id === match.tab);
+        if (!activeMain) return false;
+        if (activeMain.status === 'Disabled') return true;
+
+        if (activeMain.subTabs) {
+          const activeSub = activeMain.subTabs.find((st: DynamicTab) => st.id === match.subTab);
+          if (activeSub && activeSub.status === 'Disabled') return true;
+        }
+        return false;
+    }
+
+    // 2. If no match is found but we are in the /financials/ route with a pathPart,
+    // it's either an invalid route or a HIDDEN route.
+    if (location.pathname.startsWith('/financials') && pathPart !== '') {
+        // If it's a known configuration path in NAV_CONFIG but missing from our pathMap, it's hidden.
+        // We find any config that starts with /financials/ and matches our path
+        const isKnownRoute = Object.values(NAV_CONFIG).some(cfg => 
+            cfg.path.toLowerCase().replace(/\/$/, '').endsWith(pathPart)
+        );
+        
+        if (isKnownRoute) return true;
     }
 
     return false;
-  }, [financialsTabs, uiState.activeTab, uiState.activeSubTab]);
+  }, [financialsTabs, location.pathname, pathMap]);
 
   return {
     ...uiState,
