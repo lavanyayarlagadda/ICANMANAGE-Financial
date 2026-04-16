@@ -22,7 +22,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import Button from '@/components/atoms/Button/Button';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useSuspenseAccountsScreen } from './SuspenseAccountsScreen.hook';
 import * as styles from './SuspenseAccountsScreen.styles';
 import { SUSPENSE_ACCOUNTS, BY_ACCOUNT_DATA, BY_PAYER_DATA, BY_MONTH_DATA } from './SuspenseAccounts.constants';
@@ -154,7 +154,7 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
 
             return {
                 id: id,
-                label: label,
+                label: (type === 'month' || /^\d{4}-\d{2}$/.test(label)) ? formatDate(label) : label,
                 align: index >= (type === 'month' ? 1 : 2) ? 'right' : 'left',
                 accessor: (row) => {
                     const r = row as unknown as Record<string, unknown>;
@@ -203,7 +203,7 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
                     if (val === null || val === undefined) {
                         return <Typography sx={{ fontSize: '13px', color: 'text.secondary' }}>-</Typography>;
                     }
-                    return <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>{String(val)}</Typography>;
+                    return <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>{(/^\d{4}-\d{2}$/.test(String(val)) || /^\d{4}-\d{2}-\d{2}$/.test(String(val))) ? formatDate(String(val)) : String(val)}</Typography>;
                 }
             };
         });

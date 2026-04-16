@@ -9,7 +9,7 @@ import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from "@/components/atoms/RangeDropdown/RangeDropdown";
 import { Box, Typography, IconButton, Chip, Grid } from "@mui/material";
 import MultiValueDisplay from "@/components/atoms/MultiValueDisplay/MultiValueDisplay";
-import { formatCurrency, formatPercent } from "@/utils/formatters";
+import { formatCurrency, formatPercent, formatDate } from "@/utils/formatters";
 import SummaryCard from "@/components/atoms/SummaryCard/SummaryCard";
 import { themeConfig } from '@/theme/themeConfig';
 import { NpiSectionWrapper, NpiHeaderRow, NpiDataRow } from "./PipScreen.styles";
@@ -84,7 +84,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         ) : null,
     },
     { id: "ptan", label: "PTAN", accessor: (row) => row.ptan, render: (row) => row.ptan },
-    { id: "paymentDate", label: "PAYMENT DATE", accessor: (row) => row.paymentDate, render: (row) => row.paymentDate },
+    { id: "paymentDate", label: "PAYMENT DATE", accessor: (row) => row.paymentDate, render: (row) => formatDate(row.paymentDate) },
     { id: "checkEftNumber", label: "CHECK/EFT NUMBER", accessor: (row) => row.checkEftNumber, render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
     // { id: "description", label: "DESCRIPTION", minWidth: 180, accessor: (row) => row.description ?? '-', render: (row) => row.description ?? '-' },
     { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "right", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },

@@ -24,6 +24,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import { GlassDialog, SectionSidebar, ModernUploadZone, DynamicTableContainer } from '../ReconciliationScreen.styles';
 import { ReconciliationRow, ReconciliationStatus } from '../ReconciliationScreen.hook';
 import { themeConfig } from '@/theme/themeConfig';
+import { formatDate } from '@/utils/formatters';
 
 interface EftDetailsDialogProps {
   view?: ReconciliationStatus;
@@ -117,7 +118,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
                   <span>{selectedRow.transactionNo}</span>
                   {selectedRow.reconcileDate && (
                     <Box component="span" sx={{ color: themeConfig.colors.success, fontWeight: 800 }}>
-                      Reconcile Date: {selectedRow.reconcileDate}
+                      Reconcile Date: {formatDate(selectedRow.reconcileDate)}
                     </Box>
                   )}
                 </Box>
@@ -195,7 +196,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
             </SectionSidebar>
             <PopupTable
               headers={['File Received Date', 'Amount', 'Payor', 'Location', 'File Name']}
-              rows={[['06/05/2025', '$292.88', 'SELF PAY', 'Ohio', '2025_SET5PROD.pdf']]}
+              rows={[[formatDate('06/05/2025'), '$292.88', 'SELF PAY', 'Ohio', '2025_SET5PROD.pdf']]}
               onCellClick={(val) => val.endsWith('.pdf') ? setPdfPreviewOpen(true) : setBaiDataOpen(true)}
             />
           </Box>
@@ -207,7 +208,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
             </SectionSidebar>
             <PopupTable
               headers={['File Received Date', 'Amount', 'Payor', 'File Name']}
-              rows={[['06/28/2025', '$1,240.20', 'Blue Cross Blue Shield', 'REMIT_AUG_22.pdf']]}
+              rows={[[formatDate('06/28/2025'), '$1,240.20', 'Blue Cross Blue Shield', 'REMIT_AUG_22.pdf']]}
               onCellClick={(val) => val.endsWith('.pdf') ? setPdfPreviewOpen(true) : null}
             />
           </Box>
@@ -219,7 +220,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
             </SectionSidebar>
             <PopupTable
               headers={['File Received Date', 'Amount', 'Batch Id', 'Batch Owner', 'File Name']}
-              rows={[['06/30/2025', '$292.88', '778945', 'ICAN', 'POST_82775.pdf']]}
+              rows={[[formatDate('06/30/2025'), '$292.88', '778945', 'ICAN', 'POST_82775.pdf']]}
               onCellClick={(val) => val.endsWith('.pdf') ? setPdfPreviewOpen(true) : null}
             />
           </Box>

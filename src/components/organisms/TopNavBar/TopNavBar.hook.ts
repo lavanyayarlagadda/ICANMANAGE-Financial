@@ -8,6 +8,7 @@ import { setSelectedTenantId, setTenants, setTenantLoading } from '@/store/slice
 import { useGetTenantsQuery } from '@/store/api/tenantApi';
 import { useGetMeDetailsQuery } from '@/store/api/userApi';
 import { baseApi } from '@/store/api/baseApi';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface UseTopNavBarProps {
   onMenuToggle: () => void;
@@ -17,16 +18,16 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const user = useAppSelector((state: RootState) => state.auth.user);
+  const { isCognitiveUser, user } = useUserPermissions();
   const { selectedTenantId, tenants } = useAppSelector((state: RootState) => state.tenant);
-
-  const isCognitiveUser = user?.company?.toLowerCase() === 'cognitivehealthit';
 
   const { data: tenantData, isLoading: isTenantsLoading } = useGetTenantsQuery(undefined, {
     skip: !isCognitiveUser,
   });
   
-  const { refetch: refetchMeDetails } = useGetMeDetailsQuery();
+  const { data: userDetails, refetch: refetchMeDetails } = useGetMeDetailsQuery(undefined, { 
+    skip: !!isCognitiveUser && !selectedTenantId 
+  });
 
   useEffect(() => {
     dispatch(setTenantLoading(isTenantsLoading));

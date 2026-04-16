@@ -214,7 +214,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                                         <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(pa.amount)}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Typography variant="caption" color="text.secondary">{pa.date} | Ref: {pa.reference}</Typography>
+                                        <Typography variant="caption" color="text.secondary">{formatDate(pa.date)} | Ref: {pa.reference}</Typography>
                                         <Chip
                                             label={pa.status}
                                             size="small"

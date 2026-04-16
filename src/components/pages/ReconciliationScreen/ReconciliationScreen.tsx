@@ -9,7 +9,7 @@ import {
 import { ChatBubbleOutline } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { useReconciliation, ReconciliationStatus, ReconciliationRow } from './ReconciliationScreen.hook';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
@@ -178,7 +178,7 @@ const ReconciliationScreen: React.FC = () => {
           if (header.id === 'reconcileDate') {
             return (
               <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
-                {val as string}
+                {formatDate(val as string)}
               </Typography>
             );
           }

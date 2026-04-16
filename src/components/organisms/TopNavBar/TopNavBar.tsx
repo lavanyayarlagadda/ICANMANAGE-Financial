@@ -94,12 +94,13 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                 src="/avatar-placeholder.png"
                 sx={{ width: 36, height: 36, bgcolor: theme.palette.primary.main, fontSize: '0.9rem' }}
               >
-                {user.firstName[0]}{user.lastName[0]}
+                {(user.firstName?.[0] || user.username?.[0] || 'U').toUpperCase()}
+                {(user.lastName?.[0] || '').toUpperCase()}
               </Avatar>
               {!isMobile && (
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
-                    {user.firstName} {user.lastName}
+                    {user.firstName || user.username || 'User'} {user.lastName || ''}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1 }}>
                     {user.company}
@@ -117,7 +118,7 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
             >
               <Box sx={{ px: 2, py: 1.5 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                  {user.firstName} {user.lastName}
+                  {user.firstName || user.username || 'User'} {user.lastName || ''}
                 </Typography>
                 <Typography variant="body2" color="primary">{user.email}</Typography>
               </Box>

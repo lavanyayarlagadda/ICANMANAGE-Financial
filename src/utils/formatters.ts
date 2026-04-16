@@ -25,10 +25,23 @@ export const formatCurrency = (value: number | null | undefined): string => {
  */
 export const formatDate = (dateStr: string | null | undefined): string => {
   if (!dateStr) return '';
-  // Handle already formatted dates or invalid inputs
+  
+  // If it's already in MM-dd-yyyy format, return it
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
+
   try {
     const date = parseISO(dateStr);
-    return isValid(date) ? format(date, 'MM-dd-yyyy') : dateStr;
+    if (isValid(date)) {
+      return format(date, 'MM-dd-yyyy');
+    }
+    
+    // Fallback to native Date for non-ISO formats
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return format(d, 'MM-dd-yyyy');
+    }
+    
+    return dateStr;
   } catch (e) {
     return dateStr;
   }

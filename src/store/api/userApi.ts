@@ -40,6 +40,8 @@ export interface MeDetailsResponse {
   id: string;
   username: string;
   email: string;
+  firstName: string;
+  lastName: string;
   company: string;
   role: string;
   accessibleModules: string[];

@@ -11,7 +11,7 @@ import {
     Pagination
 } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import DetailCard from '@/components/molecules/DetailCard/DetailCard';
@@ -51,8 +51,8 @@ const RemittanceDetailScreen: React.FC = () => {
         { id: 'procCode', label: 'Proc Code', render: (r) => r.procCode, accessor: (r) => r.procCode },
         { id: 'modifiers', label: 'Modifiers', render: (r) => r.modifiers || '–', accessor: (r) => r.modifiers || '' },
         { id: 'revCode', label: 'Rev Code', render: (r) => r.revCode, accessor: (r) => r.revCode },
-        { id: 'dosStart', label: 'DOS Start', render: (r) => r.dosStart, accessor: (r) => r.dosStart },
-        { id: 'dosEnd', label: 'DOS End', render: (r) => r.dosEnd, accessor: (r) => r.dosEnd },
+        { id: 'dosStart', label: 'DOS Start', render: (r) => formatDate(r.dosStart), accessor: (r) => r.dosStart },
+        { id: 'dosEnd', label: 'DOS End', render: (r) => formatDate(r.dosEnd), accessor: (r) => r.dosEnd },
         { id: 'units', label: 'Units', align: 'right', render: (r) => r.units, accessor: (r) => r.units },
         {
             id: 'charge', label: 'Charge', align: 'right',
@@ -120,7 +120,7 @@ const RemittanceDetailScreen: React.FC = () => {
             {detail && (
                 <DetailCard
                     sections={[
-                        { fields: [{ label: "Payment Date", value: detail.paymentDate }, { label: "Check/EFT Number", value: <MultiValueDisplay value={detail.transactionNo} displayCount={3} /> }, { label: "Payment Amount", value: formatCurrency(detail.paymentAmount) }, { label: "Payer Name", value: detail.payerName }, { label: "Patient Name", value: detail.patientName }, { label: "Patient CTL No", value: detail.patientCtlNo || detail.patientCtrlNo || '–' }] },
+                        { fields: [{ label: "Payment Date", value: formatDate(detail.paymentDate) }, { label: "Check/EFT Number", value: <MultiValueDisplay value={detail.transactionNo} displayCount={3} /> }, { label: "Payment Amount", value: formatCurrency(detail.paymentAmount) }, { label: "Payer Name", value: detail.payerName }, { label: "Patient Name", value: detail.patientName }, { label: "Patient CTL No", value: detail.patientCtlNo || detail.patientCtrlNo || '–' }] },
                         { fields: [{ label: "Payer ICN", value: detail.payerIcn }, { label: "Statement Period", value: detail.statementPeriod }, { label: "Claim Charge", value: formatCurrency(detail.claimCharge) }, { label: "Allowed Amount", value: formatCurrency(detail.allowedAmount) }, { label: "Claim Payment", value: formatCurrency(detail.claimPayment) }, { label: "Contract Adj", value: formatCurrency(detail.contractAdj) }] },
                         { fields: [{ label: "Adjustment Codes", value: detail.adjustmentCodes }, { label: "Remit Remarks", value: detail.remitRemarks }, { label: "Provider Adj Amount", value: formatCurrency(detail.providerAdjAmount) }, { label: "Provider Adj Codes", value: detail.providerAdjCodes }, { label: "Provider NPI", value: detail.providerNpi }, { label: "Claim Status Code", value: detail.claimStatusCode }] }
                     ]}

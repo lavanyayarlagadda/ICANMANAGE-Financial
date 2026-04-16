@@ -23,7 +23,7 @@ const toRootState = (state: unknown): RootState | null => {
 };
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: '/', // Will be overridden in the custom base query
+  baseUrl: '/',
   prepareHeaders: (headers, { getState, endpoint }) => {
     const state = toRootState(getState());
     if (!state) {
@@ -39,18 +39,15 @@ const baseQuery = fetchBaseQuery({
       console.warn(`[BaseAPI] No token available for authenticated request:`, endpoint);
     }
 
-    // Add tenant ID header, but ONLY for specific company users and NOT for getTenants call
     const isSpecialCompanyUser = state.auth.user?.company?.toLowerCase() === COMPANIES.COGNITIVE_HEALTH_IT;
     const tenants = state.tenant?.tenants || [];
-    console.log(tenants, "tenants");
     const selectedTenantId = state.tenant?.selectedTenantId;
     const selectedTenant = tenants.find(t => t.tenantId === selectedTenantId) || tenants[0];
 
-    if (isSpecialCompanyUser && endpoint !== 'getTenants') {
-      const tenantHeaderValue = selectedTenant?.tenantId;
-      if (tenantHeaderValue) {
-        headers.set('X-Tenant-Id', tenantHeaderValue);
-      }
+    const tenantId = selectedTenantId || tenants[0]?.tenantId;
+    if (tenantId && endpoint !== 'getTenants') {
+      // Always send x-tenantid if we have one, except for the tenants list request itself
+      headers.set('X-Tenant-Id', tenantId);
     }
 
     return headers;

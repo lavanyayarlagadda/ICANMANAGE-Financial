@@ -20,7 +20,8 @@ export const getNavigationStructure = (menus: MenuItem[], accessibleModules: str
     let financialsTabs: DynamicTab[] = [];
 
     const isAccessible = (name: string) => {
-        if (!accessibleModules || accessibleModules.length === 0) return true;
+        if (!accessibleModules) return true;
+        if (accessibleModules.length === 0) return false;
         return accessibleModules.some(m => m.toLowerCase() === name.toLowerCase());
     };
 

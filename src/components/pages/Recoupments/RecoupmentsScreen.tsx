@@ -7,7 +7,7 @@ import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { RecoupmentRecord } from '@/interfaces/financials';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useRecoupmentsScreen } from './RecoupmentsScreen.hook';
 import * as styles from './RecoupmentsScreen.styles';
 
@@ -75,7 +75,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Typography>
             ),
         },
-        { id: 'recoupmentDate', label: 'Date', minWidth: 110, accessor: (r) => r.recoupmentDate, render: (r) => r.recoupmentDate },
+        { id: 'recoupmentDate', label: 'Date', minWidth: 110, accessor: (r) => r.recoupmentDate, render: (r) => formatDate(r.recoupmentDate) },
         {
             id: 'reason',
             label: 'Reason',

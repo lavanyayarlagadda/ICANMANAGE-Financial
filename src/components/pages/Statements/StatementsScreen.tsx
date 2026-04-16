@@ -26,7 +26,7 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
             defaultExpanded={false}
             summary={
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600, flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>Offset EFT: <MultiValueDisplay value={offset.eftNumber} displayCount={1} /> &nbsp; {offset.date}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>Offset EFT: <MultiValueDisplay value={offset.eftNumber} displayCount={1} /> &nbsp; {formatDate(offset.date)}</Typography>
                     <Typography variant="body2" sx={{ fontWeight: 700, mr: 4 }}>{formatCurrency(offset.amount)}</Typography>
                     <Chip label={`CODE: ${offset.code}`} size="small" sx={styles.offsetChipStyles} />
                 </Box>

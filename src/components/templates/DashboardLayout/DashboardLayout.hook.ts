@@ -22,8 +22,8 @@ export const useDashboardLayout = () => {
 
     const permissions = useUserPermissions();
 
-    const isWaitingForTenants = permissions.isCognitiveUser && !tenant.selectedTenantId && tenant.tenants.length === 0;
-    const isOverlayActive = ui.activeExportType || ui.isReloading || ui.isDrillingDown || ui.isGlobalFetching || financials.loading || tenant.isLoading || isWaitingForTenants;
+    const isWaitingForTenants = permissions.isCognitiveUser && tenant.tenants.length === 0;
+    const isOverlayActive = ui.activeExportType || ui.isReloading || ui.isDrillingDown || ui.isGlobalFetching || financials.loading || tenant.isLoading || (permissions.isCognitiveUser && tenant.tenants.length === 0);
 
     const isFirstRender = useRef(true);
     useEffect(() => {
@@ -60,7 +60,7 @@ export const useDashboardLayout = () => {
     const { data: userDetails } = useGetMeDetailsQuery();
     const authUser = useAppSelector((s) => s.auth.user);
     const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
-    const accessibleModules = useMemo(() => userDetails?.accessibleModules || authUser?.accessibleModules || [], [userDetails, authUser]);
+    const accessibleModules = useMemo(() => userDetails?.accessibleModules || authUser?.accessibleModules, [userDetails, authUser]);
     const { sidebar, financialsTabs } = useMemo(() => getNavigationStructure(menus, accessibleModules), [menus, accessibleModules]);
 
     return {

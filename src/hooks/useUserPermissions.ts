@@ -6,9 +6,15 @@ import { MenuAccess } from '@/store/slices/authSlice';
 
 
 export const useUserPermissions = () => {
-  const { data: userDetails } = useGetMeDetailsQuery();
   const authUser = useAppSelector((state) => state.auth.user);
   const { selectedTenantId } = useAppSelector((s) => s.tenant);
+
+  const isCognitiveAuth = authUser?.company?.toLowerCase() === COMPANIES.COGNITIVE_HEALTH_IT;
+  const shouldSkipDetails = !!isCognitiveAuth && !selectedTenantId;
+
+  const { data: userDetails } = useGetMeDetailsQuery(undefined, {
+    skip: shouldSkipDetails
+  });
 
   const user = userDetails || authUser;
   const menus = user?.menus || [];
@@ -55,7 +61,7 @@ export const useUserPermissions = () => {
     canViewFinancials,
     getMenuStatus,
     company,
-    accessibleModules: user?.accessibleModules || [],
+    accessibleModules: user?.accessibleModules,
     user,
   };
 };

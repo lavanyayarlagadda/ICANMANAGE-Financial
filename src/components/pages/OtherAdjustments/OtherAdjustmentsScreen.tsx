@@ -6,7 +6,7 @@ import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { OtherAdjustmentRecord } from '@/interfaces/financials';
-import { formatCurrency } from '@/utils/formatters';
+import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useOtherAdjustmentsScreen } from './OtherAdjustmentsScreen.hook';
 import * as styles from './OtherAdjustmentsScreen.styles';
 
@@ -40,7 +40,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             ),
         },
         { id: 'adjustmentId', label: 'Transaction Number', minWidth: 160, accessor: (r) => r.adjustmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.adjustmentId}</Typography> },
-        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => r.effectiveDate },
+        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => formatDate(r.effectiveDate) },
         {
             id: 'type',
             label: 'Type',

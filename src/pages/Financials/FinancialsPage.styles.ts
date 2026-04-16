@@ -24,22 +24,34 @@ export const RestrictedContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  paddingTop: theme.spacing(10),
-  paddingBottom: theme.spacing(10),
-  backgroundColor: 'rgba(241, 245, 249, 0.5)', // slate[50] alpha 0.5
-  borderRadius: '12px',
-  border: `1px dashed ${theme.palette.divider}`,
-  margin: theme.spacing(2),
+  paddingTop: theme.spacing(12),
+  paddingBottom: theme.spacing(12),
+  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(241, 245, 249, 0.9))',
+  backdropFilter: 'blur(8px)',
+  borderRadius: '24px',
+  border: `1px solid rgba(226, 232, 240, 0.8)`,
+  boxShadow: '0 8px 32px -4px rgba(0, 0, 0, 0.05)',
+  margin: theme.spacing(4),
+  animation: 'fadeIn 0.5s ease-out',
+  '@keyframes fadeIn': {
+    from: { opacity: 0, transform: 'translateY(10px)' },
+    to: { opacity: 1, transform: 'translateY(0)' },
+  },
 }));
 
 export const RestrictedTitle = styled(Typography)(({ theme }) => ({
-  fontWeight: 700,
-  color: '#475569', // slate[600]
-  marginBottom: theme.spacing(1),
+  fontWeight: 800,
+  color: '#1e293b', // slate[800]
+  marginBottom: theme.spacing(1.5),
+  fontSize: '1.75rem',
+  letterSpacing: '-0.02em',
 }));
 
 export const RestrictedBody = styled(Typography)(({ theme }) => ({
-  color: theme.palette.text.secondary,
+  color: '#64748b', // slate[500]
   textAlign: 'center',
-  maxWidth: 400,
+  maxWidth: 450,
+  fontSize: '1rem',
+  lineHeight: 1.6,
+  fontWeight: 500,
 }));
