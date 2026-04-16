@@ -24,9 +24,9 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   const { data: tenantData, isLoading: isTenantsLoading } = useGetTenantsQuery(undefined, {
     skip: !isCognitiveUser,
   });
-  
-  const { data: userDetails, refetch: refetchMeDetails } = useGetMeDetailsQuery(undefined, { 
-    skip: !!isCognitiveUser && !selectedTenantId 
+
+  const { data: userDetails, refetch: refetchMeDetails } = useGetMeDetailsQuery(undefined, {
+    skip: !!isCognitiveUser && !selectedTenantId
   });
 
   useEffect(() => {
@@ -36,10 +36,10 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   useEffect(() => {
     if (tenantData && tenantData.length > 0) {
       dispatch(setTenants(tenantData));
-      
-      const isSelectedValid = selectedTenantId && tenantData.some(t => t.tenantId === selectedTenantId);
+
+      const isSelectedValid = selectedTenantId && tenantData.some(t => String(t.tenantId) === String(selectedTenantId));
       if (!isSelectedValid) {
-        dispatch(setSelectedTenantId(tenantData[0].tenantId));
+        dispatch(setSelectedTenantId(String(tenantData[0].tenantId)));
       }
     }
   }, [tenantData, dispatch, selectedTenantId]);
@@ -47,7 +47,6 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   const handleTenantChange = useCallback((event: SelectChangeEvent) => {
     const newTenantId = event.target.value;
     dispatch(setSelectedTenantId(newTenantId));
-    // Trigger refetch of profile/details to update permissions for the new tenant
     refetchMeDetails();
   }, [dispatch, refetchMeDetails]);
 
