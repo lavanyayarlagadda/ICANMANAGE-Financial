@@ -33,8 +33,18 @@ const StatementsScreen = lazy(() => import('@/components/pages/Statements/Statem
 const CollectionsScreen = lazy(() => import('@/components/pages/Collections/CollectionsScreen'));
 
 const TabLoadingFallback = () => (
-  <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-    <CircularProgress size={32} />
+  <Box sx={{ 
+    display: 'flex', 
+    flexDirection: 'column',
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    py: 12,
+    gap: 2
+  }}>
+    <CircularProgress size={32} thickness={4} sx={{ color: '#94a3b8' }} />
+    <Typography variant="body2" sx={{ color: '#94a3b8', fontWeight: 500 }}>
+      Preparing module view...
+    </Typography>
   </Box>
 );
 

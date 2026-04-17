@@ -23,7 +23,7 @@ import {
 } from '@/store/slices/financialsSlice';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { useGetMeDetailsQuery, MenuItem } from '@/store/api/userApi';
-import { getNavigationStructure, DynamicTab } from '@/utils/navigationUtils';
+import { getNavigationStructure, DynamicTab, NavigationStructure } from '@/utils/navigationUtils';
 import { NAV_CONFIG } from '@/config/navigation';
 
 export const useFinancialsPage = () => {
@@ -38,7 +38,7 @@ export const useFinancialsPage = () => {
   const { user: userFromPermissions, userDetails, isLoadingDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
   const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
-  const { financialsTabs } = useMemo(() => getNavigationStructure(menus, accessibleModules), [menus, accessibleModules]);
+  const { financialsTabs }: NavigationStructure = useMemo(() => getNavigationStructure(menus, accessibleModules), [menus, accessibleModules]);
 
   // Build dynamic path map from financialsTabs
   const pathMap = useMemo(() => {
@@ -67,45 +67,43 @@ export const useFinancialsPage = () => {
 
     if (location.pathname.startsWith('/financials')) {
 
-      // Normalize path for matching (lower case and remove trailing slash)
-      const normalizedCurrentPath = location.pathname.toLowerCase().replace(/\/$/, '');
-      const pathPart = normalizedCurrentPath.split('/financials/')[1] || '';
-
-      const match = pathMap[pathPart];
+      // Normalize current path
+      const currentPath = location.pathname.toLowerCase().replace(/\/$/, '');
+      
+      // Find the best match in our path map
+      // We check for exact matches, then sub-matches
+      let match = pathMap[currentPath.split('/financials/')[1] || ''];
+      
+      if (!match) {
+          // Try fuzzy matching (sometimes paths have extra segments or are nested further)
+          const bestPath = Object.keys(pathMap).find(p => p && (currentPath.endsWith(p) || p.endsWith(currentPath.split('/financials/')[1] || 'VOID')));
+          if (bestPath) match = pathMap[bestPath];
+      }
 
       if (match) {
         if (uiState.activeTab !== match.tab) dispatch(setActiveTab(match.tab));
         if (uiState.activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
 
-        // If the path corresponds exactly to a main module, redirect to its first subtab's route
+        // Automatic redirect for main modules with subtabs
         const activeMainTab = financialsTabs.find(t => t.id === match.tab);
         if (activeMainTab && activeMainTab.subTabs && activeMainTab.subTabs.length > 0) {
-          const mainPathPart = activeMainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
-          if (pathPart === mainPathPart) {
-            const firstSubTabPath = activeMainTab.subTabs[0].path;
-            const subPathPart = firstSubTabPath.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
+            const pathPart = currentPath.split('/financials/')[1] || '';
+            const mainPathPart = activeMainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
             
-            // Only redirect if we're at the module base path and not already at the subtab path
-            if (pathPart !== subPathPart) {
-              navigate(firstSubTabPath, { replace: true });
+            if (pathPart === mainPathPart) {
+                const firstSubTabPath = activeMainTab.subTabs[0].path;
+                navigate(firstSubTabPath, { replace: true });
             }
-          }
         }
-      } else if (pathPart === '') {
-        // We are exactly at /financials, redirect to first available tab
+      } else if (currentPath === '/financials') {
         const firstTab = financialsTabs[0];
         if (firstTab) {
           const defaultPath = firstTab.subTabs?.[0]?.path || firstTab.path;
           navigate(defaultPath, { replace: true });
         }
-      } else {
-        // Unknown or restricted path - clear active tabs
-        if (uiState.activeTab !== -1) dispatch(setActiveTab(-1));
-        if (uiState.activeSubTab !== 0) dispatch(setActiveSubTab(0));
       }
-      // If no match but pathPart is not empty, we might be on a valid sub-route handled by a component
     }
-  }, [location.pathname, dispatch, navigate, uiState.activeTab, uiState.activeSubTab, uiState.activePage, financialsTabs, isLoadingDetails, pathMap]);
+  }, [location.pathname, dispatch, navigate, financialsTabs, isLoadingDetails, pathMap]);
 
   const handleDelete = useCallback(() => {
     if (!uiState.confirmDeleteId) return;

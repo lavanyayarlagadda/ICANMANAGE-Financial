@@ -17,7 +17,10 @@ export const useUserPermissions = () => {
     skip: shouldSkipDetails
   });
 
-  const user = userDetails || authUser;
+  const user = useMemo(() => {
+     if (!userDetails) return authUser;
+     return { ...authUser, ...userDetails };
+  }, [userDetails, authUser]);
 
   const accessibleModules = useMemo(() => {
     return user?.accessibleModules || [];
