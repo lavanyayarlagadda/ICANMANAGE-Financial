@@ -35,8 +35,6 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     } = useCollectionsScreen({ skip });
     const theme = useTheme();
 
-    if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading collections.</Box>;
-
     const columns = useMemo<DataColumn<CollectionAccount>[]>(() => [
         {
             id: 'actions',
@@ -105,7 +103,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
             <DataTable
                 columns={columns}
-                data={collections}
+                data={collections || []}
                 rowKey={(r) => r.id}
                 exportTitle="Collections"
                 selectable

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SelectChangeEvent } from '@mui/material';
 import { RootState, useAppSelector, useAppDispatch } from '@/store';
@@ -26,7 +26,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   });
 
   const { data: userDetails, refetch: refetchMeDetails } = useGetMeDetailsQuery(undefined, {
-    skip: !!isCognitiveUser && !selectedTenantId
+    skip: !user || (!!isCognitiveUser && (!selectedTenantId || !tenantData || tenantData.length === 0))
   });
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
     }
   }, [tenantData, dispatch, selectedTenantId]);
 
-  const handleTenantChange = useCallback((event: SelectChangeEvent) => {
+  const handleTenantChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const newTenantId = event.target.value;
     dispatch(setSelectedTenantId(newTenantId));
     refetchMeDetails();

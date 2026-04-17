@@ -22,6 +22,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleEdit,
         handleDelete,
         handleRangeChange,
+        handleFilterChange,
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
@@ -90,8 +91,6 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleDrillDown, handleEdit, handleDelete]);
 
-    if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading recoupments.</Box>;
-
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>
             <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -101,7 +100,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             </Grid>
             <DataTable
                 columns={columns}
-                data={recoupments}
+                data={recoupments || []}
                 rowKey={(r) => r.id}
                 exportTitle="Recoupments"
                 customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
@@ -115,6 +114,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 onPageChange={onPageChange}
                 onRowsPerPageChange={onRowsPerPageChange}
                 onSortChange={handleSortChange}
+                onFilterChange={handleFilterChange}
                 download={false}
             />
         </Box>

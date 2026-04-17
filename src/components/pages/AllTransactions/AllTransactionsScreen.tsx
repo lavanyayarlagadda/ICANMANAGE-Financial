@@ -18,6 +18,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         queryParams,
         handleDrillDown,
         handleRangeChange,
+        handleFilterChange,
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
@@ -98,12 +99,10 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: ['Reconciled', 'Partially Applied', 'Pending', 'Denied'], render: (r) => <StatusBadge status={r.status} /> },
     ], [theme.palette.error.main, theme.palette.text.primary]);
 
-    if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading transactions.</Box>;
-
     return (
         <DataTable
             columns={columns}
-            data={filteredTransactions}
+            data={filteredTransactions || []}
             rowKey={(r) => r.id ?? ''}
             exportTitle="All Transactions"
             customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}
@@ -117,6 +116,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             onPageChange={onPageChange}
             onRowsPerPageChange={onRowsPerPageChange}
             onSortChange={handleSortChange}
+            onFilterChange={handleFilterChange}
             download={false}
         />
     );

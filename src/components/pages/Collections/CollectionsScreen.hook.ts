@@ -1,8 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
-import { useAppDispatch } from '@/store';
-import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
+import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { CollectionAccount } from '@/interfaces/financials';
+import { useLazyExportCollectionsQuery, useSearchCollectionsQuery } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
+import { calculateDatesFromLabel } from '@/utils/dateUtils';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
 
 const DUMMY_COLLECTIONS: CollectionAccount[] = [
     {
@@ -79,14 +83,15 @@ const DUMMY_COLLECTIONS: CollectionAccount[] = [
 
 export const useCollectionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
+    const { globalFilters } = useAppSelector(s => s.financials);
 
-    const [queryParams, setQueryParams] = useState({
+    const [queryParams, setQueryParams] = useState<any>({
         page: 0,
         size: 10,
         sortField: 'accountNumber',
         sortOrder: 'desc' as 'asc' | 'desc',
-        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-        toDate: format(new Date(), 'yyyy-MM-dd'),
+        fromDate: globalFilters.fromDate,
+        toDate: globalFilters.toDate,
     });
 
     const collections = useMemo(() => DUMMY_COLLECTIONS, []);
@@ -107,16 +112,23 @@ export const useCollectionsScreen = ({ skip = false }: { skip?: boolean } = {}) 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
-            setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+            setQueryParams((prev: any) => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+        } else {
+            const dates = calculateDatesFromLabel(range);
+            if (dates) {
+                setQueryParams((prev: any) => ({ ...prev, fromDate: dates.from, toDate: dates.to, page: 0 }));
+                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+            }
         }
-    }, []);
+    }, [dispatch]);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
-        setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
+        setQueryParams((prev: any) => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
     }, []);
 
-    const handlePageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
-    const handleRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
+    const handlePageChange = useCallback((p: number) => setQueryParams((prev: any) => ({ ...prev, page: p })), []);
+    const handleRowsPerPageChange = useCallback((s: number) => setQueryParams((prev: any) => ({ ...prev, size: s, page: 0 })), []);
 
     return {
         collections,

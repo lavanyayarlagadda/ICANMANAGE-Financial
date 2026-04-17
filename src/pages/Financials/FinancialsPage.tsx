@@ -108,9 +108,7 @@ const FinancialsPage: React.FC = () => {
       );
     }
 
-    if (isLoadingUserDetails) {
-        return <TabLoadingFallback />;
-    }
+    if (isLoadingUserDetails) return null; // Handled by DashboardLayout overlay
 
     return (
       <>

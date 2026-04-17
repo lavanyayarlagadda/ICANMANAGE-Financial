@@ -14,7 +14,8 @@ import {
     setSelectedPaymentId,
     setRemittanceDetail,
     setRemittanceClaims,
-    setSelectedClaimIndex
+    setSelectedClaimIndex,
+    setGlobalFilters
 } from '@/store/slices/financialsSlice';
 import { RecoupmentRecord, RemittanceDetail, PaymentTransaction } from '@/interfaces/financials';
 import {
@@ -25,21 +26,33 @@ import {
 } from '@/store/api/financialsApi';
 import { TableQueryParams } from '@/interfaces/api';
 import { subMonths, format } from 'date-fns';
+import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 
 export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
+    const { globalFilters } = useAppSelector(s => s.financials);
 
     const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
         size: 10,
         sortField: '',
         sortOrder: 'desc' as 'asc' | 'desc',
-        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-        toDate: format(new Date(), 'yyyy-MM-dd'),
+        fromDate: globalFilters.fromDate,
+        toDate: globalFilters.toDate,
     });
+
+    // Keep local queryParams in sync with global filters
+    useEffect(() => {
+        setQueryParams(prev => ({
+            ...prev,
+            fromDate: globalFilters.fromDate,
+            toDate: globalFilters.toDate,
+            page: 0
+        }));
+    }, [globalFilters.fromDate, globalFilters.toDate]);
 
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
@@ -54,7 +67,9 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         sort: queryParams.sortField,
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
+        toDate: queryParams.toDate,
+        status: queryParams.status,
+        payer: queryParams.payer
     }, { skip });
 
     const recoupments = useMemo(() => data?.data?.content ?? [], [data]);
@@ -176,11 +191,31 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
             setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+        } else {
+            const dates = calculateDatesFromLabel(range);
+            if (dates) {
+                setQueryParams(prev => ({ ...prev, fromDate: dates.from, toDate: dates.to, page: 0 }));
+                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+            }
         }
-    }, []);
+    }, [dispatch]);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
+    }, []);
+
+    const handleFilterChange = useCallback((filters: Record<string, string>) => {
+        setQueryParams(prev => {
+            const next = {
+                ...prev,
+                status: filters.status || null,
+                payer: filters.payerName || null,
+                page: 0
+            };
+            const isChanged = prev.status !== next.status || prev.payer !== next.payer;
+            return isChanged ? next : prev;
+        });
     }, []);
 
     const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
@@ -196,6 +231,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         handleEdit,
         handleDelete,
         handleRangeChange,
+        handleFilterChange,
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,

@@ -6,7 +6,7 @@ export interface DynamicTab {
     label: string;
     path: string;
     status: 'Active' | 'Hidden' | 'Disabled';
-    component?: React.ComponentType;
+    component?: React.ComponentType<any>;
     subTabs?: DynamicTab[];
 }
 

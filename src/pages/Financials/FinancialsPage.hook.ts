@@ -35,10 +35,9 @@ export const useFinancialsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { data: userDetails, isLoading: isLoadingDetails } = useGetMeDetailsQuery();
+  const { user: userFromPermissions, userDetails, isLoadingDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
   const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
-  const { accessibleModules } = useUserPermissions();
   const { financialsTabs } = useMemo(() => getNavigationStructure(menus, accessibleModules), [menus, accessibleModules]);
 
   // Build dynamic path map from financialsTabs

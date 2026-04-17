@@ -63,6 +63,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     expandedRows,
     toggleRow,
     handleRangeChange,
+    handleFilterChange,
     handleSortChange,
     handlePageChange,
     handleRowsPerPageChange,
@@ -98,8 +99,6 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   }, []);
 
   // if (!canViewPip) return null;
-  if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading PIP records.</Box>;
-
   return (
     <Box sx={{ position: 'relative' }}>
       <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -108,12 +107,13 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="ACTION REQUIRED" value={pipSummary?.actionRequired?.toString() || '0'} variant="default" backgroundColor={themeConfig.colors.surface} /></Grid>
       </Grid>
       <DataTable
-        columns={columns} data={pipRecords} rowKey={getRowId} expandedRows={expandedRows}
+        columns={columns} data={pipRecords || []} rowKey={getRowId} expandedRows={expandedRows}
         expandedContent={renderExpandedContent} exportTitle="PIP Records" dictionaryId="statements"
         serverSide totalElements={totalElements} page={queryParams.page} rowsPerPage={queryParams.size}
         sortCol={queryParams.sortField} sortDir={queryParams.sortOrder}
         download={false}
         onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}
+        onFilterChange={handleFilterChange}
         customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
       />
     </Box>

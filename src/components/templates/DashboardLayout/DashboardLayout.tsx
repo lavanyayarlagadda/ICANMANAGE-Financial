@@ -21,7 +21,6 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { NAV_CONFIG } from '@/config/navigation';
 import TopNavBar from '@/components/organisms/TopNavBar/TopNavBar';
 import Footer from '@/components/organisms/Footer/Footer';
-import { MENU_STATUS } from '@/config/constants';
 import {
   DRAWER_WIDTH,
   DRAWER_COLLAPSED_WIDTH,
@@ -43,6 +42,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const {
     isOverlayActive,
+    isLoadingDetails,
     isWaitingForTenants,
     sidebar,
     getMenuStatus,
@@ -51,7 +51,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     handleSnackbarClose,
     handleMobileMenuClose,
     tenant,
-    ui
+    ui,
+    user,
+    financials,
   } = useDashboardLayout();
 
   const {
@@ -65,7 +67,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
 
   const drawerContent = (
-    <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', pointerEvents: 'none' }}>
       {sidebar.map((item) => {
         const config = NAV_CONFIG[item.label];
         const Icon = config?.icon || AccountBalanceIcon;
@@ -80,7 +82,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 disabled={status === 'Disabled'}
                 selected={ui.activePage === item.label.toLowerCase()}
                 onClick={() => status !== 'Disabled' && handleNavClick(item.label.toLowerCase(), item.path)}
-                sx={NavItemStyles(sidebarCollapsed, theme)}
+                sx={{ ...NavItemStyles(sidebarCollapsed, theme), pointerEvents: 'auto' }}
               >
                 <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}>
                   <Icon fontSize="small" />
@@ -100,15 +102,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   );
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: theme.palette.background.default }}>
-      {/* Global Interaction Blocker */}
+    <PageWrapper>
+      {/* Full-Screen Blurred Loader */}
       {isOverlayActive && (
         <GlobalOverlay>
           <CircularProgress size={60} thickness={4} />
-          <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
-            {tenant.isLoading || isWaitingForTenants ? 'Initializing Organization...' : (ui.isReloading ? 'Refreshing Data...' :
-              (ui.activeExportType ? 'Preparing Report...' :
-                (ui.isGlobalFetching ? 'Please Wait...' : 'Processing...')))}
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 600, mt: 2 }}>
+            {tenant.isLoading || isWaitingForTenants
+              ? 'Loading Your Organizations...'
+              : (isLoadingDetails
+                ? 'Authorizing Account & Permissions...'
+                : (ui.isReloading
+                  ? 'Syncing Fresh Financial Data...'
+                  : (ui.activeExportType
+                    ? `Compiling ${ui.activeExportType.toUpperCase()} Report...`
+                    : (ui.isDrillingDown ? 'Resolving Transaction Details...' : (ui.isGlobalFetching || financials.loading ? 'Fetching Records...' : 'Configuring View...')))))}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8 }}>
+            Please wait while we load your data securely...
           </Typography>
         </GlobalOverlay>
       )}
@@ -122,18 +133,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           sx={{
             width: drawerWidth,
             flexShrink: 0,
-            transition: theme.transitions.create('width', { duration: theme.transitions.duration.shorter }),
             '& .MuiDrawer-paper': {
               width: drawerWidth,
               boxSizing: 'border-box',
               borderRight: 'none',
               backgroundColor: theme.palette.background.paper,
-              transition: theme.transitions.create('width', { duration: theme.transitions.duration.shorter }),
               overflowX: 'hidden',
+              position: 'sticky',
+              top: 0,
+              height: '100vh',
+              pointerEvents: 'none',
             },
           }}
         >
-          <Toolbar />
+          <Toolbar sx={{ pointerEvents: 'none' }} />
           {drawerContent}
         </Drawer>
       )}
@@ -145,30 +158,30 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           onClose={handleMobileMenuClose}
           sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH, backgroundColor: theme.palette.background.paper } }}
         >
-          <Toolbar />
+          <Toolbar sx={{ pointerEvents: 'none' }} />
           {drawerContent}
         </Drawer>
       )}
 
-      <MainContentWrapper>
-        <Toolbar />
-        <ContentArea component="main">
+      <MainContentWrapper sx={{ pl: isMobile ? 0 : `${drawerWidth}px` }}>
+        <Toolbar sx={{ pointerEvents: 'none' }} />
+        <ContentArea component="main" sx={{ pb: 8, overflow: 'visible' }}>
           {!isWaitingForTenants && children}
         </ContentArea>
-        <Footer />
       </MainContentWrapper>
+      <Footer />
 
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 };
 

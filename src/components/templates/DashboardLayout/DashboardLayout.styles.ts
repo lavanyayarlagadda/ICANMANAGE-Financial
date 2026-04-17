@@ -6,26 +6,31 @@ export const DRAWER_WIDTH = 240;
 export const DRAWER_COLLAPSED_WIDTH = 64;
 
 export const PageWrapper = styled(Box)(({ theme }) => ({
-  display: 'flex',
   height: '100vh',
+  width: '100vw',
   overflow: 'hidden',
-  backgroundColor: theme.palette.background.default
+  backgroundColor: theme.palette.background.default,
+  position: 'relative'
 }));
 
 export const MainContentWrapper = styled(Box)(({ theme }) => ({
-  flexGrow: 1,
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
   display: 'flex',
   flexDirection: 'column',
-  height: '100vh',
-  minWidth: 0,
-  overflow: 'hidden'
+  overflowY: 'auto',
+  overflowX: 'hidden',
+  zIndex: 1,
 }));
 
 export const ContentArea = styled(Box)<{ component?: React.ElementType }>(({ theme }) => ({
   flex: 1,
-  minHeight: 0,
   padding: theme.spacing(3),
-  overflow: 'auto',
+  overflowY: 'auto',
+  overflowX: 'hidden',
   minWidth: 0,
   [theme.breakpoints.down('sm')]: {
     padding: theme.spacing(2),
@@ -39,6 +44,7 @@ export const GlobalOverlay = styled(Box)(({ theme }) => ({
   right: 0,
   bottom: 0,
   backgroundColor: themeConfig.colors.overlay.white,
+  backdropFilter: 'blur(4px)',
   zIndex: 99999,
   cursor: 'wait',
   display: 'flex',

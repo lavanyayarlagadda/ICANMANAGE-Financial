@@ -25,6 +25,7 @@ import KeyIcon from '@mui/icons-material/VpnKeyOutlined';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
 import { useUserProfilePage } from './UserProfilePage.hook';
+import { NAV_CONFIG } from '@/config/navigation';
 import * as styles from './UserProfilePage.styles';
 
 const TabPanel = (props: { children?: React.ReactNode; index: number; value: number }) => {
@@ -64,7 +65,8 @@ const UserProfilePage: React.FC = () => {
         handleTabChange,
         handleUpdateUsername,
         handleChangePassword,
-        handleSavePreferences,
+        handleLandingPageChange,
+        getAccessiblePages,
         handleBack,
         isModuleVisible,
         isModuleDisabled,
@@ -147,20 +149,31 @@ const UserProfilePage: React.FC = () => {
                             <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Default Landing Page</Typography>
                             <Typography variant="caption" color="primary">Current: {landingPage}</Typography>
                         </Box>
-                        <Select fullWidth size="small" disabled={user?.role === 'user' || user?.username === 'demo'} value={landingPage} onChange={(e) => setLandingPage(e.target.value)} sx={{ ...styles.textFieldStyles, mb: 3 }}>
-                            {user?.accessibleModules?.filter(module => isModuleVisible(module)).map(module => (
-                                <MenuItem key={module} value={module} disabled={isModuleDisabled(module)}>{module}</MenuItem>
+                        <Select 
+                            fullWidth 
+                            size="small" 
+                            disabled={user?.role === 'user' || user?.username === 'demo' || isLoadingDetails} 
+                            value={landingPage} 
+                            onChange={(e) => handleLandingPageChange(e.target.value)} 
+                            sx={{ ...styles.textFieldStyles, mb: 1 }}
+                        >
+                            {getAccessiblePages().map(pageLabel => (
+                                <MenuItem key={pageLabel} value={pageLabel}>{pageLabel}</MenuItem>
                             ))}
                         </Select>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
+                            Your browser will navigate to {NAV_CONFIG[landingPage]?.path || '/'} automatically after selection.
+                        </Typography>
+                        {/* Note: Save button is now mostly redundant due to auto-save on select, but kept for UX clarity */}
                         <Box sx={styles.actionsBoxStyles}>
                             <Button 
                                 variant="contained" 
                                 disabled={isLoadingDetails}
                                 startIcon={isLoadingDetails ? <CircularProgress size={16} color="inherit" /> : <SaveIcon fontSize="small" />} 
-                                onClick={handleSavePreferences} 
+                                onClick={() => handleLandingPageChange(landingPage)} 
                                 sx={{ backgroundColor: themeConfig.colors.primary }}
                             >
-                                {isLoadingDetails ? 'Saving...' : 'Save Preferences'}
+                                {isLoadingDetails ? 'Saving...' : 'Confirm Preference'}
                             </Button>
                         </Box>
                     </Card>

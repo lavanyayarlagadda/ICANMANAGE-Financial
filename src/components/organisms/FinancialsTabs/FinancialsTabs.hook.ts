@@ -1,10 +1,11 @@
 import { useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '@/store';
+import { RootState, useAppDispatch, useAppSelector } from '@/store';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
 import { useGetMeDetailsQuery } from '@/store/api/userApi';
 import { getNavigationStructure, DynamicTab } from '@/utils/navigationUtils';
 import { MenuItem } from '@/store/api/userApi';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface UseFinancialsTabsProps {
   showPrint?: boolean;
@@ -23,12 +24,11 @@ export const useFinancialsTabs = ({
   const location = useLocation();
   const dispatch = useAppDispatch();
   const { activeTab, activeSubTab, isReloading } = useAppSelector((s) => s.ui);
-  const { data: userDetails } = useGetMeDetailsQuery();
+  const { user: userFromPermissions, userDetails, isCognitiveUser, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
   const { selectedTenantId } = useAppSelector((s) => s.tenant);
 
   const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
-  const accessibleModules = useMemo(() => userDetails?.accessibleModules || authUser?.accessibleModules || [], [userDetails, authUser]);
 
   const { financialsTabs } = useMemo(() => getNavigationStructure(menus, accessibleModules), [menus, accessibleModules]);
 
@@ -62,7 +62,7 @@ export const useFinancialsTabs = ({
   const currentMainTab = financialsTabs.find(t => t.id === activeTab);
   const currentSubTabs = currentMainTab?.subTabs || [];
 
-  const isExecutiveSummary = currentMainTab?.label === 'Trends & Forecast' && activeSubTab === 1;
+  const isExecutiveSummary = currentMainTab?.label === 'Trends & Forecast';
   const canShowActions = financialsTabs.length > 0 && !isRestricted && activeTab !== -1;
   const shouldShowPrint = showPrint ?? (canShowActions && !isExecutiveSummary);
   const shouldShowReload = showReload ?? canShowActions;

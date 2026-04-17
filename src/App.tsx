@@ -12,7 +12,7 @@ import { GlobalHooksWrapper } from '@/components/GlobalHooksWrapper';
 
 import { NAV_CONFIG } from '@/config/navigation';
 import { useAppSelector } from '@/store';
-import { useGetMeDetailsQuery } from '@/store/api/userApi';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 const FinancialsPage = lazy(() => import('@/pages/Financials/FinancialsPage'));
 const LoginPage = lazy(() => import('@/pages/Login/LoginPage'));
@@ -26,7 +26,12 @@ const LoadingFallback = () => (
 );
 
 const RootRedirect = () => {
-  const { data: userDetails, isLoading } = useGetMeDetailsQuery();
+  const { user: userDetails, isCognitiveUser } = useUserPermissions();
+  // If user is cognitive, we need both selectedTenantId AND meDetails
+  // useUserPermissions handles the skip logic.
+  const { selectedTenantId, isLoading: isTenantsLoading } = useAppSelector((s) => s.tenant);
+  
+  const isLoading = isTenantsLoading || (isCognitiveUser && !userDetails);
   const user = useAppSelector((state) => state.auth.user);
   
   if (isLoading) {

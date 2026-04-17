@@ -4,10 +4,13 @@ import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice
 import { useSearchBankDepositsBodyQuery, useLazyExportBankDepositsQuery } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { subMonths, format } from 'date-fns';
+import { setGlobalFilters } from '@/store/slices/financialsSlice';
+import { calculateDatesFromLabel } from '@/utils/dateUtils';
 
 export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
+    const { globalFilters } = useAppSelector(s => s.financials);
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
@@ -18,16 +21,16 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
 
     const [queryParams, setQueryParams] = useState({
         page: 0,
-        size: 10,
+        size: 5, // Default to 5
         sortField: 'date',
         sortOrder: 'desc' as 'asc' | 'desc',
-        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-        toDate: format(new Date(), 'yyyy-MM-dd'),
+        fromDate: globalFilters.fromDate,
+        toDate: globalFilters.toDate,
     });
 
     const { data, isFetching, isError, refetch } = useSearchBankDepositsBodyQuery({
         page: queryParams.page + 1,
-        size: queryParams.size,
+        size: 100, // Fetch more for front end slicing
         sort: queryParams.sortField,
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
@@ -109,19 +112,31 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     const filteredDeposits = useMemo(() => {
         return bankDeposits
             .filter(entity => selectedEntityId === 'all' || entity.id === selectedEntityId)
-            .map(entity => ({
-                ...entity,
-                items: exceptionsOnly ? entity.items.filter(item => item.status === 'Exception') : entity.items
-            }))
-            .filter(entity => entity.items.length > 0);
-    }, [bankDeposits, selectedEntityId, exceptionsOnly]);
+            .map(entity => {
+                const subItems = exceptionsOnly ? entity.items.filter(item => item.status === 'Exception') : entity.items;
+                const start = queryParams.page * queryParams.size;
+                return {
+                    ...entity,
+                    items: subItems.slice(start, start + queryParams.size),
+                    totalItems: subItems.length // Original count for pagination
+                };
+            })
+            .filter(entity => entity.items.length > 0 || selectedEntityId !== 'all');
+    }, [bankDeposits, selectedEntityId, exceptionsOnly, queryParams.page, queryParams.size]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
             setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+        } else {
+            const dates = calculateDatesFromLabel(range);
+            if (dates) {
+                setQueryParams(prev => ({ ...prev, fromDate: dates.from, toDate: dates.to, page: 0 }));
+                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+            }
         }
-    }, []);
+    }, [dispatch]);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));

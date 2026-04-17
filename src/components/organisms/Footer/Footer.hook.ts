@@ -1,6 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useAppSelector } from '@/store';
+import { useTheme, useMediaQuery } from '@mui/material';
+import { DRAWER_WIDTH, DRAWER_COLLAPSED_WIDTH } from '@/components/templates/DashboardLayout/DashboardLayout.styles';
 
 export const useFooter = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { sidebarCollapsed } = useAppSelector(s => s.ui);
+  
+  const drawerWidth = isMobile ? 0 : (sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH);
+
   const getTimeoutSeconds = useCallback(() => {
     const timeoutMin = parseInt(localStorage.getItem('ican_inactivity_timeout') || '15', 10);
     return (isNaN(timeoutMin) ? 15 : timeoutMin) * 60;
@@ -61,5 +70,7 @@ export const useFooter = () => {
   return {
     timeLeft,
     formatTime,
+    drawerWidth,
+    isMobile,
   };
 };

@@ -77,7 +77,7 @@ export const financialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Financials"],
     }),
-    getRemittanceClaims: builder.query<RemittanceDetail[], { claimId: string; page: number; size: number; sort: string; desc: boolean }>({
+    getRemittanceClaims: builder.query<RemittanceDetail[], { claimId: string; }>({
       query: ({ claimId, ...params }) => ({
         url: `financials/payments/remittance-claims/${claimId}`,
         params

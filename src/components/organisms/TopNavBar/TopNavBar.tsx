@@ -14,6 +14,7 @@ import {
   Divider,
   FormControl,
   Select,
+  TextField,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -59,7 +60,7 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
     <>
       <AppBar position="fixed" sx={styles.appBarStyles(theme)}>
         <Toolbar sx={styles.toolbarStyles}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pointerEvents: 'auto' }}>
             <IconButton onClick={isMobile ? handleSidebarToggle : handleSidebarCollapse} size="small">
               <MenuIcon />
             </IconButton>
@@ -68,16 +69,14 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
             {isCognitiveUser && (
-              <FormControl size="small" sx={{ minWidth: { xs: 60, sm: 160 }, maxWidth: { xs: 100, sm: 'none' }, ml: { xs: 0.5, sm: 2 } }}>
-                <Select
+              <Box sx={{ minWidth: { xs: 60, sm: 160 }, maxWidth: { xs: 100, sm: 'none' }, ml: { xs: 0.5, sm: 2 }, pointerEvents: 'auto' }}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
                   value={selectedTenantId || ''}
                   onChange={handleTenantChange}
-                  displayEmpty
-                  startAdornment={
-                    <ListItemIcon sx={{ minWidth: 28, color: 'primary.main' }}>
-                      <CorporateFareIcon fontSize="small" />
-                    </ListItemIcon>
-                  }
+                  disabled={isTenantsLoading}
                   sx={styles.tenantSelectStyles(theme)}
                 >
                   {tenants?.map((t) => (
@@ -86,8 +85,8 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                     </MenuItem>
                   ))}
                   {isTenantsLoading && <MenuItem disabled>Loading...</MenuItem>}
-                </Select>
-              </FormControl>
+                </TextField>
+              </Box>
             )}
             <Box sx={styles.userProfileBoxStyles(theme)} onClick={handleClick}>
               <Avatar

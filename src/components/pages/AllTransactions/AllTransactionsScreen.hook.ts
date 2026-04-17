@@ -35,6 +35,17 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         toDate: globalFilters.toDate,
     });
 
+    // Keep local queryParams in sync with global filters when they change from other sources
+    useEffect(() => {
+        setQueryParams(prev => ({
+            ...prev,
+            fromDate: globalFilters.fromDate,
+            toDate: globalFilters.toDate,
+            // If the dates changed from outside, we usually want to reset to page 0
+            page: 0
+        }));
+    }, [globalFilters.fromDate, globalFilters.toDate]);
+
     // Dynamic parameters for Drill-down APIs
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
@@ -49,7 +60,11 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         sort: queryParams.sortField,
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
+        toDate: queryParams.toDate,
+        status: queryParams.status,
+        category: queryParams.category,
+        type: queryParams.type,
+        payer: queryParams.sourceProvider
     }, { skip });
 
     const transactions = useMemo(() => {
@@ -195,6 +210,26 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
     }, []);
+    
+    const handleFilterChange = useCallback((filters: Record<string, string>) => {
+        setQueryParams(prev => {
+            const next = {
+                ...prev,
+                status: filters.status || null,
+                category: filters.transactionType || null,
+                type: filters.type || null,
+                sourceProvider: filters.sourceProvider || null,
+                page: 0
+            };
+            const isChanged = 
+                prev.status !== next.status ||
+                prev.category !== next.category ||
+                prev.type !== next.type ||
+                prev.sourceProvider !== next.sourceProvider;
+            
+            return isChanged ? next : prev;
+        });
+    }, []);
 
     const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
@@ -215,6 +250,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         handleEdit,
         handleDelete,
         handleRangeChange,
+        handleFilterChange,
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,

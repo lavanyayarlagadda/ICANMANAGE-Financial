@@ -78,7 +78,7 @@ const initialState: FinancialsState = {
   addDialogOpen: false,
   addDialogType: '',
   globalFilters: {
-    fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
+    fromDate: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
     toDate: format(new Date(), 'yyyy-MM-dd'),
     rangeLabel: '1 month',
   },

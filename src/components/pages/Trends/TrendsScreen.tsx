@@ -1,4 +1,4 @@
-import { alpha, Box, CardContent, Grid, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { alpha, Box, CardContent, Grid, Typography, useTheme } from '@mui/material';
 import React, { useMemo } from 'react';
 import { Area, CartesianGrid, Cell, ComposedChart, Legend, Line, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { format } from 'date-fns';
@@ -41,7 +41,8 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handlePageChange,
         handleRowsPerPageChange,
         handleDrillDown,
-        globalFilters
+        globalFilters,
+        isMindpath,
     } = useTrendsScreen({ skip });
 
     const teamColumns = useMemo<DataColumn<ForecastDashboardResponse['data'][0]>[]>(() => [
@@ -104,17 +105,19 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     </ComposedChart>
                 </ResponsiveContainer>
             </ChartContainer>
-            <DataTable
-                columns={teamColumns}
-                data={dashboardData || []}
-                rowKey={(r) => r.team}
-                paginated={false}
-                searchable={false}
-                dictionaryId="forecast-trends"
-                download={false}
-            />
+            {!isMindpath && (
+                <DataTable
+                    columns={teamColumns}
+                    data={dashboardData || []}
+                    rowKey={(r) => r.team}
+                    paginated={false}
+                    searchable={false}
+                    dictionaryId="forecast-trends"
+                    download={false}
+                />
+            )}
         </>
-    ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns]);
+    ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns, isMindpath, globalFilters.rangeLabel]);
 
     const payerColumns = useMemo<DataColumn<PayerPerformanceRecord>[]>(() => [
         {

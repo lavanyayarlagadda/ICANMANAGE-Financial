@@ -342,14 +342,20 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                         rowKey={(row) => row.id}
                         expandedRows={expandedRows}
                         expandedContent={renderExpandedContent}
-                        paginated={false}
+                        paginated={true}
                         searchable={false}
                         customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
                         dictionaryId="bank-deposits"
                         sortCol={queryParams.sortField}
                         sortDir={queryParams.sortOrder}
                         onSortChange={handleSortChange}
+                        page={queryParams.page}
+                        rowsPerPage={queryParams.size}
+                        totalElements={entity.totalItems || 0}
+                        onPageChange={onPageChange}
+                        onRowsPerPageChange={onRowsPerPageChange}
                         download={false}
+                        sizeOptions={[5, 10, 20]}
                     />
                 </Box>
             ))}

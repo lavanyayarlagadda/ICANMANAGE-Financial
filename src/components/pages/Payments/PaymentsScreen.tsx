@@ -73,13 +73,11 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         },
     ], [dispatch, handleDrillDown, statusOptions]);
 
-    if (isError) return <Box sx={{ p: 4, color: 'error.main' }}>Error loading payments.</Box>;
-
     return (
         <ScreenWrapper>
             <DataTable
                 columns={columns}
-                data={payments}
+                data={payments || []}
                 rowKey={(r) => r.id ?? ''}
                 exportTitle="Payments"
                 customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}

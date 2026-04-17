@@ -12,4 +12,11 @@ export const footerStyles = (theme: Theme): SxProps<Theme> => ({
   gap: 1,
   backgroundColor: themeConfig.colors.footerBg,
   flexShrink: 0,
+  position: 'fixed',
+  bottom: 0,
+  right: 0,
+  left: 0,
+  zIndex: theme.zIndex.appBar,
+  pointerEvents: 'none',
+  '& > *': { pointerEvents: 'auto' }
 });

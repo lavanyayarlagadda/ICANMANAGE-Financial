@@ -307,6 +307,11 @@ export interface TableQueryParams {
   sortOrder: 'asc' | 'desc';
   fromDate: string;
   toDate: string;
+  status?: string | null;
+  category?: string | null;
+  type?: string | null;
+  payer?: string | null;
+  sourceProvider?: string | null;
 }
 
 export interface PaymentQueryParams extends TableQueryParams {

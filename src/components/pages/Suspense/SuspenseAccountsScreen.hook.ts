@@ -1,11 +1,14 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { useAppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { setIsGlobalFetching } from '@/store/slices/uiSlice';
+import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { useSearchSuspenseAccountsQuery } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
+import { calculateDatesFromLabel } from '@/utils/dateUtils';
 
 export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
+    const { globalFilters } = useAppSelector(s => s.financials);
     const [viewType, setViewType] = useState<'account' | 'payer' | 'month'>('account');
     const [manageDialogOpen, setManageDialogOpen] = useState(false);
 
@@ -14,8 +17,8 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
         size: 10,
         sortField: '',
         sortOrder: 'desc' as 'asc' | 'desc',
-        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-        toDate: format(new Date(), 'yyyy-MM-dd'),
+        fromDate: globalFilters.fromDate,
+        toDate: globalFilters.toDate,
     });
 
     const { data, isFetching, isError, refetch } = useSearchSuspenseAccountsQuery({
@@ -57,8 +60,15 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
             setQueryParams(prev => ({ ...prev, fromDate: from, toDate: to, page: 0 }));
+            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+        } else {
+            const dates = calculateDatesFromLabel(range);
+            if (dates) {
+                setQueryParams(prev => ({ ...prev, fromDate: dates.from, toDate: dates.to, page: 0 }));
+                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+            }
         }
-    }, []);
+    }, [dispatch]);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));

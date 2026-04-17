@@ -45,6 +45,17 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         toDate: globalFilters.toDate,
     });
 
+    // Keep local queryParams in sync with global filters when they change from other sources
+    useEffect(() => {
+        setQueryParams(prev => ({
+            ...prev,
+            fromDate: globalFilters.fromDate,
+            toDate: globalFilters.toDate,
+            // If the dates changed from outside, we usually want to reset to page 0
+            page: 0
+        }));
+    }, [globalFilters.fromDate, globalFilters.toDate]);
+
     // Dynamic parameters for Drill-down APIs
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
@@ -72,7 +83,10 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const reloadCount = useRef(actionTriggers.reload);
     const statusOptions = useMemo(() => {
         if (statusData?.data && Array.isArray(statusData?.data)) {
-            return statusData?.data?.map((item) => item.postingStatus) || [];
+            return statusData?.data?.map((item) => ({
+                label: item.postingStatus,
+                value: String(item.postingStatusMasterId)
+            })) || [];
         }
         return [];
     }, [statusData]);
@@ -210,10 +224,29 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     }, [dispatch]);
 
     const handleFilterChange = useCallback((filters: Record<string, string>) => {
-        if (filters.status !== undefined) {
+        setQueryParams(prev => {
             const newStatus = filters.status || null;
-            setQueryParams(prev => prev.status === newStatus ? prev : { ...prev, status: newStatus, page: 0 });
-        }
+            const newCategory = filters.transactionType || null; // For potential use
+            const newType = filters.type || null; // For potential use
+            const newSource = filters.sourceProvider || null; // For potential use
+
+            const isChanged = 
+                prev.status !== newStatus ||
+                (prev as any).category !== newCategory ||
+                (prev as any).type !== newType ||
+                (prev as any).sourceProvider !== newSource;
+
+            if (!isChanged) return prev;
+
+            return {
+                ...prev,
+                status: newStatus,
+                category: newCategory,
+                type: newType,
+                sourceProvider: newSource,
+                page: 0
+            };
+        });
     }, []);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {

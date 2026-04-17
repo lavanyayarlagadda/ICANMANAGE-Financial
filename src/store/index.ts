@@ -5,6 +5,7 @@ import uiReducer from './slices/uiSlice';
 import authReducer from './slices/authSlice';
 import tenantReducer from './slices/tenantSlice';
 import { baseApi } from './api/baseApi';
+import { rtkQueryErrorLogger } from './middleware/errorMiddleware';
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,7 @@ export const store = configureStore({
     [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(baseApi.middleware),
+    getDefaultMiddleware().concat(baseApi.middleware, rtkQueryErrorLogger),
   devTools: import.meta.env.DEV,
 });
 

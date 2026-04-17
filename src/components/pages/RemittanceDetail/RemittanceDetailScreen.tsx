@@ -37,6 +37,7 @@ const RemittanceDetailScreen: React.FC = () => {
         selectedIndex,
         serviceLines,
         totalElements,
+        totalClaims,
         isSlFetching,
         isSlLoading,
         slQueryParams,
@@ -104,15 +105,16 @@ const RemittanceDetailScreen: React.FC = () => {
                                 </StyledListItemButton>
                             ))}
                         </List>
-                        {/* Simple pager for claims */}
-                        <Box sx={{ p: 1, display: 'flex', justifyContent: 'center', borderTop: '1px solid', borderColor: 'divider' }}>
-                            <Pagination 
-                                size="small" 
-                                count={10} // Placeholder: Ideally we'd have totalElements for claims too
-                                page={claimsQueryParams.page + 1} 
-                                onChange={(_, p) => handleClaimsPageChange(p - 1)} 
-                            />
-                        </Box>
+                        {totalClaims > 3 && (
+                            <Box sx={{ p: 1, display: 'flex', justifyContent: 'center', borderTop: '1px solid', borderColor: 'divider' }}>
+                                <Pagination
+                                    size="small"
+                                    count={Math.ceil(totalClaims / 3)}
+                                    page={claimsQueryParams.page + 1}
+                                    onChange={(_, p) => handleClaimsPageChange(p - 1)}
+                                />
+                            </Box>
+                        )}
                     </Paper>
                 </Box>
             )}
@@ -138,7 +140,7 @@ const RemittanceDetailScreen: React.FC = () => {
                 exportTitle="Service Line Details" dictionaryId="service-lines" serverSide
                 page={slQueryParams.page} rowsPerPage={slQueryParams.size} sortCol={slQueryParams.sort}
                 sortDir={slQueryParams.desc ? 'desc' : 'asc'} totalElements={totalElements}
-                onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}
+                onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange} download={false}
             />
         </ScreenWrapper>
     );

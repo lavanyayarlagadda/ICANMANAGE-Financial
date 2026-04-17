@@ -230,7 +230,11 @@ export function DataTableToolbar<T>({
                     onFilterChange?.(next);
                     setInternalPage(0);
                   }}
-                  renderValue={(v) => v || <Typography variant="caption" color="text.secondary">All {col.label}</Typography>}
+                  renderValue={(v) => {
+                    if (!v) return <Typography variant="caption" color="text.secondary">All {col.label}</Typography>;
+                    const opt = col.filterOptions.find(o => (typeof o === 'string' ? o : String(o.value)) === String(v));
+                    return typeof opt === 'string' ? opt : (opt?.label || v);
+                  }}
                   sx={{
                     height: 32,
                     fontSize: '0.8125rem',
@@ -240,9 +244,15 @@ export function DataTableToolbar<T>({
                   }}
                 >
                   <MenuItem value=""><em>Show All</em></MenuItem>
-                  {col.filterOptions.map((opt) => (
-                    <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-                  ))}
+                  {col.filterOptions.map((opt) => {
+                    const label = typeof opt === 'string' ? opt : opt.label;
+                    const value = typeof opt === 'string' ? opt : opt.value;
+                    return (
+                      <MenuItem key={String(value)} value={value}>
+                        {label}
+                      </MenuItem>
+                    );
+                  })}
                 </Select>
               </FormControl>
             ))}

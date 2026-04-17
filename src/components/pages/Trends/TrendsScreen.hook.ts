@@ -34,17 +34,23 @@ import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalize
 export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const trendsData = useAppSelector((s: RootState) => s.financials.trendsData);
-    const user = useAppSelector((s: RootState) => s.auth.user);
-    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
+    const { user } = useAppSelector((s: RootState) => s.auth);
+    const { tenants, selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
     const { activeSubTab, actionTriggers } = useAppSelector((s: RootState) => s.ui);
     const { globalFilters } = useAppSelector((s: RootState) => s.financials);
 
-    const location = useLocation();
+    const activeTenantName = useMemo(() => {
+        const selected = tenants.find(t => t.tenantId === selectedTenantId);
+        return selected?.displayName || tenants[0]?.displayName || '';
+    }, [tenants, selectedTenantId]);
 
-    // const isMindPath = useMemo(
-    //     () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
-    //     [user, selectedTenantId]
-    // );
+    const isMindpath = useMemo(() => {
+        const userCompany = user?.company?.toLowerCase() || '';
+        const tenantName = activeTenantName.toLowerCase();
+        return userCompany.includes('mindpath') || tenantName.includes('mindpath');
+    }, [user, activeTenantName]);
+
+    const location = useLocation();
 
     const isForecastPath = useMemo(() => location.pathname.includes('/forecast'), [location.pathname]);
     const isSummaryPath = useMemo(() => location.pathname.includes('/summary'), [location.pathname]);
@@ -66,7 +72,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
 
     const { data: forecastSummary, isFetching: isFetchingForecast, refetch: refetchForecast } = useGetForecastSummaryQuery(queryParams, { skip: skip || activeSubTab !== 0 || !isForecastPath });
     const { data: reconPerformance, isFetching: isFetchingRecon, refetch: refetchRecon } = useGetReconciliationPerformanceQuery(queryParams, { skip: skip || activeSubTab !== 0 || !isForecastPath });
-    const { data: dashboardData, isFetching: isFetchingDashboard, refetch: refetchDash } = useGetForecastDashboardQuery(queryParams, { skip: skip || activeSubTab !== 0 || !isForecastPath });
+    const { data: dashboardData, isFetching: isFetchingDashboard, refetch: refetchDash } = useGetForecastDashboardQuery(queryParams, { skip: skip || activeSubTab !== 0 || !isForecastPath || isMindpath });
 
     const { data: execSummary, isFetching: isFetchingExec, refetch: refetchExec } = useGetExecutiveSummaryQuery(queryParams, { skip: skip || activeSubTab !== 1 || !isSummaryPath });
     const { data: paymentMix, isFetching: isFetchingMix, refetch: refetchMix } = useGetPaymentMixQuery(queryParams, { skip: skip || activeSubTab !== 1 || !isSummaryPath });
@@ -84,7 +90,9 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
                 try {
                     dispatch(setIsReloading(true));
                     if (activeSubTab === 0) {
-                        await Promise.all([refetchForecast().unwrap(), refetchRecon().unwrap(), refetchDash().unwrap()]);
+                        const tasks: Promise<any>[] = [refetchForecast().unwrap(), refetchRecon().unwrap()];
+                        if (!isMindpath) tasks.push(refetchDash().unwrap());
+                        await Promise.all(tasks);
                     } else if (activeSubTab === 1) {
                         await Promise.all([refetchExec().unwrap(), refetchMix().unwrap(), refetchAdj().unwrap()]);
                     } else if (activeSubTab === 2) {
@@ -97,7 +105,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
             doReload();
             reloadCount.current = actionTriggers.reload;
         }
-    }, [actionTriggers.reload, activeSubTab, refetchForecast, refetchRecon, refetchDash, refetchExec, refetchMix, refetchAdj, refetchPayer, dispatch]);
+    }, [actionTriggers.reload, activeSubTab, refetchForecast, refetchRecon, refetchDash, refetchExec, refetchMix, refetchAdj, refetchPayer, dispatch, isMindpath]);
 
     useEffect(() => {
         dispatch(setIsGlobalFetching(isFetching));
@@ -181,7 +189,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
 
     return {
         activeSubTab,
-        // isMindPath,
+        isMindpath,
         trendsData,
         forecastSummary,
         reconPerformance,

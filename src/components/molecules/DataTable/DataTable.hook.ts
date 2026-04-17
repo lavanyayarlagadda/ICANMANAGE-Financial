@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getDescriptionsForTable, TableDescription, TableDescriptions } from '@/services/descriptionService';
 
+export interface FilterOption {
+  label: string;
+  value: string | number;
+}
+
 export interface DataColumn<T> {
   id: string;
   label: React.ReactNode;
@@ -11,12 +16,12 @@ export interface DataColumn<T> {
   primary?: boolean;
   accessor?: (row: T) => string | number | null;
   disableSort?: boolean;
-  filterOptions?: string[];
+  filterOptions?: (string | FilterOption)[];
   exportLabel?: string;
 }
 
 export type AccessorColumn<T> = DataColumn<T> & { accessor: (row: T) => string | number };
-export type FilterableColumn<T> = DataColumn<T> & { filterOptions: string[] };
+export type FilterableColumn<T> = DataColumn<T> & { filterOptions: (string | FilterOption)[] };
 
 export type SortDirection = 'asc' | 'desc';
 

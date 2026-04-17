@@ -1,23 +1,25 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { RootState } from '@/store';
-import { MenuAccess } from '@/store/slices/authSlice';
+import { RootState, useAppDispatch } from '@/store';
 import { useGetMeDetailsQuery, MenuItem, useUpdateMePreferencesMutation } from '@/store/api/userApi';
+import { setShowRemittanceDetail } from '@/store/slices/financialsSlice';
 
 import { NAV_CONFIG } from '@/config/navigation';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 export const useUserProfilePage = () => {
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { data: userDetails, isLoading: isLoadingDetails } = useGetMeDetailsQuery();
+    const { userDetails, isLoadingDetails } = useUserPermissions();
     const authUser = useSelector((state: RootState) => state.auth.user);
-    
+
     const [updatePreferences, { isLoading: isUpdatingPreferences }] = useUpdateMePreferencesMutation();
-    
+
     // Fallback to authUser if userDetails is not yet loaded
     const user = userDetails || authUser;
     const menus = (user?.menus || []) as MenuItem[];
-    
+
     const [tabIndex, setTabIndex] = useState(0);
 
     // Profile fields
@@ -97,23 +99,36 @@ export const useUserProfilePage = () => {
         setTimeout(() => setSuccessMessage(''), 3000);
     }, []);
 
-    const handleSavePreferences = useCallback(async () => {
+    const handleLandingPageChange = useCallback(async (newPage: string) => {
+        setLandingPage(newPage);
         try {
-            await updatePreferences({ defaultLandingPage: landingPage }).unwrap();
-            setSuccessMessage('Preferences saved successfully. Redirecting to your new landing page...');
+            await updatePreferences({ defaultLandingPage: newPage }).unwrap();
+            setSuccessMessage(`Landing page updated to ${newPage}. Redirecting...`);
             
-            // Map landingPage label to its configured path
-            const config = NAV_CONFIG[landingPage];
+            // Close any open remittance detail when changing preferences
+            dispatch(setShowRemittanceDetail(false));
+
+            const config = NAV_CONFIG[newPage];
             const targetPath = config?.path || '/financials/all-transactions';
-            
+
             setTimeout(() => {
                 setSuccessMessage('');
                 navigate(targetPath);
-            }, 1500);
+            }, 1200);
         } catch (error) {
             console.error('Failed to update preferences:', error);
         }
-    }, [updatePreferences, landingPage, navigate]);
+    }, [updatePreferences, navigate, dispatch]);
+
+    const getAccessiblePages = useCallback(() => {
+        return Object.keys(NAV_CONFIG).filter(label => {
+            if (label === 'Collections') return isModuleVisible('Collections');
+            return isModuleVisible('Financials');
+        });
+    }, [isModuleVisible]);
+    
+    // Legacy support for manual save if called from UI somewhere else
+    const handleSavePreferences = handleLandingPageChange;
 
     const handleBack = useCallback(() => navigate(-1), [navigate]);
 
@@ -134,6 +149,8 @@ export const useUserProfilePage = () => {
         handleTabChange,
         handleUpdateUsername,
         handleChangePassword,
+        handleLandingPageChange,
+        getAccessiblePages,
         handleSavePreferences,
         handleBack,
         isModuleVisible,

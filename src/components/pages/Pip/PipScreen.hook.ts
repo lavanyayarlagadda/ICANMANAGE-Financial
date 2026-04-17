@@ -4,12 +4,15 @@ import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/stor
 import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery } from "@/store/api/financialsApi";
 import { TableQueryParams } from "@/interfaces/api";
 import { format, subMonths } from 'date-fns';
+import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
+import { setGlobalFilters } from "@/store/slices/financialsSlice";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 
 export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
+    const { globalFilters } = useAppSelector(s => s.financials);
     // const { canViewPip } = useUserPermissions();
 
     const exportCount = useRef(actionTriggers.export);
@@ -21,9 +24,19 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         size: 10,
         sortField: '',
         sortOrder: 'desc' as 'asc' | 'desc',
-        fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-        toDate: format(new Date(), 'yyyy-MM-dd'),
+        fromDate: globalFilters.fromDate,
+        toDate: globalFilters.toDate,
     });
+
+    // Keep local queryParams in sync with global filters
+    useEffect(() => {
+        setQueryParams(prev => ({
+            ...prev,
+            fromDate: globalFilters.fromDate,
+            toDate: globalFilters.toDate,
+            page: 0
+        }));
+    }, [globalFilters.fromDate, globalFilters.toDate]);
 
     const isActualSkip = skip;
 
@@ -33,7 +46,9 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         sort: queryParams.sortField,
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
+        toDate: queryParams.toDate,
+        status: queryParams.status,
+        category: queryParams.category
     }, { skip: isActualSkip });
 
     const { data: pipSummaryData, isFetching: isFetchingSummary } = useGetPipSummaryQuery({
@@ -128,11 +143,34 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
                 if (prev.fromDate === from && prev.toDate === to) return prev;
                 return { ...prev, fromDate: from, toDate: to, page: 0 };
             });
+            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+        } else {
+            const dates = calculateDatesFromLabel(range);
+            if (dates) {
+                setQueryParams(prev => {
+                    if (prev.fromDate === dates.from && prev.toDate === dates.to) return prev;
+                    return { ...prev, fromDate: dates.from, toDate: dates.to, page: 0 };
+                });
+                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+            }
         }
-    }, []);
+    }, [dispatch]);
 
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
+    }, []);
+
+    const handleFilterChange = useCallback((filters: Record<string, string>) => {
+        setQueryParams(prev => {
+            const next = {
+                ...prev,
+                status: filters.status || null,
+                category: filters.category || null,
+                page: 0
+            };
+            const isChanged = prev.status !== next.status || prev.category !== next.category;
+            return isChanged ? next : prev;
+        });
     }, []);
 
     const handlePageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
@@ -147,6 +185,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         expandedRows,
         toggleRow,
         handleRangeChange,
+        handleFilterChange,
         handleSortChange,
         handlePageChange,
         handleRowsPerPageChange,

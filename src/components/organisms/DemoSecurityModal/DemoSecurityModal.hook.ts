@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SelectChangeEvent } from '@mui/material';
 import { useGetMeDetailsQuery, useGetUserMenuConfigQuery, useUpdateUserMenuConfigMutation, EffectiveMenuItem, EffectiveMenuModule, EffectiveSubMenuItem, MenuOverride } from '@/store/api/userApi';
 import { MenuStatus } from '@/utils/dummyData';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface UseDemoSecurityModalProps {
   currentUser: { id: string; username: string; firstName: string; lastName: string; role: string };
@@ -20,10 +21,10 @@ const isPasswordPolicy = (value: string): value is PasswordPolicy =>
   PASSWORD_POLICY_OPTIONS.includes(value as PasswordPolicy);
 
 export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecurityModalProps) => {
-  const { data: meDetails, isLoading: isLoadingUsers } = useGetMeDetailsQuery();
+  const { userDetails: meDetails, isLoadingDetails: isLoadingUsers } = useUserPermissions();
   const [selectedUser, setSelectedUser] = useState('');
   const { data: menuConfig, isLoading: isLoadingMenu, isFetching: isFetchingMenu } = useGetUserMenuConfigQuery(
-    { userId: selectedUser }, 
+    { userId: selectedUser },
     { skip: !selectedUser || !open }
   );
   const [updateMenuConfig, { isLoading: isSaving }] = useUpdateUserMenuConfigMutation();
@@ -63,7 +64,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
   useEffect(() => {
     if (menuConfig) {
       const statusMap: Record<number, MenuStatus> = {};
-      
+
       const populateMap = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
         items.forEach(item => {
           statusMap[item.menuId] = item.effectiveStatus;
@@ -71,7 +72,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
           if ('subModules' in item && item.subModules) populateMap(item.subModules);
         });
       };
-      
+
       populateMap(menuConfig.menus);
       setModuleStatuses(statusMap);
     }
@@ -84,7 +85,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
   const handleModuleStatusChange = useCallback((menuId: number, status: MenuStatus) => {
     setModuleStatuses(prev => {
       const next = { ...prev, [menuId]: status };
-      
+
       if (!menuConfig?.menus) return next;
 
       // 1. Cascade DOWN for ALL statuses (Active, Hidden, Disabled)
@@ -127,7 +128,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
             // Skip upward check if the item itself was the one explicitly changed by the user
             if (item.menuId === menuId) return;
 
-            const allHiddenOrDisabled = children.every((child) => 
+            const allHiddenOrDisabled = children.every((child) =>
               next[child.menuId] === 'Hidden' || next[child.menuId] === 'Disabled'
             );
 
@@ -170,9 +171,9 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       const collectAllOverrides = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
         items.forEach(item => {
           if (moduleStatuses[item.menuId] !== undefined) {
-             overrides.push({ menuId: item.menuId, status: moduleStatuses[item.menuId] });
+            overrides.push({ menuId: item.menuId, status: moduleStatuses[item.menuId] });
           }
-          
+
           if ('modules' in item && item.modules) collectAllOverrides(item.modules);
           if ('subModules' in item && item.subModules) collectAllOverrides(item.subModules);
         });

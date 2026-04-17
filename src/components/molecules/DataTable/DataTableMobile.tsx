@@ -48,7 +48,12 @@ export function DataTableMobile<T>({
 
   return (
     <Box sx={{ p: 1.5 }}>
-      {paginatedData.map((row) => {
+      {paginatedData.length === 0 ? (
+        <Box sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, opacity: 0.6 }}>
+          <Typography variant="body1" fontWeight={600}>No Data Available</Typography>
+          <Typography variant="body2">No records found matching your criteria.</Typography>
+        </Box>
+      ) : paginatedData.map((row) => {
         const key = rowKey(row);
         const isSelected = selectedKeys.has(key);
         const isExpanded = expandedRows?.has(key);
