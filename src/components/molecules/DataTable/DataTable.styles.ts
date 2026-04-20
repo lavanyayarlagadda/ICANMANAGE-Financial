@@ -142,7 +142,7 @@ export const ScrollableTableContainer = styled(TableContainer)(({ theme }) => ({
   maxHeight: 'calc(100vh - 240px)',
   overflowX: 'auto',
   overflowY: 'auto',
-  overscrollBehavior: 'contain',
+  overscrollBehavior: 'auto',
 
   '&::-webkit-scrollbar': {
     width: '6px',

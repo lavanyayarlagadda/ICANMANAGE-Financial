@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { SelectChangeEvent } from '@mui/material';
 import { RootState, useAppSelector, useAppDispatch } from '@/store';
 import { logout } from '@/store/slices/authSlice';
-import { toggleSidebarCollapse } from '@/store/slices/uiSlice';
+import { toggleSidebarCollapse, setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
+import { resetGlobalFilters } from '@/store/slices/financialsSlice';
 import { setSelectedTenantId, setTenants, setTenantLoading } from '@/store/slices/tenantSlice';
 import { useGetTenantsQuery } from '@/store/api/tenantApi';
 import { useGetMeDetailsQuery } from '@/store/api/userApi';
@@ -47,8 +48,12 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   const handleTenantChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const newTenantId = event.target.value;
     dispatch(setSelectedTenantId(newTenantId));
+    dispatch(resetGlobalFilters());
+    dispatch(setActiveTab(0));
+    dispatch(setActiveSubTab(0));
     refetchMeDetails();
-  }, [dispatch, refetchMeDetails]);
+    navigate('/'); // Re-run RootRedirect to find first tab
+  }, [dispatch, refetchMeDetails, navigate]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [demoModalOpen, setDemoModalOpen] = useState(false);

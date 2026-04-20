@@ -144,6 +144,13 @@ const financialsSlice = createSlice({
     setGlobalFilters: (state, action: PayloadAction<{ fromDate: string; toDate: string; rangeLabel: string }>) => {
       state.globalFilters = action.payload;
     },
+    resetGlobalFilters: (state) => {
+      state.globalFilters = {
+        fromDate: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
+        toDate: format(new Date(), 'yyyy-MM-dd'),
+        rangeLabel: '1 month',
+      };
+    },
   },
 });
 
@@ -165,6 +172,7 @@ export const {
   deleteCollection,
   deleteBankDeposit,
   setGlobalFilters,
+  resetGlobalFilters,
 } = financialsSlice.actions;
 export default financialsSlice.reducer;
 

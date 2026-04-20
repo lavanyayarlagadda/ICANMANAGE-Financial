@@ -154,7 +154,7 @@ export function DataTableDesktop<T>({
               <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align="center" sx={{ py: 8 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, opacity: 0.6 }}>
                   <Typography variant="h6" fontWeight={600}>No Records Found</Typography>
-                  <Typography variant="body2">We couldn't find any data matching your current filters or selection.</Typography>
+                  {/* <Typography variant="body2">We couldn't find any data matching your current filters or selection.</Typography> */}
                 </Box>
               </TableCell>
             </TableRow>
