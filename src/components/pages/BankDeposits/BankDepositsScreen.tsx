@@ -68,7 +68,8 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         isError,
         refetch,
         summaryData,
-        onSearch
+        onSearch,
+        rowHistory
     } = useBankDepositsScreen({ skip });
 
     const summaryStats = useMemo(() => {
@@ -103,7 +104,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             expand: {
                 id: 'expand',
                 label: '',
-                align: 'left',
+                align: 'center',
                 render: (row) => (
                     <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleRow(row.transactionNo); }}>
                         {expandedRows.has(row.transactionNo) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
@@ -112,7 +113,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             },
             transactionNo: {
                 id: 'transactionNo',
-                label: 'TRANSACTION NUMBER',
+                label: 'TRANSACTION NO',
                 align: 'center',
                 accessor: (row) => row.transactionNo,
                 render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.transactionNo}</Typography>,
@@ -170,10 +171,10 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             status: {
                 id: 'status',
                 label: 'STATUS',
-                align: 'right',
-                accessor: (row) => row.reconciliationStatus || 'Pending',
+                align: 'center',
+                accessor: (row) => row.reconciliationStatus || row.status || 'Pending',
                 render: (row) => {
-                    const status = row.reconciliationStatus || 'Pending';
+                    const status = row.reconciliationStatus || row.status || 'Pending';
                     const isMatched = status === 'Matched' || status === 'Reconciled';
                     const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
 
@@ -195,113 +196,169 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             },
         };
 
-        if (isHeadersSuccess && (!dynamicColumns || dynamicColumns.length === 0)) {
-            return [];
+        const defaultColumns = [
+            baseColumns.expand,
+            baseColumns.transactionNo,
+            baseColumns.reference,
+            baseColumns.payerName,
+            baseColumns.bankAmt,
+            baseColumns.remitAmt,
+            baseColumns.variance,
+            baseColumns.status,
+        ];
+
+        if (!isHeadersSuccess || !dynamicColumns || dynamicColumns.length === 0) {
+            return defaultColumns;
         }
 
-        if (!isHeadersSuccess && (!dynamicColumns || dynamicColumns.length === 0)) {
-            return [
-                baseColumns.expand,
-                baseColumns.transactionNo,
-                baseColumns.reference,
-                baseColumns.payerName,
-                baseColumns.bankAmt,
-                baseColumns.remitAmt,
-                baseColumns.variance,
-                baseColumns.status,
-            ];
-        }
-
-        // Map dynamic columns from API, fallback to baseColumn definition if ID matches
+        // Map dynamic columns from API
         const mappedColumns: DataColumn<BankDepositItem>[] = dynamicColumns.map(dc => {
-            // Map display name to internal ID (e.g., "Transaction No" -> "transactionNo")
             const mappedId = dc.displayName
                 .toLowerCase()
                 .replace(/[^a-z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
-                .replace(/^(.)/, (_, chr) => chr.toLowerCase())
-                .replace(/no$/, 'No') // special case for "No"
-                .replace(/amt$/, 'Amt');
+                .replace(/^(.)/, (_, chr) => chr.toLowerCase());
 
-            const base = baseColumns[mappedId];
+            // Handle common variations
+            const businessMapping: Record<string, string> = {
+                'transactionNo': 'transactionNo',
+                'transactionNumber': 'transactionNo',
+                'depositDate': 'baiReceivedDate',
+                'payor': 'payerName',
+                'payerName': 'payerName',
+                'bankAmt': 'baiAmount',
+                'bankAmount': 'baiAmount',
+                'bankDeposit': 'baiAmount',
+                'remitAmt': 'remitAmount',
+                'remitAmount': 'remitAmount',
+                'remittance': 'remitAmount',
+                'variance': 'varianceAmount',
+                'varianceAmount': 'varianceAmount',
+                'status': 'status',
+                'reconciliationStatus': 'reconciliationStatus'
+            };
+
+            const actualField = businessMapping[mappedId] || mappedId;
+            const base = Object.values(baseColumns).find(c => {
+                const baseActualField = businessMapping[c.id] || c.id;
+                return c.id === mappedId || baseActualField === actualField;
+            });
+
             if (base) {
                 return {
                     ...base,
-                    label: dc.displayName.toUpperCase()
+                    label: dc.displayName.toUpperCase(),
+                    accessor: (row: BankDepositItem) => {
+                        const val = (row as any)[actualField];
+                        return val !== undefined ? val : base.accessor?.(row);
+                    }
                 };
             }
+
             return {
                 id: mappedId,
                 label: dc.displayName.toUpperCase(),
                 align: 'center',
-                accessor: (row: BankDepositItem) => (row as any)[mappedId],
-                render: (row: BankDepositItem) => (
-                    <Typography variant="body2">
-                        {String((row as any)[mappedId] || '-')}
-                    </Typography>
-                )
+                accessor: (row: BankDepositItem) => (row as any)[actualField],
+                render: (row: BankDepositItem) => {
+                    const val = (row as any)[actualField];
+                    if (typeof val === 'number' && (mappedId.toLowerCase().includes('amt') || mappedId.toLowerCase().includes('amount') || mappedId.toLowerCase().includes('variance'))) {
+                        return <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(val)}</Typography>;
+                    }
+                    if (mappedId.toLowerCase().includes('date') && val) {
+                        return <Typography variant="body2">{formatDate(val)}</Typography>;
+                    }
+                    return <Typography variant="body2">{val !== null && val !== undefined ? String(val) : '-'}</Typography>;
+                }
             };
         });
 
-        // Ensure expand is always first
         if (!mappedColumns.find(c => c.id === 'expand')) {
             mappedColumns.unshift(baseColumns.expand);
         }
 
         return mappedColumns;
-    }, [expandedRows, theme, toggleRow, dynamicColumns]);
+    }, [expandedRows, theme, toggleRow, dynamicColumns, isHeadersSuccess]);
 
-    const renderExpandedContent = useCallback((item: BankDepositItem) => (
-        <ExpandedContentBox>
-            <Grid container spacing={3}>
-                <Grid size={{ xs: 12, md: 6 }}>
-                    <SubSectionWrapper>
-                        <SubSectionHeader>
-                            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>VARIANCE DETAILS</Typography>
-                        </SubSectionHeader>
-                        <Box sx={{ p: 2 }}>
-                            <Box sx={{ mb: 2 }}>
-                                <Typography variant="caption" color="text.secondary">Variance 1</Typography>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(item.variance1)}</Typography>
-                                    <Chip label={item.variance1Status} size="small" variant="outlined" sx={{ fontSize: '10px' }} />
+    const renderExpandedContent = useCallback((item: BankDepositItem) => {
+        const history = rowHistory[item.transactionNo];
+        const { data: historyData, isLoading } = history || { data: null, isLoading: false };
+
+        return (
+            <ExpandedContentBox sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.02), p: 2 }}>
+                {isLoading ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4, gap: 1 }}>
+                        <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>Loading History...</Typography>
+                        <Typography variant="caption" color="text.secondary">Fetching detailed reconciliation data</Typography>
+                    </Box>
+                ) : (
+                    <Grid container spacing={2}>
+                        <Grid size={{ xs: 12, lg: 4 }}>
+                            <SubSectionWrapper sx={{ height: '100%' }}>
+                                <SubSectionHeader>
+                                    <Typography variant="caption" sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}>(B) REMITTANCE ADVICE</Typography>
+                                </SubSectionHeader>
+                                <Box sx={{ p: 0 }}>
+                                    <Box sx={{ display: 'flex', px: 2, py: 1, borderBottom: `1px solid ${theme.palette.divider}` }}>
+                                        <Typography variant="caption" color="text.secondary" sx={{ flex: 1, fontWeight: 700 }}>REMIT REFERENCE</Typography>
+                                        <Typography variant="caption" color="text.secondary" sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}>AMOUNT</Typography>
+                                    </Box>
+                                    {historyData?.remitDataRecords?.map((remit: any, idx: number) => (
+                                        <Box key={idx} sx={{ display: 'flex', px: 2, py: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
+                                            <Typography variant="body2" sx={{ flex: 1, fontWeight: 500 }}>{remit.transactionNumber || remit.reference}</Typography>
+                                            <Typography variant="body2" sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}>{formatCurrency(remit.amountPaid || remit.amount)}</Typography>
+                                        </Box>
+                                    )) || (
+                                            <Box sx={{ p: 3, textAlign: 'center' }}>
+                                                <Typography variant="caption" color="text.secondary">No remittance advice found</Typography>
+                                            </Box>
+                                        )}
                                 </Box>
-                            </Box>
-                            <Box>
-                                <Typography variant="caption" color="text.secondary">Variance 2</Typography>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(item.variance2)}</Typography>
-                                    <Chip label={item.variance2Status} size="small" variant="outlined" sx={{ fontSize: '10px' }} />
+                            </SubSectionWrapper>
+                        </Grid>
+                        <Grid size={{ xs: 12, lg: 4 }}>
+                            <SubSectionWrapper sx={{ height: '100%' }}>
+                                <SubSectionHeader>
+                                    <Typography variant="caption" sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}>(C) POSTING & APPLICATION</Typography>
+                                </SubSectionHeader>
+                                <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                    {historyData?.cashPostingRecords?.map((post: any, idx: number) => {
+                                        const statusKey = post.status?.toLowerCase() === 'posted' ? 'match' : (post.status?.toLowerCase() === 'pending' ? 'pending' : 'critical');
+                                        const statusColors = (themeConfig.status as any)[statusKey] || themeConfig.status.critical;
+                                        return (
+                                            <PostingItemBox key={idx} sx={{ p: 1.5, borderRadius: '8px', borderLeft: `4px solid ${theme.palette.warning.main}`, backgroundColor: theme.palette.background.paper, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{post.system}</Typography>
+                                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(post.amountPaid || post.amount)}</Typography>
+                                                </Box>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Typography variant="caption" color="text.secondary">{post.date} | Ref: {post.transactionNumber || post.reference}</Typography>
+                                                    <Chip
+                                                        label={post.status}
+                                                        size="small"
+                                                        sx={{
+                                                            height: 20,
+                                                            fontSize: '10px',
+                                                            fontWeight: 700,
+                                                            bgcolor: statusColors?.bg,
+                                                            color: statusColors?.text
+                                                        }}
+                                                    />
+                                                </Box>
+                                            </PostingItemBox>
+                                        );
+                                    }) || (
+                                            <Box sx={{ p: 3, textAlign: 'center' }}>
+                                                <Typography variant="caption" color="text.secondary">No posting application data found</Typography>
+                                            </Box>
+                                        )}
                                 </Box>
-                            </Box>
-                        </Box>
-                    </SubSectionWrapper>
-                </Grid>
-                <Grid size={{ xs: 12, md: 6 }}>
-                    <SubSectionWrapper>
-                        <SubSectionHeader>
-                            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>ADDITIONAL INFORMATION</Typography>
-                        </SubSectionHeader>
-                        <Box sx={{ p: 2 }}>
-                            <Box sx={{ mb: 2 }}>
-                                <Typography variant="caption" color="text.secondary">Account Name</Typography>
-                                <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.accountName || 'N/A'}</Typography>
-                            </Box>
-                            <Box sx={{ mb: 2 }}>
-                                <Typography variant="caption" color="text.secondary">Batch Owner</Typography>
-                                <Typography variant="body2">{item.batchOwner || 'N/A'}</Typography>
-                            </Box>
-                            {item.comments && (
-                                <Box>
-                                    <Typography variant="caption" color="text.secondary">Comments</Typography>
-                                    <Typography variant="body2" sx={{ fontStyle: 'italic', fontSize: '0.8rem' }}>{item.comments}</Typography>
-                                </Box>
-                            )}
-                        </Box>
-                    </SubSectionWrapper>
-                </Grid>
-            </Grid>
-        </ExpandedContentBox>
-    ), [theme]);
+                            </SubSectionWrapper>
+                        </Grid>
+                    </Grid>
+                )}
+            </ExpandedContentBox>
+        );
+    }, [theme, rowHistory]);
 
     return (
         <ScreenWrapper>
@@ -388,25 +445,6 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                         Search
                     </Button>
                 </Box>
-                {/* <FormControlLabel
-                    control={
-                        <Switch
-                            size="small"
-                            checked={exceptionsOnly}
-                            onChange={(e) => {
-                                const checked = e.target.checked;
-                                setExceptionsOnly(checked);
-                                setFilters({ statusList: checked ? ['Exception'] : [] });
-                            }}
-                        />
-                    }
-                    label={<Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>Exceptions Only</Typography>}
-                    sx={{ ml: { xs: 0, md: 1 } }}
-                /> */}
-                {/* <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: 1, flexWrap: 'wrap' }}>
-                    <RefreshButton variant="outlined" size="small" onClick={() => refetch()}>Refresh Data</RefreshButton>
-                    <FinalizeButton variant="contained" size="small">Finalize Selected</FinalizeButton>
-                </Box> */}
             </ToolbarWrapper>
 
             <Grid container spacing={2} sx={{ mb: 4 }}>
@@ -421,7 +459,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Grid>
             </Grid>
 
-            {columns.length > 1 && filteredDeposits.map((entity) => (
+            {filteredDeposits.map((entity) => (
                 <Box key={entity.id} sx={{ mb: 4 }}>
                     <EntitySectionHeader>
                         <Typography variant="body2" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>{entity.name} — {entity.items.length} Items</Typography>
@@ -446,12 +484,12 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                         onPageChange={onPageChange}
                         onRowsPerPageChange={onRowsPerPageChange}
                         download={false}
-                        rowsPerPageOptions={[5, 10, 20]}
+                        rowsPerPageOptions={[5, 10, 20, 50]}
                     />
                 </Box>
             ))}
 
-            {isHeadersSuccess && columns.length <= 1 && (
+            {isHeadersSuccess && columns.length <= 1 && filteredDeposits.length === 0 && (
                 <Box sx={{ p: 4, textAlign: 'center', backgroundColor: alpha(themeConfig.colors.slate[100], 0.3), borderRadius: 2 }}>
                     <Typography variant="body2" color="text.secondary">
                         No configurable columns found for this entity. Please contact support.

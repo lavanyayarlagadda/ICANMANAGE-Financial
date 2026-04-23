@@ -72,14 +72,12 @@ const FinancialsPage: React.FC = () => {
     handleReload,
     handleExport,
     isLoadingUserDetails,
-    isPathResolved,
     dispatch,
   } = useFinancialsPage();
 
   const tabContent = useMemo(() => {
-    if (!isPathResolved) return null;
     const mainTab = financialsTabs.find(t => t.id === activeTab);
-    if (!mainTab) return null;
+    if (!mainTab) return <AllTransactionsScreen skip={false} />;
 
     if (mainTab.subTabs && mainTab.subTabs.length > 0) {
         const subTab = mainTab.subTabs.find(st => st.id === activeSubTab) || mainTab.subTabs[0];
@@ -92,13 +90,13 @@ const FinancialsPage: React.FC = () => {
         const MainComponent = mainTab.component;
         if (MainComponent) return <MainComponent skip={false} />;
         
-        return null;
+        return <AllTransactionsScreen skip={false} />;
     }
 
     const Component = mainTab.component;
     if (Component) return <Component skip={false} />;
 
-    return null;
+    return <AllTransactionsScreen skip={false} />;
   }, [activeTab, activeSubTab, financialsTabs]);
 
   const mainContent = useMemo(() => {

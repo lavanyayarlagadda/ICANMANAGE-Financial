@@ -49,9 +49,11 @@ export interface PaymentSearchRequest {
   sort: string;
   desc: boolean;
   status: string | null;
+  payer?: string | null;
   fromDate: string;
   toDate: string;
   transactionNo?: string | null;
+  icanManageId?: string | number;
 }
 
 export interface PaymentSearchResponse {
@@ -76,6 +78,7 @@ export interface PipSearchRequest {
   type?: string | null;
   payer?: string | null;
   transactionNo?: string | null;
+  icanManageId?: string | number;
 }
 
 export interface PipSearchResponse {
@@ -137,6 +140,7 @@ export interface PaymentVarianceSummaryResponse {
 export interface DateRangeParams {
   fromDate: string;
   toDate: string;
+  icanManageId?: string | number;
 }
 
 export interface PipSummaryResponse {
@@ -377,7 +381,7 @@ export interface MappedHeadersResponse {
   message: string | null;
 }
 
-export interface DynamicTab {
+export interface BrandTab {
   fkHospitalMasterId: number;
   hospitalAbbr: string;
   hospitalName: string;
@@ -386,6 +390,6 @@ export interface DynamicTab {
 }
 
 export interface DynamicTabsResponse {
-  data: DynamicTab[];
+  data: BrandTab[];
   message: string | null;
 }

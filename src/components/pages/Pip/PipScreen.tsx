@@ -95,8 +95,9 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     { id: "checkEftNumber", label: "CHECK/EFT NUMBER", align: "center", accessor: (row) => row.checkEftNumber, render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
     // { id: "description", label: "DESCRIPTION", minWidth: 180, align: "center", accessor: (row) => row.description ?? '-', render: (row) => row.description ?? '-' },
     { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "center", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
+    { id: "payer", label: "PAYER", align: "center", accessor: (row) => row.npiDetails?.[0]?.npiPayerName ?? '-', filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (row) => row.npiDetails?.[0]?.npiPayerName ?? '-' },
     { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "center", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
-    { id: "status", label: "STATUS", align: "center", accessor: (row) => row.status, render: (row) => <StatusBadge status={row.status} /> },
+    { id: "status", label: "STATUS", align: "center", accessor: (row) => row.status, filterOptions: ['Active', 'Completed', 'Pending'], render: (row) => <StatusBadge status={row.status} /> },
   ], [expandedRows, toggleRow, getRowId]);
 
   const renderExpandedContent = useCallback((row: PipRecord) => {

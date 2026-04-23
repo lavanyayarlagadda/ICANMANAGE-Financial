@@ -36,6 +36,8 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        status: null,
+        payer: null,
         transactionNo: '',
     });
 
@@ -53,6 +55,9 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         }
     }, [searchTerm, queryParams.transactionNo]);
 
+    const { selectedTenantId } = useAppSelector(s => s.tenant);
+    const isActualSkip = skip || !selectedTenantId;
+
     const { data, isFetching, isError, refetch } = useSearchOtherAdjustmentsQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
@@ -63,7 +68,7 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         status: queryParams.status,
         payer: queryParams.payer,
         transactionNo: queryParams.transactionNo
-    }, { skip });
+    }, { skip: isActualSkip });
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
         size: 10,
@@ -203,7 +208,7 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
             const next = {
                 ...prev,
                 status: filters.status || null,
-                payer: filters.adjustor || null,
+                payer: filters.payer || null,
                 page: 0
             };
             const isChanged = prev.status !== next.status || prev.payer !== next.payer;

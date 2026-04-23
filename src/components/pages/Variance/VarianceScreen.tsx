@@ -120,7 +120,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             id: 'adjustmentCode',
             label: 'ADJUSTMENT CODES',
             minWidth: 150,
-            align: 'right',
+            align: 'center',
             accessor: (r) => r.adjustmentCode || '',
             render: (r) => <Typography variant="body2">{r.adjustmentCode}</Typography>
         },

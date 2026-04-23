@@ -43,6 +43,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     onView={() => handleDrillDown(r)}
                 />
             ),
+            align: 'center'
         },
         { id: 'recoupmentId', label: 'RECOUPMENT ID', minWidth: 140, accessor: (r) => r.recoupmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.recoupmentId}</Typography> },
         {
@@ -50,26 +51,33 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             label: 'TRANSACTION NUMBER',
             minWidth: 160,
             accessor: (r) => r.transactionNo ?? '-',
-            render: (r) => r.transactionNo ?? '-'
+            render: (r) => r.transactionNo ?? '-',
+            align: 'center'
+
         },
-        { id: 'payer', label: 'PAYER', minWidth: 140, accessor: (r) => r.payer, filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer },
+        {
+            id: 'payer', label: 'PAYER', align: 'center'
+            , minWidth: 140, accessor: (r) => r.payer, filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer
+        },
         {
             id: 'claim',
             label: 'CLAIM / PATIENT',
             minWidth: 180,
             accessor: (r) => r.claimPatient,
+            align: 'center'
+            ,
             render: (r) => (
                 <Box>
                     <Typography variant="caption" color="text.secondary">{r.claimPatient}</Typography>
                 </Box>
             ),
         },
-        { id: 'originalPaymentAmount', label: 'ORIG. PAYMENT', minWidth: 120, align: 'right', accessor: (r) => r.originalPaymentAmount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.originalPaymentAmount)}</Box> },
+        { id: 'originalPaymentAmount', label: 'ORIG. PAYMENT', minWidth: 120, align: 'center', accessor: (r) => r.originalPaymentAmount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.originalPaymentAmount)}</Box> },
         {
             id: 'recoupmentAmount',
             label: 'RECOUPMENT AMT',
             minWidth: 130,
-            align: 'right',
+            align: 'center',
             accessor: (r) => r.recoupmentAmount,
             render: (r) => (
                 <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600, color: theme.palette.error.main }}>
@@ -78,16 +86,6 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             ),
         },
         { id: 'recoupmentDate', label: 'DATE', minWidth: 110, accessor: (r) => r.recoupmentDate, render: (r) => formatDate(r.recoupmentDate) },
-        {
-            id: 'reason',
-            label: 'REASON',
-            minWidth: 200,
-            accessor: (r) => r.reason,
-            filterOptions: ['Duplicate', 'Overpayment', 'Incorrect Rate', 'Coordination of Benefits'],
-            render: (r) => (
-                <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{r.reason}</Typography>
-            ),
-        },
         { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleDrillDown, handleEdit, handleDelete]);
 

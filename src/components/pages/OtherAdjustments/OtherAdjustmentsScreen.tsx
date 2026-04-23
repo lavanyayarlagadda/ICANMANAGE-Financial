@@ -52,13 +52,12 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             filterOptions: ['WRITE-OFF', 'CREDIT', 'INTEREST', 'CONTRACTUAL', 'REFUND', 'TRANSFER', 'RECLASSIFICATION', 'CHARITY'],
             render: (r) => <Chip label={r.type} size="small" sx={styles.adjustmentChipStyles(r.type)} />,
         },
-        // { id: 'description', label: 'DESCRIPTION', minWidth: 240, accessor: (r) => r.description, render: (r) => r.description },
-        { id: 'sourceProvider', label: 'SOURCE / PROVIDER', minWidth: 160, accessor: (r) => r.sourceProvider, filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
+        { id: 'payer', label: 'SOURCE / PROVIDER', minWidth: 160, accessor: (r) => r.sourceProvider, filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
         {
             id: 'amount',
             label: 'AMOUNT',
             minWidth: 120,
-            align: 'right',
+            align: 'center',
             accessor: (r) => r.amount,
             render: (r) => (
                 <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600, color: r.amount < 0 ? theme.palette.error.main : r.amount > 0 ? theme.palette.success.main : theme.palette.text.primary }}>

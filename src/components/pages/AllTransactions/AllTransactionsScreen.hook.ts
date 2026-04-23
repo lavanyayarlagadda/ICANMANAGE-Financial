@@ -1,5 +1,4 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
-import { skipToken } from '@reduxjs/toolkit/query/react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
@@ -18,7 +17,6 @@ import { downloadFileFromBlob } from '@/utils/downloadHelper';
 export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const user = useAppSelector((s: RootState) => s.auth.user);
-    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
     const { actionTriggers } = useAppSelector((s: RootState) => s.ui);
     const { globalFilters } = useAppSelector((s: RootState) => s.financials);
 
@@ -34,6 +32,8 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        status: null,
+        payer: null,
         transactionNo: '',
     });
 
@@ -70,25 +70,28 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         sortOrder: 'desc' as 'asc' | 'desc',
     });
 
-    const { data, isFetching, isError, refetch } = useSearchAllTransactionsQuery(
-        (skip || !selectedTenantId) ? skipToken : {
-            page: queryParams.page + 1,
-            size: queryParams.size,
-            sort: queryParams.sortField,
-            desc: queryParams.sortOrder === 'desc',
-            fromDate: queryParams.fromDate,
-            toDate: queryParams.toDate,
-            status: queryParams.status,
-            category: queryParams.category,
-            type: queryParams.type,
-            payer: queryParams.sourceProvider,
-            transactionNo: queryParams.transactionNo
-        }
-    );
-    
+    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
+    const isActualSkip = skip || !selectedTenantId;
+
+    const { data, isFetching, isError, refetch } = useSearchAllTransactionsQuery({
+        page: queryParams.page + 1,
+        size: queryParams.size,
+        sort: queryParams.sortField,
+        desc: queryParams.sortOrder === 'desc',
+        fromDate: queryParams.fromDate,
+        toDate: queryParams.toDate,
+        status: queryParams.status,
+        category: queryParams.category,
+        type: queryParams.type,
+        payer: queryParams.payer,
+        transactionNo: queryParams.transactionNo,
+    }, { skip: isActualSkip });
+
     // Fetch dynamic status options
-    const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip });
-    const statusOptions = useMemo(() => statusData?.data?.map(s => s.postingStatus) ?? [], [statusData]);
+    const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
+    const statusOptions = useMemo(() =>
+        statusData?.data?.map(s => ({ label: s.postingStatus, value: String(s.postingStatusMasterId) })) ?? [],
+        [statusData]);
 
     const transactions = useMemo(() => {
         const raw = data?.data?.content ?? [];
@@ -239,16 +242,16 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
             const next = {
                 ...prev,
                 status: filters.status || null,
+                payer: filters.payer || null,
                 category: filters.transactionType || null,
                 type: filters.type || null,
-                sourceProvider: filters.sourceProvider || null,
                 page: 0
             };
             const isChanged =
                 prev.status !== next.status ||
+                prev.payer !== next.payer ||
                 prev.category !== next.category ||
-                prev.type !== next.type ||
-                prev.sourceProvider !== next.sourceProvider;
+                prev.type !== next.type;
 
             return isChanged ? next : prev;
         });

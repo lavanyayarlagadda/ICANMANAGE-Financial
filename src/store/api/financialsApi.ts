@@ -41,7 +41,7 @@ import {
   MappedHeadersResponse,
   DynamicColumn,
   DynamicTabsResponse,
-  DynamicTab
+  BrandTab
 } from "@/interfaces/api";
 
 import { normalizeRemittanceClaims } from "@/utils/normalizeRemittanceClaims";
@@ -156,7 +156,7 @@ export const financialsApi = baseApi.injectEndpoints({
     }),
     exportBankDeposits: builder.query<
       Blob,
-      DateRangeParams & { format: "pdf" | "xlsx" }
+      { fromDate: string; toDate: string; hospitalId: number; format: "pdf" | "xlsx" }
     >({
       query: (params) => ({
         url: `financials/export/bank-deposits`,
@@ -430,6 +430,28 @@ export const financialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Financials"],
     }),
+    getBankDepositHistory: builder.query<
+      { data: { remittanceAdvice: any[]; postingApplication: any[] } },
+      { transactionNo: string }
+    >({
+      query: (params) => ({
+        url: "financials/reconciliation/bank-deposits/history",
+        params,
+        method: 'POST'
+      }),
+      providesTags: ["Financials"],
+    }),
+    getBaiTriggerHistory: builder.query<
+      { data: { baiDataRecords: any[]; remitDataRecords: any[]; cashPostingRecords: any[] } },
+      { eftNo: string; pageFlag: string; clientName: string }
+    >({
+      query: (params) => ({
+        url: "financials/reconciliation/bai-trigger/history",
+        params,
+        method: 'POST'
+      }),
+      providesTags: ["Financials"],
+    }),
   }),
 });
 
@@ -473,5 +495,9 @@ export const {
   useGetPaymentStatusQuery,
   useGetBankDepositWidgetsQuery,
   useGetMappedHeadersDataQuery,
-  useGetUserMappedBrandsQuery
+  useGetUserMappedBrandsQuery,
+  useLazyGetBankDepositHistoryQuery,
+  useGetBankDepositHistoryQuery,
+  useLazyGetBaiTriggerHistoryQuery,
+  useGetBaiTriggerHistoryQuery
 } = financialsApi;

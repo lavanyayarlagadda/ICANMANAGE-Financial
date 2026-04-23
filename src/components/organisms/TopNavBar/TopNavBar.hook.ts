@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { SelectChangeEvent } from '@mui/material';
 import { RootState, useAppSelector, useAppDispatch } from '@/store';
 import { logout } from '@/store/slices/authSlice';
-import { toggleSidebarCollapse, setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
+import { toggleSidebarCollapse, setActiveTab, setActiveSubTab, resetUiState } from '@/store/slices/uiSlice';
 import { resetGlobalFilters } from '@/store/slices/financialsSlice';
 import { setSelectedTenantId, setTenants, setTenantLoading } from '@/store/slices/tenantSlice';
 import { useGetTenantsQuery } from '@/store/api/tenantApi';
@@ -72,6 +72,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
     handleClose();
     localStorage.removeItem('ican_selected_tenant');
     dispatch(logout());
+    dispatch(resetUiState());
     dispatch(baseApi.util.resetApiState());
     navigate('/login');
   }, [handleClose, dispatch, navigate]);

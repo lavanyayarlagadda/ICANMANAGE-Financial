@@ -63,7 +63,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Typography>
             ),
         },
-        { id: 'payer', label: 'PAYER', minWidth: 180, accessor: (r) => r.payer ?? '', render: (r) => r.payer },
+        { id: 'payer', label: 'PAYER', minWidth: 180, accessor: (r) => r.payer ?? '', filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer },
         { id: 'amount', label: 'AMOUNT', minWidth: 110, align: 'center', accessor: (r) => r.amount ?? 0, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount ?? 0)}</Box> },
         { id: 'openBalance', label: 'OPEN BALANCE', minWidth: 120, align: 'center', accessor: (r) => r.openBalance ?? 0, render: (r) => formatCurrency(r.openBalance) },
         {

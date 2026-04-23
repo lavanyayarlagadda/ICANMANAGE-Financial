@@ -90,7 +90,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             </LegendWrapper>
             <ChartContainer>
                 <ResponsiveContainer width="100%" height={350}>
-                    <ComposedChart data={(reconPerformance?.data || []).map(d => ({
+                    <ComposedChart data={(reconPerformance?.data || []).map((d: any) => ({
                         month: format(new Date(d.month), 'MMM yy'),
                         actual: parseFloat(d.actualReconciledAmount || '0') / 1000000,
                         forecast: parseFloat(d.forecastAmount || '0') / 1000000
@@ -139,13 +139,13 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.id}</Typography>
         },
         { id: 'payerName', label: 'PAYOR', minWidth: 150, accessor: (row) => row.payerName, render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{row.payerName}</Typography> },
-        { id: 'volume', label: 'VOLUME', align: 'right', render: (row) => row.volume, accessor: (row) => row.volume },
-        { id: 'depositCount', label: 'DEPOSITS', align: 'right', render: (row) => row.depositCount, accessor: (row) => row.depositCount },
-        { id: 'matchRate', label: 'MATCH RATE', align: 'right', render: (row) => `${row.matchRate}%`, accessor: (row) => row.matchRate },
-        { id: 'denialRate', label: 'DENIAL RATE', align: 'right', render: (row) => `${row.denialRate}%`, accessor: (row) => row.denialRate },
-        { id: 'suspenseRate', label: 'SUSPENSE %', align: 'right', render: (row) => `${row.suspenseRate}%`, accessor: (row) => row.suspenseRate },
-        { id: 'avgDaysToSettle', label: 'SETTLE DAYS', align: 'right', render: (row) => row.avgDaysToSettle, accessor: (row) => row.avgDaysToSettle },
-        { id: 'totalVariance', label: 'VARIANCE', align: 'right', render: (row) => formatCurrency(row.totalVariance), accessor: (row) => row.totalVariance },
+        { id: 'volume', label: 'VOLUME', align: 'center', render: (row) => row.volume, accessor: (row) => row.volume },
+        { id: 'depositCount', label: 'DEPOSITS', align: 'center', render: (row) => row.depositCount, accessor: (row) => row.depositCount },
+        { id: 'matchRate', label: 'MATCH RATE', align: 'center', render: (row) => `${row.matchRate}%`, accessor: (row) => row.matchRate },
+        { id: 'denialRate', label: 'DENIAL RATE', align: 'center', render: (row) => `${row.denialRate}%`, accessor: (row) => row.denialRate },
+        { id: 'suspenseRate', label: 'SUSPENSE %', align: 'center', render: (row) => `${row.suspenseRate}%`, accessor: (row) => row.suspenseRate },
+        { id: 'avgDaysToSettle', label: 'SETTLE DAYS', align: 'center', render: (row) => row.avgDaysToSettle, accessor: (row) => row.avgDaysToSettle },
+        { id: 'totalVariance', label: 'VARIANCE', align: 'center', render: (row) => formatCurrency(row.totalVariance), accessor: (row) => row.totalVariance },
         {
             id: 'status',
             label: 'STATUS',

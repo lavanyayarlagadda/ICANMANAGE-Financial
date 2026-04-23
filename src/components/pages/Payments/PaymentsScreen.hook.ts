@@ -41,6 +41,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sortField: '',
         sortOrder: 'desc' as 'asc' | 'desc',
         status: null as string | null,
+        payer: null as string | null,
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         transactionNo: '',
@@ -79,20 +80,24 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sortOrder: 'desc' as 'asc' | 'desc',
     });
 
+    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
+    const isActualSkip = skip || !selectedTenantId;
+
     const { data, isError, isFetching, refetch } = useSearchPaymentsQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
         desc: queryParams.sortOrder === 'desc',
         status: queryParams.status === 'All' ? null : queryParams.status,
+        payer: queryParams.payer,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
-        transactionNo: queryParams.transactionNo
-    }, { skip });
+        transactionNo: queryParams.transactionNo,
+    }, { skip: isActualSkip });
 
     const [triggerExport] = useLazyExportPaymentsQuery();
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
-    const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip });
+    const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
@@ -242,12 +247,14 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const handleFilterChange = useCallback((filters: Record<string, string>) => {
         setQueryParams(prev => {
             const newStatus = filters.status || null;
-            const newCategory = filters.transactionType || null; // For potential use
-            const newType = filters.type || null; // For potential use
-            const newSource = filters.sourceProvider || null; // For potential use
+            const newPayer = filters.payer || null;
+            const newCategory = filters.transactionType || null;
+            const newType = filters.type || null;
+            const newSource = filters.sourceProvider || null;
 
-            const isChanged = 
+            const isChanged =
                 prev.status !== newStatus ||
+                prev.payer !== newPayer ||
                 (prev as any).category !== newCategory ||
                 (prev as any).type !== newType ||
                 (prev as any).sourceProvider !== newSource;
@@ -257,6 +264,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             return {
                 ...prev,
                 status: newStatus,
+                payer: newPayer,
                 category: newCategory,
                 type: newType,
                 sourceProvider: newSource,

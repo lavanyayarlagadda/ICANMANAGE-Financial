@@ -96,7 +96,7 @@ export function DataTableDesktop<T>({
             {columns.map((col) => (
               <HeaderTableCell
                 key={col.id}
-                align={col.align || 'left'}
+                align={col.align || 'center'}
                 sx={{ minWidth: col.minWidth, whiteSpace: 'nowrap' }}
                 sortDirection={sortCol === col.id ? sortDir : false}
               >
@@ -181,7 +181,7 @@ export function DataTableDesktop<T>({
                       </TableCell>
                     )}
                     {columns.map((col) => (
-                      <TableCell key={col.id} align={col.align || 'left'}>
+                      <TableCell key={col.id} align={col.align || 'center'}>
                         {col.render(row)}
                       </TableCell>
                     ))}

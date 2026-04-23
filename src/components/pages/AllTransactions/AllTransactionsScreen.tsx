@@ -70,7 +70,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         },
         { id: 'type', label: 'TYPE', minWidth: 100, accessor: (r) => r.type ?? '', filterOptions: ['CHECK', 'EFT', 'BULK'], render: (r) => r.type },
         // { id: 'description', label: 'DESCRIPTION', minWidth: 240, accessor: (r) => r.description ?? '', render: (r) => r.description },
-        { id: 'sourceProvider', label: 'SOURCE / PROVIDER', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
+        { id: 'payer', label: 'PAYER', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
         {
             id: 'amount',
             label: 'AMOUNT',

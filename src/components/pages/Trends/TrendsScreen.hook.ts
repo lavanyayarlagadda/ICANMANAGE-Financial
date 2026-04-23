@@ -163,7 +163,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
             const [from, to] = range.split(' to ');
-            setQueryParams((prev: { fromDate: string; toDate: string; }) => {
+            setQueryParams((prev: any) => {
                 if (prev.fromDate === from && prev.toDate === to) return prev;
                 return { ...prev, fromDate: from, toDate: to, page: 0 };
             });

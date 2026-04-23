@@ -1,12 +1,13 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice';
-import { useSearchBankDepositsBodyQuery, useLazyExportBankDepositsQuery, useGetBankDepositWidgetsQuery, useGetMappedHeadersDataQuery, useGetUserMappedBrandsQuery } from '@/store/api/financialsApi';
+import { useSearchBankDepositsBodyQuery, useLazyExportBankDepositsQuery, useGetBankDepositWidgetsQuery, useGetMappedHeadersDataQuery, useGetUserMappedBrandsQuery, useLazyGetBaiTriggerHistoryQuery } from '@/store/api/financialsApi';
 import { skipToken } from '@reduxjs/toolkit/query/react';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { subMonths, format } from 'date-fns';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -30,7 +31,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     });
     const [queryParams, setQueryParams] = useState({
         page: 0,
-        size: 5, // Default to 5
+        size: 10,
         sortField: 'date',
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
@@ -38,7 +39,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         transactionNo: '',
     });
 
-    const user = useAppSelector(s => s.auth.user);
+    const { user, isCognitiveUser } = useUserPermissions();
     const tenant = useAppSelector(s => s.tenant);
     const userId = user?.id || '';
 
@@ -62,12 +63,16 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         tenant.tenants.find(t => t.tenantId === tenant.selectedTenantId),
         [tenant.tenants, tenant.selectedTenantId]);
 
+    // Base conditions for APIs
+    const isBaseReady = !skip && !!userId;
+    const isTenantReady = !isCognitiveUser || !!tenant.selectedTenantId;
+
     const {
         data: tabsResponse,
         isFetching: isTabsFetching,
         isSuccess: isTabsSuccess
     } = useGetUserMappedBrandsQuery(
-        (skip || !userId) ? skipToken : {
+        !isBaseReady ? skipToken : {
             icanManageId: userId,
             facilityMasterId: 0
         }
@@ -81,18 +86,19 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         return [{ id: 'all', name: 'All' }, ...dynamicEntries];
     }, [tabsResponse]);
 
-    // Sequential Fetching: Wait for Tabs before fetching widgets, headers, and search data
-    const shouldFetchDependent = isTabsSuccess || (!!tabsResponse && !isTabsFetching);
+    // Sequential Fetching: Wait for Brands/Tabs AND Tenant before fetching widgets, headers, and search data
+    const shouldFetchDependent = isBaseReady && isTenantReady && (isTabsSuccess || (!!tabsResponse && !isTabsFetching));
 
     const { data: widgetData, isFetching: isWidgetsFetching } = useGetBankDepositWidgetsQuery(
-        (skip || !userId || !shouldFetchDependent) ? skipToken : {
+        !shouldFetchDependent ? skipToken : {
             startDate: queryParams.fromDate,
             endDate: queryParams.toDate,
-        }
+            icanManageId: userId
+        } as any
     );
 
     const { data: headersResponse, isFetching: isHeadersFetching, isSuccess: isHeadersSuccess } = useGetMappedHeadersDataQuery(
-        (skip || !userId || !shouldFetchDependent) ? skipToken : {
+        !shouldFetchDependent ? skipToken : {
             hospitalId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
             pageName: 'Bank Deposits'
         }
@@ -101,7 +107,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     const dynamicColumns = useMemo(() => headersResponse?.data || [], [headersResponse]);
 
     const { data, isFetching, isError, refetch } = useSearchBankDepositsBodyQuery(
-        (skip || !userId || !shouldFetchDependent) ? skipToken : {
+        !shouldFetchDependent ? skipToken : {
             startDate: queryParams.fromDate,
             endDate: queryParams.toDate,
             payerList: filters.payerList,
@@ -138,6 +144,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
             const result = await triggerExport({
                 fromDate: queryParams.fromDate,
                 toDate: queryParams.toDate,
+                hospitalId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
                 format: formatType
             }).unwrap();
 
@@ -175,7 +182,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         }
     }, [actionTriggers.reload, refetch]);
 
-    const bankDeposits = useMemo(() => {
+    const bankDeposits: any[] = useMemo(() => {
         if (Array.isArray(data)) return data;
         if (data && typeof data === 'object' && 'data' in data && Array.isArray((data as any).data)) {
             return (data as any).data;
@@ -190,20 +197,49 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     }, [bankDeposits]);
 
 
+    const [rowHistory, setRowHistory] = useState<Record<string, { data: any, isLoading: boolean }>>({});
+    const [triggerGetHistory] = useLazyGetBaiTriggerHistoryQuery();
+
+    const fetchRowHistory = useCallback(async (transactionNo: string) => {
+        if (rowHistory[transactionNo]?.data) return;
+
+        setRowHistory(prev => ({ ...prev, [transactionNo]: { ...prev[transactionNo], isLoading: true } }));
+        try {
+            // Find the item to get its current status for the pageFlag
+            const item = bankDeposits.find((d: any) => d.transactionNo === transactionNo);
+            const status = item?.reconciliationStatus || item?.status || 'Pending';
+            const pageFlag = 'Reconciled';
+
+            const result = await triggerGetHistory({
+                eftNo: transactionNo,
+                pageFlag: pageFlag,
+                clientName: selectedTenant?.displayName?.toLowerCase() || 'ican'
+            }).unwrap();
+
+            setRowHistory(prev => ({
+                ...prev,
+                [transactionNo]: { data: result.data, isLoading: false }
+            }));
+        } catch (err) {
+            console.error('Failed to fetch history:', err);
+            setRowHistory(prev => ({ ...prev, [transactionNo]: { ...prev[transactionNo], isLoading: false } }));
+        }
+    }, [rowHistory, triggerGetHistory, bankDeposits, selectedTenant]);
+
     const toggleRow = useCallback((id: string) => {
         setExpandedRows((prev) => {
             const newSet = new Set(prev);
-            if (newSet.has(id)) newSet.delete(id);
-            else newSet.add(id);
+            if (newSet.has(id)) {
+                newSet.delete(id);
+            } else {
+                newSet.add(id);
+                fetchRowHistory(id);
+            }
             return newSet;
         });
-    }, []);
+    }, [fetchRowHistory]);
 
     const filteredDeposits = useMemo(() => {
-        // Since we now have server-side filtering and the response is a flat list of items,
-        // we wrap it in a pseudo-entity structure if the UI expects it, OR we update the UI.
-        // Looking at the component, it seems to expect entities with items.
-
         if (selectedEntityId === 'all') {
             return [{
                 id: 'all',
@@ -250,7 +286,6 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         setQueryParams(prev => ({ ...prev, transactionNo: term, page: 0 }));
     }, []);
 
-
     const handleFilterChange = useCallback((newFilters: Partial<typeof filters>) => {
         setFilters(prev => ({ ...prev, ...newFilters }));
         setQueryParams(prev => ({ ...prev, page: 0 }));
@@ -284,5 +319,6 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         isHeadersSuccess,
         refetch,
         summaryData: widgetData?.data,
+        rowHistory,
     };
 };

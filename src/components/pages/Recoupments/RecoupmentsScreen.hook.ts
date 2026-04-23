@@ -78,6 +78,9 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         sortOrder: 'desc' as 'asc' | 'desc',
     });
 
+    const { selectedTenantId } = useAppSelector(s => s.tenant);
+    const isActualSkip = skip || !selectedTenantId;
+
     const { data, isFetching, isError, refetch } = useSearchRecoupmentsQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
@@ -88,7 +91,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         status: queryParams.status,
         payer: queryParams.payer,
         transactionNo: queryParams.transactionNo
-    }, { skip });
+    }, { skip: isActualSkip });
 
     const recoupments = useMemo(() => data?.data?.content ?? [], [data]);
 

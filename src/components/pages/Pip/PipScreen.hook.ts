@@ -26,6 +26,8 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        status: null,
+        payer: null,
         transactionNo: '',
     });
 
@@ -53,7 +55,8 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         }));
     }, [globalFilters.fromDate, globalFilters.toDate]);
 
-    const isActualSkip = skip;
+    const { selectedTenantId } = useAppSelector(s => s.tenant);
+    const isActualSkip = skip || !selectedTenantId;
 
     const { data, isError, isFetching, refetch } = useSearchPipQuery({
         page: queryParams.page + 1,
@@ -63,14 +66,15 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
+        payer: queryParams.payer,
         category: queryParams.category,
-        transactionNo: queryParams.transactionNo
+        transactionNo: queryParams.transactionNo,
     }, { skip: isActualSkip });
 
     const { data: pipSummaryData, isFetching: isFetchingSummary } = useGetPipSummaryQuery({
         fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
-    }, { skip: isActualSkip });
+        toDate: queryParams.toDate,
+    } as any, { skip: isActualSkip });
 
     const isAnyFetching = isFetching || isFetchingSummary;
 
@@ -181,10 +185,11 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
             const next = {
                 ...prev,
                 status: filters.status || null,
+                payer: filters.payer || null,
                 category: filters.category || null,
                 page: 0
             };
-            const isChanged = prev.status !== next.status || prev.category !== next.category;
+            const isChanged = prev.status !== next.status || prev.payer !== next.payer || prev.category !== next.category;
             return isChanged ? next : prev;
         });
     }, []);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, useTheme, useMediaQuery, Select, MenuItem, SelectChangeEvent, FormControl, Tab, Tabs, alpha } from '@mui/material';
+import { Box, Typography, useTheme, useMediaQuery, Select, MenuItem, SelectChangeEvent, FormControl, Tab, Tabs, alpha, Tooltip } from '@mui/material';
 import Button from '@/components/atoms/Button/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -105,17 +105,23 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
               }}
             >
               {filteredMainTabs.map((tab) => (
-                <Tab
+                <Tooltip
                   key={tab.id}
-                  value={tab.id}
-                  disabled={tab.status === 'Disabled'}
-                  label={
-                    <Box sx={styles.mainTabItemStyles(activeTab === tab.id, tab.status === 'Disabled')}>
-                      {tab.label}
-                    </Box>
-                  }
-                  disableRipple
-                />
+                  title={tab.status === 'Disabled' ? "This module is currently unavailable" : ""}
+                  placement="top"
+                  arrow
+                  disableFocusListener
+                >
+                  <Tab
+                    value={tab.id}
+                    label={
+                      <Box sx={styles.mainTabItemStyles(activeTab === tab.id, tab.status === 'Disabled')}>
+                        {tab.label}
+                      </Box>
+                    }
+                    disableRipple
+                  />
+                </Tooltip>
               ))}
             </Tabs>
           )}
@@ -157,17 +163,23 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 }}
               >
                 {currentSubTabs.map((subTab) => (
-                  <Tab
+                  <Tooltip
                     key={subTab.id}
-                    value={subTab.id}
-                    disabled={subTab.status === 'Disabled'}
-                    label={
-                      <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, subTab.status === 'Disabled')}>
-                        {subTab.label}
-                      </Box>
-                    }
-                    disableRipple
-                  />
+                    title={subTab.status === 'Disabled' ? "This sub-module is currently unavailable" : ""}
+                    placement="top"
+                    arrow
+                    disableFocusListener
+                  >
+                    <Tab
+                      value={subTab.id}
+                      label={
+                        <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, subTab.status === 'Disabled')}>
+                          {subTab.label}
+                        </Box>
+                      }
+                      disableRipple
+                    />
+                  </Tooltip>
                 ))}
               </Tabs>
             )}

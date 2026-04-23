@@ -34,7 +34,6 @@ export const useFinancialsPage = () => {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const [isPathResolved, setIsPathResolved] = useState(false);
 
   const { user: userFromPermissions, userDetails, isLoadingDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
@@ -57,10 +56,6 @@ export const useFinancialsPage = () => {
   }, [financialsTabs]);
 
   useEffect(() => {
-    setIsPathResolved(false);
-  }, [location.pathname]);
-
-  useEffect(() => {
     // 1. Handle Active Page switching (instantly update layout based on URL)
     if (location.pathname.startsWith('/collections')) {
       if (uiState.activePage !== 'collections') dispatch(setActivePage('collections'));
@@ -68,37 +63,34 @@ export const useFinancialsPage = () => {
       if (uiState.activePage !== 'financials') dispatch(setActivePage('financials'));
     }
 
-    if (isLoadingDetails || financialsTabs.length === 0) {
-      if (isPathResolved) setIsPathResolved(false);
-      return; 
-    }
+    if (isLoadingDetails) return; // Wait for menus to load before resolving paths
 
     if (location.pathname.startsWith('/financials')) {
+
+      // Normalize current path
       const currentPath = location.pathname.toLowerCase().replace(/\/$/, '');
-      const pathSuffix = currentPath.split('/financials/')[1] || '';
       
-      let match = pathSuffix ? pathMap[pathSuffix] : null;
+      // Find the best match in our path map
+      // We check for exact matches, then sub-matches
+      let match = pathMap[currentPath.split('/financials/')[1] || ''];
       
-      if (!match && pathSuffix) {
-          const bestPath = Object.keys(pathMap).find(p => p && (pathSuffix.endsWith(p) || p.endsWith(pathSuffix)));
+      if (!match) {
+          // Try fuzzy matching (sometimes paths have extra segments or are nested further)
+          const bestPath = Object.keys(pathMap).find(p => p && (currentPath.endsWith(p) || p.endsWith(currentPath.split('/financials/')[1] || 'VOID')));
           if (bestPath) match = pathMap[bestPath];
       }
 
       if (match) {
-        const isCurrentMatch = uiState.activeTab === match.tab && uiState.activeSubTab === match.subTab;
-        
-        if (isCurrentMatch) {
-            if (!isPathResolved) setIsPathResolved(true);
-        } else {
-            if (uiState.activeTab !== match.tab) dispatch(setActiveTab(match.tab));
-            if (uiState.activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
-            if (isPathResolved) setIsPathResolved(false);
-        }
+        if (uiState.activeTab !== match.tab) dispatch(setActiveTab(match.tab));
+        if (uiState.activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
 
+        // Automatic redirect for main modules with subtabs
         const activeMainTab = financialsTabs.find(t => t.id === match.tab);
         if (activeMainTab && activeMainTab.subTabs && activeMainTab.subTabs.length > 0) {
+            const pathPart = currentPath.split('/financials/')[1] || '';
             const mainPathPart = activeMainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
-            if (pathSuffix === mainPathPart) {
+            
+            if (pathPart === mainPathPart) {
                 const firstSubTabPath = activeMainTab.subTabs[0].path;
                 navigate(firstSubTabPath, { replace: true });
             }
@@ -111,7 +103,7 @@ export const useFinancialsPage = () => {
         }
       }
     }
-  }, [location.pathname, dispatch, navigate, financialsTabs, isLoadingDetails, pathMap, uiState.activeTab, uiState.activeSubTab, isPathResolved]);
+  }, [location.pathname, dispatch, navigate, financialsTabs, isLoadingDetails, pathMap]);
 
   const handleDelete = useCallback(() => {
     if (!uiState.confirmDeleteId) return;
@@ -187,7 +179,6 @@ export const useFinancialsPage = () => {
     handlePrint,
     handleReload,
     handleExport,
-    isPathResolved,
     dispatch,
   };
 };

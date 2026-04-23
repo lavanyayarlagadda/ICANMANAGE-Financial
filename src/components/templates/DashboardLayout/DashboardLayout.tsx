@@ -77,12 +77,23 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
         return (
           <List key={item.id} disablePadding>
-            <Tooltip title={sidebarCollapsed ? item.label : ''} placement="right">
+            <Tooltip 
+              title={status === 'Disabled' ? "This module is currently unavailable" : (sidebarCollapsed ? item.label : '')} 
+              placement="right"
+              arrow
+            >
               <ListItemButton
                 disabled={status === 'Disabled'}
                 selected={ui.activePage === item.label.toLowerCase()}
                 onClick={() => status !== 'Disabled' && handleNavClick(item.label.toLowerCase(), item.path)}
-                sx={{ ...NavItemStyles(sidebarCollapsed, theme), pointerEvents: 'auto' }}
+                sx={{ 
+                  ...NavItemStyles(sidebarCollapsed, theme), 
+                  pointerEvents: 'auto',
+                  '&.Mui-disabled': {
+                    opacity: 0.5,
+                    cursor: 'not-allowed'
+                  }
+                }}
               >
                 <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}>
                   <Icon fontSize="small" />
@@ -115,7 +126,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 : (ui.isReloading
                   ? 'Syncing Fresh Financial Data...'
                   : (ui.activeExportType
-                    ? 'Preparing your export. Due to the high volume of data, it may take a bit longer. Please wait...'
+                    ? `Preparing your ${ui.activeExportType.toUpperCase()} report. Due to the high volume of data, it may take a bit longer. Please wait...`
                     : (ui.isDrillingDown ? 'Resolving Transaction Details...' : (ui.isGlobalFetching || financials.loading ? 'Fetching Records...' : 'Configuring View...')))))}
           </Typography>
           {!ui.activeExportType &&
