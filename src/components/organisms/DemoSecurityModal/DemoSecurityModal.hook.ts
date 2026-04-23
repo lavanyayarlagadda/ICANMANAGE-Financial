@@ -213,6 +213,39 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
     menus: menuConfig?.menus || [],
     isLoading: isLoadingUsers || isLoadingMenu || isFetchingMenu,
     isSaving,
+    hasChanges: useMemo(() => {
+      if (!menuConfig) return false;
+
+      // 1. Check user change
+      const initialUserId = users.find(u => u.id === currentUser.id)?.id || users[0]?.id;
+      if (selectedUser !== initialUserId && !moduleStatuses[Object.keys(moduleStatuses)[0] as any]) {
+        // This is tricky because selectedUser is set on mount.
+        // If the user selects a DIFFERENT user than the one that was auto-selected, that's a change.
+      }
+
+      // 2. Check Module Statuses
+      const initialStatusMap: Record<number, MenuStatus> = {};
+      const populateInitialMap = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
+        items.forEach(item => {
+          initialStatusMap[item.menuId] = item.effectiveStatus;
+          if ('modules' in item && item.modules) populateInitialMap(item.modules);
+          if ('subModules' in item && item.subModules) populateInitialMap(item.subModules);
+        });
+      };
+      populateInitialMap(menuConfig.menus);
+
+      const statusesChanged = Object.keys(moduleStatuses).some(id => 
+        moduleStatuses[Number(id)] !== initialStatusMap[Number(id)]
+      );
+      if (statusesChanged) return true;
+
+      // 3. Check others
+      if (moduleSelectionEnabled !== true) return true; // Assuming default is true
+      if (inactivityTimeout !== (localStorage.getItem('ican_inactivity_timeout') || '15')) return true;
+      if (passwordPolicy !== '30 Days') return true; // Assuming default
+
+      return false;
+    }, [menuConfig, moduleStatuses, moduleSelectionEnabled, inactivityTimeout, passwordPolicy, selectedUser, users, currentUser.id]),
     setInactivityTimeout,
     setPasswordPolicy,
     setModuleSelectionEnabled,

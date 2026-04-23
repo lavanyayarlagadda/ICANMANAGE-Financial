@@ -263,7 +263,7 @@ function DataTable<T>({
           count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
-          labelDisplayedRows={({ count, page }) => `Page ${page + 1} of ${Math.ceil(count / rowsPerPage)}`}
+          labelDisplayedRows={({ count, page }) => `Page ${page + 1} of ${Math.max(1, Math.ceil(count / rowsPerPage))}`}
           onPageChange={(_, p) => {
             if (props.onPageChange) props.onPageChange(p);
             else setInternalPage(p);

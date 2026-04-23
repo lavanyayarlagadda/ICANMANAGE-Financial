@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice';
-import { useSearchBankDepositsBodyQuery, useLazyExportBankDepositsQuery } from '@/store/api/financialsApi';
+import { useSearchBankDepositsBodyQuery, useLazyExportBankDepositsQuery, useGetBankDepositWidgetsQuery, useGetMappedHeadersDataQuery, useGetUserMappedBrandsQuery } from '@/store/api/financialsApi';
+import { skipToken } from '@reduxjs/toolkit/query/react';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { subMonths, format } from 'date-fns';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
@@ -18,7 +19,15 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     const [selectedEntityId, setSelectedEntityId] = useState<'all' | string>('all');
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [exceptionsOnly, setExceptionsOnly] = useState(false);
-
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filters, setFilters] = useState({
+        payerList: [] as string[],
+        stateList: [] as string[],
+        transactionsList: [] as string[],
+        accountList: [] as string[],
+        batchOwnerIds: [] as string[],
+        statusList: [] as string[],
+    });
     const [queryParams, setQueryParams] = useState({
         page: 0,
         size: 5, // Default to 5
@@ -26,25 +35,100 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        transactionNo: '',
     });
 
-    const { data, isFetching, isError, refetch } = useSearchBankDepositsBodyQuery({
-        page: queryParams.page + 1,
-        size: 100, // Fetch more for front end slicing
-        sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
-        fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
-    }, { skip });
+    const user = useAppSelector(s => s.auth.user);
+    const tenant = useAppSelector(s => s.tenant);
+    const userId = user?.id || '';
+
+    // Synchronize queryParams with global filters
+    useEffect(() => {
+        setQueryParams(prev => ({
+            ...prev,
+            fromDate: globalFilters.fromDate,
+            toDate: globalFilters.toDate,
+        }));
+    }, [globalFilters.fromDate, globalFilters.toDate]);
+
+    // Handle auto-reset when search is cleared
+    useEffect(() => {
+        if (searchTerm === '' && queryParams.transactionNo !== '') {
+            setQueryParams(prev => ({ ...prev, transactionNo: '', page: 0 }));
+        }
+    }, [searchTerm, queryParams.transactionNo]);
+
+    const selectedTenant = useMemo(() =>
+        tenant.tenants.find(t => t.tenantId === tenant.selectedTenantId),
+        [tenant.tenants, tenant.selectedTenantId]);
+
+    const {
+        data: tabsResponse,
+        isFetching: isTabsFetching,
+        isSuccess: isTabsSuccess
+    } = useGetUserMappedBrandsQuery(
+        (skip || !userId) ? skipToken : {
+            icanManageId: userId,
+            facilityMasterId: 0
+        }
+    );
+
+    const entities = useMemo(() => {
+        const dynamicEntries = tabsResponse?.data?.map(t => ({
+            id: String(t.fkHospitalMasterId),
+            name: t.hospitalAbbr
+        })) || [];
+        return [{ id: 'all', name: 'All' }, ...dynamicEntries];
+    }, [tabsResponse]);
+
+    // Sequential Fetching: Wait for Tabs before fetching widgets, headers, and search data
+    const shouldFetchDependent = isTabsSuccess || (!!tabsResponse && !isTabsFetching);
+
+    const { data: widgetData, isFetching: isWidgetsFetching } = useGetBankDepositWidgetsQuery(
+        (skip || !userId || !shouldFetchDependent) ? skipToken : {
+            startDate: queryParams.fromDate,
+            endDate: queryParams.toDate,
+        }
+    );
+
+    const { data: headersResponse, isFetching: isHeadersFetching, isSuccess: isHeadersSuccess } = useGetMappedHeadersDataQuery(
+        (skip || !userId || !shouldFetchDependent) ? skipToken : {
+            hospitalId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
+            pageName: 'Bank Deposits'
+        }
+    );
+
+    const dynamicColumns = useMemo(() => headersResponse?.data || [], [headersResponse]);
+
+    const { data, isFetching, isError, refetch } = useSearchBankDepositsBodyQuery(
+        (skip || !userId || !shouldFetchDependent) ? skipToken : {
+            startDate: queryParams.fromDate,
+            endDate: queryParams.toDate,
+            payerList: filters.payerList,
+            stateList: filters.stateList,
+            transactionNo: queryParams.transactionNo,
+            transactionsList: filters.transactionsList,
+            accountList: filters.accountList,
+            stateId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
+            batchOwnerIds: filters.batchOwnerIds,
+            icanManageId: userId,
+            pageNumber: queryParams.page + 1,
+            pageSize: queryParams.size,
+            sort: queryParams.sortField === 'date' ? 'bai_received_date' : queryParams.sortField,
+            desc: queryParams.sortOrder === 'desc',
+            clientName: selectedTenant?.displayName?.toLowerCase() || 'ican',
+            statusList: filters.statusList
+        }
+    );
 
     useEffect(() => {
         if (skip) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
-        dispatch(setIsGlobalFetching(isFetching));
+        dispatch(setIsGlobalFetching(isFetching || isWidgetsFetching || isHeadersFetching || isTabsFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, skip, dispatch]);
+    }, [isFetching, isWidgetsFetching, isHeadersFetching, isTabsFetching, skip, dispatch]);
 
     const [triggerExport] = useLazyExportBankDepositsQuery();
 
@@ -91,14 +175,20 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         }
     }, [actionTriggers.reload, refetch]);
 
-    const bankDeposits = useMemo(() => data?.data?.content ?? [], [data]);
+    const bankDeposits = useMemo(() => {
+        if (Array.isArray(data)) return data;
+        if (data && typeof data === 'object' && 'data' in data && Array.isArray((data as any).data)) {
+            return (data as any).data;
+        }
+        return [];
+    }, [data]);
 
-    const entities = useMemo(() => [
-        { id: 'all', name: 'All Entities (Consolidated)' },
-        { id: 'e1', name: 'Apex Primary Care' },
-        { id: 'e2', name: 'Apex Surgical Center' },
-        { id: 'e3', name: 'Apex Home Health' },
-    ], []);
+    const totalElements = useMemo(() => {
+        const list = bankDeposits;
+        if (!list || list.length === 0) return 0;
+        return list[0]?.totalRows || list.length;
+    }, [bankDeposits]);
+
 
     const toggleRow = useCallback((id: string) => {
         setExpandedRows((prev) => {
@@ -110,19 +200,29 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     }, []);
 
     const filteredDeposits = useMemo(() => {
-        return bankDeposits
-            .filter(entity => selectedEntityId === 'all' || entity.id === selectedEntityId)
-            .map(entity => {
-                const subItems = exceptionsOnly ? entity.items.filter(item => item.status === 'Exception') : entity.items;
-                const start = queryParams.page * queryParams.size;
-                return {
-                    ...entity,
-                    items: subItems.slice(start, start + queryParams.size),
-                    totalItems: subItems.length // Original count for pagination
-                };
-            })
-            .filter(entity => entity.items.length > 0 || selectedEntityId !== 'all');
-    }, [bankDeposits, selectedEntityId, exceptionsOnly, queryParams.page, queryParams.size]);
+        // Since we now have server-side filtering and the response is a flat list of items,
+        // we wrap it in a pseudo-entity structure if the UI expects it, OR we update the UI.
+        // Looking at the component, it seems to expect entities with items.
+
+        if (selectedEntityId === 'all') {
+            return [{
+                id: 'all',
+                name: 'All Entities',
+                items: bankDeposits,
+                totalItems: totalElements
+            }];
+        }
+
+        const foundEntity = entities.find(e => e.id === selectedEntityId);
+        const entityLabel = foundEntity?.name || 'Selected Entity';
+
+        return [{
+            id: selectedEntityId,
+            name: entityLabel,
+            items: bankDeposits,
+            totalItems: totalElements
+        }];
+    }, [bankDeposits, selectedEntityId, entities, totalElements]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
@@ -145,11 +245,27 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
+    const handleSearch = useCallback((term: string) => {
+        setSearchTerm(term);
+        setQueryParams(prev => ({ ...prev, transactionNo: term, page: 0 }));
+    }, []);
+
+
+    const handleFilterChange = useCallback((newFilters: Partial<typeof filters>) => {
+        setFilters(prev => ({ ...prev, ...newFilters }));
+        setQueryParams(prev => ({ ...prev, page: 0 }));
+    }, []);
+
     return {
         bankDeposits,
         filteredDeposits,
-        totalElements: data?.data?.totalElements ?? 0,
+        totalElements,
         queryParams,
+        searchTerm,
+        setSearchTerm,
+        onSearch: handleSearch,
+        filters,
+        setFilters: handleFilterChange,
         selectedEntityId,
         setSelectedEntityId,
         expandedRows,
@@ -161,7 +277,12 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        statusOptions: [], // Placeholder if needed
+        dynamicColumns,
         isError,
+        isHeadersFetching,
+        isHeadersSuccess,
         refetch,
+        summaryData: widgetData?.data,
     };
 };

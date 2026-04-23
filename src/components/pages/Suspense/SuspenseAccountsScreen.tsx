@@ -98,7 +98,12 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         toggleManageDialog,
         suspenseAccounts,
         summary,
-        periods
+        periods,
+        totalElements,
+        queryParams,
+        onPageChange,
+        onRowsPerPageChange,
+        handleSortChange
     } = useSuspenseAccountsScreen({ skip });
 
     interface AccountRow {
@@ -155,7 +160,7 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             return {
                 id: id,
                 label: (type === 'month' || /^\d{4}-\d{2}$/.test(label)) ? formatDate(label) : label,
-                align: index >= (type === 'month' ? 1 : 2) ? 'right' : 'left',
+                align: 'center',
                 accessor: (row) => {
                     const r = row as unknown as Record<string, unknown>;
                     if ('balances' in r && r.balances && typeof r.balances === 'object') {
@@ -216,11 +221,18 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
                     const row = r as unknown as Record<string, unknown>;
                     return String(row.id || row.account || row.payer || row.month || '');
                 }}
-                paginated={false}
+                paginated={true}
                 searchable={false}
                 download={false}
                 dictionaryId="suspense-accounts"
                 dense={true}
+                serverSide
+                page={queryParams.page}
+                rowsPerPage={queryParams.size}
+                totalElements={totalElements}
+                onPageChange={onPageChange}
+                onRowsPerPageChange={onRowsPerPageChange}
+                onSortChange={handleSortChange}
             />
         );
     };

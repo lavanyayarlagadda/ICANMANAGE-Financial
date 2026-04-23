@@ -71,6 +71,7 @@ const UserProfilePage: React.FC = () => {
         isModuleVisible,
         isModuleDisabled,
         isLoadingDetails,
+        landingPageChanged,
     } = useUserProfilePage();
 
     if (!user) return null;
@@ -168,10 +169,13 @@ const UserProfilePage: React.FC = () => {
                         <Box sx={styles.actionsBoxStyles}>
                             <Button 
                                 variant="contained" 
-                                disabled={isLoadingDetails}
+                                disabled={isLoadingDetails || !landingPageChanged}
                                 startIcon={isLoadingDetails ? <CircularProgress size={16} color="inherit" /> : <SaveIcon fontSize="small" />} 
                                 onClick={() => handleLandingPageChange(landingPage)} 
-                                sx={{ backgroundColor: themeConfig.colors.primary }}
+                                sx={{ 
+                                    backgroundColor: themeConfig.colors.primary,
+                                    '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary }
+                                }}
                             >
                                 {isLoadingDetails ? 'Saving...' : 'Confirm Preference'}
                             </Button>

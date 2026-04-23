@@ -31,11 +31,17 @@ import {
   RecoupmentSearchResponse,
   OtherAdjustmentSearchResponse,
   BankDepositSearchResponse,
+  BankDepositSearchRequest,
+  BankDepositWidgetResponse,
   ForwardBalanceNoticeSearchResponse,
   TableSearchRequest,
   SuspenseAccountSearchResponse,
   PaymentPostingStatus,
-  PaymentStatusResponse
+  PaymentStatusResponse,
+  MappedHeadersResponse,
+  DynamicColumn,
+  DynamicTabsResponse,
+  DynamicTab
 } from "@/interfaces/api";
 
 import { normalizeRemittanceClaims } from "@/utils/normalizeRemittanceClaims";
@@ -77,7 +83,7 @@ export const financialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Financials"],
     }),
-    getRemittanceClaims: builder.query<RemittanceDetail[], { claimId: string; }>({
+    getRemittanceClaims: builder.query<RemittanceDetail[], { claimId: string; } & Partial<TableSearchRequest>>({
       query: ({ claimId, ...params }) => ({
         url: `financials/payments/remittance-claims/${claimId}`,
         params
@@ -359,12 +365,23 @@ export const financialsApi = baseApi.injectEndpoints({
     }),
     searchBankDepositsBody: builder.query<
       BankDepositSearchResponse,
-      TableSearchRequest
+      BankDepositSearchRequest
     >({
       query: (body) => ({
-        url: "financials/bank-deposits",
+        url: "financials/reconciliation/bank-deposits/search",
         method: "POST",
         body,
+      }),
+      providesTags: ["Financials"],
+    }),
+    getBankDepositWidgets: builder.query<
+      BankDepositWidgetResponse,
+      { startDate: string; endDate: string }
+    >({
+      query: (params) => ({
+        url: "financials/reconciliation/bank-deposits/widgets-data",
+        params,
+        method: 'POST'
       }),
       providesTags: ["Financials"],
     }),
@@ -387,6 +404,29 @@ export const financialsApi = baseApi.injectEndpoints({
         url: "financials/suspense-accounts",
         method: "POST",
         body,
+      }),
+      transformResponse: (response: { data: SuspenseAccountSearchResponse }) => response.data,
+      providesTags: ["Financials"],
+    }),
+    getMappedHeadersData: builder.query<
+      MappedHeadersResponse,
+      { hospitalId: number; pageName: string }
+    >({
+      query: (params) => ({
+        url: "financials/reconciliation/get-mapped-headers-data",
+        params,
+        method: 'POST'
+      }),
+      providesTags: ["Financials"],
+    }),
+    getUserMappedBrands: builder.query<
+      DynamicTabsResponse,
+      { icanManageId: string | number; facilityMasterId: number }
+    >({
+      query: (params) => ({
+        url: "financials/reconciliation/get-user-mapped-brands",
+        params,
+        method: 'POST'
       }),
       providesTags: ["Financials"],
     }),
@@ -430,5 +470,8 @@ export const {
   useSearchForwardBalanceNoticesQuery,
   useSearchSuspenseAccountsQuery,
   useSearchCollectionsQuery,
-  useGetPaymentStatusQuery
+  useGetPaymentStatusQuery,
+  useGetBankDepositWidgetsQuery,
+  useGetMappedHeadersDataQuery,
+  useGetUserMappedBrandsQuery
 } = financialsApi;

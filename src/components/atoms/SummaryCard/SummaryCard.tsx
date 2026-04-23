@@ -17,15 +17,14 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, value, subtitle, varia
     switch (variant) {
       case 'highlight': return `${theme.palette.primary.main}08`;
       case 'negative': return `${theme.palette.error.main}08`;
-      case 'positive': return  `#f0fdf4`;
-      
+      case 'positive': return  '#f0fdf4';
       default: return theme.palette.background.paper;
     }
   }, [variant, theme]);
 
   const valueColor = useMemo(() => 
-    variant === 'negative' ? theme.palette.error.main  : variant === 'positive'
-      ? `#f0fdf4` : theme.palette.text.primary,
+    variant === 'negative' ? theme.palette.error.main : variant === 'positive'
+      ? '#166534' : theme.palette.text.primary,
     [variant, theme]
   );
 

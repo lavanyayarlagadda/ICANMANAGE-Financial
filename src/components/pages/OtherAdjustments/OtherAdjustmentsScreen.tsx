@@ -30,31 +30,29 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
     const columns = useMemo<DataColumn<OtherAdjustmentRecord>[]>(() => [
         {
             id: 'actions',
-            label: 'Actions',
+            label: 'ACTIONS',
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
                     onView={() => handleDrillDown(r)}
-                // onEdit={() => handleEdit(r)}
-                // onDelete={() => handleDelete(r.id)}
                 />
             ),
         },
-        { id: 'adjustmentId', label: 'Transaction Number', minWidth: 160, accessor: (r) => r.adjustmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.adjustmentId}</Typography> },
-        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => formatDate(r.effectiveDate) },
+        { id: 'adjustmentId', label: 'TRANSACTION NUMBER', minWidth: 160, accessor: (r) => r.adjustmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.adjustmentId}</Typography> },
+        { id: 'effectiveDate', label: 'EFFECTIVE DATE', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => formatDate(r.effectiveDate) },
         {
             id: 'type',
-            label: 'Type',
+            label: 'TYPE',
             minWidth: 140,
             accessor: (r) => r.type,
             filterOptions: ['WRITE-OFF', 'CREDIT', 'INTEREST', 'CONTRACTUAL', 'REFUND', 'TRANSFER', 'RECLASSIFICATION', 'CHARITY'],
             render: (r) => <Chip label={r.type} size="small" sx={styles.adjustmentChipStyles(r.type)} />,
         },
-        // { id: 'description', label: 'Description', minWidth: 240, accessor: (r) => r.description, render: (r) => r.description },
-        { id: 'sourceProvider', label: 'Source / Provider', minWidth: 160, accessor: (r) => r.sourceProvider, filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
+        // { id: 'description', label: 'DESCRIPTION', minWidth: 240, accessor: (r) => r.description, render: (r) => r.description },
+        { id: 'sourceProvider', label: 'SOURCE / PROVIDER', minWidth: 160, accessor: (r) => r.sourceProvider, filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
         {
             id: 'amount',
-            label: 'Amount',
+            label: 'AMOUNT',
             minWidth: 120,
             align: 'right',
             accessor: (r) => r.amount,
@@ -64,8 +62,8 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
                 </Typography>
             ),
         },
-        { id: 'referenceId', label: 'Reference ID', minWidth: 110, accessor: (r) => r.referenceId, render: (r) => r.referenceId },
-        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Applied', 'Pending', 'Under Review'], render: (r) => <StatusBadge status={r.status} /> },
+        { id: 'referenceId', label: 'REFERENCE ID', minWidth: 110, accessor: (r) => r.referenceId, render: (r) => r.referenceId },
+        { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Applied', 'Pending', 'Under Review'], render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleDrillDown, handleEdit, handleDelete]);
 
     return (

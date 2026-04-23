@@ -51,8 +51,9 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
     dispatch(resetGlobalFilters());
     dispatch(setActiveTab(0));
     dispatch(setActiveSubTab(0));
+    dispatch(baseApi.util.resetApiState()); // Force all queries to refetch with the new tenant ID
     refetchMeDetails();
-    navigate('/'); // Re-run RootRedirect to find first tab
+    navigate('/financials/all-transactions'); // Go to Details page on tenant change
   }, [dispatch, refetchMeDetails, navigate]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

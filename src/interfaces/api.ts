@@ -13,7 +13,8 @@ import {
   RecoupmentRecord,
   OtherAdjustmentRecord,
   AllTransaction,
-  ForwardBalanceNotice
+  ForwardBalanceNotice,
+  BankDepositItem
 } from './financials';
 
 export type {
@@ -31,7 +32,8 @@ export type {
   RecoupmentRecord,
   OtherAdjustmentRecord,
   AllTransaction,
-  ForwardBalanceNotice
+  ForwardBalanceNotice,
+  BankDepositItem
 };
 
 export type RawRemittanceClaimsResponse =
@@ -252,15 +254,44 @@ export interface OtherAdjustmentSearchResponse {
   }
 }
 
-export interface BankDepositSearchResponse {
-  data: {
-    content: BankDepositEntity[];
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-  }
+export interface BankDepositSearchRequest {
+  startDate: string;
+  endDate: string;
+  payerList: string[];
+  stateList: string[];
+  transactionNo: string;
+  transactionsList: string[];
+  accountList: string[];
+  stateId: number;
+  batchOwnerIds: string[];
+  icanManageId: number | string;
+  pageNumber: number;
+  pageSize: number;
+  sort: string;
+  desc: boolean;
+  clientName: string;
+  statusList: string[];
 }
+
+export interface BankDepositResponse {
+  data: BankDepositItem[];
+}
+
+export interface BankDepositWidgetResponse {
+  data: {
+    totalRecords: number;
+    totalBaiAmount: number;
+    reconciledRecords: number;
+    reconciledBaiAmount: number;
+    nonReconciledRecords: number;
+    nonReconciledBaiAmount: number;
+    actionRequiredCount: number;
+    reconciliationRatePercentage: number;
+  };
+  message: string | null;
+}
+
+export type BankDepositSearchResponse = BankDepositItem[];
 
 export interface ForwardBalanceNoticeSearchResponse {
   data: {
@@ -276,27 +307,29 @@ export interface ForwardBalanceNoticeSearchResponse {
 export type TableSearchRequest = PipSearchRequest;
 
 export interface SuspenseAccountSearchResponse {
-  summary: {
-    totalOpenSuspense: number;
-    openItems: number;
-    oldestItemAgeDays: number;
-    oldestItemNote: string;
-    avgDaysInSuspense: number;
-    avgDaysLabel: string;
-    atRiskCount: number;
-    atRiskLabel: string;
-  };
-  periods: string[];
-  rows: {
-    id: string;
-    accountType: string;
-    items: number;
-    balances: Record<string, number | null>;
-    totalBalance: number;
-  }[];
-  page: number;
-  size: number;
-  totalElements: number;
+  data: {
+    summary: {
+      totalOpenSuspense: number;
+      openItems: number;
+      oldestItemAgeDays: number;
+      oldestItemNote: string;
+      avgDaysInSuspense: number;
+      avgDaysLabel: string;
+      atRiskCount: number;
+      atRiskLabel: string;
+    };
+    periods: string[];
+    rows: {
+      id: string;
+      accountType: string;
+      items: number;
+      balances: Record<string, number | null>;
+      totalBalance: number;
+    }[];
+    page: number;
+    size: number;
+    totalElements: number;
+  }
 }
 
 
@@ -325,5 +358,31 @@ export interface PaymentPostingStatus {
 
 export interface PaymentStatusResponse {
   data: PaymentPostingStatus[];
+  message: string | null;
+}
+
+export interface DynamicColumn {
+  displayName: string;
+  active?: boolean;
+  orderId?: number;
+  fkConfigurableFieldsId?: number | null;
+  fkHospitalId?: number | null;
+}
+
+export interface MappedHeadersResponse {
+  data: DynamicColumn[];
+  message: string | null;
+}
+
+export interface DynamicTab {
+  fkHospitalMasterId: number;
+  hospitalAbbr: string;
+  hospitalName: string;
+  active?: boolean;
+  orderId?: number;
+}
+
+export interface DynamicTabsResponse {
+  data: DynamicTab[];
   message: string | null;
 }

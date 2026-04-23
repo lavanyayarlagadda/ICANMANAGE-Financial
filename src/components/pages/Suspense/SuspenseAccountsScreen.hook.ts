@@ -44,7 +44,7 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
             dispatch(setIsGlobalFetching(isFetching));
         }
         return () => {
-             if (!skip) dispatch(setIsGlobalFetching(false));
+            if (!skip) dispatch(setIsGlobalFetching(false));
         };
     }, [isFetching, skip, dispatch]);
 
@@ -77,7 +77,7 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
     const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
-    const responseData = data;
+    const responseData = data?.data;
 
     return {
         viewType,

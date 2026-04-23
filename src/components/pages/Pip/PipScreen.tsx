@@ -35,17 +35,17 @@ export const NpiSection: React.FC<NpiProps> = ({ allocation }) => (
     >
       <NpiSectionWrapper>
         <NpiHeaderRow>
-          <Typography fontSize={12} fontWeight={600}>CLAIM ID</Typography>
-          <Typography fontSize={12} fontWeight={600}>PATIENT NAME</Typography>
-          <Typography textAlign="right" fontSize={12} fontWeight={600}>ALLOWED AMT</Typography>
-          <Typography textAlign="right" fontSize={12} fontWeight={600}>APPLIED TO PIP BALANCE</Typography>
+          <Typography fontSize={12} fontWeight={600} textAlign="center">CLAIM ID</Typography>
+          <Typography fontSize={12} fontWeight={600} textAlign="center">PATIENT NAME</Typography>
+          <Typography textAlign="center" fontSize={12} fontWeight={600} >ALLOWED AMT</Typography>
+          <Typography textAlign="center" fontSize={12} fontWeight={600}>APPLIED TO PIP BALANCE</Typography>
         </NpiHeaderRow>
         {allocation.claims.map((claim) => (
           <NpiDataRow key={claim.claimId}>
-            <Typography fontSize={13} color="primary">{claim.claimId}</Typography>
-            <Typography fontSize={13}>{claim.patientName}</Typography>
-            <Typography fontSize={13} textAlign="right">{formatCurrency(Number(claim.allowedAmt))}</Typography>
-            <Typography fontSize={13} textAlign="right" color="success.main">{formatCurrency(Number(claim.appliedToPipBalance))}</Typography>
+            <Typography fontSize={13} color="primary" textAlign="center">{claim.claimId}</Typography>
+            <Typography fontSize={13} textAlign="center">{claim.patientName}</Typography>
+            <Typography fontSize={13} textAlign="center">{formatCurrency(Number(claim.allowedAmt))}</Typography>
+            <Typography fontSize={13} textAlign="center" color="success.main">{formatCurrency(Number(claim.appliedToPipBalance))}</Typography>
           </NpiDataRow>
         ))}
       </NpiSectionWrapper>
@@ -77,6 +77,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     {
       id: "expand",
       label: "",
+      align: "center",
       render: (row) =>
         (row.npiDetails?.length ?? 0) > 0 ? (
           <IconButton size="small" onClick={(e) => toggleRow(getRowId(row), e)}>
@@ -84,13 +85,13 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           </IconButton>
         ) : null,
     },
-    { id: "ptan", label: "PTAN", accessor: (row) => row.ptan, render: (row) => row.ptan },
-    { id: "paymentDate", label: "PAYMENT DATE", accessor: (row) => row.paymentDate, render: (row) => formatDate(row.paymentDate) },
-    { id: "checkEftNumber", label: "CHECK/EFT NUMBER", accessor: (row) => row.checkEftNumber, render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
-    // { id: "description", label: "DESCRIPTION", minWidth: 180, accessor: (row) => row.description ?? '-', render: (row) => row.description ?? '-' },
-    { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "right", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
-    { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "right", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
-    { id: "status", label: "STATUS", accessor: (row) => row.status, render: (row) => <StatusBadge status={row.status} /> },
+    { id: "ptan", label: "PTAN", align: "center", accessor: (row) => row.ptan, render: (row) => row.ptan },
+    { id: "paymentDate", label: "PAYMENT DATE", align: "center", accessor: (row) => row.paymentDate, render: (row) => formatDate(row.paymentDate) },
+    { id: "checkEftNumber", label: "CHECK/EFT NUMBER", align: "center", accessor: (row) => row.checkEftNumber, render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
+    // { id: "description", label: "DESCRIPTION", minWidth: 180, align: "center", accessor: (row) => row.description ?? '-', render: (row) => row.description ?? '-' },
+    { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "center", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
+    { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "center", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
+    { id: "status", label: "STATUS", align: "center", accessor: (row) => row.status, render: (row) => <StatusBadge status={row.status} /> },
   ], [expandedRows, toggleRow, getRowId]);
 
   const renderExpandedContent = useCallback((row: PipRecord) => {

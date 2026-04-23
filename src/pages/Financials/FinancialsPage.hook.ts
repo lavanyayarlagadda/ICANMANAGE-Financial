@@ -34,6 +34,7 @@ export const useFinancialsPage = () => {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [isPathResolved, setIsPathResolved] = useState(false);
 
   const { user: userFromPermissions, userDetails, isLoadingDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
@@ -102,6 +103,7 @@ export const useFinancialsPage = () => {
           navigate(defaultPath, { replace: true });
         }
       }
+      setIsPathResolved(true);
     }
   }, [location.pathname, dispatch, navigate, financialsTabs, isLoadingDetails, pathMap]);
 
@@ -179,6 +181,7 @@ export const useFinancialsPage = () => {
     handlePrint,
     handleReload,
     handleExport,
+    isPathResolved,
     dispatch,
   };
 };

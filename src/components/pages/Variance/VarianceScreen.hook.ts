@@ -244,6 +244,8 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         feeSummaryData,
         paymentData,
         paymentSummaryData,
+        totalElementsFee: feeData?.data?.totalElements ?? 0,
+        totalElementsPayment: paymentData?.data?.totalElements ?? 0,
         handleDrillDown,
         handleRangeChange,
         handleSortChange,

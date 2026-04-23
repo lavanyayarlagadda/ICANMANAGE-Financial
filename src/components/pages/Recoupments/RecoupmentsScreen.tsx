@@ -32,41 +32,38 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const columns = useMemo<DataColumn<RecoupmentRecord>[]>(() => [
         {
             id: 'actions',
-            label: 'Actions',
+            label: 'ACTIONS',
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
                     onView={() => handleDrillDown(r)}
-                // onEdit={() => handleEdit(r)}
-                // onDelete={() => handleDelete(r.id)}
                 />
             ),
         },
-        { id: 'recoupmentId', label: 'Recoupment ID', minWidth: 140, accessor: (r) => r.recoupmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.recoupmentId}</Typography> },
+        { id: 'recoupmentId', label: 'RECOUPMENT ID', minWidth: 140, accessor: (r) => r.recoupmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.recoupmentId}</Typography> },
         {
             id: 'transactionNo',
-            label: 'Transaction Number',
+            label: 'TRANSACTION NUMBER',
             minWidth: 160,
             accessor: (r) => r.transactionNo ?? '-',
             render: (r) => r.transactionNo ?? '-'
         },
-        { id: 'payer', label: 'Payer', minWidth: 140, accessor: (r) => r.payer, filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer },
+        { id: 'payer', label: 'PAYER', minWidth: 140, accessor: (r) => r.payer, filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer },
         {
             id: 'claim',
-            label: 'Claim / Patient',
+            label: 'CLAIM / PATIENT',
             minWidth: 180,
             accessor: (r) => r.claimPatient,
             render: (r) => (
                 <Box>
-                    {/* <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.claimId}</Typography> */}
                     <Typography variant="caption" color="text.secondary">{r.claimPatient}</Typography>
                 </Box>
             ),
         },
-        { id: 'originalPaymentAmount', label: 'Orig. Payment', minWidth: 120, align: 'right', accessor: (r) => r.originalPaymentAmount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.originalPaymentAmount)}</Box> },
+        { id: 'originalPaymentAmount', label: 'ORIG. PAYMENT', minWidth: 120, align: 'right', accessor: (r) => r.originalPaymentAmount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.originalPaymentAmount)}</Box> },
         {
             id: 'recoupmentAmount',
-            label: 'Recoupment Amt',
+            label: 'RECOUPMENT AMT',
             minWidth: 130,
             align: 'right',
             accessor: (r) => r.recoupmentAmount,
@@ -76,10 +73,10 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Typography>
             ),
         },
-        { id: 'recoupmentDate', label: 'Date', minWidth: 110, accessor: (r) => r.recoupmentDate, render: (r) => formatDate(r.recoupmentDate) },
+        { id: 'recoupmentDate', label: 'DATE', minWidth: 110, accessor: (r) => r.recoupmentDate, render: (r) => formatDate(r.recoupmentDate) },
         {
             id: 'reason',
-            label: 'Reason',
+            label: 'REASON',
             minWidth: 200,
             accessor: (r) => r.reason,
             filterOptions: ['Duplicate', 'Overpayment', 'Incorrect Rate', 'Coordination of Benefits'],
@@ -87,17 +84,16 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>{r.reason}</Typography>
             ),
         },
-        // { id: 'description', label: 'Description', minWidth: 180, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
-        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
+        { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleDrillDown, handleEdit, handleDelete]);
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>
-            <Grid container spacing={2} sx={{ mb: 3 }}>
+            {/* <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Original Payments" value={formatCurrency(stats.totalOriginal)} variant="highlight" /></Grid>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Recouped" value={formatCurrency(stats.totalRecouped)} variant="negative" /></Grid>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Records" value={String(totalElements)} /></Grid>
-            </Grid>
+            </Grid> */}
             <DataTable
                 columns={columns}
                 data={recoupments || []}

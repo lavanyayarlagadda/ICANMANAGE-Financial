@@ -52,16 +52,18 @@ export const getNavigationStructure = (menus: MenuItem[], accessibleModules: str
             financialsTabs = menu.modules
                 .filter(mod => mod.status !== 'Hidden')
                 .map((mod, modIdx) => {
-                    const modConfig = NAV_CONFIG[mod.menuName] || { path: `${config.path}/${mod.menuName.toLowerCase().replace(/\s+/g, '-')}` };
+                    const modName = mod.menuName;
+                    const modConfig = NAV_CONFIG[modName] || { path: `${config.path}/${mod.menuName.toLowerCase().replace(/\s+/g, '-')}` };
                     
                     let subTabs: DynamicTab[] = mod.subModules 
                         ? mod.subModules
                             .filter(sub => sub.status !== 'Hidden' && isAccessible(sub.menuName))
                             .map((sub, subIdx): DynamicTab => {
-                                const subConfig = NAV_CONFIG[sub.menuName] || { path: `${modConfig.path}/${sub.menuName.toLowerCase().replace(/\s+/g, '-')}` };
+                                const subName = sub.menuName;
+                                const subConfig = NAV_CONFIG[subName] || { path: `${modConfig.path}/${sub.menuName.toLowerCase().replace(/\s+/g, '-')}` };
                                 return {
                                     id: subIdx,
-                                    label: sub.menuName,
+                                    label: subName,
                                     path: subConfig.path,
                                     status: sub.status as 'Active' | 'Hidden' | 'Disabled',
                                     component: subConfig.component,
@@ -102,7 +104,7 @@ export const getNavigationStructure = (menus: MenuItem[], accessibleModules: str
                     if (isAccessible(mod.menuName) || subTabs.length > 0) {
                         const result: DynamicTab = {
                             id: modIdx,
-                            label: mod.menuName,
+                            label: modName,
                             path: modConfig.path,
                             status: mod.status as 'Active' | 'Hidden' | 'Disabled',
                             component: modConfig.component,

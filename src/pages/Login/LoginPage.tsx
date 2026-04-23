@@ -1,4 +1,5 @@
 import React from 'react';
+import pkg from '../../../package.json';
 import {
     Box,
     Typography,
@@ -44,7 +45,7 @@ const LoginPage = () => {
                     <LoginTitle variant="h4" component="h1">
                         iCAN Manage
                     </LoginTitle>
-                    
+
                     <LoginSubtitle variant="body1" sx={{ mb: errorMsg ? 2 : 4 }}>
                         Enter your credentials to access your account.
                     </LoginSubtitle>
@@ -128,7 +129,7 @@ const LoginPage = () => {
                         </Link>
                     </Box>
                     <FooterText variant="caption">
-                        © 2026 CognitiveHealth LLC. | v16.9.6
+                        © {new Date().getFullYear()} CognitiveHealth LLC. | v{pkg.version}
                     </FooterText>
                 </LoginCard>
             </Container>

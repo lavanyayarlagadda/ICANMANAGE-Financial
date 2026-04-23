@@ -12,7 +12,7 @@ import {
     FormControlLabel,
     Grid,
     IconButton,
-
+    Button
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -48,6 +48,9 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         filteredDeposits,
         totalElements,
         queryParams,
+        searchTerm,
+        setSearchTerm,
+        setFilters,
         selectedEntityId,
         setSelectedEntityId,
         expandedRows,
@@ -59,119 +62,193 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        dynamicColumns,
+        isHeadersFetching,
+        isHeadersSuccess,
+        isError,
         refetch,
+        summaryData,
+        onSearch
     } = useBankDepositsScreen({ skip });
 
     const summaryStats = useMemo(() => {
+        if (summaryData) {
+            const { totalBaiAmount, actionRequiredCount, reconciliationRatePercentage } = summaryData;
+            return {
+                totalBankAmt: totalBaiAmount,
+                reconRate: (reconciliationRatePercentage || 0).toFixed(2),
+                exceptions: actionRequiredCount
+            };
+        }
+
         let totalItems = 0;
         let exceptions = 0;
         let totalBankAmt = 0;
 
         filteredDeposits.forEach(entity => {
             totalItems += entity.items.length;
-            entity.items.forEach(item => {
-                totalBankAmt += item.bankAmt;
-                if (item.status === 'Exception') exceptions++;
+            entity.items.forEach((item: BankDepositItem) => {
+                totalBankAmt += item.baiAmount;
+                if (item.reconciliationStatus === 'Exception' || item.varianceAmount !== 0) exceptions++;
             });
         });
 
-        const reconRate = totalItems > 0 ? ((totalItems - exceptions) / totalItems * 100).toFixed(2) : '100.00';
+        const reconRate = totalItems > 0 ? (((totalItems - exceptions) / totalItems) * 100).toFixed(2) : '100.00';
         return { totalBankAmt, reconRate, exceptions };
-    }, [filteredDeposits]);
+    }, [filteredDeposits, summaryData]);
 
-    const columns = useMemo<DataColumn<BankDepositItem>[]>(() => [
-        {
-            id: 'expand',
-            label: '',
-            render: (row) => (
-                <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleRow(row.id); }}>
-                    {expandedRows.has(row.id) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
-                </IconButton>
-
-            ),
-        },
-        {
-            id: 'transactionNo',
-            label: 'TRANSACTION #',
-            align: 'center',
-            accessor: (row) => row.id,
-            render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.id}</Typography>,
-        },
-        {
-            id: 'reference',
-            label: 'REF / DATE',
-            align: 'center',
-            accessor: (row) => row.id, // using id as fallback for search
-            render: (row) => (
-                <Box>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>{row.reference}</Typography>
-                    <Typography variant="caption" color="text.secondary">{formatDate(row.date)}</Typography>
-                </Box>
-            ),
-        },
-        {
-            id: 'payerName',
-            label: 'PAYER NAME',
-            accessor: (row) => row.payerName,
-            render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
-        },
-        {
-            id: 'bankAmt',
-            label: 'BANK AMT',
-            align: 'center',
-            accessor: (row) => row.bankAmt,
-            render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.bankAmt)}</Typography>,
-        },
-        {
-            id: 'remitAmt',
-            label: 'REMIT AMT',
-            align: 'center',
-            accessor: (row) => row.remitAmt,
-            render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.remitAmt)}</Typography>,
-        },
-        {
-            id: 'variance',
-            label: 'VARIANCE',
-            align: 'center',
-            accessor: (row) => row.variance,
-            render: (row) => (
-                <Typography
-                    variant="body2"
-                    sx={{
-                        fontWeight: 600,
-                        color: row.variance < 0 ? theme.palette.error.main : theme.palette.text.primary
-                    }}
-                >
-                    {formatCurrency(row.variance)}
-                </Typography>
-            ),
-        },
-        {
-            id: 'status',
-            label: 'STATUS',
-            align: 'right',
-            accessor: (row) => row.status,
-            render: (row) => {
-                const isMatched = row.status === 'Matched';
-                const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
-
-                return (
-                    <Chip
-                        label={row.status}
-                        size="small"
-                        icon={isMatched ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />}
-                        sx={{
-                            backgroundColor: statusColors.bg,
-                            color: statusColors.text,
-                            fontWeight: 600,
-                            fontSize: '11px',
-                            border: `1px solid ${alpha(statusColors.text, 0.2)}`
-                        }}
-                    />
-                );
+    const columns = useMemo<DataColumn<BankDepositItem>[]>(() => {
+        // Base columns that are always present or have complex custom rendering
+        const baseColumns: Record<string, DataColumn<BankDepositItem>> = {
+            expand: {
+                id: 'expand',
+                label: '',
+                align: 'left',
+                render: (row) => (
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleRow(row.transactionNo); }}>
+                        {expandedRows.has(row.transactionNo) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
+                    </IconButton>
+                ),
             },
-        },
-    ], [expandedRows, theme, toggleRow]);
+            transactionNo: {
+                id: 'transactionNo',
+                label: 'TRANSACTION NUMBER',
+                align: 'center',
+                accessor: (row) => row.transactionNo,
+                render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.transactionNo}</Typography>,
+            },
+            reference: {
+                id: 'reference',
+                label: 'REF / DATE',
+                align: 'center',
+                accessor: (row) => row.accountNo,
+                render: (row) => (
+                    <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>{row.accountNo}</Typography>
+                        <Typography variant="caption" color="text.secondary">{formatDate(row.baiReceivedDate)}</Typography>
+                    </Box>
+                ),
+            },
+            payerName: {
+                id: 'payerName',
+                label: 'PAYER NAME',
+                align: 'center',
+                accessor: (row) => row.payerName,
+                render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
+            },
+            bankAmt: {
+                id: 'bankAmt',
+                label: 'BANK AMT',
+                align: 'center',
+                accessor: (row) => row.baiAmount,
+                render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.baiAmount)}</Typography>,
+            },
+            remitAmt: {
+                id: 'remitAmt',
+                label: 'REMIT AMT',
+                align: 'center',
+                accessor: (row) => row.remitAmount,
+                render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.remitAmount)}</Typography>,
+            },
+            variance: {
+                id: 'variance',
+                label: 'VARIANCE',
+                align: 'center',
+                accessor: (row) => row.varianceAmount,
+                render: (row) => (
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            fontWeight: 600,
+                            color: row.varianceAmount < 0 ? theme.palette.error.main : theme.palette.text.primary
+                        }}
+                    >
+                        {formatCurrency(row.varianceAmount)}
+                    </Typography>
+                ),
+            },
+            status: {
+                id: 'status',
+                label: 'STATUS',
+                align: 'right',
+                accessor: (row) => row.reconciliationStatus || 'Pending',
+                render: (row) => {
+                    const status = row.reconciliationStatus || 'Pending';
+                    const isMatched = status === 'Matched' || status === 'Reconciled';
+                    const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
+
+                    return (
+                        <Chip
+                            label={status}
+                            size="small"
+                            icon={isMatched ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />}
+                            sx={{
+                                backgroundColor: statusColors.bg,
+                                color: statusColors.text,
+                                fontWeight: 600,
+                                fontSize: '11px',
+                                border: `1px solid ${alpha(statusColors.text, 0.2)}`
+                            }}
+                        />
+                    );
+                },
+            },
+        };
+
+        if (isHeadersSuccess && (!dynamicColumns || dynamicColumns.length === 0)) {
+            return [];
+        }
+
+        if (!isHeadersSuccess && (!dynamicColumns || dynamicColumns.length === 0)) {
+            return [
+                baseColumns.expand,
+                baseColumns.transactionNo,
+                baseColumns.reference,
+                baseColumns.payerName,
+                baseColumns.bankAmt,
+                baseColumns.remitAmt,
+                baseColumns.variance,
+                baseColumns.status,
+            ];
+        }
+
+        // Map dynamic columns from API, fallback to baseColumn definition if ID matches
+        const mappedColumns: DataColumn<BankDepositItem>[] = dynamicColumns.map(dc => {
+            // Map display name to internal ID (e.g., "Transaction No" -> "transactionNo")
+            const mappedId = dc.displayName
+                .toLowerCase()
+                .replace(/[^a-z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+                .replace(/^(.)/, (_, chr) => chr.toLowerCase())
+                .replace(/no$/, 'No') // special case for "No"
+                .replace(/amt$/, 'Amt');
+
+            const base = baseColumns[mappedId];
+            if (base) {
+                return {
+                    ...base,
+                    label: dc.displayName.toUpperCase()
+                };
+            }
+            return {
+                id: mappedId,
+                label: dc.displayName.toUpperCase(),
+                align: 'center',
+                accessor: (row: BankDepositItem) => (row as any)[mappedId],
+                render: (row: BankDepositItem) => (
+                    <Typography variant="body2">
+                        {String((row as any)[mappedId] || '-')}
+                    </Typography>
+                )
+            };
+        });
+
+        // Ensure expand is always first
+        if (!mappedColumns.find(c => c.id === 'expand')) {
+            mappedColumns.unshift(baseColumns.expand);
+        }
+
+        return mappedColumns;
+    }, [expandedRows, theme, toggleRow, dynamicColumns]);
 
     const renderExpandedContent = useCallback((item: BankDepositItem) => (
         <ExpandedContentBox>
@@ -179,56 +256,46 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Grid size={{ xs: 12, md: 6 }}>
                     <SubSectionWrapper>
                         <SubSectionHeader>
-                            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>(A) REMITTANCE ADVICE</Typography>
+                            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>VARIANCE DETAILS</Typography>
                         </SubSectionHeader>
-                        <Box sx={{ maxHeight: 200, overflow: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                <thead>
-                                    <tr style={{ textAlign: 'left', background: theme.palette.background.default }}>
-                                        <th style={{ padding: '8px 16px', fontSize: '11px', color: theme.palette.text.secondary }}>REMIT REFERENCE</th>
-                                        <th style={{ padding: '8px 16px', fontSize: '11px', color: theme.palette.text.secondary, textAlign: 'right' }}>AMOUNT</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {item.remittanceAdvice.map((ra, idx) => (
-                                        <tr key={idx} style={{ borderTop: `1px solid ${theme.palette.divider}` }}>
-                                            <td style={{ padding: '8px 16px', fontSize: '13px' }}>{ra.reference}</td>
-                                            <td style={{ padding: '8px 16px', fontSize: '13px', fontWeight: 700, textAlign: 'right' }}>{formatCurrency(ra.amount)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <Box sx={{ p: 2 }}>
+                            <Box sx={{ mb: 2 }}>
+                                <Typography variant="caption" color="text.secondary">Variance 1</Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(item.variance1)}</Typography>
+                                    <Chip label={item.variance1Status} size="small" variant="outlined" sx={{ fontSize: '10px' }} />
+                                </Box>
+                            </Box>
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">Variance 2</Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(item.variance2)}</Typography>
+                                    <Chip label={item.variance2Status} size="small" variant="outlined" sx={{ fontSize: '10px' }} />
+                                </Box>
+                            </Box>
                         </Box>
                     </SubSectionWrapper>
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
                     <SubSectionWrapper>
                         <SubSectionHeader>
-                            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>(B) POSTING & APPLICATION</Typography>
+                            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>ADDITIONAL INFORMATION</Typography>
                         </SubSectionHeader>
-                        <Box sx={{ p: 2, maxHeight: 200, overflow: 'auto' }}>
-                            {item.postingApplication.map((pa, idx) => (
-                                <PostingItemBox key={idx}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 700 }}>{pa.system}</Typography>
-                                        <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(pa.amount)}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Typography variant="caption" color="text.secondary">{formatDate(pa.date)} | Ref: {pa.reference}</Typography>
-                                        <Chip
-                                            label={pa.status}
-                                            size="small"
-                                            sx={{
-                                                height: 20,
-                                                fontSize: '10px',
-                                                fontWeight: 700,
-                                                backgroundColor: pa.status === 'Posted' ? alpha(theme.palette.success.main, 0.1) : pa.status === 'Pending' ? theme.palette.action.hover : alpha(theme.palette.warning.main, 0.1),
-                                                color: pa.status === 'Posted' ? theme.palette.success.main : pa.status === 'Pending' ? theme.palette.text.secondary : theme.palette.warning.main
-                                            }}
-                                        />
-                                    </Box>
-                                </PostingItemBox>
-                            ))}
+                        <Box sx={{ p: 2 }}>
+                            <Box sx={{ mb: 2 }}>
+                                <Typography variant="caption" color="text.secondary">Account Name</Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.accountName || 'N/A'}</Typography>
+                            </Box>
+                            <Box sx={{ mb: 2 }}>
+                                <Typography variant="caption" color="text.secondary">Batch Owner</Typography>
+                                <Typography variant="body2">{item.batchOwner || 'N/A'}</Typography>
+                            </Box>
+                            {item.comments && (
+                                <Box>
+                                    <Typography variant="caption" color="text.secondary">Comments</Typography>
+                                    <Typography variant="body2" sx={{ fontStyle: 'italic', fontSize: '0.8rem' }}>{item.comments}</Typography>
+                                </Box>
+                            )}
                         </Box>
                     </SubSectionWrapper>
                 </Grid>
@@ -297,26 +364,49 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             </Box>
 
             <ToolbarWrapper>
-                <SearchField
-                    size="small"
-                    placeholder="Search by Check#, Amount, or Payer..."
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-                <FormControlLabel
-                    control={<Switch size="small" checked={exceptionsOnly} onChange={(e) => setExceptionsOnly(e.target.checked)} />}
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <SearchField
+                        size="small"
+                        placeholder="Search by Check"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => onSearch(searchTerm)}
+                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600 }}
+                    >
+                        Search
+                    </Button>
+                </Box>
+                {/* <FormControlLabel
+                    control={
+                        <Switch
+                            size="small"
+                            checked={exceptionsOnly}
+                            onChange={(e) => {
+                                const checked = e.target.checked;
+                                setExceptionsOnly(checked);
+                                setFilters({ statusList: checked ? ['Exception'] : [] });
+                            }}
+                        />
+                    }
                     label={<Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>Exceptions Only</Typography>}
                     sx={{ ml: { xs: 0, md: 1 } }}
-                />
-                <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: 1, flexWrap: 'wrap' }}>
+                /> */}
+                {/* <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: 1, flexWrap: 'wrap' }}>
                     <RefreshButton variant="outlined" size="small" onClick={() => refetch()}>Refresh Data</RefreshButton>
                     <FinalizeButton variant="contained" size="small">Finalize Selected</FinalizeButton>
-                </Box>
+                </Box> */}
             </ToolbarWrapper>
 
             <Grid container spacing={2} sx={{ mb: 4 }}>
@@ -331,7 +421,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Grid>
             </Grid>
 
-            {filteredDeposits.map((entity) => (
+            {columns.length > 1 && filteredDeposits.map((entity) => (
                 <Box key={entity.id} sx={{ mb: 4 }}>
                     <EntitySectionHeader>
                         <Typography variant="body2" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>{entity.name} — {entity.items.length} Items</Typography>
@@ -339,13 +429,14 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     <DataTable
                         columns={columns}
                         data={entity.items}
-                        rowKey={(row) => row.id}
+                        rowKey={(row) => row.transactionNo}
                         expandedRows={expandedRows}
                         expandedContent={renderExpandedContent}
                         paginated={true}
                         searchable={false}
                         customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
                         dictionaryId="bank-deposits"
+                        serverSide
                         sortCol={queryParams.sortField}
                         sortDir={queryParams.sortOrder}
                         onSortChange={handleSortChange}
@@ -355,10 +446,18 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                         onPageChange={onPageChange}
                         onRowsPerPageChange={onRowsPerPageChange}
                         download={false}
-                        sizeOptions={[5, 10, 20]}
+                        rowsPerPageOptions={[5, 10, 20]}
                     />
                 </Box>
             ))}
+
+            {isHeadersSuccess && columns.length <= 1 && (
+                <Box sx={{ p: 4, textAlign: 'center', backgroundColor: alpha(themeConfig.colors.slate[100], 0.3), borderRadius: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                        No configurable columns found for this entity. Please contact support.
+                    </Typography>
+                </Box>
+            )}
         </ScreenWrapper>
     );
 };

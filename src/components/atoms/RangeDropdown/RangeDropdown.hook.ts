@@ -12,6 +12,10 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
   
+  // Track if dates have been touched in the current 'Custom' session
+  const [fromTouched, setFromTouched] = useState(false);
+  const [toTouched, setToTouched] = useState(false);
+  
   // Store custom dates separately to restore them when switching back to 'Custom'
   const [customRange, setCustomRange] = useState<{from: Date | null, to: Date | null}>(getInitialCustomRange());
   
@@ -35,6 +39,8 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
         setFromDate(new Date(from));
         setToDate(new Date(to));
         setInternalVal('Custom');
+        setFromTouched(true);
+        setToTouched(true);
     } else {
       setFromDate(customRange.from);
       setToDate(customRange.to);
@@ -46,18 +52,22 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
     setInternalVal(val);
     
     if (val === 'Custom') {
-      // Restore previous custom dates
+      // Restore previous custom dates but consider them "untouched" for a fresh session
+      // if they were just switching from a preset.
       setFromDate(customRange.from);
       setToDate(customRange.to);
-      if (customRange.from && customRange.to) {
-        onChange?.(`${format(customRange.from, 'yyyy-MM-dd')} to ${format(customRange.to, 'yyyy-MM-dd')}`);
-      }
+      setFromTouched(false);
+      setToTouched(false);
+      
+      // We don't trigger onChange immediately on selecting 'Custom' anymore
+      // to avoid using possibly stale custom dates from a previous session.
     } else {
       const dates = calculateDatesFromLabel(val);
       if (dates) {
         setFromDate(new Date(dates.from));
         setToDate(new Date(dates.to));
-        // Pass the LABEL instead of dates for presets
+        setFromTouched(true);
+        setToTouched(true);
         onChange?.(val);
       } else {
         onChange?.(val);
@@ -68,26 +78,40 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
   const handleDateChange = useCallback((type: 'from' | 'to', val: Date | null) => {
     if (!val) return;
 
+    setInternalVal('Custom');
+
+    let nextFrom = fromDate;
+    let nextTo = toDate;
+    let nextFromTouched = fromTouched;
+    let nextToTouched = toTouched;
+
     if (type === 'from') {
       if (toDate && isAfter(val, toDate)) {
         setErrorOpen(true);
         return;
       }
-      setInternalVal('Custom');
       setFromDate(val);
       setCustomRange(prev => ({ ...prev, from: val }));
-      if (toDate) onChange?.(`${format(val, 'yyyy-MM-dd')} to ${format(toDate, 'yyyy-MM-dd')}`);
+      nextFrom = val;
+      nextFromTouched = true;
+      setFromTouched(true);
     } else {
       if (fromDate && isAfter(fromDate, val)) {
         setErrorOpen(true);
         return;
       }
-      setInternalVal('Custom');
       setToDate(val);
       setCustomRange(prev => ({ ...prev, to: val }));
-      if (fromDate) onChange?.(`${format(fromDate, 'yyyy-MM-dd')} to ${format(val, 'yyyy-MM-dd')}`);
+      nextTo = val;
+      nextToTouched = true;
+      setToTouched(true);
     }
-  }, [fromDate, toDate, onChange]);
+
+    // Only trigger search if BOTH dates have been explicitly selected in this 'Custom' session
+    if (nextFrom && nextTo && nextFromTouched && nextToTouched) {
+      onChange?.(`${format(nextFrom, 'yyyy-MM-dd')} to ${format(nextTo, 'yyyy-MM-dd')}`);
+    }
+  }, [fromDate, toDate, fromTouched, toTouched, onChange]);
 
   return {
     internalVal,

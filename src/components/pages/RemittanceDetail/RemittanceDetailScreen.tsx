@@ -8,7 +8,8 @@ import {
     ListItemAvatar,
     CircularProgress,
     Stack,
-    Pagination
+    Pagination,
+    alpha
 } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -17,6 +18,7 @@ import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import DetailCard from '@/components/molecules/DetailCard/DetailCard';
 import { ServiceLine, RemittanceDetail } from '@/interfaces/financials';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
+import { themeConfig } from '@/theme/themeConfig';
 import {
     ScreenWrapper,
     SectionHeader,
@@ -48,36 +50,36 @@ const RemittanceDetailScreen: React.FC = () => {
     } = useRemittanceDetailScreen();
 
     const serviceLineColumns = useMemo<DataColumn<ServiceLine>[]>(() => [
-        { id: 'lineNo', label: 'Line #', minWidth: 60, render: (r) => r.lineNo, accessor: (r) => r.lineNo },
-        { id: 'procCode', label: 'Proc Code', render: (r) => r.procCode, accessor: (r) => r.procCode },
-        { id: 'modifiers', label: 'Modifiers', render: (r) => r.modifiers || '–', accessor: (r) => r.modifiers || '' },
-        { id: 'revCode', label: 'Rev Code', render: (r) => r.revCode, accessor: (r) => r.revCode },
-        { id: 'dosStart', label: 'DOS Start', render: (r) => formatDate(r.dosStart), accessor: (r) => r.dosStart },
-        { id: 'dosEnd', label: 'DOS End', render: (r) => formatDate(r.dosEnd), accessor: (r) => r.dosEnd },
-        { id: 'units', label: 'Units', align: 'right', render: (r) => r.units, accessor: (r) => r.units },
+        { id: 'lineNo', label: 'LINE #', minWidth: 60, render: (r) => r.lineNo, accessor: (r) => r.lineNo },
+        { id: 'procCode', label: 'PROC CODE', render: (r) => r.procCode, accessor: (r) => r.procCode },
+        { id: 'modifiers', label: 'MODIFIERS', render: (r) => r.modifiers || '–', accessor: (r) => r.modifiers || '' },
+        { id: 'revCode', label: 'REV CODE', render: (r) => r.revCode, accessor: (r) => r.revCode },
+        { id: 'dosStart', label: 'DOS START', render: (r) => formatDate(r.dosStart), accessor: (r) => r.dosStart },
+        { id: 'dosEnd', label: 'DOS END', render: (r) => formatDate(r.dosEnd), accessor: (r) => r.dosEnd },
+        { id: 'units', label: 'UNITS', align: 'right', render: (r) => r.units, accessor: (r) => r.units },
         {
-            id: 'charge', label: 'Charge', align: 'right',
+            id: 'charge', label: 'CHARGE', align: 'right',
             render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.charge)}</Typography>,
             accessor: (r) => r.charge,
         },
         {
-            id: 'allowed', label: 'Allowed', align: 'right',
+            id: 'allowed', label: 'ALLOWED', align: 'right',
             render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.allowed)}</Typography>,
             accessor: (r) => r.allowed,
         },
         {
-            id: 'paid', label: 'Paid', align: 'right',
+            id: 'paid', label: 'PAID', align: 'right',
             render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.paid)}</Typography>,
             accessor: (r) => r.paid,
         },
         {
-            id: 'adjAmt', label: 'Adj Amt', align: 'right',
+            id: 'adjAmt', label: 'ADJ AMT', align: 'right',
             render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.adjAmt)}</Typography>,
             accessor: (r) => r.adjAmt,
         },
-        { id: 'adjGrp', label: 'Adj Grp', render: (r) => r.adjGrp, accessor: (r) => r.adjGrp },
-        { id: 'reason', label: 'Reason', render: (r) => r.reason, accessor: (r) => r.reason },
-        { id: 'remark', label: 'Remark', render: (r) => r.remark, accessor: (r) => r.remark },
+        { id: 'adjGrp', label: 'ADJ GRP', render: (r) => r.adjGrp, accessor: (r) => r.adjGrp },
+        { id: 'reason', label: 'REASON', render: (r) => r.reason, accessor: (r) => r.reason },
+        { id: 'remark', label: 'REMARK', render: (r) => r.remark, accessor: (r) => r.remark },
     ], []);
 
     if (!detail && (!claims || claims.length === 0)) return <Typography>No remittance detail selected.</Typography>;
@@ -86,7 +88,12 @@ const RemittanceDetailScreen: React.FC = () => {
         <ScreenWrapper>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <SectionHeader variant="h6">Remittance Detail (Claims)</SectionHeader>
-                {isClaimsFetching && <CircularProgress size={20} />}
+                {isClaimsFetching && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 600, color: 'primary.main' }}>Refreshing Claims...</Typography>
+                        <CircularProgress size={16} thickness={5} />
+                    </Box>
+                )}
             </Box>
             <PatientNameHeader variant="subtitle1">Claim Detail – {detail?.patientName || 'N/A'}</PatientNameHeader>
 
@@ -132,7 +139,12 @@ const RemittanceDetailScreen: React.FC = () => {
 
             <Box sx={{ mt: 4, mb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Service Line Details</Typography>
-                {(isSlFetching || isSlLoading) && <CircularProgress size={20} />}
+                {(isSlFetching || isSlLoading) && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: alpha(themeConfig.colors.primary, 0.05), px: 1.5, py: 0.5, borderRadius: 1 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>LOADING DETAILS</Typography>
+                        <CircularProgress size={14} thickness={6} />
+                    </Box>
+                )}
             </Box>
 
             <DataTable

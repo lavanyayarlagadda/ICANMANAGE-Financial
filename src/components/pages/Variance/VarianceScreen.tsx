@@ -20,7 +20,22 @@ import { FeeScheduleVariance, PaymentVariance } from '@/interfaces/financials';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 
 const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-    const { activeSubTab, queryParams, globalFilters, feeData, feeSummaryData, paymentData, paymentSummaryData, handleDrillDown, handleRangeChange, handleSortChange, handlePageChange, handleRowsPerPageChange } = useVarianceScreen({ skip });
+    const { 
+        activeSubTab, 
+        queryParams, 
+        globalFilters, 
+        feeData, 
+        feeSummaryData, 
+        paymentData, 
+        paymentSummaryData, 
+        totalElementsFee,
+        totalElementsPayment,
+        handleDrillDown, 
+        handleRangeChange, 
+        handleSortChange, 
+        handlePageChange, 
+        handleRowsPerPageChange 
+    } = useVarianceScreen({ skip });
     const theme = useTheme();
     const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
         {
@@ -35,8 +50,8 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         },
         {
             id: 'transactionNo',
-            label: 'TRANSACTION #',
-            minWidth: 140,
+            label: 'TRANSACTION NUMBER',
+            minWidth: 160,
             align: 'center',
             accessor: (r) => r.transactionNo || r.id || '-',
             render: (r) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{r.transactionNo || r.id || '-'}</Typography>
@@ -129,7 +144,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 columns={feeColumns} data={activeSubTab === 0 ? (feeData?.data?.content ?? []) : (paymentData?.data?.content ?? [])}
                 rowKey={(r) => r.id || `${r.patientName}-${r.variance}`} exportTitle="Variance Analysis"
                 customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />} serverSide
-                totalElements={activeSubTab === 0 ? (feeData?.data?.totalElements ?? 0) : (paymentData?.data?.totalElements ?? 0)}
+                totalElements={activeSubTab === 0 ? totalElementsFee : totalElementsPayment}
                 page={queryParams.page} rowsPerPage={queryParams.size} sortCol={queryParams.sortField}
                 sortDir={queryParams.sortOrder} onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}
                 dictionaryId="variance-analysis"

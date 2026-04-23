@@ -47,7 +47,7 @@ const baseQuery = fetchBaseQuery({
     const tenantId = selectedTenantId || tenants[0]?.tenantId;
     if (tenantId && endpoint !== 'getTenants') {
       // Always send x-tenantid if we have one, except for the tenants list request itself
-      headers.set('X-Tenant-Id', tenantId);
+      headers.set('X-Tenant-Id', String(tenantId));
     }
 
     return headers;

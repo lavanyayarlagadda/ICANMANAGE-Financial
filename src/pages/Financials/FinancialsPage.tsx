@@ -72,12 +72,14 @@ const FinancialsPage: React.FC = () => {
     handleReload,
     handleExport,
     isLoadingUserDetails,
+    isPathResolved,
     dispatch,
   } = useFinancialsPage();
 
   const tabContent = useMemo(() => {
+    if (!isPathResolved) return null;
     const mainTab = financialsTabs.find(t => t.id === activeTab);
-    if (!mainTab) return <AllTransactionsScreen skip={false} />;
+    if (!mainTab) return <AllTransactionsScreen skip={true} />;
 
     if (mainTab.subTabs && mainTab.subTabs.length > 0) {
         const subTab = mainTab.subTabs.find(st => st.id === activeSubTab) || mainTab.subTabs[0];

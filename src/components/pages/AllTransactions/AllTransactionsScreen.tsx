@@ -22,6 +22,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        statusOptions,
         // isMindPath,
         isError,
         globalFilters
@@ -31,25 +32,25 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
     const columns = useMemo<DataColumn<AllTransaction>[]>(() => [
         {
             id: 'actions',
-            label: 'Actions',
+            label: 'ACTIONS',
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
                     onView={() => handleDrillDown(r)} />
             ),
         },
-        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, align: 'center', accessor: (r) => r.effectiveDate ?? '', render: (r) => formatDate(r.effectiveDate) },
+        { id: 'effectiveDate', label: 'EFFECTIVE DATE', minWidth: 120, align: 'center', accessor: (r) => r.effectiveDate ?? '', render: (r) => formatDate(r.effectiveDate) },
         {
             id: 'transactionNo',
-            label: 'Transaction Number',
-            minWidth: 160,
+            label: 'TRANSACTION NUMBER',
+            minWidth: 170,
             align: 'center',
             accessor: (r) => r.transactionNo ?? '-',
-            render: (r) => r.transactionNo ?? '-'
+            render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.transactionNo ?? '-'}</Typography>
         },
         {
             id: 'transactionType',
-            label: 'Category',
+            label: 'CATEGORY',
             minWidth: 140,
             accessor: (r) => r.category ?? '',
             filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT'],
@@ -64,12 +65,12 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
                 );
             },
         },
-        { id: 'type', label: 'Type', minWidth: 100, accessor: (r) => r.type ?? '', filterOptions: ['CHECK', 'EFT', 'BULK'], render: (r) => r.type },
-        // { id: 'description', label: 'Description', minWidth: 240, accessor: (r) => r.description ?? '', render: (r) => r.description },
-        { id: 'sourceProvider', label: 'Source / Provider', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
+        { id: 'type', label: 'TYPE', minWidth: 100, accessor: (r) => r.type ?? '', filterOptions: ['CHECK', 'EFT', 'BULK'], render: (r) => r.type },
+        // { id: 'description', label: 'DESCRIPTION', minWidth: 240, accessor: (r) => r.description ?? '', render: (r) => r.description },
+        { id: 'sourceProvider', label: 'SOURCE / PROVIDER', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
         {
             id: 'amount',
-            label: 'Amount',
+            label: 'AMOUNT',
             minWidth: 120,
             align: 'center',
             accessor: (r) => r.amount ?? 0,
@@ -88,7 +89,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         },
         {
             id: 'openBalance',
-            label: 'Open Balance',
+            label: 'OPEN BALANCE',
             minWidth: 120,
             align: 'center',
             accessor: (r) => r.openBalance ?? 0,
@@ -96,8 +97,15 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
                 <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.openBalance)}</Typography>
             ) : '–',
         },
-        { id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: ['Reconciled', 'Partially Applied', 'Pending', 'Denied'], render: (r) => <StatusBadge status={r.status} /> },
-    ], [theme.palette.error.main, theme.palette.text.primary]);
+        { 
+            id: 'status', 
+            label: 'STATUS', 
+            minWidth: 120, 
+            accessor: (r) => r.status ?? '', 
+            filterOptions: statusOptions, 
+            render: (r) => <StatusBadge status={r.status} /> 
+        },
+    ], [theme.palette.error.main, theme.palette.text.primary, statusOptions]);
 
     return (
         <DataTable

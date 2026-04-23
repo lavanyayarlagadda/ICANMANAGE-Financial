@@ -76,7 +76,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const [triggerExport] = useLazyExportPaymentsQuery();
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
-    const { data: statusData } = useGetPaymentStatusQuery();
+    const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip });
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);

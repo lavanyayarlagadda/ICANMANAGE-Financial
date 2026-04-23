@@ -70,11 +70,11 @@ export const useFinancialsTabs = ({
 
   const hasSubTabs = currentSubTabs.length > 0;
   const hasActions = shouldShowPrint || shouldShowReload || shouldShowExport;
-  const showSubTabsRow = (hasSubTabs || hasActions) && activeTab !== -1;
+  const showSubTabsRow = (hasSubTabs || hasActions) && activeTab !== -1 && !isRestricted;
 
   return {
-    activeTab,
-    activeSubTab,
+    activeTab: isRestricted ? -1 : activeTab,
+    activeSubTab: isRestricted ? -1 : activeSubTab,
     isReloading,
     // isMindPath,
     shouldShowPrint,

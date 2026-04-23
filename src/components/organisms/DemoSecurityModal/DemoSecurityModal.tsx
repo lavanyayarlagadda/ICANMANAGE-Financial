@@ -46,6 +46,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
         menus,
         isLoading,
         isSaving,
+        hasChanges,
         setInactivityTimeout,
         setModuleSelectionEnabled,
         setSearchQuery,
@@ -56,21 +57,32 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
     } = useDemoSecurityModal({ currentUser, open, onClose });
 
     const renderTree = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[], level = 0, isParentDisabled = false): React.ReactNode => {
-        const filteredItems = items.filter(item => 
-            item.menuName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            ('modules' in item && item.modules?.some((m) => m.menuName.toLowerCase().includes(searchQuery.toLowerCase()))) ||
-            ('subModules' in item && item.subModules?.some((s) => s.menuName.toLowerCase().includes(searchQuery.toLowerCase())))
-        );
+        const itemMatches = (it: any, query: string): boolean => {
+            const q = query.toLowerCase();
+            if (it.menuName.toLowerCase().includes(q)) return true;
+            if (it.modules?.some((m: any) => itemMatches(m, query))) return true;
+            if (it.subModules?.some((s: any) => itemMatches(s, query))) return true;
+            return false;
+        };
 
-        if (filteredItems.length === 0 && searchQuery) return null;
+        const filteredItems = items.filter(item => itemMatches(item, searchQuery));
+
+        if (filteredItems.length === 0 && searchQuery) {
+            if (level === 0) return (
+                <Box sx={{ p: 4, textAlign: 'center', opacity: 0.6 }}>
+                    <Typography variant="body2">No modules match "{searchQuery}"</Typography>
+                </Box>
+            );
+            return null;
+        }
 
         return filteredItems.map((item, index) => {
-            const hasChildren = ('modules' in item && item.modules && item.modules.length > 0) || 
-                               ('subModules' in item && item.subModules && item.subModules.length > 0);
-            
+            const hasChildren = ((item as any).modules && (item as any).modules.length > 0) ||
+                ((item as any).subModules && (item as any).subModules.length > 0);
+
             const currentStatus = moduleStatuses[item.menuId] || 'Hidden';
             const isCurrentlyDisabled = currentStatus === 'Disabled';
-            
+
             // Level-specific styles
             const isLevel0 = level === 0;
             const isLevel1 = level === 1;
@@ -111,7 +123,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                         </FormControl>
                     </Box>
                     {hasChildren && currentStatus !== 'Hidden' && (
-                        renderTree(item.modules || item.subModules, level + 1, isCurrentlyDisabled || isParentDisabled)
+                        renderTree((item as any).modules || (item as any).subModules, level + 1, isCurrentlyDisabled || isParentDisabled)
                     )}
                 </React.Fragment>
             );
@@ -159,10 +171,10 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                 sx={{ backgroundColor: themeConfig.colors.surface, borderRadius: 1 }}
                             >
                                 {users.map(u => (
-                                  <MenuItem key={u.id} value={u.id}>
-  {u.username}
-  {u.id === currentUser.id ? ' (You)' : ''}
-</MenuItem>
+                                    <MenuItem key={u.id} value={u.id}>
+                                        {u.username}
+                                        {u.id === currentUser.id ? ' (You)' : ''}
+                                    </MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
@@ -213,9 +225,15 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                             <Typography>Loading user configuration...</Typography>
                         </Box>
-                    ) : moduleSelectionEnabled && menus && (
+                    ) : moduleSelectionEnabled && (
                         <Box sx={styles.accordionListStyles}>
-                            {renderTree(menus)}
+                            {menus && menus.length > 0 ? (
+                                renderTree(menus)
+                            ) : (
+                                <Box sx={{ p: 4, textAlign: 'center', opacity: 0.6 }}>
+                                    <Typography variant="body2">No modules found.</Typography>
+                                </Box>
+                            )}
                         </Box>
                     )}
                 </Box>
@@ -241,21 +259,21 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
             </DialogContent>
 
             <DialogActions sx={{ px: { xs: 2, sm: 3 }, pb: 2, justifyContent: 'space-between' }}>
-                <Box component="img" src="/cognitiveLogo.svg" alt="Logo" sx={{ height: 28, display: { xs: 'none', sm: 'block' } }} />
+                <Box component="img" src="/cognitiveLogo.svg" alt="Logo" sx={{ height: 45, display: { xs: 'none', sm: 'block' } }} />
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button 
-                        onClick={onClose} 
-                        variant="outlined" 
+                    <Button
+                        onClick={onClose}
+                        variant="outlined"
                         disabled={isSaving}
                         sx={{ borderColor: themeConfig.colors.border, color: themeConfig.colors.text.primary }}
                     >
                         Cancel
                     </Button>
-                    <Button 
-                        onClick={handleSave} 
-                        variant="contained" 
-                        disabled={isSaving}
-                        sx={{ backgroundColor: themeConfig.colors.primary }}
+                    <Button
+                        onClick={handleSave}
+                        variant="contained"
+                        disabled={isSaving || !hasChanges}
+                        sx={{ backgroundColor: themeConfig.colors.primary, '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary } }}
                     >
                         {isSaving ? 'Saving...' : 'Save Changes'}
                     </Button>

@@ -13,12 +13,12 @@ import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import Accordion from '@/components/atoms/Accordion/Accordion';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
+import { themeConfig } from '@/theme/themeConfig';
 import { useStatementsScreen, useForwardBalanceNoticesTable } from './StatementsScreen.hook';
 import * as styles from './StatementsScreen.styles';
 import SuspenseAccountsScreen from '../Suspense/SuspenseAccountsScreen';
 
 import { useTheme } from '@mui/material/styles';
-import { themeConfig } from '@/theme/themeConfig';
 
 const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
     <Box sx={{ mb: 1 }}>
@@ -27,7 +27,7 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
             summary={
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 2 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600, flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>Offset EFT: <MultiValueDisplay value={offset.eftNumber} displayCount={1} /> &nbsp; {formatDate(offset.date)}</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 700, mr: 4 }}>{formatCurrency(offset.amount)}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, textAlign: 'center' }}>{formatCurrency(offset.amount)}</Typography>
                     <Chip label={`CODE: ${offset.code}`} size="small" sx={styles.offsetChipStyles} />
                 </Box>
             }
@@ -36,13 +36,13 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
                 <Box sx={{ ...styles.offsetGridStyles, background: themeConfig.colors.surfaceAlt, borderBottom: `1px solid ${themeConfig.colors.divider}` }}>
                     <Typography fontSize={11} fontWeight={700} color="text.secondary">CLAIM ID (DEDUCTED FROM)</Typography>
                     <Typography fontSize={11} fontWeight={700} color="text.secondary">PATIENT NAME</Typography>
-                    <Typography fontSize={11} fontWeight={700} color="text.secondary" textAlign="right">DEDUCTED AMOUNT</Typography>
+                    <Typography fontSize={11} fontWeight={700} color="text.secondary" textAlign="center">DEDUCTED AMOUNT</Typography>
                 </Box>
                 {offset.claims.map((claim, idx) => (
                     <Box key={idx} sx={{ ...styles.offsetGridStyles, borderBottom: `1px solid ${themeConfig.colors.divider}` }}>
                         <Typography fontSize={13} color="primary" sx={{ fontWeight: 500 }}>{claim.claimId}</Typography>
                         <Typography fontSize={13} sx={{ fontWeight: 500 }}>{claim.patientName}</Typography>
-                        <Typography fontSize={13} textAlign="right" color="error.main" sx={{ fontWeight: 700 }}>{formatCurrency(claim.deductedAmount)}</Typography>
+                        <Typography fontSize={13} textAlign="center" color="error.main" sx={{ fontWeight: 700 }}>{formatCurrency(claim.deductedAmount)}</Typography>
                     </Box>
                 ))}
             </Box>
@@ -75,6 +75,7 @@ const ForwardBalanceNoticesTable = ({
         {
             id: 'expand',
             label: '',
+            align: 'center',
             render: (row) => row.offsets.length > 0 ? (
                 <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleRow(row.id); }}>
                     {expandedRows.has(row.id) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
@@ -85,6 +86,7 @@ const ForwardBalanceNoticesTable = ({
         {
             id: 'noticeId',
             label: 'NOTICE ID',
+            align: 'center',
             accessor: (row) => row.noticeId,
             render: (row) => <Typography variant="body2" sx={{ fontWeight: 700, color: themeConfig.colors.amberDark }}>{row.noticeId}</Typography>,
         },
@@ -98,15 +100,16 @@ const ForwardBalanceNoticesTable = ({
         {
             id: 'provider',
             label: 'PROVIDER / NPI',
+            align: 'center',
             accessor: (row) => `${row.providerName} ${row.npi}`,
             render: (row) => (
-                <Box>
+                <Box sx={{ textAlign: 'center' }}>
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>{row.providerName}</Typography>
                     <Typography variant="caption" color="text.secondary">NPI: {row.npi}</Typography>
                 </Box>
             ),
         },
-        // { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
+        // { id: 'description', label: 'DESCRIPTION', minWidth: 200, align: 'center', accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
         {
             id: 'originalAmount',
             label: 'ORIGINAL AMOUNT',
@@ -124,6 +127,7 @@ const ForwardBalanceNoticesTable = ({
         {
             id: 'status',
             label: 'STATUS',
+            align: 'center',
             accessor: (row) => row.status,
             render: (row) => <StatusBadge status={row.status} />,
         },

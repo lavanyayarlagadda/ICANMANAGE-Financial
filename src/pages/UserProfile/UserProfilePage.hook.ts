@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState, useAppDispatch } from '@/store';
@@ -104,7 +104,7 @@ export const useUserProfilePage = () => {
         try {
             await updatePreferences({ defaultLandingPage: newPage }).unwrap();
             setSuccessMessage(`Landing page updated to ${newPage}. Redirecting...`);
-            
+
             // Close any open remittance detail when changing preferences
             dispatch(setShowRemittanceDetail(false));
 
@@ -126,11 +126,15 @@ export const useUserProfilePage = () => {
             return isModuleVisible('Financials');
         });
     }, [isModuleVisible]);
-    
+
     // Legacy support for manual save if called from UI somewhere else
     const handleSavePreferences = handleLandingPageChange;
 
     const handleBack = useCallback(() => navigate(-1), [navigate]);
+
+    const landingPageChanged = useMemo(() => {
+        return landingPage !== user?.defaultLandingPage;
+    }, [landingPage, user?.defaultLandingPage]);
 
     return {
         user,
@@ -156,5 +160,6 @@ export const useUserProfilePage = () => {
         isModuleVisible,
         isModuleDisabled,
         isLoadingDetails: isLoadingDetails || isUpdatingPreferences,
+        landingPageChanged,
     };
 };

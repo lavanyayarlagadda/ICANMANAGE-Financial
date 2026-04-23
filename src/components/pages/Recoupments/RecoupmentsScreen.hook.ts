@@ -42,6 +42,8 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        status: null,
+        payer: null
     });
 
     // Keep local queryParams in sync with global filters
@@ -131,7 +133,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
             reloadCount.current = actionTriggers.reload;
         }
     }, [actionTriggers.reload, refetch]);
-
+    console.log(recoupments, "recoupments")
     const stats = useMemo(() => {
         const totalRecouped = recoupments.reduce((sum, r) => sum + Math.abs(r.recoupmentAmount ?? 0), 0);
         const totalOriginal = recoupments.reduce((sum, r) => sum + (r.originalPaymentAmount ?? 0), 0);
@@ -210,7 +212,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
             const next = {
                 ...prev,
                 status: filters.status || null,
-                payer: filters.payerName || null,
+                payer: filters.payer || null,
                 page: 0
             };
             const isChanged = prev.status !== next.status || prev.payer !== next.payer;

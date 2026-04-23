@@ -91,7 +91,7 @@ export const useReconciliation = () => {
 
       const newHeaders: HeaderConfig[] = [
         { id: 'actions', label: 'Actions', align: 'left', isAction: true },
-        { id: 'transactionNo', label: 'Transaction NO', align: 'left', isLink: true },
+        { id: 'transactionNo', label: 'Transaction Number', align: 'left', isLink: true },
         { id: 'location', label: 'Loc/State', align: 'left', filterOptions: ['AZ', 'CA', 'FL', 'MN', 'NC', 'OH', 'SC', 'TX'] },
         { id: 'transactionType', label: 'Type', align: 'left', filterOptions: ['PAYMENT', 'ADJUSTMENT'] },
         { id: 'batchOwner', label: 'Batch Owner', align: 'left', filterOptions: ['ICAN', 'ADMIN', 'SYSTEM'] },

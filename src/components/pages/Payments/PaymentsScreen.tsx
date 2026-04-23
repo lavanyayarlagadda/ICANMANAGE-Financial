@@ -32,43 +32,36 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const columns = useMemo<DataColumn<PaymentTransaction>[]>(() => [
         {
             id: 'actions',
-            label: 'Actions',
+            label: 'ACTIONS',
             minWidth: 60,
             render: (r) => (
                 <RowActionMenu
                     onView={() => handleDrillDown(r)}
-                // onEdit={() => dispatch(openEditDialog(r))}
-                // onDelete={() => dispatch(openConfirmDelete({ id: r.id, type: 'payment' }))}
-                // extraActions={[
-                //     { label: 'Copy ID', icon: <ContentCopyIcon fontSize="small" />, onClick: () => navigator.clipboard.writeText(r.id) },
-                // ]}
                 />
             ),
         },
-        { id: 'effectiveDate', label: 'Effective Date', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => formatDate(r.effectiveDate) },
-        { id: 'type', label: 'Type', minWidth: 90, accessor: (r) => r.type ?? '', render: (r) => r.type },
-        // { id: 'description', label: 'Description', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
+        { id: 'effectiveDate', label: 'EFFECTIVE DATE', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => formatDate(r.effectiveDate) },
+        { id: 'type', label: 'TYPE', minWidth: 90, accessor: (r) => r.type ?? '', render: (r) => r.type },
+        // { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
         {
             id: 'transactionNo',
-            label: 'Transaction Number',
+            label: 'TRANSACTION NUMBER',
             minWidth: 220,
             align: 'center',
             accessor: (r) => r.transactionNo ?? '',
             render: (r) => (
                 <Typography
                     variant="body2"
-                // sx={{ cursor: 'pointer', '&:hover': { color: 'primary.main', textDecoration: 'underline' } }}
-                // onClick={() => handleDrillDown(r)}
                 >
                     {r.transactionNo}
                 </Typography>
             ),
         },
-        { id: 'payer', label: 'Payer', minWidth: 180, accessor: (r) => r.payer ?? '', render: (r) => r.payer },
-        { id: 'amount', label: 'Amount', minWidth: 110, align: 'center', accessor: (r) => r.amount ?? 0, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount ?? 0)}</Box> },
-        { id: 'openBalance', label: 'Open Balance', minWidth: 120, align: 'center', accessor: (r) => r.openBalance ?? 0, render: (r) => formatCurrency(r.openBalance) },
+        { id: 'payer', label: 'PAYER', minWidth: 180, accessor: (r) => r.payer ?? '', render: (r) => r.payer },
+        { id: 'amount', label: 'AMOUNT', minWidth: 110, align: 'center', accessor: (r) => r.amount ?? 0, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount ?? 0)}</Box> },
+        { id: 'openBalance', label: 'OPEN BALANCE', minWidth: 120, align: 'center', accessor: (r) => r.openBalance ?? 0, render: (r) => formatCurrency(r.openBalance) },
         {
-            id: 'status', label: 'Status', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: statusOptions,
+            id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: statusOptions,
             render: (r) => <StatusBadge status={r.status} />
         },
     ], [dispatch, handleDrillDown, statusOptions]);

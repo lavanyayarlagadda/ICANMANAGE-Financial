@@ -51,6 +51,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             label: 'TEAM',
             minWidth: 150,
             align: 'center',
+            disableSort: true,
             render: (row) => (
                 <Typography variant="body2" sx={{ fontWeight: row.team === 'OVERALL' ? 700 : 500 }}>
                     {row.team}
@@ -58,17 +59,17 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             ),
             accessor: (row) => row.team,
         },
-        { id: 'reconciledCheckCountPct', label: 'RECONCILED CHECK %', align: 'center', render: (row) => `${row.reconciledCheckCountPct}%`, accessor: (row) => row.reconciledCheckCountPct },
-        { id: 'unreconciledCheckCountPct', label: 'UNRECONCILED CHECK %', align: 'center', render: (row) => `${row.unreconciledCheckCountPct}%`, accessor: (row) => row.unreconciledCheckCountPct },
-        { id: 'checkCountPctByTeam', label: 'CHECK % BY TEAM', align: 'center', render: (row) => `${row.checkCountPctByTeam}%`, accessor: (row) => row.checkCountPctByTeam },
-        { id: 'reconciledCheckCount', label: 'RECONCILED COUNT', align: 'center', render: (row) => row.reconciledCheckCount, accessor: (row) => row.reconciledCheckCount },
-        { id: 'unreconciledCheckCount', label: 'UNRECONCILED COUNT', align: 'center', render: (row) => row.unreconciledCheckCount, accessor: (row) => row.unreconciledCheckCount },
-        { id: 'reconciledAmountPct', label: 'RECONCILED AMT %', align: 'center', render: (row) => `${row.reconciledAmountPct}%`, accessor: (row) => row.reconciledAmountPct },
-        { id: 'unreconciledAmountPct', label: 'UNRECONCILED AMT %', align: 'center', render: (row) => `${row.unreconciledAmountPct}%`, accessor: (row) => row.unreconciledAmountPct },
-        { id: 'amountPctByTeam', label: 'AMT % BY TEAM', align: 'center', render: (row) => `${row.amountPctByTeam}%`, accessor: (row) => row.amountPctByTeam },
-        { id: 'totalAmountPosted', label: 'TOTAL POSTED', align: 'center', render: (row) => formatCurrency(Number(row.totalAmountPosted)), accessor: (row) => row.totalAmountPosted },
-        { id: 'totalAmountNotPosted', label: 'TOTAL NOT POSTED', align: 'center', render: (row) => formatCurrency(Number(row.totalAmountNotPosted)), accessor: (row) => row.totalAmountNotPosted },
-        { id: 'avgDaysToReconcile', label: 'AVG DAYS', align: 'center', render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile ?? '' },
+        { id: 'reconciledCheckCountPct', label: 'RECONCILED CHECK %', align: 'center', disableSort: true, render: (row) => `${row.reconciledCheckCountPct}%`, accessor: (row) => row.reconciledCheckCountPct },
+        { id: 'unreconciledCheckCountPct', label: 'UNRECONCILED CHECK %', align: 'center', disableSort: true, render: (row) => `${row.unreconciledCheckCountPct}%`, accessor: (row) => row.unreconciledCheckCountPct },
+        { id: 'checkCountPctByTeam', label: 'CHECK % BY TEAM', align: 'center', disableSort: true, render: (row) => `${row.checkCountPctByTeam}%`, accessor: (row) => row.checkCountPctByTeam },
+        { id: 'reconciledCheckCount', label: 'RECONCILED COUNT', align: 'center', disableSort: true, render: (row) => row.reconciledCheckCount, accessor: (row) => row.reconciledCheckCount },
+        { id: 'unreconciledCheckCount', label: 'UNRECONCILED COUNT', align: 'center', disableSort: true, render: (row) => row.unreconciledCheckCount, accessor: (row) => row.unreconciledCheckCount },
+        { id: 'reconciledAmountPct', label: 'RECONCILED AMT %', align: 'center', disableSort: true, render: (row) => `${row.reconciledAmountPct}%`, accessor: (row) => row.reconciledAmountPct },
+        { id: 'unreconciledAmountPct', label: 'UNRECONCILED AMT %', align: 'center', disableSort: true, render: (row) => `${row.unreconciledAmountPct}%`, accessor: (row) => row.unreconciledAmountPct },
+        { id: 'amountPctByTeam', label: 'AMT % BY TEAM', align: 'center', disableSort: true, render: (row) => `${row.amountPctByTeam}%`, accessor: (row) => row.amountPctByTeam },
+        { id: 'totalAmountPosted', label: 'TOTAL POSTED', align: 'center', disableSort: true, render: (row) => formatCurrency(Number(row.totalAmountPosted)), accessor: (row) => row.totalAmountPosted },
+        { id: 'totalAmountNotPosted', label: 'TOTAL NOT POSTED', align: 'center', disableSort: true, render: (row) => formatCurrency(Number(row.totalAmountNotPosted)), accessor: (row) => row.totalAmountNotPosted },
+        { id: 'avgDaysToReconcile', label: 'AVG DAYS', align: 'center', disableSort: true, render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile ?? '' },
     ], []);
 
     const forecastTrendsContent = useMemo(() => (
@@ -99,7 +100,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                         <YAxis tickFormatter={(v) => `$${v}M`} tick={{ fontSize: 12 }} />
                         <Tooltip formatter={(v: number) => [`$${v.toFixed(2)}M`, 'Amount']} />
                         <Legend />
-                        <Area type="monotone" dataKey="actual" fill={alpha(theme.palette.primary.main, 0.15)} stroke="none" />
+                        <Area type="monotone" dataKey="actual" fill={themeConfig.colors.slate[400]} stroke="none" />
                         <Line type="monotone" dataKey="actual" name="Actual" stroke={theme.palette.primary.main} strokeWidth={3} dot={{ r: 4, fill: theme.palette.primary.main }} />
                         <Line type="monotone" dataKey="forecast" name="Forecast" stroke={theme.palette.secondary.main} strokeWidth={3} strokeDasharray="5 5" dot={{ r: 4, fill: theme.palette.secondary.main }} />
                     </ComposedChart>
@@ -260,41 +261,43 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                             </CardContent>
                         </RichCard>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <RichCard>
-                            <CardContent>
-                                <Typography variant="subtitle2" sx={{ mb: 2 }}>Adjustment Breakdown</Typography>
-                                <PieChartWrapper>
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={[
-                                                    { name: 'CO', value: adjBreakdown?.data.contractualCount ?? 0 },
-                                                    { name: 'PR', value: adjBreakdown?.data.patientRespCount ?? 0 },
-                                                    { name: 'Denial', value: adjBreakdown?.data.denialCount ?? 0 },
-                                                    { name: 'Other', value: adjBreakdown?.data.otherAdjCount ?? 0 }
-                                                ]}
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                dataKey="value"
-                                                cx="50%"
-                                                cy="50%"
-                                                paddingAngle={5}
-                                            >
-                                                {chartColors.map((color, i) => <Cell key={i} fill={color} />)}
-                                            </Pie>
-                                            <Tooltip />
-                                            <Legend />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </PieChartWrapper>
-                            </CardContent>
-                        </RichCard>
-                    </Grid>
+                    {!isMindpath && (
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <RichCard>
+                                <CardContent>
+                                    <Typography variant="subtitle2" sx={{ mb: 2 }}>Adjustment Breakdown</Typography>
+                                    <PieChartWrapper>
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie
+                                                    data={[
+                                                        { name: 'CO', value: adjBreakdown?.data.contractualCount ?? 0 },
+                                                        { name: 'PR', value: adjBreakdown?.data.patientRespCount ?? 0 },
+                                                        { name: 'Denial', value: adjBreakdown?.data.denialCount ?? 0 },
+                                                        { name: 'Other', value: adjBreakdown?.data.otherAdjCount ?? 0 }
+                                                    ]}
+                                                    innerRadius={60}
+                                                    outerRadius={80}
+                                                    dataKey="value"
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    paddingAngle={5}
+                                                >
+                                                    {chartColors.map((color, i) => <Cell key={i} fill={color} />)}
+                                                </Pie>
+                                                <Tooltip />
+                                                <Legend />
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </PieChartWrapper>
+                                </CardContent>
+                            </RichCard>
+                        </Grid>
+                    )}
                 </Grid>
             </Box>
         );
-    }, [execSummary, paymentMix, adjBreakdown, theme]);
+    }, [execSummary, paymentMix, adjBreakdown, theme, isMindpath]);
 
     return (
         <TrendsWrapper>
