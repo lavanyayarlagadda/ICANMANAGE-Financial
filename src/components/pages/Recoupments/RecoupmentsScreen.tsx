@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, useTheme, Grid } from '@mui/material';
+import { Box, Typography, useTheme, Grid, InputAdornment, Button } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -27,6 +28,9 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         onPageChange,
         onRowsPerPageChange,
         isError,
+        searchTerm,
+        setSearchTerm,
+        onSearch
     } = useRecoupmentsScreen({ skip });
 
     const columns = useMemo<DataColumn<RecoupmentRecord>[]>(() => [
@@ -89,6 +93,32 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>
+            <styles.ToolbarWrapper>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <styles.SearchField
+                        size="small"
+                        placeholder="Search by Transaction #"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => onSearch(searchTerm)}
+                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
+                    >
+                        Search
+                    </Button>
+                </Box>
+            </styles.ToolbarWrapper>
             {/* <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Original Payments" value={formatCurrency(stats.totalOriginal)} variant="highlight" /></Grid>
                 <Grid size={{ xs: 12, sm: 4 }}><SummaryCard title="Total Recouped" value={formatCurrency(stats.totalRecouped)} variant="negative" /></Grid>

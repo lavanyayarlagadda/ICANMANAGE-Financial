@@ -30,8 +30,8 @@ interface UiState {
 }
 
 const initialState: UiState = {
-  activeTab: 0,
-  activeSubTab: 0,
+  activeTab: -1,
+  activeSubTab: -1,
   activePage: 'financials',
   sidebarOpen: false,
   sidebarCollapsed: true,

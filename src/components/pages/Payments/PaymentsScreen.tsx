@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, InputAdornment, Button, useTheme } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -9,7 +10,7 @@ import { PaymentTransaction } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { ScreenWrapper, TransactionNumber, MonospaceBox } from './PaymentsScreen.styles';
+import { ScreenWrapper, TransactionNumber, MonospaceBox, ToolbarWrapper, SearchField } from './PaymentsScreen.styles';
 import { usePaymentsScreen } from './PaymentsScreen.hook';
 
 const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -26,8 +27,13 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         onRowsPerPageChange,
         isError,
         dispatch,
-        statusOptions
+        statusOptions,
+        searchTerm,
+        setSearchTerm,
+        onSearch
     } = usePaymentsScreen({ skip });
+
+    const theme = useTheme();
 
     const columns = useMemo<DataColumn<PaymentTransaction>[]>(() => [
         {
@@ -68,6 +74,32 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
     return (
         <ScreenWrapper>
+            <ToolbarWrapper>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <SearchField
+                        size="small"
+                        placeholder="Search by Transaction #"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => onSearch(searchTerm)}
+                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
+                    >
+                        Search
+                    </Button>
+                </Box>
+            </ToolbarWrapper>
             <DataTable
                 columns={columns}
                 data={payments || []}

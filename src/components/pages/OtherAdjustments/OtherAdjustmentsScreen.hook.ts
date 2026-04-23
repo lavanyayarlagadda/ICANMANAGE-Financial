@@ -36,7 +36,22 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        transactionNo: '',
     });
+
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearch = useCallback((term: string) => {
+        setSearchTerm(term);
+        setQueryParams(prev => ({ ...prev, transactionNo: term, page: 0 }));
+    }, []);
+
+    // Handle auto-reset when search is cleared
+    useEffect(() => {
+        if (searchTerm === '' && queryParams.transactionNo !== '') {
+            setQueryParams(prev => ({ ...prev, transactionNo: '', page: 0 }));
+        }
+    }, [searchTerm, queryParams.transactionNo]);
 
     const { data, isFetching, isError, refetch } = useSearchOtherAdjustmentsQuery({
         page: queryParams.page + 1,
@@ -46,7 +61,8 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
-        payer: queryParams.payer
+        payer: queryParams.payer,
+        transactionNo: queryParams.transactionNo
     }, { skip });
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
@@ -210,6 +226,9 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        searchTerm,
+        setSearchTerm,
+        onSearch: handleSearch,
         isError,
         dispatch
     };

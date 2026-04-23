@@ -15,8 +15,11 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    IconButton
+    IconButton,
+    InputAdornment,
+    Button as MuiButton
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import SettingsIcon from '@mui/icons-material/Settings';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -91,6 +94,7 @@ const ManageAccountsModal = ({ open, onClose }: { open: boolean, onClose: () => 
 };
 
 const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
+    const theme = useTheme();
     const { 
         viewType, 
         manageDialogOpen, 
@@ -103,7 +107,10 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         queryParams,
         onPageChange,
         onRowsPerPageChange,
-        handleSortChange
+        handleSortChange,
+        searchTerm,
+        setSearchTerm,
+        onSearch
     } = useSuspenseAccountsScreen({ skip });
 
     interface AccountRow {
@@ -214,31 +221,60 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         });
 
         return (
-            <DataTable
-                columns={tableColumns}
-                data={data}
-                rowKey={(r) => {
-                    const row = r as unknown as Record<string, unknown>;
-                    return String(row.id || row.account || row.payer || row.month || '');
-                }}
-                paginated={true}
-                searchable={false}
-                download={false}
-                dictionaryId="suspense-accounts"
-                dense={true}
-                serverSide
-                page={queryParams.page}
-                rowsPerPage={queryParams.size}
-                totalElements={totalElements}
-                onPageChange={onPageChange}
-                onRowsPerPageChange={onRowsPerPageChange}
-                onSortChange={handleSortChange}
-            />
+            <Box>
+                <DataTable
+                    columns={tableColumns}
+                    data={data}
+                    rowKey={(r) => {
+                        const row = r as unknown as Record<string, unknown>;
+                        return String(row.id || row.account || row.payer || row.month || '');
+                    }}
+                    paginated={true}
+                    searchable={false}
+                    download={false}
+                    dictionaryId="suspense-accounts"
+                    dense={true}
+                    serverSide
+                    page={queryParams.page}
+                    rowsPerPage={queryParams.size}
+                    totalElements={totalElements}
+                    onPageChange={onPageChange}
+                    onRowsPerPageChange={onRowsPerPageChange}
+                    onSortChange={handleSortChange}
+                />
+            </Box>
         );
     };
 
     return (
         <Box sx={{ p: 0 }}>
+            <styles.ToolbarWrapper>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <styles.SearchField
+                        size="small"
+                        placeholder="Search by Transaction #"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <MuiButton
+                        variant="contained"
+                        size="small"
+                        onClick={() => onSearch(searchTerm)}
+                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
+                    >
+                        Search
+                    </MuiButton>
+                </Box>
+            </styles.ToolbarWrapper>
+
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
                 <Box>
                     <Typography variant="h6" sx={{ fontWeight: 700 }}>Suspense Accounts</Typography>

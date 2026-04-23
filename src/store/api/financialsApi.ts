@@ -169,7 +169,7 @@ export const financialsApi = baseApi.injectEndpoints({
       DateRangeParams & { format: "pdf" | "xlsx" }
     >({
       query: (params) => ({
-        url: `financials/export/forward-balance-notices`,
+        url: `financials/export/forward-balances`,
         params,
         responseHandler: (response) => response.blob(),
       }),

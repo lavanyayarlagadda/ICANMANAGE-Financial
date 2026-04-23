@@ -43,8 +43,23 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         status: null,
-        payer: null
+        payer: null,
+        transactionNo: '',
     });
+
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearch = useCallback((term: string) => {
+        setSearchTerm(term);
+        setQueryParams(prev => ({ ...prev, transactionNo: term, page: 0 }));
+    }, []);
+
+    // Handle auto-reset when search is cleared
+    useEffect(() => {
+        if (searchTerm === '' && queryParams.transactionNo !== '') {
+            setQueryParams(prev => ({ ...prev, transactionNo: '', page: 0 }));
+        }
+    }, [searchTerm, queryParams.transactionNo]);
 
     // Keep local queryParams in sync with global filters
     useEffect(() => {
@@ -71,7 +86,8 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
-        payer: queryParams.payer
+        payer: queryParams.payer,
+        transactionNo: queryParams.transactionNo
     }, { skip });
 
     const recoupments = useMemo(() => data?.data?.content ?? [], [data]);
@@ -237,6 +253,9 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        searchTerm,
+        setSearchTerm,
+        onSearch: handleSearch,
         isError,
         dispatch
     };

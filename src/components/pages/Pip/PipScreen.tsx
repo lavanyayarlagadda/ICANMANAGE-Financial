@@ -7,12 +7,13 @@ import { PipRecord, NpiAllocation } from "@/interfaces/financials";
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from "@/components/atoms/RangeDropdown/RangeDropdown";
-import { Box, Typography, IconButton, Chip, Grid } from "@mui/material";
+import { Box, Typography, IconButton, Chip, Grid, InputAdornment, Button, useTheme } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 import MultiValueDisplay from "@/components/atoms/MultiValueDisplay/MultiValueDisplay";
 import { formatCurrency, formatPercent, formatDate } from "@/utils/formatters";
 import SummaryCard from "@/components/atoms/SummaryCard/SummaryCard";
 import { themeConfig } from '@/theme/themeConfig';
-import { NpiSectionWrapper, NpiHeaderRow, NpiDataRow } from "./PipScreen.styles";
+import { NpiSectionWrapper, NpiHeaderRow, NpiDataRow, ToolbarWrapper, SearchField } from "./PipScreen.styles";
 import { usePipScreen } from "./PipScreen.hook";
 
 interface NpiProps {
@@ -68,8 +69,12 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     handlePageChange,
     handleRowsPerPageChange,
     handleExport,
+    searchTerm,
+    setSearchTerm,
+    onSearch,
     isError,
   } = usePipScreen({ skip });
+  const theme = useTheme();
 
   const getRowId = useCallback((row: PipRecord) => row.id || row.ptan, []);
 
@@ -102,6 +107,32 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   // if (!canViewPip) return null;
   return (
     <Box sx={{ position: 'relative' }}>
+      <ToolbarWrapper>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <SearchField
+            size="small"
+            placeholder="Search by Transaction #"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => onSearch(searchTerm)}
+            sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
+          >
+            Search
+          </Button>
+        </Box>
+      </ToolbarWrapper>
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL PAID AMOUNT" value={formatCurrency(pipSummary?.totalPaidAmount ?? 0)} backgroundColor={themeConfig.colors.surface} /></Grid>
         <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL SUSPENSE BALANCE" value={formatCurrency(pipSummary?.totalSuspenseBalance ?? 0)} backgroundColor={themeConfig.colors.surface} /></Grid>

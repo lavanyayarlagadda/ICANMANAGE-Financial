@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, IconButton, Chip, Grid } from '@mui/material';
+import { Box, Typography, IconButton, Chip, Grid, InputAdornment, Button } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -58,7 +59,10 @@ const ForwardBalanceNoticesTable = ({
     onRowsPerPageChange,
     onSortChange,
     onRangeChange,
-    rangeLabel
+    rangeLabel,
+    searchTerm,
+    setSearchTerm,
+    onSearch
 }: {
     data: ForwardBalanceNotice[],
     totalElements: number,
@@ -67,7 +71,10 @@ const ForwardBalanceNoticesTable = ({
     onRowsPerPageChange: (s: number) => void,
     onSortChange: (colId: string, dir: 'asc' | 'desc') => void,
     onRangeChange: (range: string) => void,
-    rangeLabel: string
+    rangeLabel: string,
+    searchTerm: string,
+    setSearchTerm: (v: string) => void,
+    onSearch: (v: string) => void
 }) => {
     const { expandedRows, toggleRow } = useForwardBalanceNoticesTable();
 
@@ -109,7 +116,6 @@ const ForwardBalanceNoticesTable = ({
                 </Box>
             ),
         },
-        // { id: 'description', label: 'DESCRIPTION', minWidth: 200, align: 'center', accessor: (row) => row.description ?? '-', render: (row) => <Typography variant="body2">{row.description ?? '-'}</Typography> },
         {
             id: 'originalAmount',
             label: 'ORIGINAL AMOUNT',
@@ -133,27 +139,57 @@ const ForwardBalanceNoticesTable = ({
         },
     ], [expandedRows, toggleRow]);
 
+    const theme = useTheme();
+
     return (
-        <DataTable
-            columns={columns}
-            data={data}
-            rowKey={(row) => row.id}
-            expandedRows={expandedRows}
-            expandedContent={(row) => <Box sx={{ p: 1 }}>{row.offsets.map((offset, idx) => <OffsetSection key={idx} offset={offset} />)}</Box>}
-            exportTitle="Forward Balance Notices"
-            customToolbarContent={<RangeDropdown value={rangeLabel} onChange={onRangeChange} />}
-            dictionaryId="statements"
-            serverSide
-            totalElements={totalElements}
-            page={queryParams.page}
-            rowsPerPage={queryParams.size}
-            sortCol={queryParams.sortField}
-            sortDir={queryParams.sortOrder}
-            onPageChange={onPageChange}
-            onRowsPerPageChange={onRowsPerPageChange}
-            onSortChange={onSortChange}
-            download={false}
-        />
+        <Box>
+            <styles.ToolbarWrapper>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <styles.SearchField
+                        size="small"
+                        placeholder="Search by Transaction #"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => onSearch(searchTerm)}
+                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
+                    >
+                        Search
+                    </Button>
+                </Box>
+            </styles.ToolbarWrapper>
+            <DataTable
+                columns={columns}
+                data={data}
+                rowKey={(row) => row.id}
+                expandedRows={expandedRows}
+                expandedContent={(row) => <Box sx={{ p: 1 }}>{row.offsets.map((offset, idx) => <OffsetSection key={idx} offset={offset} />)}</Box>}
+                exportTitle="Forward Balance Notices"
+                customToolbarContent={<RangeDropdown value={rangeLabel} onChange={onRangeChange} />}
+                dictionaryId="statements"
+                serverSide
+                totalElements={totalElements}
+                page={queryParams.page}
+                rowsPerPage={queryParams.size}
+                sortCol={queryParams.sortField}
+                sortDir={queryParams.sortOrder}
+                onPageChange={onPageChange}
+                onRowsPerPageChange={onRowsPerPageChange}
+                onSortChange={onSortChange}
+                download={false}
+            />
+        </Box>
     );
 };
 
@@ -169,6 +205,9 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        searchTerm,
+        setSearchTerm,
+        onSearch,
         stats,
         globalFilters
     } = useStatementsScreen({ skip });
@@ -202,6 +241,9 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     onSortChange={handleSortChange}
                     onRangeChange={handleRangeChange}
                     rangeLabel={globalFilters.rangeLabel}
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    onSearch={onSearch}
                 />
             ) : (
                 <SuspenseAccountsScreen skip={finalActiveSubTab !== 2} />

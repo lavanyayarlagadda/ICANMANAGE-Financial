@@ -51,6 +51,7 @@ export interface PaymentSearchRequest {
   status: string | null;
   fromDate: string;
   toDate: string;
+  transactionNo?: string | null;
 }
 
 export interface PaymentSearchResponse {
@@ -74,6 +75,7 @@ export interface PipSearchRequest {
   category?: string | null;
   type?: string | null;
   payer?: string | null;
+  transactionNo?: string | null;
 }
 
 export interface PipSearchResponse {
@@ -345,6 +347,7 @@ export interface TableQueryParams {
   type?: string | null;
   payer?: string | null;
   sourceProvider?: string | null;
+  transactionNo?: string | null;
 }
 
 export interface PaymentQueryParams extends TableQueryParams {

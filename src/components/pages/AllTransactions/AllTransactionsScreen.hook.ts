@@ -1,4 +1,5 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
+import { skipToken } from '@reduxjs/toolkit/query/react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
@@ -33,7 +34,22 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        transactionNo: '',
     });
+
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearch = useCallback((term: string) => {
+        setSearchTerm(term);
+        setQueryParams(prev => ({ ...prev, transactionNo: term, page: 0 }));
+    }, []);
+
+    // Handle auto-reset when search is cleared
+    useEffect(() => {
+        if (searchTerm === '' && queryParams.transactionNo !== '') {
+            setQueryParams(prev => ({ ...prev, transactionNo: '', page: 0 }));
+        }
+    }, [searchTerm, queryParams.transactionNo]);
 
     // Keep local queryParams in sync with global filters when they change from other sources
     useEffect(() => {
@@ -54,20 +70,21 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         sortOrder: 'desc' as 'asc' | 'desc',
     });
 
-    const { data, isFetching, isError, refetch } = useSearchAllTransactionsQuery({
-        page: queryParams.page + 1,
-        size: queryParams.size,
-        sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
-        fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate,
-        status: queryParams.status,
-        category: queryParams.category,
-        type: queryParams.type,
-        payer: queryParams.sourceProvider
-    }, {
-        skip: skip || !selectedTenantId,
-    });
+    const { data, isFetching, isError, refetch } = useSearchAllTransactionsQuery(
+        (skip || !selectedTenantId) ? skipToken : {
+            page: queryParams.page + 1,
+            size: queryParams.size,
+            sort: queryParams.sortField,
+            desc: queryParams.sortOrder === 'desc',
+            fromDate: queryParams.fromDate,
+            toDate: queryParams.toDate,
+            status: queryParams.status,
+            category: queryParams.category,
+            type: queryParams.type,
+            payer: queryParams.sourceProvider,
+            transactionNo: queryParams.transactionNo
+        }
+    );
     
     // Fetch dynamic status options
     const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip });
@@ -249,6 +266,9 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         filteredTransactions: transactions,
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
+        searchTerm,
+        setSearchTerm,
+        onSearch: handleSearch,
         globalFilters,
         drillDownParams,
         // isMindPath,

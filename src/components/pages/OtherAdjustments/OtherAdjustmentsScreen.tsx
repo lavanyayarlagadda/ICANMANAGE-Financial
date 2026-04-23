@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Typography, Chip, useTheme, Box } from '@mui/material';
+import { Typography, Chip, useTheme, Box, InputAdornment, Button } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -25,6 +26,9 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         onPageChange,
         onRowsPerPageChange,
         isError,
+        searchTerm,
+        setSearchTerm,
+        onSearch
     } = useOtherAdjustmentsScreen({ skip });
 
     const columns = useMemo<DataColumn<OtherAdjustmentRecord>[]>(() => [
@@ -67,27 +71,54 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
     ], [theme, handleDrillDown, handleEdit, handleDelete]);
 
     return (
-        <DataTable
-            columns={columns}
-            data={adjustments || []}
-            rowKey={(r) => r.id}
-            exportTitle="Other Adjustments"
-            customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
-            dictionaryId="other-adjustments"
-            serverSide
-            totalElements={totalElements}
-            page={queryParams.page}
-            rowsPerPage={queryParams.size}
-            sortCol={queryParams.sortField}
-            sortDir={queryParams.sortOrder}
-            onPageChange={onPageChange}
-            onRowsPerPageChange={onRowsPerPageChange}
-            onSortChange={handleSortChange}
-            onFilterChange={handleFilterChange}
-            download={false}
-        />
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>
+            <styles.ToolbarWrapper>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <styles.SearchField
+                        size="small"
+                        placeholder="Search by Transaction #"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => onSearch(searchTerm)}
+                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
+                    >
+                        Search
+                    </Button>
+                </Box>
+            </styles.ToolbarWrapper>
+            <DataTable
+                columns={columns}
+                data={adjustments || []}
+                rowKey={(r) => r.id}
+                exportTitle="Other Adjustments"
+                customToolbarContent={<RangeDropdown onChange={handleRangeChange} />}
+                dictionaryId="other-adjustments"
+                serverSide
+                totalElements={totalElements}
+                page={queryParams.page}
+                rowsPerPage={queryParams.size}
+                sortCol={queryParams.sortField}
+                sortDir={queryParams.sortOrder}
+                onPageChange={onPageChange}
+                onRowsPerPageChange={onRowsPerPageChange}
+                onSortChange={handleSortChange}
+                onFilterChange={handleFilterChange}
+                download={false}
+            />
+        </Box>
     );
 };
 
 export default OtherAdjustmentsScreen;
-

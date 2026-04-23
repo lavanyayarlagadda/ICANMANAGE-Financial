@@ -26,7 +26,22 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        transactionNo: '',
     });
+
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearch = useCallback((term: string) => {
+        setSearchTerm(term);
+        setQueryParams(prev => ({ ...prev, transactionNo: term, page: 0 }));
+    }, []);
+
+    // Handle auto-reset when search is cleared
+    useEffect(() => {
+        if (searchTerm === '' && queryParams.transactionNo !== '') {
+            setQueryParams(prev => ({ ...prev, transactionNo: '', page: 0 }));
+        }
+    }, [searchTerm, queryParams.transactionNo]);
 
     // Keep local queryParams in sync with global filters
     useEffect(() => {
@@ -48,7 +63,8 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
-        category: queryParams.category
+        category: queryParams.category,
+        transactionNo: queryParams.transactionNo
     }, { skip: isActualSkip });
 
     const { data: pipSummaryData, isFetching: isFetchingSummary } = useGetPipSummaryQuery({
@@ -189,6 +205,9 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         handleSortChange,
         handlePageChange,
         handleRowsPerPageChange,
+        searchTerm,
+        setSearchTerm,
+        onSearch: handleSearch,
         handleExport,
         isError,
     };

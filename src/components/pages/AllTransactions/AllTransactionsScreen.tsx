@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Box, Chip, Typography, useTheme } from '@mui/material';
+import { Box, Chip, Typography, useTheme, InputAdornment, Button } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -8,7 +9,7 @@ import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { AllTransaction } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { themeConfig } from '@/theme/themeConfig';
-import { AmountText, BalanceText, transactionTypeColors } from './AllTransactionsScreen.styles';
+import { AmountText, BalanceText, transactionTypeColors, ToolbarWrapper, SearchField } from './AllTransactionsScreen.styles';
 import { useAllTransactionsScreen } from './AllTransactionsScreen.hook';
 
 const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -23,9 +24,11 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         onPageChange,
         onRowsPerPageChange,
         statusOptions,
-        // isMindPath,
         isError,
-        globalFilters
+        globalFilters,
+        searchTerm,
+        setSearchTerm,
+        onSearch
     } = useAllTransactionsScreen({ skip });
     const theme = useTheme();
 
@@ -97,36 +100,65 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
                 <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.openBalance)}</Typography>
             ) : '–',
         },
-        { 
-            id: 'status', 
-            label: 'STATUS', 
-            minWidth: 120, 
-            accessor: (r) => r.status ?? '', 
-            filterOptions: statusOptions, 
-            render: (r) => <StatusBadge status={r.status} /> 
+        {
+            id: 'status',
+            label: 'STATUS',
+            minWidth: 120,
+            accessor: (r) => r.status ?? '',
+            filterOptions: statusOptions,
+            render: (r) => <StatusBadge status={r.status} />
         },
     ], [theme.palette.error.main, theme.palette.text.primary, statusOptions]);
 
     return (
-        <DataTable
-            columns={columns}
-            data={filteredTransactions || []}
-            rowKey={(r) => r.id ?? ''}
-            exportTitle="All Transactions"
-            customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}
-            dictionaryId="all-transaction"
-            serverSide
-            totalElements={totalElements}
-            page={queryParams.page}
-            rowsPerPage={queryParams.size}
-            sortCol={queryParams.sortField}
-            sortDir={queryParams.sortOrder}
-            onPageChange={onPageChange}
-            onRowsPerPageChange={onRowsPerPageChange}
-            onSortChange={handleSortChange}
-            onFilterChange={handleFilterChange}
-            download={false}
-        />
+        <Box>
+            <ToolbarWrapper>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <SearchField
+                        size="small"
+                        placeholder="Search by Transaction #"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => onSearch(searchTerm)}
+                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
+                    >
+                        Search
+                    </Button>
+                </Box>
+            </ToolbarWrapper>
+
+            <DataTable
+                columns={columns}
+                data={filteredTransactions || []}
+                rowKey={(r) => r.id ?? ''}
+                exportTitle="All Transactions"
+                customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}
+                dictionaryId="all-transaction"
+                serverSide
+                totalElements={totalElements}
+                page={queryParams.page}
+                rowsPerPage={queryParams.size}
+                sortCol={queryParams.sortField}
+                sortDir={queryParams.sortOrder}
+                onPageChange={onPageChange}
+                onRowsPerPageChange={onRowsPerPageChange}
+                onSortChange={handleSortChange}
+                onFilterChange={handleFilterChange}
+                download={false}
+            />
+        </Box>
     );
 };
 
