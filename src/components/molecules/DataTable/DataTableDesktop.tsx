@@ -108,7 +108,7 @@ export function DataTableDesktop<T>({
                     sx={{
                       display: 'flex',
                       flexDirection: 'row',
-                      justifyContent: col.align === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start',
+                      justifyContent: (col.align || 'center') === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start',
                       '& .MuiTableSortLabel-icon': {
                         opacity: sortCol === col.id ? 1 : 0.3,
                         marginLeft: '4px',

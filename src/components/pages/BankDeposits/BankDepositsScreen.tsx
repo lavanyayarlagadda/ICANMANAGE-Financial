@@ -104,7 +104,6 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             expand: {
                 id: 'expand',
                 label: '',
-                align: 'center',
                 render: (row) => (
                     <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleRow(row.transactionNo); }}>
                         {expandedRows.has(row.transactionNo) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
@@ -114,14 +113,12 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             transactionNo: {
                 id: 'transactionNo',
                 label: 'TRANSACTION NO',
-                align: 'center',
                 accessor: (row) => row.transactionNo,
                 render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.transactionNo}</Typography>,
             },
             reference: {
                 id: 'reference',
                 label: 'REF / DATE',
-                align: 'center',
                 accessor: (row) => row.accountNo,
                 render: (row) => (
                     <Box>
@@ -133,28 +130,24 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             payerName: {
                 id: 'payerName',
                 label: 'PAYER NAME',
-                align: 'center',
                 accessor: (row) => row.payerName,
                 render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
             },
             bankAmt: {
                 id: 'bankAmt',
                 label: 'BANK AMT',
-                align: 'center',
                 accessor: (row) => row.baiAmount,
                 render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.baiAmount)}</Typography>,
             },
             remitAmt: {
                 id: 'remitAmt',
                 label: 'REMIT AMT',
-                align: 'center',
                 accessor: (row) => row.remitAmount,
                 render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.remitAmount)}</Typography>,
             },
             variance: {
                 id: 'variance',
                 label: 'VARIANCE',
-                align: 'center',
                 accessor: (row) => row.varianceAmount,
                 render: (row) => (
                     <Typography
@@ -171,7 +164,6 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             status: {
                 id: 'status',
                 label: 'STATUS',
-                align: 'center',
                 accessor: (row) => row.reconciliationStatus || row.status || 'Pending',
                 render: (row) => {
                     const status = row.reconciliationStatus || row.status || 'Pending';
@@ -257,7 +249,6 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             return {
                 id: mappedId,
                 label: dc.displayName.toUpperCase(),
-                align: 'center',
                 accessor: (row: BankDepositItem) => (row as any)[actualField],
                 render: (row: BankDepositItem) => {
                     const val = (row as any)[actualField];
@@ -292,62 +283,61 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     </Box>
                 ) : (
                     <Grid container spacing={2}>
+                        {/* Section B: REMITTANCE ADVICE */}
                         <Grid size={{ xs: 12, lg: 4 }}>
                             <SubSectionWrapper sx={{ height: '100%' }}>
                                 <SubSectionHeader>
                                     <Typography variant="caption" sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}>(B) REMITTANCE ADVICE</Typography>
                                 </SubSectionHeader>
                                 <Box sx={{ p: 0 }}>
-                                    <Box sx={{ display: 'flex', px: 2, py: 1, borderBottom: `1px solid ${theme.palette.divider}` }}>
-                                        <Typography variant="caption" color="text.secondary" sx={{ flex: 1, fontWeight: 700 }}>REMIT REFERENCE</Typography>
+                                    <Box sx={{ display: 'flex', px: 2, py: 1.5, borderBottom: `1px solid ${theme.palette.divider}` }}>
+                                        <Typography variant="caption" color="text.secondary" sx={{ flex: 1, fontWeight: 700 }}>PAYER / DATE</Typography>
                                         <Typography variant="caption" color="text.secondary" sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}>AMOUNT</Typography>
                                     </Box>
                                     {historyData?.remitDataRecords?.map((remit: any, idx: number) => (
-                                        <Box key={idx} sx={{ display: 'flex', px: 2, py: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
-                                            <Typography variant="body2" sx={{ flex: 1, fontWeight: 500 }}>{remit.transactionNumber || remit.reference}</Typography>
-                                            <Typography variant="body2" sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}>{formatCurrency(remit.amountPaid || remit.amount)}</Typography>
+                                        <Box key={idx} sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>{remit.payerName}</Typography>
+                                                <Typography variant="body2" sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}>{formatCurrency(remit.amount)}</Typography>
+                                            </Box>
+                                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>Date: {remit.receivedDate ? formatDate(remit.receivedDate) : '-'} | File: {remit.fileName}</Typography>
                                         </Box>
                                     )) || (
-                                            <Box sx={{ p: 3, textAlign: 'center' }}>
+                                            <Box sx={{ p: 4, textAlign: 'center' }}>
                                                 <Typography variant="caption" color="text.secondary">No remittance advice found</Typography>
                                             </Box>
                                         )}
                                 </Box>
                             </SubSectionWrapper>
                         </Grid>
+
+                        {/* Section C: POSTING & APPLICATION */}
                         <Grid size={{ xs: 12, lg: 4 }}>
                             <SubSectionWrapper sx={{ height: '100%' }}>
                                 <SubSectionHeader>
                                     <Typography variant="caption" sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}>(C) POSTING & APPLICATION</Typography>
                                 </SubSectionHeader>
                                 <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                                    {historyData?.cashPostingRecords?.map((post: any, idx: number) => {
-                                        const statusKey = post.status?.toLowerCase() === 'posted' ? 'match' : (post.status?.toLowerCase() === 'pending' ? 'pending' : 'critical');
-                                        const statusColors = (themeConfig.status as any)[statusKey] || themeConfig.status.critical;
-                                        return (
-                                            <PostingItemBox key={idx} sx={{ p: 1.5, borderRadius: '8px', borderLeft: `4px solid ${theme.palette.warning.main}`, backgroundColor: theme.palette.background.paper, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{post.system}</Typography>
-                                                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(post.amountPaid || post.amount)}</Typography>
-                                                </Box>
-                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Typography variant="caption" color="text.secondary">{post.date} | Ref: {post.transactionNumber || post.reference}</Typography>
-                                                    <Chip
-                                                        label={post.status}
-                                                        size="small"
-                                                        sx={{
-                                                            height: 20,
-                                                            fontSize: '10px',
-                                                            fontWeight: 700,
-                                                            bgcolor: statusColors?.bg,
-                                                            color: statusColors?.text
-                                                        }}
-                                                    />
-                                                </Box>
-                                            </PostingItemBox>
-                                        );
-                                    }) || (
-                                            <Box sx={{ p: 3, textAlign: 'center' }}>
+                                    {historyData?.cashPostingRecords?.map((post: any, idx: number) => (
+                                        <PostingItemBox key={idx} sx={{ p: 1.5, borderRadius: '8px', borderLeft: `4px solid ${theme.palette.warning.main}`, backgroundColor: theme.palette.background.paper, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                <Typography variant="body2" sx={{ fontWeight: 700 }}>{post.payerName || 'Unknown Payer'}</Typography>
+                                                <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(post.amount)}</Typography>
+                                            </Box>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Typography variant="caption" color="text.secondary">
+                                                    {post.depositDate ? formatDate(post.depositDate) : '-'} | {post.paymentMethod}
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                                                    Batch: {post.batchId}
+                                                </Typography>
+                                            </Box>
+                                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                                                {post.fileName} | {post.paymentType}
+                                            </Typography>
+                                        </PostingItemBox>
+                                    )) || (
+                                            <Box sx={{ p: 4, textAlign: 'center' }}>
                                                 <Typography variant="caption" color="text.secondary">No posting application data found</Typography>
                                             </Box>
                                         )}

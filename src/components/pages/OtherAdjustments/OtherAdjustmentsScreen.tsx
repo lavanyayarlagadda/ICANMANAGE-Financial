@@ -17,6 +17,8 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         adjustments,
         totalElements,
         queryParams,
+        payerOptions,
+        // typeOptions,
         handleDrillDown,
         handleEdit,
         handleDelete,
@@ -52,12 +54,11 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             filterOptions: ['WRITE-OFF', 'CREDIT', 'INTEREST', 'CONTRACTUAL', 'REFUND', 'TRANSFER', 'RECLASSIFICATION', 'CHARITY'],
             render: (r) => <Chip label={r.type} size="small" sx={styles.adjustmentChipStyles(r.type)} />,
         },
-        { id: 'payer', label: 'SOURCE / PROVIDER', minWidth: 160, accessor: (r) => r.sourceProvider, filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
+        { id: 'payer', label: 'PAYER', minWidth: 160, accessor: (r) => r.sourceProvider, filterOptions: payerOptions, render: (r) => r.sourceProvider },
         {
             id: 'amount',
             label: 'AMOUNT',
             minWidth: 120,
-            align: 'center',
             accessor: (r) => r.amount,
             render: (r) => (
                 <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600, color: r.amount < 0 ? theme.palette.error.main : r.amount > 0 ? theme.palette.success.main : theme.palette.text.primary }}>

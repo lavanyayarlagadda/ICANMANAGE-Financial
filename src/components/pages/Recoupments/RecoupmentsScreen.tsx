@@ -18,6 +18,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         recoupments,
         totalElements,
         queryParams,
+        payerOptions,
         stats,
         handleDrillDown,
         handleEdit,
@@ -52,32 +53,27 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             minWidth: 160,
             accessor: (r) => r.transactionNo ?? '-',
             render: (r) => r.transactionNo ?? '-',
-            align: 'center'
-
         },
         {
-            id: 'payer', label: 'PAYER', align: 'center'
-            , minWidth: 140, accessor: (r) => r.payer, filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (r) => r.payer
+            id: 'payer', label: 'PAYER'
+            , minWidth: 140, accessor: (r) => r.payer, filterOptions: payerOptions, render: (r) => r.payer
         },
         {
             id: 'claim',
             label: 'CLAIM / PATIENT',
             minWidth: 180,
             accessor: (r) => r.claimPatient,
-            align: 'center'
-            ,
             render: (r) => (
                 <Box>
                     <Typography variant="caption" color="text.secondary">{r.claimPatient}</Typography>
                 </Box>
             ),
         },
-        { id: 'originalPaymentAmount', label: 'ORIG. PAYMENT', minWidth: 120, align: 'center', accessor: (r) => r.originalPaymentAmount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.originalPaymentAmount)}</Box> },
+        { id: 'originalPaymentAmount', label: 'ORIG. PAYMENT', minWidth: 120, accessor: (r) => r.originalPaymentAmount, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.originalPaymentAmount)}</Box> },
         {
             id: 'recoupmentAmount',
             label: 'RECOUPMENT AMT',
             minWidth: 130,
-            align: 'center',
             accessor: (r) => r.recoupmentAmount,
             render: (r) => (
                 <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600, color: theme.palette.error.main }}>

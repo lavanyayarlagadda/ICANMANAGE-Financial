@@ -105,7 +105,7 @@ export function DataTableMobile<T>({
                         </IconButton>
                       )}
                     </Box>
-                    <Box sx={{ textAlign: 'right', flex: 1 }}>
+                    <Box sx={{ textAlign: col.align || 'center', flex: 1 }}>
                       {col.render(row)}
                     </Box>
                   </Box>

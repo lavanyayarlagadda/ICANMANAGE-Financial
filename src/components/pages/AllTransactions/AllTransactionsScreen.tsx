@@ -44,12 +44,11 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
                     onView={() => handleDrillDown(r)} />
             ),
         },
-        { id: 'effectiveDate', label: 'EFFECTIVE DATE', minWidth: 120, align: 'center', accessor: (r) => r.effectiveDate ?? '', render: (r) => formatDate(r.effectiveDate) },
+        { id: 'effectiveDate', label: 'EFFECTIVE DATE', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => formatDate(r.effectiveDate) },
         {
             id: 'transactionNo',
             label: 'TRANSACTION NUMBER',
             minWidth: 170,
-            align: 'center',
             accessor: (r) => r.transactionNo ?? '-',
             render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.transactionNo ?? '-'}</Typography>
         },
@@ -58,7 +57,6 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             label: 'CATEGORY',
             minWidth: 140,
             accessor: (r) => r.category ?? '',
-            align: 'center',
             filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT'],
             render: (r) => {
                 const colors = transactionTypeColors[r.category] || { bg: themeConfig.colors.slate[100], text: themeConfig.colors.slate[600] };
@@ -72,19 +70,18 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             },
         },
         {
-            id: 'type', align: 'center',
+            id: 'type',
             label: 'TYPE', minWidth: 100, accessor: (r) => r.type ?? '', filterOptions: transactionTypeOptions, render: (r) => r.type
         },
         // { id: 'description', label: 'DESCRIPTION', minWidth: 240, accessor: (r) => r.description ?? '', render: (r) => r.description },
         {
-            id: 'payer', align: 'center',
+            id: 'payer',
             label: 'PAYER', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: payerOptions, render: (r) => r.sourceProvider
         },
         {
             id: 'amount',
             label: 'AMOUNT',
             minWidth: 120,
-            align: 'center',
             accessor: (r) => r.amount ?? 0,
             render: (r) => (
                 <Typography
@@ -103,7 +100,6 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             id: 'openBalance',
             label: 'OPEN BALANCE',
             minWidth: 120,
-            align: 'center',
             accessor: (r) => r.openBalance ?? 0,
             render: (r) => r.openBalance != null ? (
                 <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.openBalance)}</Typography>
@@ -115,7 +111,6 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             minWidth: 120,
             accessor: (r) => r.status ?? '',
             filterOptions: statusOptions,
-            align: 'center',
 
             render: (r) => <StatusBadge status={r.status} />
         },

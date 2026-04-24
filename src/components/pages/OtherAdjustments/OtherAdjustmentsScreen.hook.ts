@@ -22,7 +22,7 @@ import { subMonths, format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
-import { useLazyExportOtherAdjustmentsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchOtherAdjustmentsQuery } from '@/store/api/financialsApi';
+import { useLazyExportOtherAdjustmentsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchOtherAdjustmentsQuery, useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
 
 export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -76,6 +76,10 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         sortOrder: 'desc' as 'asc' | 'desc',
     });
     const adjustments = useMemo(() => data?.data?.content ?? [], [data]);
+
+    const { data: filtersData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
+    const payerOptions = useMemo(() => filtersData?.data?.payers?.map(p => p.payerName) ?? [], [filtersData]);
+    // const typeOptions = useMemo(() => filtersData?.data?.transactionTypes?.map(t => t.transactionType) ?? [], [filtersData]);
 
     const [triggerExportOtherAdjustments] = useLazyExportOtherAdjustmentsQuery();
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
@@ -223,6 +227,8 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         adjustments,
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
+        payerOptions,
+        // typeOptions,
         handleDrillDown,
         handleEdit,
         handleDelete,

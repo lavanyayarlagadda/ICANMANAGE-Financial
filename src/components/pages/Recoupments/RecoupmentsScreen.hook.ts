@@ -22,7 +22,8 @@ import {
     useLazyExportRecoupmentsQuery,
     useLazyGetRemittanceClaimsQuery,
     useLazySearchServiceLinesQuery,
-    useSearchRecoupmentsQuery
+    useSearchRecoupmentsQuery,
+    useGetAllTransactionsFiltersQuery
 } from '@/store/api/financialsApi';
 import { TableQueryParams } from '@/interfaces/api';
 import { subMonths, format } from 'date-fns';
@@ -94,6 +95,9 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
     }, { skip: isActualSkip });
 
     const recoupments = useMemo(() => data?.data?.content ?? [], [data]);
+
+    const { data: filtersData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
+    const payerOptions = useMemo(() => filtersData?.data?.payers?.map(p => p.payerName) ?? [], [filtersData]);
 
     const [triggerExportRecoupments] = useLazyExportRecoupmentsQuery();
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
@@ -246,6 +250,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         recoupments,
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
+        payerOptions,
         drillDownParams,
         stats,
         handleDrillDown,
