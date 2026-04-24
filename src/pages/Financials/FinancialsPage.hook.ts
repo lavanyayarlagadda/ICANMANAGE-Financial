@@ -118,9 +118,8 @@ export const useFinancialsPage = () => {
 
     if (showRemittanceDetail) {
       dispatch(resetRemittanceViewState());
-      navigate('/financials/all-transactions', { replace: true });
     }
-  }, [selectedTenantId, showRemittanceDetail, dispatch, navigate]);
+  }, [selectedTenantId, showRemittanceDetail, dispatch]);
 
   const handleDelete = useCallback(() => {
     if (!uiState.confirmDeleteId) return;
