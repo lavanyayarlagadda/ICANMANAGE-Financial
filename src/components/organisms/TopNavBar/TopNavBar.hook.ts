@@ -7,9 +7,11 @@ import { toggleSidebarCollapse, setActiveTab, setActiveSubTab, resetUiState } fr
 import { resetGlobalFilters } from '@/store/slices/financialsSlice';
 import { setSelectedTenantId, setTenants, setTenantLoading } from '@/store/slices/tenantSlice';
 import { useGetTenantsQuery } from '@/store/api/tenantApi';
-import { useGetMeDetailsQuery } from '@/store/api/userApi';
+import { useGetMeDetailsQuery, userApi } from '@/store/api/userApi';
 import { baseApi } from '@/store/api/baseApi';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { NAV_CONFIG } from '@/config/navigation';
+
 
 interface UseTopNavBarProps {
   onMenuToggle: () => void;
@@ -26,7 +28,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
     skip: !isCognitiveUser,
   });
 
-  const { data: userDetails, refetch: refetchMeDetails } = useGetMeDetailsQuery(undefined, {
+  const { refetch: refetchMeDetails } = useGetMeDetailsQuery(undefined, {
     skip: !user || (!!isCognitiveUser && (!selectedTenantId || !tenantData || tenantData.length === 0))
   });
 
@@ -45,15 +47,46 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
     }
   }, [tenantData, dispatch, selectedTenantId]);
 
-  const handleTenantChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+  const handleTenantChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
     const newTenantId = event.target.value;
+    
+    // 1. Update the tenant in the store
     dispatch(setSelectedTenantId(newTenantId));
+    
+    // 2. Clear previous state to avoid data cross-contamination
     dispatch(resetGlobalFilters());
     dispatch(setActiveTab(0));
     dispatch(setActiveSubTab(0));
-    dispatch(baseApi.util.resetApiState()); // Force all queries to refetch with the new tenant ID
-    refetchMeDetails();
-    navigate('/financials/all-transactions'); // Go to Details page on tenant change
+    dispatch(baseApi.util.resetApiState()); 
+    
+    try {
+      // 3. Manually trigger the details fetch for the NEW tenant
+      // We use initiate directly to avoid any hook/cache lifecycle delays
+      const result = await dispatch(userApi.endpoints.getMeDetails.initiate(undefined, { 
+        subscribe: false, 
+        forceRefetch: true 
+      })).unwrap();
+
+      const newLandingPage = result?.defaultLandingPage;
+
+      if (newLandingPage) {
+        const configKey = Object.keys(NAV_CONFIG).find(
+          key => key.toLowerCase() === newLandingPage.toLowerCase()
+        );
+
+        if (configKey) {
+          navigate(NAV_CONFIG[configKey].path, { replace: true });
+        }
+      }
+      
+      // Also trigger a refetch of the hook-based query to keep the UI in sync
+      refetchMeDetails();
+      
+    } catch (error) {
+      console.error('Failed to resolve tenant landing page:', error);
+      // Fallback if the specific tenant fetch fails
+      navigate('/financials', { replace: true });
+    }
   }, [dispatch, refetchMeDetails, navigate]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
