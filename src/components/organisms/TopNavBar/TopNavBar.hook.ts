@@ -4,7 +4,7 @@ import { SelectChangeEvent } from '@mui/material';
 import { RootState, useAppSelector, useAppDispatch } from '@/store';
 import { logout } from '@/store/slices/authSlice';
 import { toggleSidebarCollapse, setActiveTab, setActiveSubTab, resetUiState } from '@/store/slices/uiSlice';
-import { resetGlobalFilters } from '@/store/slices/financialsSlice';
+import { resetGlobalFilters, resetRemittanceViewState } from '@/store/slices/financialsSlice';
 import { setSelectedTenantId, setTenants, setTenantLoading } from '@/store/slices/tenantSlice';
 import { useGetTenantsQuery } from '@/store/api/tenantApi';
 import { useGetMeDetailsQuery } from '@/store/api/userApi';
@@ -47,14 +47,17 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
 
   const handleTenantChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const newTenantId = event.target.value;
+    if (String(newTenantId) === String(selectedTenantId || '')) return;
+
     dispatch(setSelectedTenantId(newTenantId));
     dispatch(resetGlobalFilters());
+    dispatch(resetRemittanceViewState());
     dispatch(setActiveTab(0));
     dispatch(setActiveSubTab(0));
     dispatch(baseApi.util.resetApiState()); // Force all queries to refetch with the new tenant ID
     refetchMeDetails();
-    navigate('/financials/all-transactions'); // Go to Details page on tenant change
-  }, [dispatch, refetchMeDetails, navigate]);
+    navigate('/financials/all-transactions', { replace: true }); // Reset to parent grid on tenant change
+  }, [dispatch, refetchMeDetails, navigate, selectedTenantId]);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [demoModalOpen, setDemoModalOpen] = useState(false);

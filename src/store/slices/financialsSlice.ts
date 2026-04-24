@@ -151,6 +151,13 @@ const financialsSlice = createSlice({
         rangeLabel: '1 month',
       };
     },
+    resetRemittanceViewState: (state) => {
+      state.showRemittanceDetail = false;
+      state.selectedPaymentId = null;
+      state.remittanceDetail = null;
+      state.remittanceClaims = [];
+      state.selectedClaimIndex = 0;
+    },
   },
 });
 
@@ -173,6 +180,7 @@ export const {
   deleteBankDeposit,
   setGlobalFilters,
   resetGlobalFilters,
+  resetRemittanceViewState,
 } = financialsSlice.actions;
 export default financialsSlice.reducer;
 
