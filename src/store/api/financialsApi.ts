@@ -41,7 +41,9 @@ import {
   MappedHeadersResponse,
   DynamicColumn,
   DynamicTabsResponse,
-  BrandTab
+  BrandTab,
+  AllTransactionsFilterResponse,
+  BankDepositExportRequest
 } from "@/interfaces/api";
 
 import { normalizeRemittanceClaims } from "@/utils/normalizeRemittanceClaims";
@@ -156,11 +158,12 @@ export const financialsApi = baseApi.injectEndpoints({
     }),
     exportBankDeposits: builder.query<
       Blob,
-      { fromDate: string; toDate: string; hospitalId: number; format: "pdf" | "xlsx" }
+      BankDepositExportRequest
     >({
-      query: (params) => ({
-        url: `financials/export/bank-deposits`,
-        params,
+      query: (body) => ({
+        url: `financials/reconciliation/bank-deposits/export`,
+        method: 'POST',
+        body,
         responseHandler: (response) => response.blob(),
       }),
     }),
@@ -341,6 +344,9 @@ export const financialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Financials"],
     }),
+    getAllTransactionsFilters: builder.query<AllTransactionsFilterResponse, void>({
+      query: () => "/financials/dropdown",
+    }),
     searchRecoupments: builder.query<
       RecoupmentSearchResponse,
       TableSearchRequest
@@ -499,5 +505,6 @@ export const {
   useLazyGetBankDepositHistoryQuery,
   useGetBankDepositHistoryQuery,
   useLazyGetBaiTriggerHistoryQuery,
-  useGetBaiTriggerHistoryQuery
+  useGetBaiTriggerHistoryQuery,
+  useGetAllTransactionsFiltersQuery
 } = financialsApi;

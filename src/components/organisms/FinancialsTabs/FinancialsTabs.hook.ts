@@ -63,8 +63,9 @@ export const useFinancialsTabs = ({
   const currentSubTabs = currentMainTab?.subTabs || [];
 
   const isExecutiveSummary = currentMainTab?.label === 'Trends & Forecast';
+  const isBankDeposits = currentMainTab?.label === 'Bank Deposits';
   const canShowActions = financialsTabs.length > 0 && !isRestricted && activeTab !== -1;
-  const shouldShowPrint = showPrint ?? (canShowActions && !isExecutiveSummary);
+  const shouldShowPrint = showPrint ?? (canShowActions && !isExecutiveSummary && !isBankDeposits);
   const shouldShowReload = showReload ?? canShowActions;
   const shouldShowExport = showExportWizard ?? (canShowActions && !isExecutiveSummary);
 

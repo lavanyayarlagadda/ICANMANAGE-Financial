@@ -279,6 +279,14 @@ export interface BankDepositSearchRequest {
   statusList: string[];
 }
 
+export interface BankDepositExportRequest {
+  startDate: string;
+  endDate: string;
+  icanManageId: number;
+  clientName: string;
+  hospitalId: number | string;
+}
+
 export interface BankDepositResponse {
   data: BankDepositItem[];
 }
@@ -393,3 +401,23 @@ export interface DynamicTabsResponse {
   data: BrandTab[];
   message: string | null;
 }
+
+export interface PayerFilter {
+  payerId: number;
+  payerName: string;
+}
+
+export interface TransactionTypeFilter {
+  transactionTypeId: number;
+  transactionType: string;
+}
+
+export interface AllTransactionsFilterResponse {
+  data: {
+    payers: PayerFilter[];
+    transactionTypes: TransactionTypeFilter[];
+  };
+  message: string | null;
+}
+
+export type AllTransactionsDropdownResponse = AllTransactionsFilterResponse;

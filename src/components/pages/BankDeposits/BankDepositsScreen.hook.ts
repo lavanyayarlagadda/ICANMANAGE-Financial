@@ -142,10 +142,12 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         try {
             dispatch(setActiveExportType(formatType));
             const result = await triggerExport({
-                fromDate: queryParams.fromDate,
-                toDate: queryParams.toDate,
+                startDate: queryParams.fromDate,
+                endDate: queryParams.toDate,
+                icanManageId: Number(userId),
+                clientName: selectedTenant?.displayName?.toLowerCase() || 'mindpath',
                 hospitalId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
-                format: formatType
+
             }).unwrap();
 
             if (result !== undefined) {
@@ -159,7 +161,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         } finally {
             dispatch(setActiveExportType(null));
         }
-    }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
+    }, [dispatch, queryParams.fromDate, queryParams.toDate, userId, selectedTenant, triggerExport]);
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {

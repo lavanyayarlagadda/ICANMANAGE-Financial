@@ -24,6 +24,8 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         onPageChange,
         onRowsPerPageChange,
         statusOptions,
+        payerOptions,
+        transactionTypeOptions,
         isError,
         globalFilters,
         searchTerm,
@@ -56,6 +58,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             label: 'CATEGORY',
             minWidth: 140,
             accessor: (r) => r.category ?? '',
+            align: 'center',
             filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT'],
             render: (r) => {
                 const colors = transactionTypeColors[r.category] || { bg: themeConfig.colors.slate[100], text: themeConfig.colors.slate[600] };
@@ -68,9 +71,15 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
                 );
             },
         },
-        { id: 'type', label: 'TYPE', minWidth: 100, accessor: (r) => r.type ?? '', filterOptions: ['CHECK', 'EFT', 'BULK'], render: (r) => r.type },
+        {
+            id: 'type', align: 'center',
+            label: 'TYPE', minWidth: 100, accessor: (r) => r.type ?? '', filterOptions: transactionTypeOptions, render: (r) => r.type
+        },
         // { id: 'description', label: 'DESCRIPTION', minWidth: 240, accessor: (r) => r.description ?? '', render: (r) => r.description },
-        { id: 'payer', label: 'PAYER', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: ['HOSPICE OF THE SOUTH', 'UNITED HEALTHCARE', 'AETNA'], render: (r) => r.sourceProvider },
+        {
+            id: 'payer', align: 'center',
+            label: 'PAYER', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: payerOptions, render: (r) => r.sourceProvider
+        },
         {
             id: 'amount',
             label: 'AMOUNT',
@@ -106,9 +115,11 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             minWidth: 120,
             accessor: (r) => r.status ?? '',
             filterOptions: statusOptions,
+            align: 'center',
+
             render: (r) => <StatusBadge status={r.status} />
         },
-    ], [theme.palette.error.main, theme.palette.text.primary, statusOptions]);
+    ], [theme.palette.error.main, theme.palette.text.primary, statusOptions, payerOptions, transactionTypeOptions]);
 
     return (
         <Box>

@@ -2,7 +2,7 @@ import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
-import { useLazyExportAllTransactionsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery, useGetPaymentStatusQuery } from '@/store/api/financialsApi';
+import { useLazyExportAllTransactionsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery, useGetPaymentStatusQuery, useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
 import { TableQueryParams } from '@/interfaces/api';
 import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
@@ -92,6 +92,17 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     const statusOptions = useMemo(() =>
         statusData?.data?.map(s => ({ label: s.postingStatus, value: String(s.postingStatusMasterId) })) ?? [],
         [statusData]);
+
+    // Fetch dynamic payer and transaction type options
+    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
+
+    const payerOptions = useMemo(() =>
+        filterData?.data?.payers?.map(p => ({ label: p.payerName, value: String(p.payerId) })) ?? [],
+        [filterData]);
+
+    const transactionTypeOptions = useMemo(() =>
+        filterData?.data?.transactionTypes?.map(t => ({ label: t.transactionType, value: String(t.transactionTypeId) })) ?? [],
+        [filterData]);
 
     const transactions = useMemo(() => {
         const raw = data?.data?.content ?? [];
@@ -285,6 +296,8 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         onRowsPerPageChange,
         onDrillDownParamsChange,
         statusOptions,
+        payerOptions,
+        transactionTypeOptions,
         isError,
         dispatch
     };
