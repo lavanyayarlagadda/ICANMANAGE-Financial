@@ -4,7 +4,7 @@ import { SelectChangeEvent } from '@mui/material';
 import { RootState, useAppSelector, useAppDispatch } from '@/store';
 import { logout } from '@/store/slices/authSlice';
 import { toggleSidebarCollapse, setActiveTab, setActiveSubTab, resetUiState } from '@/store/slices/uiSlice';
-import { resetGlobalFilters } from '@/store/slices/financialsSlice';
+import { resetGlobalFilters, resetRemittanceViewState } from '@/store/slices/financialsSlice';
 import { setSelectedTenantId, setTenants, setTenantLoading } from '@/store/slices/tenantSlice';
 import { useGetTenantsQuery } from '@/store/api/tenantApi';
 import { useGetMeDetailsQuery, userApi } from '@/store/api/userApi';
@@ -55,6 +55,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
     
     // 2. Clear previous state to avoid data cross-contamination
     dispatch(resetGlobalFilters());
+    dispatch(resetRemittanceViewState());
     dispatch(setActiveTab(0));
     dispatch(setActiveSubTab(0));
     dispatch(baseApi.util.resetApiState()); 

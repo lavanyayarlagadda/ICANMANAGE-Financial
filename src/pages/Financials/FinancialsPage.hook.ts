@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useCallback, useState } from 'react';
+import { useEffect, useMemo, useCallback, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/store';
 import {
@@ -15,6 +15,7 @@ import {
 } from '@/store/slices/uiSlice';
 import {
   setShowRemittanceDetail,
+  resetRemittanceViewState,
   deletePayment,
   deleteRecoupment,
   deleteAdjustment,
@@ -30,10 +31,12 @@ export const useFinancialsPage = () => {
   const dispatch = useAppDispatch();
   const uiState = useAppSelector((s) => s.ui);
   const { showRemittanceDetail } = useAppSelector((s) => s.financials);
+  const selectedTenantId = useAppSelector((s) => s.tenant.selectedTenantId);
   // const { canViewPip } = useUserPermissions();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const previousTenantIdRef = useRef<string | null>(selectedTenantId);
 
   const { user: userFromPermissions, userDetails, isLoadingDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
@@ -104,6 +107,19 @@ export const useFinancialsPage = () => {
       }
     }
   }, [location.pathname, dispatch, navigate, financialsTabs, isLoadingDetails, pathMap]);
+
+  useEffect(() => {
+    const previousTenantId = previousTenantIdRef.current;
+    previousTenantIdRef.current = selectedTenantId;
+
+    if (!previousTenantId || !selectedTenantId || previousTenantId === selectedTenantId) {
+      return;
+    }
+
+    if (showRemittanceDetail) {
+      dispatch(resetRemittanceViewState());
+    }
+  }, [selectedTenantId, showRemittanceDetail, dispatch]);
 
   const handleDelete = useCallback(() => {
     if (!uiState.confirmDeleteId) return;
