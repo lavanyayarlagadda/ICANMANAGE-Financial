@@ -24,26 +24,26 @@ import { FeeScheduleVariance, PaymentVariance } from '@/interfaces/financials';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 
 const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-    const { 
-        activeSubTab, 
-        queryParams, 
-        globalFilters, 
-        feeData, 
-        feeSummaryData, 
-        paymentData, 
-        paymentSummaryData, 
+    const {
+        activeSubTab,
+        queryParams,
+        globalFilters,
+        feeData,
+        feeSummaryData,
+        paymentData,
+        paymentSummaryData,
         totalElementsFee,
         totalElementsPayment,
-        handleDrillDown, 
-        handleRangeChange, 
-        handleSortChange, 
-        handlePageChange, 
+        handleDrillDown,
+        handleRangeChange,
+        handleSortChange,
+        handlePageChange,
         handleRowsPerPageChange,
         searchTerm,
         setSearchTerm,
         onSearch,
         handleFilterChange,
-        payerOptions 
+        payerOptions,
     } = useVarianceScreen({ skip });
     const theme = useTheme();
     const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
@@ -150,7 +150,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Grid size={{ xs: 12, md: 4 }}><SummaryCard title={summaryValues.lbl2} value={formatCurrency(summaryValues.tAct)} backgroundColor={themeConfig.colors.surface} /></Grid>
                 <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="LEAKAGE" value={formatCurrency(summaryValues.tLeak)} backgroundColor={themeConfig.colors.surface} /></Grid>
             </Grid>
-            
+
             <ToolbarWrapper>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                     <SearchField

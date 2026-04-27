@@ -139,7 +139,7 @@ const ForwardBalanceNoticesTable = ({
             label: 'STATUS',
             align: 'center',
             accessor: (row) => row.status,
-            filterOptions: statusOptions,
+            // filterOptions: statusOptions,
             render: (row) => <StatusBadge status={row.status} />,
         },
     ], [expandedRows, toggleRow]);

@@ -47,7 +47,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
-        payer: null as string | null,
+        payerName: null as string | null,
         transactionNo: '' as string | null,
     });
 
@@ -81,7 +81,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
-        payer: queryParams.payer,
+        payerName: queryParams.payerName,
         transactionNo: queryParams.transactionNo
     }, { skip: skip || activeSubTab !== 0 });
 
@@ -97,7 +97,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
-        payer: queryParams.payer,
+        payerName: queryParams.payerName,
         transactionNo: queryParams.transactionNo
     }, { skip: skip || activeSubTab !== 1 });
 
@@ -112,8 +112,8 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const [triggerExportPayment] = useLazyExportPaymentVarianceQuery();
     const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
     const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip });
-    const payerOptions = React.useMemo(() => 
-        filterData?.data?.payers?.map(p => ({ label: p.payerName, value: String(p.payerId) })) ?? [], 
+    const payerOptions = React.useMemo(() =>
+        filterData?.data?.payers?.map(p => ({ label: p.payerName, value: p.payerName })) ?? [],
         [filterData]);
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
@@ -263,10 +263,10 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         setQueryParams(prev => {
             const next = {
                 ...prev,
-                payer: filters.payerName || null,
+                payerName: filters.payerName || null,
                 page: 0
             };
-            return prev.payer !== next.payer ? next : prev;
+            return prev.payerName !== next.payerName ? next : prev;
         });
     }, []);
 

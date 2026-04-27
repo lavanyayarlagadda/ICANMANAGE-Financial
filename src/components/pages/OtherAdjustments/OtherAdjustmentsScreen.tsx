@@ -44,14 +44,21 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
                 />
             ),
         },
-        { id: 'adjustmentId', label: 'TRANSACTION NUMBER', minWidth: 160, accessor: (r) => r.adjustmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.adjustmentId}</Typography> },
+        { id: 'adjustmentId', label: 'Adjustment ID', minWidth: 160, accessor: (r) => r.adjustmentId, render: (r) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.adjustmentId}</Typography> },
+        {
+            id: 'transactionNo',
+            label: 'TRANSACTION NUMBER',
+            minWidth: 160,
+            accessor: (r) => r.transactionNo ?? '-',
+            render: (r) => r.transactionNo ?? '-',
+        },
         { id: 'effectiveDate', label: 'EFFECTIVE DATE', minWidth: 120, accessor: (r) => r.effectiveDate, render: (r) => formatDate(r.effectiveDate) },
         {
             id: 'type',
             label: 'TYPE',
             minWidth: 140,
             accessor: (r) => r.type,
-            filterOptions: ['WRITE-OFF', 'CREDIT', 'INTEREST', 'CONTRACTUAL', 'REFUND', 'TRANSFER', 'RECLASSIFICATION', 'CHARITY'],
+            // filterOptions: ['WRITE-OFF', 'CREDIT', 'INTEREST', 'CONTRACTUAL', 'REFUND', 'TRANSFER', 'RECLASSIFICATION', 'CHARITY'],
             render: (r) => <Chip label={r.type} size="small" sx={styles.adjustmentChipStyles(r.type)} />,
         },
         { id: 'payer', label: 'PAYER', minWidth: 160, accessor: (r) => r.sourceProvider, filterOptions: payerOptions, render: (r) => r.sourceProvider },
@@ -67,7 +74,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             ),
         },
         { id: 'referenceId', label: 'REFERENCE ID', minWidth: 110, accessor: (r) => r.referenceId, render: (r) => r.referenceId },
-        { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Applied', 'Pending', 'Under Review'], render: (r) => <StatusBadge status={r.status} /> },
+        { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleDrillDown, handleEdit, handleDelete]);
 
     return (

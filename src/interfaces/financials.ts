@@ -185,6 +185,7 @@ export interface OtherAdjustmentRecord {
   amount: number;
   referenceId: string;
   status: TransactionStatus;
+  transactionNo: string;
 }
 
 export interface AllTransaction {

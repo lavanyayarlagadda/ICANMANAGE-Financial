@@ -23,7 +23,7 @@ import {
     useLazyGetRemittanceClaimsQuery,
     useLazySearchServiceLinesQuery,
     useSearchRecoupmentsQuery,
-    useGetAllTransactionsFiltersQuery
+    useGetRecoupmentFiltersQuery
 } from '@/store/api/financialsApi';
 import { TableQueryParams } from '@/interfaces/api';
 import { subMonths, format } from 'date-fns';
@@ -44,7 +44,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         status: null,
-        payer: null,
+        payerName: null,
         transactionNo: '',
     });
 
@@ -90,16 +90,16 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
-        payer: queryParams.payer,
+        payerName: queryParams.payerName,
         transactionNo: queryParams.transactionNo
     }, { skip: isActualSkip });
 
     const recoupments = useMemo(() => data?.data?.content ?? [], [data]);
 
-    const { data: filtersData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
-    const payerOptions = useMemo(() => filtersData?.data?.payers?.map(p => ({ 
-        label: p.payerName, 
-        value: String(p.payerId) 
+    const { data: filtersData } = useGetRecoupmentFiltersQuery(undefined, { skip: isActualSkip });
+    const payerOptions = useMemo(() => filtersData?.data?.map(p => ({
+        label: p.payer,
+        value: p.payer
     })) ?? [], [filtersData]);
 
     const [triggerExportRecoupments] = useLazyExportRecoupmentsQuery();
@@ -238,10 +238,10 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
             const next = {
                 ...prev,
                 status: filters.status || null,
-                payer: filters.payer || null,
+                payerName: filters.payer || null,
                 page: 0
             };
-            const isChanged = prev.status !== next.status || prev.payer !== next.payer;
+            const isChanged = prev.status !== next.status || prev.payerName !== next.payerName;
             return isChanged ? next : prev;
         });
     }, []);

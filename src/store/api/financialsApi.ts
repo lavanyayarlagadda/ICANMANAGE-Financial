@@ -43,7 +43,8 @@ import {
   DynamicTabsResponse,
   BrandTab,
   AllTransactionsFilterResponse,
-  BankDepositExportRequest
+  BankDepositExportRequest,
+  RecoupmentFilterResponse
 } from "@/interfaces/api";
 
 import { normalizeRemittanceClaims } from "@/utils/normalizeRemittanceClaims";
@@ -458,6 +459,9 @@ export const financialsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Financials"],
     }),
+    getRecoupmentFilters: builder.query<RecoupmentFilterResponse, void>({
+      query: () => "financials/transactions/recoupments/filters",
+    }),
   }),
 });
 
@@ -506,5 +510,6 @@ export const {
   useGetBankDepositHistoryQuery,
   useLazyGetBaiTriggerHistoryQuery,
   useGetBaiTriggerHistoryQuery,
-  useGetAllTransactionsFiltersQuery
+  useGetAllTransactionsFiltersQuery,
+  useGetRecoupmentFiltersQuery
 } = financialsApi;

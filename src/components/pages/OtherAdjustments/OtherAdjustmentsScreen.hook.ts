@@ -22,7 +22,7 @@ import { subMonths, format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
-import { useLazyExportOtherAdjustmentsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchOtherAdjustmentsQuery, useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
+import { useLazyExportOtherAdjustmentsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchOtherAdjustmentsQuery, useGetRecoupmentFiltersQuery } from '@/store/api/financialsApi';
 
 export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -66,7 +66,7 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
-        payer: queryParams.payer,
+        payerName: queryParams.payer,
         transactionNo: queryParams.transactionNo
     }, { skip: isActualSkip });
     const [drillDownParams, setDrillDownParams] = useState({
@@ -77,10 +77,10 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
     });
     const adjustments = useMemo(() => data?.data?.content ?? [], [data]);
 
-    const { data: filtersData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
-    const payerOptions = useMemo(() => filtersData?.data?.payers?.map(p => ({ 
-        label: p.payerName, 
-        value: String(p.payerId) 
+    const { data: filtersData } = useGetRecoupmentFiltersQuery(undefined, { skip: isActualSkip });
+    const payerOptions = useMemo(() => filtersData?.data?.map(p => ({
+        label: p.payer,
+        value: p.payer
     })) ?? [], [filtersData]);
     // const typeOptions = useMemo(() => filtersData?.data?.transactionTypes?.map(t => t.transactionType) ?? [], [filtersData]);
 
@@ -215,10 +215,10 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
             const next = {
                 ...prev,
                 status: filters.status || null,
-                payer: filters.payer || null,
+                payerName: filters.payer || null,
                 page: 0
             };
-            const isChanged = prev.status !== next.status || prev.payer !== next.payer;
+            const isChanged = prev.status !== next.status || prev.payerName !== next.payerName;
             return isChanged ? next : prev;
         });
     }, []);

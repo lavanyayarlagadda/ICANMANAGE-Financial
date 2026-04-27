@@ -82,7 +82,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             ),
         },
         { id: 'recoupmentDate', label: 'DATE', minWidth: 110, accessor: (r) => r.recoupmentDate, render: (r) => formatDate(r.recoupmentDate) },
-        { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, filterOptions: ['Processed', 'Pending', 'Disputed'], render: (r) => <StatusBadge status={r.status} /> },
+        { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, render: (r) => <StatusBadge status={r.status} /> },
     ], [theme, handleDrillDown, handleEdit, handleDelete]);
 
     return (

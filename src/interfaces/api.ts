@@ -77,6 +77,7 @@ export interface PipSearchRequest {
   category?: string | null;
   type?: string | null;
   payer?: string | null;
+  payerName?: string | null;
   transactionNo?: string | null;
   icanManageId?: string | number;
 }
@@ -358,6 +359,7 @@ export interface TableQueryParams {
   category?: string | null;
   type?: string | null;
   payer?: string | null;
+  payerName?: string | null;
   sourceProvider?: string | null;
   transactionNo?: string | null;
 }
@@ -428,3 +430,9 @@ export interface AllTransactionsFilterResponse {
 }
 
 export type AllTransactionsDropdownResponse = AllTransactionsFilterResponse;
+export interface RecoupmentFilterResponse {
+  data: {
+    payer: string;
+  }[];
+  message: string | null;
+}
