@@ -1,6 +1,8 @@
 import React, { useMemo, useCallback } from 'react';
 import { Box, Typography, IconButton, Grid, useTheme } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import SearchIcon from '@mui/icons-material/Search';
+import { InputAdornment, Button, TextField } from '@mui/material';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -12,7 +14,9 @@ import {
     HeaderSection,
     PatientNameText,
     BoldAmount,
-    VarianceText
+    VarianceText,
+    ToolbarWrapper,
+    SearchField
 } from './VarianceScreen.styles';
 import { useVarianceScreen } from './VarianceScreen.hook';
 
@@ -34,7 +38,12 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleRangeChange, 
         handleSortChange, 
         handlePageChange, 
-        handleRowsPerPageChange 
+        handleRowsPerPageChange,
+        searchTerm,
+        setSearchTerm,
+        onSearch,
+        handleFilterChange,
+        payerOptions 
     } = useVarianceScreen({ skip });
     const theme = useTheme();
     const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
@@ -80,6 +89,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             label: 'PAYER NAME',
             minWidth: 180,
             accessor: (r) => r.payerName || '',
+            filterOptions: payerOptions,
             render: (r) => <Typography variant="body2">{r.payerName}</Typography>
         },
         {
@@ -140,6 +150,33 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Grid size={{ xs: 12, md: 4 }}><SummaryCard title={summaryValues.lbl2} value={formatCurrency(summaryValues.tAct)} backgroundColor={themeConfig.colors.surface} /></Grid>
                 <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="LEAKAGE" value={formatCurrency(summaryValues.tLeak)} backgroundColor={themeConfig.colors.surface} /></Grid>
             </Grid>
+            
+            <ToolbarWrapper>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <SearchField
+                        size="small"
+                        placeholder="Search by Transaction #"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => onSearch(searchTerm)}
+                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
+                    >
+                        Search
+                    </Button>
+                </Box>
+            </ToolbarWrapper>
             <DataTable
                 columns={feeColumns} data={activeSubTab === 0 ? (feeData?.data?.content ?? []) : (paymentData?.data?.content ?? [])}
                 rowKey={(r) => r.id || `${r.patientName}-${r.variance}`} exportTitle="Variance Analysis"
@@ -147,6 +184,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 totalElements={activeSubTab === 0 ? totalElementsFee : totalElementsPayment}
                 page={queryParams.page} rowsPerPage={queryParams.size} sortCol={queryParams.sortField}
                 sortDir={queryParams.sortOrder} onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}
+                onFilterChange={handleFilterChange}
                 dictionaryId="variance-analysis"
                 download={false}
             />

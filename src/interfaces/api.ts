@@ -276,7 +276,7 @@ export interface BankDepositSearchRequest {
   sort: string;
   desc: boolean;
   clientName: string;
-  statusList: string[];
+  status: string | null;
 }
 
 export interface BankDepositExportRequest {
@@ -412,10 +412,17 @@ export interface TransactionTypeFilter {
   transactionType: string;
 }
 
+export interface CategoryFilter {
+  id: number;
+  name: string;
+}
+
 export interface AllTransactionsFilterResponse {
   data: {
     payers: PayerFilter[];
     transactionTypes: TransactionTypeFilter[];
+    categories: CategoryFilter[];
+    transactionStatusTypes: string[];
   };
   message: string | null;
 }

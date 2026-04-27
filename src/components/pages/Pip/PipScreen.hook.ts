@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "@/store";
 import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
-import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery } from "@/store/api/financialsApi";
+import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery, useGetPaymentStatusQuery } from "@/store/api/financialsApi";
 import { TableQueryParams } from "@/interfaces/api";
 import { format, subMonths } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
@@ -75,6 +75,12 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
     } as any, { skip: isActualSkip });
+
+    const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
+    const statusOptions = useMemo(() => statusData?.data?.map(s => ({ 
+        label: s.postingStatus, 
+        value: String(s.postingStatusMasterId) 
+    })) ?? [], [statusData]);
 
     const isAnyFetching = isFetching || isFetchingSummary;
 
@@ -214,6 +220,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         setSearchTerm,
         onSearch: handleSearch,
         handleExport,
+        statusOptions,
         isError,
     };
 };

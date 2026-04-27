@@ -62,7 +62,9 @@ const ForwardBalanceNoticesTable = ({
     rangeLabel,
     searchTerm,
     setSearchTerm,
-    onSearch
+    onSearch,
+    onFilterChange,
+    statusOptions
 }: {
     data: ForwardBalanceNotice[],
     totalElements: number,
@@ -74,7 +76,9 @@ const ForwardBalanceNoticesTable = ({
     rangeLabel: string,
     searchTerm: string,
     setSearchTerm: (v: string) => void,
-    onSearch: (v: string) => void
+    onSearch: (v: string) => void,
+    onFilterChange: (filters: Record<string, string>) => void,
+    statusOptions: string[]
 }) => {
     const { expandedRows, toggleRow } = useForwardBalanceNoticesTable();
 
@@ -135,40 +139,13 @@ const ForwardBalanceNoticesTable = ({
             label: 'STATUS',
             align: 'center',
             accessor: (row) => row.status,
+            filterOptions: statusOptions,
             render: (row) => <StatusBadge status={row.status} />,
         },
     ], [expandedRows, toggleRow]);
 
-    const theme = useTheme();
-
     return (
         <Box>
-            <styles.ToolbarWrapper>
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                    <styles.SearchField
-                        size="small"
-                        placeholder="Search by Transaction #"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-                    <Button
-                        variant="contained"
-                        size="small"
-                        onClick={() => onSearch(searchTerm)}
-                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
-                    >
-                        Search
-                    </Button>
-                </Box>
-            </styles.ToolbarWrapper>
             <DataTable
                 columns={columns}
                 data={data}
@@ -187,6 +164,7 @@ const ForwardBalanceNoticesTable = ({
                 onPageChange={onPageChange}
                 onRowsPerPageChange={onRowsPerPageChange}
                 onSortChange={onSortChange}
+                onFilterChange={onFilterChange}
                 download={false}
             />
         </Box>
@@ -208,6 +186,8 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         searchTerm,
         setSearchTerm,
         onSearch,
+        handleFilterChange,
+        statusOptions,
         stats,
         globalFilters
     } = useStatementsScreen({ skip });
@@ -244,6 +224,8 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
                     onSearch={onSearch}
+                    onFilterChange={handleFilterChange}
+                    statusOptions={statusOptions}
                 />
             ) : (
                 <SuspenseAccountsScreen skip={finalActiveSubTab !== 2} />

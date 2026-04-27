@@ -7,6 +7,7 @@ import { TableQueryParams } from '@/interfaces/api';
 import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
+import { useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
 
 export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -31,6 +32,8 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        status: null as string | null,
+        payer: null as string | null,
         transactionNo: '',
     });
 
@@ -57,8 +60,14 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
+        status: queryParams.status,
+        payer: queryParams.payer,
         transactionNo: queryParams.transactionNo
     }, { skip: skip || !isNoticesTab });
+
+    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip: !isNoticesTab });
+    const statusOptions = useMemo(() => filterData?.data?.transactionStatusTypes || [], [filterData]);
+    const payerOptions = useMemo(() => filterData?.data?.payers?.map(p => ({ label: p.payerName, value: String(p.payerId) })) || [], [filterData]);
 
     useEffect(() => {
         if (!isNoticesTab || skip) {
@@ -141,6 +150,19 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
     const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
+    const handleFilterChange = useCallback((filters: Record<string, string>) => {
+        setQueryParams(prev => {
+            const next = {
+                ...prev,
+                status: filters.status || null,
+                payer: filters.payerName || null,
+                page: 0
+            };
+            const isChanged = prev.status !== next.status || prev.payer !== next.payer;
+            return isChanged ? next : prev;
+        });
+    }, []);
+
     return {
         activeSubTab,
         finalActiveSubTab,
@@ -155,6 +177,9 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         searchTerm,
         setSearchTerm,
         onSearch: handleSearch,
+        handleFilterChange,
+        statusOptions,
+        payerOptions,
         stats,
         isError: isErrorNotices,
         refetchNotices

@@ -49,23 +49,23 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
 
   const handleTenantChange = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
     const newTenantId = event.target.value;
-    
+
     // 1. Update the tenant in the store
     dispatch(setSelectedTenantId(newTenantId));
-    
+
     // 2. Clear previous state to avoid data cross-contamination
     dispatch(resetGlobalFilters());
     dispatch(resetRemittanceViewState());
     dispatch(setActiveTab(0));
     dispatch(setActiveSubTab(0));
-    dispatch(baseApi.util.resetApiState()); 
-    
+    dispatch(baseApi.util.resetApiState());
+
     try {
       // 3. Manually trigger the details fetch for the NEW tenant
       // We use initiate directly to avoid any hook/cache lifecycle delays
-      const result = await dispatch(userApi.endpoints.getMeDetails.initiate(undefined, { 
-        subscribe: false, 
-        forceRefetch: true 
+      const result = await dispatch(userApi.endpoints.getMeDetails.initiate(undefined, {
+        subscribe: false,
+        forceRefetch: true
       })).unwrap();
 
       const newLandingPage = result?.defaultLandingPage;
@@ -79,10 +79,10 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
           navigate(NAV_CONFIG[configKey].path, { replace: true });
         }
       }
-      
+
       // Also trigger a refetch of the hook-based query to keep the UI in sync
       refetchMeDetails();
-      
+
     } catch (error) {
       console.error('Failed to resolve tenant landing page:', error);
       // Fallback if the specific tenant fetch fails
@@ -107,6 +107,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
     localStorage.removeItem('ican_selected_tenant');
     dispatch(logout());
     dispatch(resetUiState());
+    dispatch(resetRemittanceViewState());
     dispatch(baseApi.util.resetApiState());
     navigate('/login');
   }, [handleClose, dispatch, navigate]);

@@ -78,7 +78,10 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
     const adjustments = useMemo(() => data?.data?.content ?? [], [data]);
 
     const { data: filtersData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
-    const payerOptions = useMemo(() => filtersData?.data?.payers?.map(p => p.payerName) ?? [], [filtersData]);
+    const payerOptions = useMemo(() => filtersData?.data?.payers?.map(p => ({ 
+        label: p.payerName, 
+        value: String(p.payerId) 
+    })) ?? [], [filtersData]);
     // const typeOptions = useMemo(() => filtersData?.data?.transactionTypes?.map(t => t.transactionType) ?? [], [filtersData]);
 
     const [triggerExportOtherAdjustments] = useLazyExportOtherAdjustmentsQuery();

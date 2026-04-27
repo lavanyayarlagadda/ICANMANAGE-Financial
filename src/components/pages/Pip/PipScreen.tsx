@@ -72,6 +72,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     searchTerm,
     setSearchTerm,
     onSearch,
+    statusOptions,
     isError,
   } = usePipScreen({ skip });
   const theme = useTheme();
@@ -97,8 +98,8 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "center", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
     { id: "payer", label: "PAYER", align: "center", accessor: (row) => row.npiDetails?.[0]?.npiPayerName ?? '-', filterOptions: ['Aetna', 'UnitedHealthcare', 'Cigna', 'Medicare'], render: (row) => row.npiDetails?.[0]?.npiPayerName ?? '-' },
     { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "center", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
-    { id: "status", label: "STATUS", align: "center", accessor: (row) => row.status, filterOptions: ['Active', 'Completed', 'Pending'], render: (row) => <StatusBadge status={row.status} /> },
-  ], [expandedRows, toggleRow, getRowId]);
+    { id: "status", label: "STATUS", align: "center", accessor: (row) => row.status, filterOptions: statusOptions, render: (row) => <StatusBadge status={row.status} /> },
+  ], [expandedRows, toggleRow, getRowId, statusOptions]);
 
   const renderExpandedContent = useCallback((row: PipRecord) => {
     if (!row.npiDetails?.length) return null;

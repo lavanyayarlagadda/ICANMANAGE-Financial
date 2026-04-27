@@ -62,13 +62,15 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
+        statusOptions,
+        payerOptions,
         dynamicColumns,
         isHeadersFetching,
         isHeadersSuccess,
         isError,
         refetch,
-        summaryData,
         onSearch,
+        summaryData,
         rowHistory
     } = useBankDepositsScreen({ skip });
 
@@ -113,12 +115,14 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             transactionNo: {
                 id: 'transactionNo',
                 label: 'TRANSACTION NO',
+                align: 'center',
                 accessor: (row) => row.transactionNo,
                 render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.transactionNo}</Typography>,
             },
             reference: {
                 id: 'reference',
                 label: 'REF / DATE',
+                align: 'center',
                 accessor: (row) => row.accountNo,
                 render: (row) => (
                     <Box>
@@ -130,24 +134,29 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             payerName: {
                 id: 'payerName',
                 label: 'PAYER NAME',
+                align: 'center',
                 accessor: (row) => row.payerName,
+                filterOptions: payerOptions,
                 render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
             },
             bankAmt: {
                 id: 'bankAmt',
                 label: 'BANK AMT',
+                align: 'center',
                 accessor: (row) => row.baiAmount,
                 render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.baiAmount)}</Typography>,
             },
             remitAmt: {
                 id: 'remitAmt',
                 label: 'REMIT AMT',
+                align: 'center',
                 accessor: (row) => row.remitAmount,
                 render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.remitAmount)}</Typography>,
             },
             variance: {
                 id: 'variance',
                 label: 'VARIANCE',
+                align: 'center',
                 accessor: (row) => row.varianceAmount,
                 render: (row) => (
                     <Typography
@@ -164,7 +173,9 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             status: {
                 id: 'status',
                 label: 'STATUS',
+                align: 'center',
                 accessor: (row) => row.reconciliationStatus || row.status || 'Pending',
+                filterOptions: statusOptions,
                 render: (row) => {
                     const status = row.reconciliationStatus || row.status || 'Pending';
                     const isMatched = status === 'Matched' || status === 'Reconciled';
@@ -210,30 +221,20 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 .replace(/[^a-z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
                 .replace(/^(.)/, (_, chr) => chr.toLowerCase());
 
-            // Handle common variations
-            const businessMapping: Record<string, string> = {
-                'transactionNo': 'transactionNo',
-                'transactionNumber': 'transactionNo',
-                'depositDate': 'baiReceivedDate',
-                'payor': 'payerName',
-                'payerName': 'payerName',
-                'bankAmt': 'baiAmount',
-                'bankAmount': 'baiAmount',
-                'bankDeposit': 'baiAmount',
-                'remitAmt': 'remitAmount',
-                'remitAmount': 'remitAmount',
-                'remittance': 'remitAmount',
-                'variance': 'varianceAmount',
-                'varianceAmount': 'varianceAmount',
-                'status': 'status',
-                'reconciliationStatus': 'reconciliationStatus'
-            };
-
-            const actualField = businessMapping[mappedId] || mappedId;
+            const lowerName = dc.displayName.toLowerCase();
             const base = Object.values(baseColumns).find(c => {
-                const baseActualField = businessMapping[c.id] || c.id;
-                return c.id === mappedId || baseActualField === actualField;
+                const cid = c.id.toLowerCase();
+                if (lowerName.includes('status')) return cid === 'status';
+                if (lowerName.includes('payer') || lowerName.includes('payor')) return cid === 'payername';
+                if (lowerName.includes('bank') && (lowerName.includes('amt') || lowerName.includes('amount') || lowerName.includes('deposit'))) return cid === 'bankamt';
+                if (lowerName.includes('remit') && (lowerName.includes('amt') || lowerName.includes('amount'))) return cid === 'remitamt';
+                if (lowerName.includes('variance')) return cid === 'variance';
+                if (lowerName.includes('trans') || (lowerName.includes('check') && !lowerName.includes('pay'))) return cid === 'transactionno';
+                if (lowerName.includes('ref') || (lowerName.includes('date') && !lowerName.includes('received'))) return cid === 'reference';
+                return false;
             });
+
+            const actualField = mappedId;
 
             if (base) {
                 return {
@@ -242,13 +243,15 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     accessor: (row: BankDepositItem) => {
                         const val = (row as any)[actualField];
                         return val !== undefined ? val : base.accessor?.(row);
-                    }
+                    },
+                    filterOptions: actualField === 'payerName' ? payerOptions : base.filterOptions
                 };
             }
 
             return {
                 id: mappedId,
                 label: dc.displayName.toUpperCase(),
+                align: 'center',
                 accessor: (row: BankDepositItem) => (row as any)[actualField],
                 render: (row: BankDepositItem) => {
                     const val = (row as any)[actualField];
@@ -268,7 +271,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         }
 
         return mappedColumns;
-    }, [expandedRows, theme, toggleRow, dynamicColumns, isHeadersSuccess]);
+    }, [expandedRows, theme, toggleRow, dynamicColumns, isHeadersSuccess, payerOptions, statusOptions]);
 
     const renderExpandedContent = useCallback((item: BankDepositItem) => {
         const history = rowHistory[item.transactionNo];
@@ -473,6 +476,16 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                         totalElements={entity.totalItems || 0}
                         onPageChange={onPageChange}
                         onRowsPerPageChange={onRowsPerPageChange}
+                        onFilterChange={(newFilters) => {
+                            const filterKeys = Object.keys(newFilters);
+                            const statusKey = filterKeys.find(k => k.toLowerCase().includes('status'));
+                            const payerKey = filterKeys.find(k => k.toLowerCase().includes('payer') || k.toLowerCase().includes('payor'));
+                            
+                            setFilters({
+                                status: statusKey ? newFilters[statusKey] : null,
+                                payerList: payerKey ? [newFilters[payerKey]] : []
+                            });
+                        }}
                         download={false}
                         rowsPerPageOptions={[5, 10, 20, 50]}
                     />

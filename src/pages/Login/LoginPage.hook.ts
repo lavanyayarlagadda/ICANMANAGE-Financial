@@ -8,6 +8,7 @@ import { STATIC_AUTH_TOKEN, STATIC_REFRESH_TOKEN, DUMMY_USER } from '@/constants
 import { useLoginMutation } from '@/store/api/authApi';
 import { baseApi } from '@/store/api/baseApi';
 import { NAV_CONFIG } from '@/config/navigation';
+import { resetRemittanceViewState } from '@/store/slices/financialsSlice';
 
 export const useLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +45,8 @@ export const useLoginPage = () => {
 
       // Reset UI state (tabs, etc) before setting new user
       dispatch(resetUiState());
-      
+      dispatch(resetRemittanceViewState());
+
       // Wipe prior cached user queries (like /me/details) and tenants
       dispatch(baseApi.util.resetApiState());
       localStorage.removeItem('ican_selected_tenant');

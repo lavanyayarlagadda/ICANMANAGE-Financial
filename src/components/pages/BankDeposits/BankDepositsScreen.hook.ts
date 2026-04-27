@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice';
-import { useSearchBankDepositsBodyQuery, useLazyExportBankDepositsQuery, useGetBankDepositWidgetsQuery, useGetMappedHeadersDataQuery, useGetUserMappedBrandsQuery, useLazyGetBaiTriggerHistoryQuery } from '@/store/api/financialsApi';
+import { useSearchBankDepositsBodyQuery, useLazyExportBankDepositsQuery, useGetBankDepositWidgetsQuery, useGetMappedHeadersDataQuery, useGetUserMappedBrandsQuery, useLazyGetBaiTriggerHistoryQuery, useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
 import { skipToken } from '@reduxjs/toolkit/query/react';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { subMonths, format } from 'date-fns';
@@ -27,7 +27,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         transactionsList: [] as string[],
         accountList: [] as string[],
         batchOwnerIds: [] as string[],
-        statusList: [] as string[],
+        status: null as string | null,
     });
     const [queryParams, setQueryParams] = useState({
         page: 0,
@@ -104,26 +104,41 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         }
     );
 
+    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip: !isBaseReady });
+    const payerOptions = useMemo(() => filterData?.data?.payers?.map(p => ({
+        label: p.payerName,
+        value: String(p.payerId)
+    })) ?? [], [filterData]);
+
+    const statusOptions = useMemo(() => {
+        const base = filterData?.data?.transactionStatusTypes ?? [];
+        const combined = [...base];
+        if (!combined.includes('Forward Balance')) {
+            combined.push('Forward Balance');
+        }
+        return combined;
+    }, [filterData]);
+
     const dynamicColumns = useMemo(() => headersResponse?.data || [], [headersResponse]);
 
     const { data, isFetching, isError, refetch } = useSearchBankDepositsBodyQuery(
         !shouldFetchDependent ? skipToken : {
-            startDate: queryParams.fromDate,
-            endDate: queryParams.toDate,
-            payerList: filters.payerList,
-            stateList: filters.stateList,
-            transactionNo: queryParams.transactionNo,
-            transactionsList: filters.transactionsList,
-            accountList: filters.accountList,
+            startDate: queryParams.fromDate || '',
+            endDate: queryParams.toDate || '',
+            payerList: filters.payerList || [],
+            stateList: filters.stateList || [],
+            transactionNo: queryParams.transactionNo || '',
+            transactionsList: filters.transactionsList || [],
+            accountList: filters.accountList || [],
             stateId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
-            batchOwnerIds: filters.batchOwnerIds,
-            icanManageId: userId,
+            batchOwnerIds: filters.batchOwnerIds || [],
+            icanManageId: userId || 0,
             pageNumber: queryParams.page + 1,
             pageSize: queryParams.size,
-            sort: queryParams.sortField === 'date' ? 'bai_received_date' : queryParams.sortField,
+            sort: queryParams.sortField === 'date' ? 'bai_received_date' : queryParams.sortField || 'transactionNo',
             desc: queryParams.sortOrder === 'desc',
             clientName: selectedTenant?.displayName?.toLowerCase() || 'ican',
-            statusList: filters.statusList
+            status: filters.status || null
         }
     );
 
@@ -314,7 +329,8 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
-        statusOptions: [], // Placeholder if needed
+        statusOptions,
+        payerOptions,
         dynamicColumns,
         isError,
         isHeadersFetching,

@@ -89,9 +89,13 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
 
     // Fetch dynamic status options
     const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
-    const statusOptions = useMemo(() =>
-        statusData?.data?.map(s => ({ label: s.postingStatus, value: String(s.postingStatusMasterId) })) ?? [],
-        [statusData]);
+    const statusOptions = useMemo(() => {
+        const base = statusData?.data?.map(s => ({ label: s.postingStatus, value: String(s.postingStatusMasterId) })) ?? [];
+        if (!base.find(o => o.label === 'Forward Balance')) {
+            base.push({ label: 'Forward Balance', value: 'Forward Balance' });
+        }
+        return base;
+    }, [statusData]);
 
     // Fetch dynamic payer and transaction type options
     const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
@@ -103,6 +107,23 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     const transactionTypeOptions = useMemo(() =>
         filterData?.data?.transactionTypes?.map(t => ({ label: t.transactionType, value: String(t.transactionTypeId) })) ?? [],
         [filterData]);
+
+    const categoryOptions = useMemo(() => {
+        const base = filterData?.data?.categories?.map(c => ({ label: c.name, value: String(c.id) })) ?? [];
+        const additional = [
+            { label: 'Fee', value: 'Fee' },
+            { label: 'Payment', value: 'Payment' },
+            { label: 'Variance', value: 'Variance' }
+        ];
+        // Filter out any that already exist
+        const result = [...base];
+        additional.forEach(item => {
+            if (!result.find(r => r.label === item.label)) {
+                result.push(item);
+            }
+        });
+        return result;
+    }, [filterData]);
 
     const transactions = useMemo(() => {
         const raw = data?.data?.content ?? [];
@@ -298,6 +319,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         statusOptions,
         payerOptions,
         transactionTypeOptions,
+        categoryOptions,
         isError,
         dispatch
     };

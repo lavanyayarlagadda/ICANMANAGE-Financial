@@ -22,7 +22,8 @@ import {
     useLazyGetRemittanceClaimsQuery,
     useLazySearchServiceLinesQuery,
     useLazyExportFeeScheduleVarianceQuery,
-    useLazyExportPaymentVarianceQuery
+    useLazyExportPaymentVarianceQuery,
+    useGetAllTransactionsFiltersQuery
 } from '@/store/api/financialsApi';
 import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
@@ -46,7 +47,23 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sortOrder: 'desc' as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
+        payer: null as string | null,
+        transactionNo: '' as string | null,
     });
+
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearch = useCallback((term: string) => {
+        setSearchTerm(term);
+        setQueryParams(prev => ({ ...prev, transactionNo: term, page: 0 }));
+    }, []);
+
+    // Handle auto-reset when search is cleared
+    useEffect(() => {
+        if (searchTerm === '' && queryParams.transactionNo !== '') {
+            setQueryParams(prev => ({ ...prev, transactionNo: '', page: 0 }));
+        }
+    }, [searchTerm, queryParams.transactionNo]);
 
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
@@ -63,7 +80,9 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sort: queryParams.sortField,
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
+        toDate: queryParams.toDate,
+        payer: queryParams.payer,
+        transactionNo: queryParams.transactionNo
     }, { skip: skip || activeSubTab !== 0 });
 
     const { data: feeSummaryData, refetch: refetchFeeSummary } = useGetFeeScheduleVarianceSummaryQuery({
@@ -77,7 +96,9 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sort: queryParams.sortField,
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
+        toDate: queryParams.toDate,
+        payer: queryParams.payer,
+        transactionNo: queryParams.transactionNo
     }, { skip: skip || activeSubTab !== 1 });
 
     const { data: paymentSummaryData, refetch: refetchPaymentSummary } = useGetPaymentVarianceSummaryQuery({
@@ -90,6 +111,10 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const [triggerExportFee] = useLazyExportFeeScheduleVarianceQuery();
     const [triggerExportPayment] = useLazyExportPaymentVarianceQuery();
     const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
+    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip });
+    const payerOptions = React.useMemo(() => 
+        filterData?.data?.payers?.map(p => ({ label: p.payerName, value: String(p.payerId) })) ?? [], 
+        [filterData]);
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
             const doReload = async () => {
@@ -234,6 +259,17 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const handlePageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
     const handleRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
+    const handleFilterChange = useCallback((filters: Record<string, string>) => {
+        setQueryParams(prev => {
+            const next = {
+                ...prev,
+                payer: filters.payerName || null,
+                page: 0
+            };
+            return prev.payer !== next.payer ? next : prev;
+        });
+    }, []);
+
     return {
         activeSubTab,
         actionTriggers,
@@ -254,6 +290,11 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         onDrillDownParamsChange: (params: Partial<typeof drillDownParams>) => setDrillDownParams(prev => ({ ...prev, ...params })),
         refetchFee,
         refetchPayment,
+        searchTerm,
+        setSearchTerm,
+        onSearch: handleSearch,
+        handleFilterChange,
+        payerOptions,
         dispatch
     };
 };

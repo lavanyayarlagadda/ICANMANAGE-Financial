@@ -97,7 +97,10 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
     const recoupments = useMemo(() => data?.data?.content ?? [], [data]);
 
     const { data: filtersData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
-    const payerOptions = useMemo(() => filtersData?.data?.payers?.map(p => p.payerName) ?? [], [filtersData]);
+    const payerOptions = useMemo(() => filtersData?.data?.payers?.map(p => ({ 
+        label: p.payerName, 
+        value: String(p.payerId) 
+    })) ?? [], [filtersData]);
 
     const [triggerExportRecoupments] = useLazyExportRecoupmentsQuery();
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
