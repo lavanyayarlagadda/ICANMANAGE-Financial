@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import pkg from '../../../package.json';
 import {
     Box,
@@ -120,12 +121,19 @@ const LoginPage = () => {
                     </Box>
 
                     <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 1 }}>
-                        <Link href="#" variant="caption" underline="hover">
+                        <Link 
+                            component={isLoading ? 'span' : RouterLink} 
+                            to={isLoading ? "" : "/terms"} 
+                            variant="caption" 
+                            underline={isLoading ? "none" : "hover"}
+                            sx={{ 
+                                color: 'text.secondary',
+                                cursor: isLoading ? 'default' : 'pointer',
+                                pointerEvents: isLoading ? 'none' : 'auto',
+                                opacity: isLoading ? 0.6 : 1
+                            }}
+                        >
                             Terms of Service
-                        </Link>
-                        <Typography variant="caption" color="text.secondary">•</Typography>
-                        <Link href="#" variant="caption" underline="hover">
-                            Privacy Policy
                         </Link>
                     </Box>
                     <FooterText variant="caption">

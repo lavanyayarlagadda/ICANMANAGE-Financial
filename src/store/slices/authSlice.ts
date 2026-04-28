@@ -90,7 +90,7 @@ console.log('[AuthSlice] Initializing state from storage:', {
 });
 
 const initialState: AuthState = {
-    isAuthenticated: !!savedToken, // Rely on token for initial auth status
+    isAuthenticated: !!savedToken,
     user: savedUser,
     accessToken: savedToken,
     refreshToken: savedRefreshToken,
