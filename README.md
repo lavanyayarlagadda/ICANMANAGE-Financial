@@ -1,73 +1,89 @@
-# Welcome to your Lovable project
+# iCanManage Financial Dashboard
 
-## Project info
+Welcome to the **iCanManage Financial Dashboard** (ican-rcm) repository. This project is a comprehensive frontend application built for healthcare revenue cycle management and financial data visualization. It includes modules for tracking transactions, bank deposits, variances, recoupments, and other adjustments.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Overview
 
-## How can I edit this code?
+The iCanManage Financial Dashboard provides a unified interface to view, analyze, and reconcile financial data.
 
-There are several ways of editing your application.
+Key features include:
+- **Bank Deposits & Reconciliation**
+- **All Transactions Tracking**
+- **Variances (Fee Schedule & Payment Variances)**
+- **Recoupments & Other Adjustments**
+- **Data Grids & Data Exporting**
+- **Charts & Financial Visualization**
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+This project is built using modern frontend technologies:
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Framework**: React 18
+- **Build Tool**: Vite
+- **Language**: TypeScript
+- **State Management**: Redux Toolkit & React Redux (RTK Query for API calls)
+- **Routing**: React Router v6
+- **UI Components & Styling**: Material-UI (MUI), Emotion
+- **Data Grids**: MUI X-Data-Grid
+- **Date/Time**: date-fns & MUI X-Date-Pickers
+- **Charts**: Recharts
+- **PDF/Data Export**: JSPDF & JSPDF-AutoTable
+- **Validation**: Zod
+- **Testing**: Vitest & React Testing Library
 
-**Use your preferred IDE**
+## Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Node.js (v18+)
+- npm
 
-Follow these steps:
+### Installation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Clone the repository and navigate into the project directory:
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd ICANMANAGE-Financial
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Available Scripts
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+- `npm run dev`: Starts the Vite development server (port 3000 by default).
+- `npm run build`: Compiles TypeScript and builds the app for production.
+- `npm run preview`: Previews the production build locally.
+- `npm run lint`: Runs ESLint to check for code issues.
+- `npm run fix`: Auto-fixes standard ESLint formatting and errors, and runs Prettier.
+- `npm run check`: Runs ESLint, Type Checking (tsc), and Prettier format checking.
+- `npm run test`: Runs unit tests via Vitest.
+
+## Project Structure
+
+```text
+ICANMANAGE-Financial/
+├── src/
+│   ├── components/
+│   │   ├── atoms/         # Smallest UI components
+│   │   ├── molecules/     # Compound UI components
+│   │   ├── organisms/     # Complex sections
+│   │   ├── pages/         # Page components (BankDeposits, Variance, Recoupments, etc.)
+│   │   └── templates/     # Page layout templates
+│   ├── interfaces/        # TypeScript type definitions and API interfaces
+│   ├── store/             # Redux configuration, slices, and RTK Query APIs automatically cached
+│   ├── utils/             # Helper functions configured for project usage
+│   └── App.tsx            # Main Application router configuration
+├── package.json           # Scripts and dependencies configurations
+└── vite.config.ts         # Vite build configuration file
 ```
 
-**Edit a file directly in GitHub**
+## Setup Environment Variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+To run the application correctly, you may need to configure your environment variables. Typically, `.env` files are used locally (e.g., `.env.local`). Check with your team for the required API base URLs and keys.
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Private Repository. All rights reserved.
