@@ -13,6 +13,12 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Autocomplete,
+  TextField,
+  Paper,
+  CircularProgress,
+  GlobalStyles,
+  createFilterOptions,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -133,7 +139,7 @@ export function DataTableToolbar<T>({
 
         <ToolbarRight isMobile={isMobile}>
           {customToolbarContent}
-          
+
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
             {filterableColumns.length > 0 && (
               <FilterButton
@@ -214,48 +220,95 @@ export function DataTableToolbar<T>({
 
       <Collapse in={showFilters}>
         <FilterWrapper>
-          {/* <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
-            <FilterListIcon fontSize="small" color="primary" />
-            <Typography variant="body2" fontWeight={700} color="primary">Quick Filters:</Typography>
-          </Box> */}
+          <GlobalStyles
+            styles={{
+              '.MuiAutocomplete-listbox::-webkit-scrollbar': {
+                width: '8px !important',
+                display: 'block !important',
+                WebkitAppearance: 'none !important',
+              },
+              '.MuiAutocomplete-listbox::-webkit-scrollbar-track': {
+                backgroundColor: '#e0e0e0 !important',
+                borderRadius: '8px !important',
+              },
+              '.MuiAutocomplete-listbox::-webkit-scrollbar-thumb': {
+                backgroundColor: '#9e9e9e !important',
+                borderRadius: '8px !important',
+                border: '2px solid #e0e0e0 !important',
+              },
+              '.MuiAutocomplete-listbox::-webkit-scrollbar-thumb:hover': {
+                backgroundColor: '#757575 !important',
+              },
+            }}
+          />
           <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-            {filterableColumns.map((col) => (
-              <FormControl key={col.id} size="small" sx={{ minWidth: 140 }}>
-                <Select
-                  displayEmpty
-                  value={columnFilters[col.id] || ''}
-                  onChange={(e) => {
-                    const next = { ...columnFilters, [col.id]: String(e.target.value) };
-                    setColumnFilters(next);
-                    onFilterChange?.(next);
-                    setInternalPage(0);
-                  }}
-                  renderValue={(v) => {
-                    if (!v) return <Typography variant="caption" color="text.secondary">All {col.label}</Typography>;
-                    const opt = col.filterOptions.find(o => (typeof o === 'string' ? o : String(o.value)) === String(v));
-                    return typeof opt === 'string' ? opt : (opt?.label || v);
-                  }}
-                  sx={{
-                    height: 32,
-                    fontSize: '0.8125rem',
-                    backgroundColor: '#fff',
-                    borderRadius: '6px',
-                    '& .MuiSelect-select': { py: 0 }
-                  }}
-                >
-                  <MenuItem value=""><em>Show All</em></MenuItem>
-                  {col.filterOptions.map((opt) => {
-                    const label = typeof opt === 'string' ? opt : opt.label;
-                    const value = typeof opt === 'string' ? opt : opt.value;
-                    return (
-                      <MenuItem key={String(value)} value={value}>
-                        {label}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
-            ))}
+            {filterableColumns.map((col) => {
+              const options = col.filterOptions.map((opt) =>
+                typeof opt === 'string' ? { label: opt, value: opt } : opt
+              );
+              const value = options.find((o) => String(o.value) === String(columnFilters[col.id])) || null;
+
+              return (
+                <FormControl key={col.id} size="small" sx={{ minWidth: 200, maxWidth: 250 }}>
+                  <Autocomplete
+                    size="small"
+                    options={options}
+                    getOptionLabel={(option) => String(option.label || '')}
+                    filterOptions={(opts, state) => {
+                      const search = (state.inputValue || (value ? String(value.label || '') : '')).toLowerCase().trim();
+                      if (!search) return opts;
+                      return opts.filter(o =>
+                        String(o.label || '').toLowerCase().includes(search)
+                      );
+                    }}
+                    value={value}
+                    isOptionEqualToValue={(option, val) => String(option.value) === String(val.value)}
+                    onChange={(_, newValue) => {
+                      const nextValue = newValue ? newValue.value : '';
+                      const next = { ...columnFilters, [col.id]: String(nextValue) };
+                      console.log(nextValue, next, "NEXTVALUE");
+                      setColumnFilters(next);
+                      onFilterChange?.(next);
+                      setInternalPage(0);
+                    }}
+                    loading={col.isFilterLoading}
+                    ListboxProps={{
+                      sx: {
+                        maxHeight: 200,
+                        overflowY: 'auto',
+                        scrollbarWidth: 'thin',
+                      },
+                    }}
+                    renderOption={(props, option) => {
+                      const { key, ...rest } = props as any;
+                      return (
+                        <li key={option.value || option.label} {...rest}>
+                          {option.label}
+                        </li>
+                      );
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        placeholder={
+                          col.filterError ? 'Error loading...' : `All ${col.label}`
+                        }
+                        error={!!col.filterError}
+                        InputProps={{
+                          ...params.InputProps,
+                          endAdornment: (
+                            <React.Fragment>
+                              {col.isFilterLoading ? <CircularProgress color="inherit" size={16} /> : null}
+                              {params.InputProps.endAdornment}
+                            </React.Fragment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </FormControl>
+              );
+            })}
           </Box>
         </FilterWrapper>
       </Collapse>

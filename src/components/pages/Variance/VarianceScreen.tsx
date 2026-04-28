@@ -44,6 +44,8 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         onSearch,
         handleFilterChange,
         payerOptions,
+        payerOptionsLoading,
+        payerOptionsError,
     } = useVarianceScreen({ skip });
     const theme = useTheme();
     const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
@@ -90,6 +92,8 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             minWidth: 180,
             accessor: (r) => r.payerName || '',
             filterOptions: payerOptions,
+            isFilterLoading: payerOptionsLoading,
+            filterError: payerOptionsError,
             render: (r) => <Typography variant="body2">{r.payerName}</Typography>
         },
         {
@@ -134,7 +138,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             accessor: (r) => r.adjustmentCode || '',
             render: (r) => <Typography variant="body2">{r.adjustmentCode}</Typography>
         },
-    ], [handleDrillDown, theme]);
+    ], [handleDrillDown, theme, payerOptions, payerOptionsLoading, payerOptionsError]);
 
     const summaryValues = useMemo(() => {
         const fee = feeSummaryData?.data;

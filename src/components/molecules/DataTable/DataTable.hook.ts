@@ -17,6 +17,8 @@ export interface DataColumn<T> {
   accessor?: (row: T) => string | number | null;
   disableSort?: boolean;
   filterOptions?: (string | FilterOption)[];
+  isFilterLoading?: boolean;
+  filterError?: string | boolean;
   exportLabel?: string;
 }
 

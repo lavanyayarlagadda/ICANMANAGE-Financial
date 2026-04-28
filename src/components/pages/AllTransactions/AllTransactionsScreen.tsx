@@ -27,6 +27,10 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         payerOptions,
         transactionTypeOptions,
         categoryOptions,
+        statusOptionsLoading,
+        statusOptionsError,
+        filterOptionsLoading,
+        filterOptionsError,
         isError,
         globalFilters,
         searchTerm,
@@ -60,6 +64,8 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             align: 'center',
             accessor: (r) => r.category ?? '',
             filterOptions: categoryOptions,
+            isFilterLoading: filterOptionsLoading,
+            filterError: filterOptionsError,
             render: (r) => {
                 const colors = transactionTypeColors[r.category] || { bg: themeConfig.colors.slate[100], text: themeConfig.colors.slate[600] };
                 return (
@@ -73,12 +79,14 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         },
         {
             id: 'type',
-            label: 'TYPE', minWidth: 100, accessor: (r) => r.type ?? '', filterOptions: transactionTypeOptions, render: (r) => r.type
+            label: 'TYPE', minWidth: 100, accessor: (r) => r.type ?? '', filterOptions: transactionTypeOptions,
+            isFilterLoading: filterOptionsLoading, filterError: filterOptionsError, render: (r) => r.type
         },
         // { id: 'description', label: 'DESCRIPTION', minWidth: 240, accessor: (r) => r.description ?? '', render: (r) => r.description },
         {
             id: 'payer',
-            label: 'PAYER NAME', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: payerOptions, render: (r) => r.sourceProvider
+            label: 'PAYER NAME', minWidth: 180, accessor: (r) => r.sourceProvider ?? '', filterOptions: payerOptions,
+            isFilterLoading: filterOptionsLoading, filterError: filterOptionsError, render: (r) => r.sourceProvider
         },
         {
             id: 'amount',
@@ -116,10 +124,12 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             align: 'center',
             accessor: (r) => r.status ?? '',
             filterOptions: statusOptions,
+            isFilterLoading: statusOptionsLoading,
+            filterError: statusOptionsError,
 
             render: (r) => <StatusBadge status={r.status} />
         },
-    ], [theme.palette.error.main, theme.palette.text.primary, statusOptions, payerOptions, transactionTypeOptions, categoryOptions]);
+    ], [theme.palette.error.main, theme.palette.text.primary, statusOptions, payerOptions, transactionTypeOptions, categoryOptions, filterOptionsLoading, filterOptionsError, statusOptionsLoading, statusOptionsError]);
 
     return (
         <Box>

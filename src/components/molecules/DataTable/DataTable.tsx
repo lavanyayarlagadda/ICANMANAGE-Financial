@@ -112,9 +112,18 @@ function DataTable<T>({
   const isSortable = (col: DataColumn<T>) => !!(col.accessor && !col.disableSort);
 
   const filterableColumns = useMemo(() =>
-    columns.filter((col): col is FilterableColumn<T> =>
-      Array.isArray(col.filterOptions) && col.filterOptions.length > 0
-    ), [columns]);
+    columns
+      .filter((col) =>
+        (Array.isArray(col.filterOptions) && col.filterOptions.length > 0) ||
+        !!col.isFilterLoading ||
+        !!col.filterError
+      )
+      .map((col) => ({
+        ...col,
+        filterOptions: col.filterOptions || [],
+      })) as FilterableColumn<T>[],
+    [columns]
+  );
   const exportableColumns = columns.filter((c): c is AccessorColumn<T> => c.id !== 'actions' && hasAccessor(c));
   const paginatedData = paginated && !props.serverSide
     ? sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)

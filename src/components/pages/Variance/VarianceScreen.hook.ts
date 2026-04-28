@@ -111,7 +111,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const [triggerExportFee] = useLazyExportFeeScheduleVarianceQuery();
     const [triggerExportPayment] = useLazyExportPaymentVarianceQuery();
     const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
-    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip });
+    const { data: filterData, isFetching: filterFetching, isError: filterError } = useGetAllTransactionsFiltersQuery(undefined, { skip });
     const payerOptions = React.useMemo(() =>
         filterData?.data?.payers?.map(p => ({ label: p.payerName, value: p.payerName })) ?? [],
         [filterData]);
@@ -295,6 +295,8 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         onSearch: handleSearch,
         handleFilterChange,
         payerOptions,
+        payerOptionsLoading: filterFetching,
+        payerOptionsError: filterError,
         dispatch
     };
 };

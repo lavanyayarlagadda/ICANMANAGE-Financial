@@ -31,7 +31,9 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         isError,
         searchTerm,
         setSearchTerm,
-        onSearch
+        onSearch,
+        payerOptionsLoading,
+        payerOptionsError
     } = useRecoupmentsScreen({ skip });
 
     const columns = useMemo<DataColumn<RecoupmentRecord>[]>(() => [
@@ -55,8 +57,9 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             render: (r) => r.transactionNo ?? '-',
         },
         {
-            id: 'payer', label: 'PAYER'
-            , minWidth: 140, accessor: (r) => r.payer, filterOptions: payerOptions, render: (r) => r.payer
+            id: 'payer', label: 'PAYER',
+            minWidth: 140, accessor: (r) => r.payer, filterOptions: payerOptions,
+            isFilterLoading: payerOptionsLoading, filterError: payerOptionsError, render: (r) => r.payer
         },
         {
             id: 'claim',
@@ -83,7 +86,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         },
         { id: 'recoupmentDate', label: 'DATE', minWidth: 110, accessor: (r) => r.recoupmentDate, render: (r) => formatDate(r.recoupmentDate) },
         { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, render: (r) => <StatusBadge status={r.status} /> },
-    ], [theme, handleDrillDown, handleEdit, handleDelete]);
+    ], [theme, handleDrillDown, handleEdit, handleDelete, payerOptions, payerOptionsLoading, payerOptionsError]);
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>

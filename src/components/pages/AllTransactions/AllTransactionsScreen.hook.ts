@@ -88,7 +88,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     }, { skip: isActualSkip });
 
     // Fetch dynamic status options
-    const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
+    const { data: statusData, isFetching: statusFetching, isError: statusError } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
     const statusOptions = useMemo(() => {
         const base = statusData?.data?.map(s => ({ label: s.postingStatus, value: String(s.postingStatusMasterId) })) ?? [];
         if (!base.find(o => o.label === 'Forward Balance')) {
@@ -98,7 +98,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     }, [statusData]);
 
     // Fetch dynamic payer and transaction type options
-    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
+    const { data: filterData, isFetching: filterFetching, isError: filterError } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
 
     const payerOptions = useMemo(() =>
         filterData?.data?.payers?.map(p => ({ label: p.payerName, value: String(p.payerId) })) ?? [],
@@ -317,7 +317,11 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         onRowsPerPageChange,
         onDrillDownParamsChange,
         statusOptions,
+        statusOptionsLoading: statusFetching,
+        statusOptionsError: statusError,
         payerOptions,
+        filterOptionsLoading: filterFetching,
+        filterOptionsError: filterError,
         transactionTypeOptions,
         categoryOptions,
         isError,

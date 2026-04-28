@@ -96,7 +96,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
 
     const recoupments = useMemo(() => data?.data?.content ?? [], [data]);
 
-    const { data: filtersData } = useGetRecoupmentFiltersQuery(undefined, { skip: isActualSkip });
+    const { data: filtersData, isFetching: filtersFetching, isError: filtersError } = useGetRecoupmentFiltersQuery(undefined, { skip: isActualSkip });
     const payerOptions = useMemo(() => filtersData?.data?.map(p => ({
         label: p.payer,
         value: p.payer
@@ -254,6 +254,8 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         totalElements: data?.data?.totalElements ?? 0,
         queryParams,
         payerOptions,
+        payerOptionsLoading: filtersFetching,
+        payerOptionsError: filtersError,
         drillDownParams,
         stats,
         handleDrillDown,
