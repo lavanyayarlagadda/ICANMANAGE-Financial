@@ -266,7 +266,6 @@ export function DataTableToolbar<T>({
                     onChange={(_, newValue) => {
                       const nextValue = newValue ? newValue.value : '';
                       const next = { ...columnFilters, [col.id]: String(nextValue) };
-                      console.log(nextValue, next, "NEXTVALUE");
                       setColumnFilters(next);
                       onFilterChange?.(next);
                       setInternalPage(0);

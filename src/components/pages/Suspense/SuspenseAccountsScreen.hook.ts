@@ -47,15 +47,6 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
     }, { skip });
 
     useEffect(() => {
-        if (data) {
-            console.log('[SuspenseScreen] API Response:', data);
-        }
-        if (isError) {
-            console.error('[SuspenseScreen] API Error');
-        }
-    }, [data, isError]);
-
-    useEffect(() => {
         if (!skip) {
             dispatch(setIsGlobalFetching(isFetching));
         }

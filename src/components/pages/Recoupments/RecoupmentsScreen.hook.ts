@@ -159,7 +159,6 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
             reloadCount.current = actionTriggers.reload;
         }
     }, [actionTriggers.reload, refetch]);
-    console.log(recoupments, "recoupments")
     const stats = useMemo(() => {
         const totalRecouped = recoupments.reduce((sum, r) => sum + Math.abs(r.recoupmentAmount ?? 0), 0);
         const totalOriginal = recoupments.reduce((sum, r) => sum + (r.originalPaymentAmount ?? 0), 0);
