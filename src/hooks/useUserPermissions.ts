@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useAppSelector } from '@/store';
-import { COMPANIES } from '@/config/constants';
 import { useGetMeDetailsQuery, MenuItem, MenuModule, SubMenuItem } from '@/store/api/userApi';
 import { MenuAccess } from '@/store/slices/authSlice';
 
@@ -18,20 +17,17 @@ export const useUserPermissions = () => {
   });
 
   const user = useMemo(() => {
-     if (!userDetails) return authUser;
-     return { ...authUser, ...userDetails };
+    if (!userDetails) return authUser;
+    return { ...authUser, ...userDetails };
   }, [userDetails, authUser]);
 
-  const accessibleModules = useMemo(() => {
-    return user?.accessibleModules || [];
-  }, [user]);
 
   const isCognitiveUser = useMemo(() => {
     const company = user?.company?.toLowerCase();
     return company?.includes('cognitive');
   }, [user]);
 
-  const menus = user?.menus || [];
+  const menus = useMemo(() => user?.menus || [], [user?.menus]);
 
   /**
    * Checks the status of a specific menu item.

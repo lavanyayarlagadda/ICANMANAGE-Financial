@@ -1,11 +1,11 @@
-import { styled, alpha } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { Box, Card, Typography, Button, TypographyProps, ButtonProps } from '@mui/material';
 
 export const TermsBackground = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
   backgroundColor: theme.palette.background.default,
-  backgroundImage: `radial-gradient(at 0% 0%, ${alpha(theme.palette.primary.light, 0.05)} 0, transparent 50%), 
-                    radial-gradient(at 100% 100%, ${alpha(theme.palette.secondary.light, 0.05)} 0, transparent 50%)`,
+  backgroundImage: `radial-gradient(at 0% 0%, ${theme.palette.grey[50]} 0, transparent 50%), 
+                    radial-gradient(at 100% 100%, ${theme.palette.grey[50]} 0, transparent 50%)`,
   paddingBottom: theme.spacing(8),
 }));
 
@@ -23,7 +23,7 @@ export const TermsHeader = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   borderBottom: `1px solid ${theme.palette.divider}`,
   textAlign: 'center',
-  background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.03)} 0%, ${alpha(theme.palette.primary.main, 0.01)} 100%)`,
+  background: `linear-gradient(135deg, ${theme.palette.grey[50]} 0%, ${theme.palette.background.paper} 100%)`,
 }));
 
 export const TermsContent = styled(Box)(({ theme }) => ({
@@ -65,7 +65,7 @@ export const BackButton = styled(Button)<ButtonProps>(({ theme }) => ({
   fontWeight: 600,
   padding: theme.spacing(1, 2),
   '&:hover': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.05),
+    backgroundColor: theme.palette.action.hover,
     color: theme.palette.primary.main,
   },
 }));

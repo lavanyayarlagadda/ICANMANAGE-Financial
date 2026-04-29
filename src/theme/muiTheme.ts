@@ -1,4 +1,4 @@
-import { createTheme, alpha } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 import { themeConfig } from './themeConfig';
 
 declare module '@mui/material/styles' {
@@ -172,7 +172,7 @@ export const muiTheme = createTheme({
     },
     MuiTableRow: {
       styleOverrides: {
-        root: { '&:hover': { backgroundColor: alpha(colors.primary, 0.04) } },
+        root: { '&:hover': { backgroundColor: colors.slate[50] } },
       },
     },
     MuiTabs: {

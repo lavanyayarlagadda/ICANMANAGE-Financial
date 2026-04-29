@@ -18,6 +18,7 @@ export const BackText = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
   fontSize: '0.875rem',
 }));
+
 export const RestrictedContainer = styled(Box)(({ theme }) => ({
   flex: 1,
   display: 'flex',
@@ -26,10 +27,10 @@ export const RestrictedContainer = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   paddingTop: theme.spacing(12),
   paddingBottom: theme.spacing(12),
-  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(241, 245, 249, 0.9))',
+  background: `linear-gradient(135deg, ${theme.palette.background.paper}, ${theme.palette.grey[50]})`,
   backdropFilter: 'blur(8px)',
   borderRadius: '24px',
-  border: `1px solid rgba(226, 232, 240, 0.8)`,
+  border: `1px solid ${theme.palette.divider}`,
   boxShadow: '0 8px 32px -4px rgba(0, 0, 0, 0.05)',
   margin: theme.spacing(4),
   animation: 'fadeIn 0.5s ease-out',
@@ -41,14 +42,14 @@ export const RestrictedContainer = styled(Box)(({ theme }) => ({
 
 export const RestrictedTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 800,
-  color: '#1e293b', // slate[800]
+  color: theme.palette.text.primary,
   marginBottom: theme.spacing(1.5),
   fontSize: '1.75rem',
   letterSpacing: '-0.02em',
 }));
 
 export const RestrictedBody = styled(Typography)(({ theme }) => ({
-  color: '#64748b', // slate[500]
+  color: theme.palette.text.secondary,
   textAlign: 'center',
   maxWidth: 450,
   fontSize: '1rem',

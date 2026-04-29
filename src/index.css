@@ -1,18 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
-  --primary-color: #6B99C4;
-  --secondary-color: #75A663;
-  --accent-color: #DD7A43;
-  --error-color: #e53e3e;
-  --bg-color: #f5f7fa;
-  --surface-color: #ffffff;
-  --text-primary: #0a1628;
-  --text-secondary: #5c7a96;
-  --border-color: #dde3ec;
-  --font-family-primary: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-family-headline: 'Space Grotesk', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  /* Colors are  dynamically injected via GlobalStyles from the MUI Theme */
 }
+
 
 *,
 *::before,

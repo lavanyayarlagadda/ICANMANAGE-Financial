@@ -51,12 +51,18 @@ interface UseDataTableProps<T> {
 export function useDataTable<T>({
   columns,
   data,
-  rowKey,
   rowsPerPageOptions,
   dictionaryId,
   serverSide,
   totalElements,
-  ...props
+  selectedKeys: propsSelectedKeys,
+  onSelectionChange,
+  onPageChange: _onPageChange,
+  onRowsPerPageChange: _onRowsPerPageChange,
+  onSortChange,
+  onFilterChange,
+  onSearchChange,
+  ...props // for any other props if needed, but none seem to be missing from the interface
 }: UseDataTableProps<T>) {
   const [internalPage, setInternalPage] = useState(0);
   const [internalRowsPerPage, setInternalRowsPerPage] = useState(rowsPerPageOptions[0]);
@@ -70,7 +76,7 @@ export function useDataTable<T>({
   const rowsPerPage = props.rowsPerPage !== undefined ? props.rowsPerPage : internalRowsPerPage;
   const sortCol = props.sortCol !== undefined ? props.sortCol : internalSortCol;
   const sortDir = (props.sortDir !== undefined ? props.sortDir : internalSortDir) as SortDirection;
-  const selectedKeys = props.selectedKeys ?? internalSelected;
+  const selectedKeys = propsSelectedKeys ?? internalSelected;
 
   const [descriptions, setDescriptions] = useState<TableDescriptions | null>(null);
   const [dictionaryOpen, setDictionaryOpen] = useState(false);
@@ -91,8 +97,8 @@ export function useDataTable<T>({
 
   const handleSelectionChange = useCallback((newSelection: Set<string>) => {
     setInternalSelected(newSelection);
-    props.onSelectionChange?.(newSelection);
-  }, [props.onSelectionChange]);
+    onSelectionChange?.(newSelection);
+  }, [onSelectionChange]);
 
   const handleSort = useCallback((colId: string) => {
     let newDir: SortDirection = 'asc';
@@ -100,14 +106,14 @@ export function useDataTable<T>({
       newDir = sortDir === 'asc' ? 'desc' : 'asc';
     }
 
-    if (props.onSortChange) {
-      props.onSortChange(colId, newDir);
+    if (onSortChange) {
+      onSortChange(colId, newDir);
     } else {
       setInternalSortCol(colId);
       setInternalSortDir(newDir);
       setInternalPage(0);
     }
-  }, [sortCol, sortDir, props.onSortChange]);
+  }, [sortCol, sortDir, onSortChange]);
 
   const filteredData = useMemo(() => {
     if (serverSide) return data;
@@ -152,10 +158,10 @@ export function useDataTable<T>({
     setInternalColumnFilters({});
     setInternalSortCol(null);
     setInternalPage(0);
-    props.onSearchChange?.('');
-    props.onFilterChange?.({});
-    if (props.onSortChange) props.onSortChange('', 'asc');
-  }, [props.onSearchChange, props.onFilterChange, props.onSortChange]);
+    onSearchChange?.('');
+    onFilterChange?.({});
+    if (onSortChange) onSortChange('', 'asc');
+  }, [onSearchChange, onFilterChange, onSortChange]);
 
   return {
     page,

@@ -21,13 +21,10 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
   
   const [errorOpen, setErrorOpen] = useState(false);
 
-  // Sync internal value with prop
+  // Sync internal value and dates with prop
   useEffect(() => {
     setInternalVal(value);
-  }, [value]);
-
-  // Set initial dates based on value prop on mount
-  useEffect(() => {
+    
     if (value !== 'Custom' && !value.includes(' to ')) {
       const dates = calculateDatesFromLabel(value);
       if (dates) {
@@ -36,17 +33,19 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
       }
     } else if (value.includes(' to ')) {
         const [from, to] = value.split(' to ');
-        setFromDate(new Date(from));
-        setToDate(new Date(to));
-        setInternalVal('Custom');
+        const fDate = new Date(from);
+        const tDate = new Date(to);
+        setFromDate(fDate);
+        setToDate(tDate);
+        setCustomRange({ from: fDate, to: tDate });
         setFromTouched(true);
         setToTouched(true);
+        setInternalVal('Custom');
     } else {
       setFromDate(customRange.from);
       setToDate(customRange.to);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [value, customRange.from, customRange.to]);
 
   const handleRangeChange = useCallback((val: string) => {
     setInternalVal(val);

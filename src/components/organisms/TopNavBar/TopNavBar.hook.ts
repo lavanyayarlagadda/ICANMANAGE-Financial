@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SelectChangeEvent } from '@mui/material';
 import { RootState, useAppSelector, useAppDispatch } from '@/store';
 import { logout } from '@/store/slices/authSlice';
 import { toggleSidebarCollapse, setActiveTab, setActiveSubTab, resetUiState } from '@/store/slices/uiSlice';

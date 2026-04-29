@@ -12,15 +12,12 @@ import {
   MenuItem,
   ListItemIcon,
   Divider,
-  FormControl,
-  Select,
   TextField,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import CorporateFareIcon from '@mui/icons-material/CorporateFare';
 import Logo from '@/components/atoms/Logo/Logo';
 import DemoSecurityModal from '../DemoSecurityModal/DemoSecurityModal';
 import { useTopNavBar } from './TopNavBar.hook';

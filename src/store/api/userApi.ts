@@ -112,10 +112,10 @@ export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getMeDetails: builder.query<MeDetailsResponse, void>({
       query: () => '/me/details',
-      transformResponse: (response: any) => {
+      transformResponse: (response: unknown) => {
         // Robustly handle { data: { ... } } or the raw object
         if (response && typeof response === 'object' && 'data' in response && response.data) {
-          return response.data as MeDetailsResponse;
+          return (response as { data: MeDetailsResponse }).data;
         }
         return response as MeDetailsResponse;
       },

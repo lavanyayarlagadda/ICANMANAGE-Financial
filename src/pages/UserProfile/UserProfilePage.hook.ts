@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState, useAppDispatch } from '@/store';
-import { useGetMeDetailsQuery, MenuItem, useUpdateMePreferencesMutation } from '@/store/api/userApi';
+import { MenuItem, useUpdateMePreferencesMutation } from '@/store/api/userApi';
 import { setShowRemittanceDetail } from '@/store/slices/financialsSlice';
 
 import { NAV_CONFIG } from '@/config/navigation';
@@ -18,7 +18,7 @@ export const useUserProfilePage = () => {
 
     // Fallback to authUser if userDetails is not yet loaded
     const user = userDetails || authUser;
-    const menus = (user?.menus || []) as MenuItem[];
+    const menus = useMemo(() => (user?.menus || []) as MenuItem[], [user?.menus]);
 
     const [tabIndex, setTabIndex] = useState(0);
 
@@ -122,8 +122,9 @@ export const useUserProfilePage = () => {
 
     const getAccessiblePages = useCallback(() => {
         return Object.keys(NAV_CONFIG).filter(label => {
-            if (label === 'Collections') return isModuleVisible('Collections');
-            return isModuleVisible('Financials');
+            const config = NAV_CONFIG[label];
+            // Only suggest pages that have a component and are visible to the user
+            return config.component && isModuleVisible(label);
         });
     }, [isModuleVisible]);
 

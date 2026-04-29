@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/store/slices/authSlice';
 import { RootState } from '@/store';
@@ -10,7 +10,7 @@ export const useInactivityTimer = () => {
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
     const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
-    const resetTimer = () => {
+    const resetTimer = useCallback(() => {
         if (timeoutId.current) {
             clearTimeout(timeoutId.current);
         }
@@ -27,7 +27,7 @@ export const useInactivityTimer = () => {
                 navigate('/login', { replace: true });
             }, timeoutMinutes * 60 * 1000);
         }
-    };
+    }, [dispatch, isAuthenticated, navigate]);
 
     useEffect(() => {
         const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
@@ -51,5 +51,5 @@ export const useInactivityTimer = () => {
                 window.removeEventListener(event, handleActivity);
             });
         };
-    }, [isAuthenticated]);
+    }, [isAuthenticated, resetTimer]);
 };

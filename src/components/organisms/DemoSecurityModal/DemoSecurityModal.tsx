@@ -21,7 +21,6 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import SecurityOutlinedIcon from '@mui/icons-material/SecurityOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckIcon from '@mui/icons-material/Check';
-import { themeConfig } from '@/theme/themeConfig';
 import { EffectiveMenuItem, EffectiveMenuModule, EffectiveSubMenuItem } from '@/store/api/userApi';
 import { useDemoSecurityModal, MODULE_STATUS_OPTIONS, PASSWORD_POLICY_OPTIONS } from './DemoSecurityModal.hook';
 import * as styles from './DemoSecurityModal.styles';
@@ -40,7 +39,6 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
         moduleSelectionEnabled,
         searchQuery,
         moduleStatuses,
-        userBeingEdited,
         selectedUsername,
         users,
         menus,
@@ -57,11 +55,18 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
     } = useDemoSecurityModal({ currentUser, open, onClose });
 
     const renderTree = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[], level = 0, isParentDisabled = false): React.ReactNode => {
-        const itemMatches = (it: any, query: string): boolean => {
+        type MenuItemType = EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem;
+
+        const itemMatches = (it: MenuItemType, query: string): boolean => {
             const q = query.toLowerCase();
             if (it.menuName.toLowerCase().includes(q)) return true;
-            if (it.modules?.some((m: any) => itemMatches(m, query))) return true;
-            if (it.subModules?.some((s: any) => itemMatches(s, query))) return true;
+
+            const modules = (it as EffectiveMenuItem).modules;
+            const subModules = (it as EffectiveMenuModule).subModules;
+
+            if (modules && modules.some((m) => itemMatches(m, query))) return true;
+            if (subModules && subModules.some((s) => itemMatches(s, query))) return true;
+
             return false;
         };
 
@@ -76,9 +81,10 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
             return null;
         }
 
-        return filteredItems.map((item, index) => {
-            const hasChildren = ((item as any).modules && (item as any).modules.length > 0) ||
-                ((item as any).subModules && (item as any).subModules.length > 0);
+        return filteredItems.map((item) => {
+            const modules = (item as EffectiveMenuItem).modules;
+            const subModules = (item as EffectiveMenuModule).subModules;
+            const hasChildren = (modules && modules.length > 0) || (subModules && subModules.length > 0);
 
             const currentStatus = moduleStatuses[item.menuId] || 'Hidden';
             const isCurrentlyDisabled = currentStatus === 'Disabled';
@@ -123,7 +129,11 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                         </FormControl>
                     </Box>
                     {hasChildren && currentStatus !== 'Hidden' && (
-                        renderTree((item as any).modules || (item as any).subModules, level + 1, isCurrentlyDisabled || isParentDisabled)
+                        renderTree(
+                            modules ? modules : (subModules || []),
+                            level + 1,
+                            isCurrentlyDisabled || isParentDisabled
+                        )
                     )}
                 </React.Fragment>
             );
@@ -141,7 +151,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', pb: 1 }}>
                 <Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <SettingsIcon sx={{ color: themeConfig.colors.text.primary }} />
+                        <SettingsIcon sx={{ color: 'text.primary' }} />
                         <Typography variant="h6" sx={{ fontWeight: 600 }}>Demo & Security Configuration</Typography>
                     </Box>
                     <Typography variant="body2" color="text.secondary">
@@ -156,8 +166,8 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
             <DialogContent sx={{ py: 2 }}>
                 <Box sx={styles.configureUserBoxStyles}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                        <PersonOutlineIcon fontSize="small" sx={{ color: themeConfig.colors.primary }} />
-                        <Typography variant="subtitle2" sx={{ color: themeConfig.colors.primary, fontWeight: 600 }}>
+                        <PersonOutlineIcon fontSize="small" sx={{ color: 'primary.main' }} />
+                        <Typography variant="subtitle2" sx={{ color: 'primary.main', fontWeight: 600 }}>
                             Configure for User
                         </Typography>
                     </Box>
@@ -168,7 +178,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                 value={selectedUser}
                                 onChange={handleUserChange}
                                 displayEmpty
-                                sx={{ backgroundColor: themeConfig.colors.surface, borderRadius: 1 }}
+                                sx={{ backgroundColor: 'background.paper', borderRadius: 1 }}
                             >
                                 {users.map(u => (
                                     <MenuItem key={u.id} value={u.id}>
@@ -179,7 +189,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                             </Select>
                         </FormControl>
                     </Box>
-                    <Typography variant="caption" sx={{ color: themeConfig.colors.primary, display: 'block' }}>
+                    <Typography variant="caption" sx={{ color: 'primary.main', display: 'block' }}>
                         You are editing the menu visibility and settings for the selected user.
                     </Typography>
                 </Box>
@@ -212,7 +222,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <SearchIcon fontSize="small" sx={{ color: themeConfig.colors.text.secondary }} />
+                                            <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
                                         </InputAdornment>
                                     ),
                                 }}
@@ -240,7 +250,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
 
                 <Box sx={styles.securitySettingsBoxStyles}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                        <SecurityOutlinedIcon fontSize="small" sx={{ color: themeConfig.colors.text.primary }} />
+                        <SecurityOutlinedIcon fontSize="small" sx={{ color: 'text.primary' }} />
                         <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Security Settings</Typography>
                     </Box>
                     <Box sx={{ mb: 3 }}>
@@ -265,7 +275,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                         onClick={onClose}
                         variant="outlined"
                         disabled={isSaving}
-                        sx={{ borderColor: themeConfig.colors.border, color: themeConfig.colors.text.primary }}
+                        sx={{ borderColor: 'divider', color: 'text.primary' }}
                     >
                         Cancel
                     </Button>
@@ -273,7 +283,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
                         onClick={handleSave}
                         variant="contained"
                         disabled={isSaving || !hasChanges}
-                        sx={{ backgroundColor: themeConfig.colors.primary, '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary } }}
+                        sx={{ backgroundColor: 'primary.main', '&:disabled': { opacity: 0.5, backgroundColor: 'primary.main' } }}
                     >
                         {isSaving ? 'Saving...' : 'Save Changes'}
                     </Button>

@@ -1,6 +1,6 @@
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline, Box, CircularProgress, Typography } from '@mui/material';
+import { CssBaseline, CircularProgress, Typography } from '@mui/material';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -9,6 +9,7 @@ import { muiTheme } from '@/theme';
 import { store } from '@/store';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { GlobalHooksWrapper } from '@/components/GlobalHooksWrapper';
+import { GlobalStyles } from '@/theme/GlobalStyles';
 
 import { NAV_CONFIG } from '@/config/navigation';
 import { useAppSelector } from '@/store';
@@ -34,7 +35,7 @@ const RootRedirect = () => {
   const { user: userDetails, isCognitiveUser, isLoadingDetails } = useUserPermissions();
   // If user is cognitive, we need both selectedTenantId AND meDetails
   // useUserPermissions handles the skip logic.
-  const { selectedTenantId, isLoading: isTenantsLoading } = useAppSelector((s) => s.tenant);
+  const { isLoading: isTenantsLoading } = useAppSelector((s) => s.tenant);
 
   const isLoading = isTenantsLoading || (isCognitiveUser && !userDetails) || isLoadingDetails;
   const user = useAppSelector((state) => state.auth.user);
@@ -63,6 +64,7 @@ const App = () => (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <ThemeProvider theme={muiTheme}>
         <CssBaseline />
+        <GlobalStyles />
         <BrowserRouter
           future={{
             v7_startTransition: true,

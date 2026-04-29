@@ -10,6 +10,6 @@ export const NotFoundWrapper = styled(Box)(({ theme }) => ({
   textAlign: 'center',
 }));
 
-export const ContentBox = styled(Box)(({ theme }) => ({
+export const ContentBox = styled(Box)(() => ({
   // Center content
 }));

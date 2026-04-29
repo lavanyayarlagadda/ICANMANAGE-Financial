@@ -1,9 +1,8 @@
-import { useEffect, useCallback, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { RootState, useAppDispatch, useAppSelector } from '@/store';
+import { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
-import { useGetMeDetailsQuery } from '@/store/api/userApi';
-import { getNavigationStructure, DynamicTab } from '@/utils/navigationUtils';
+import { getNavigationStructure } from '@/utils/navigationUtils';
 import { MenuItem } from '@/store/api/userApi';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 
@@ -21,12 +20,10 @@ export const useFinancialsTabs = ({
   isRestricted,
 }: UseFinancialsTabsProps) => {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useAppDispatch();
   const { activeTab, activeSubTab, isReloading } = useAppSelector((s) => s.ui);
-  const { user: userFromPermissions, userDetails, isCognitiveUser, accessibleModules } = useUserPermissions();
+  const { userDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
-  const { selectedTenantId } = useAppSelector((s) => s.tenant);
 
   const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
 

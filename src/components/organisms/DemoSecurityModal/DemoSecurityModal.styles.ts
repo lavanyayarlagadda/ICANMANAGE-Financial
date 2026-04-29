@@ -1,4 +1,4 @@
-import { SxProps, Theme, alpha } from '@mui/material';
+import { SxProps, Theme } from '@mui/material';
 import { themeConfig } from '@/theme/themeConfig';
 
 export const dialogStyles: SxProps<Theme> = {
@@ -45,12 +45,12 @@ export const treeItemStyles = (level: number, isLevel0: boolean, isLevel1: boole
   p: { xs: 1.2, sm: 1.5 },
   pl: { xs: 2 + level * 2, sm: isLevel0 ? 4 : (isLevel1 ? 7 : 10) },
   borderBottom: `1px solid ${themeConfig.colors.border}`,
-  backgroundColor: isLevel0 ? 'transparent' : (isLevel1 ? alpha(themeConfig.colors.primary, 0.03) : alpha(themeConfig.colors.primary, 0.01)),
+  backgroundColor: isLevel0 ? 'transparent' : (isLevel1 ? themeConfig.colors.slate[50] : themeConfig.colors.slate[100]),
   transition: 'background-color 0.2s',
   opacity: isParentDisabled ? 0.7 : 1,
   cursor: isParentDisabled ? 'not-allowed' : 'default',
   '&:hover': {
-    backgroundColor: isParentDisabled ? 'transparent' : alpha(themeConfig.colors.primary, 0.05)
+    backgroundColor: isParentDisabled ? 'transparent' : themeConfig.colors.slate[200]
   }
 });
 

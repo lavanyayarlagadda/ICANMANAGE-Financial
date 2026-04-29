@@ -10,7 +10,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Divider,
   Typography,
   Snackbar,
   Alert,
@@ -52,7 +51,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     handleMobileMenuClose,
     tenant,
     ui,
-    user,
     financials,
   } = useDashboardLayout();
 
@@ -77,8 +75,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
         return (
           <List key={item.id} disablePadding>
-            <Tooltip 
-              title={status === 'Disabled' ? "This module is currently unavailable" : (sidebarCollapsed ? item.label : '')} 
+            <Tooltip
+              title={status === 'Disabled' ? "This module is currently unavailable" : (sidebarCollapsed ? item.label : '')}
               placement="right"
               arrow
             >
@@ -86,8 +84,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 disabled={status === 'Disabled'}
                 selected={ui.activePage === item.label.toLowerCase()}
                 onClick={() => status !== 'Disabled' && handleNavClick(item.label.toLowerCase(), item.path)}
-                sx={{ 
-                  ...NavItemStyles(sidebarCollapsed, theme), 
+                sx={{
+                  ...NavItemStyles(sidebarCollapsed, theme),
                   pointerEvents: 'auto',
                   '&.Mui-disabled': {
                     opacity: 0.5,

@@ -55,6 +55,7 @@ export interface PipRecord {
   suspenseBalance: string | number;
   status: TransactionStatus;
   npiDetails: NpiAllocation[];
+  payer?: string;
 }
 
 export interface ServiceLine {
@@ -244,7 +245,7 @@ export interface BankDepositItem {
   batchOwner: string;
   cashPostingAmount: number;
   clientName?: string | null;
-  commentList?: any[];
+  commentList?: unknown[];
   comments?: string | null;
   confirmMove?: boolean;
   corePostingAmount?: number | null;
@@ -264,7 +265,7 @@ export interface BankDepositItem {
   netSmartPosting?: number | null;
   noOfPostingsReceived?: number;
   noTransMapTransaction?: number | null;
-  nonReconciledIds?: any[];
+  nonReconciledIds?: string[];
   payerName: string;
   pcsdPostingAmount?: number | null;
   pkNonReconciledDataId: number;
@@ -306,7 +307,10 @@ export interface BankDepositItem {
     totalRemmitance: number;
     totalUndistributed: number;
     totalVariance: number;
+    totalAmountPosted: number;
+    totalAmountNotPosted: number;
   };
+  [key: string]: string | number | boolean | null | undefined | unknown[] | object;
 }
 
 export interface BankDepositEntity {
@@ -415,4 +419,32 @@ export interface ReconciliationRow {
   reconcileDate?: string;
 }
 
+export interface RemitDataRecord {
+  payerName: string;
+  amount: number;
+  receivedDate: string;
+  fileName: string;
+}
 
+export interface CashPostingRecord {
+  payerName: string;
+  amount: number;
+  depositDate: string;
+  paymentMethod: string;
+  batchId: string;
+  fileName: string;
+  paymentType: string;
+}
+
+export interface BaiDataRecord {
+  transactionNo: string;
+  amount: number;
+  depositDate: string;
+  bankName: string;
+}
+
+export interface RowHistoryData {
+  baiDataRecords: BaiDataRecord[];
+  remitDataRecords: RemitDataRecord[];
+  cashPostingRecords: CashPostingRecord[];
+}

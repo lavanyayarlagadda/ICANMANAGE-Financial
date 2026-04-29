@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, useTheme, useMediaQuery, Select, MenuItem, SelectChangeEvent, FormControl, Tab, Tabs, alpha, Tooltip } from '@mui/material';
+import { Box, Typography, useTheme, useMediaQuery, Select, MenuItem, SelectChangeEvent, FormControl, Tab, Tabs, Tooltip } from '@mui/material';
 import Button from '@/components/atoms/Button/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -88,7 +88,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 '& .MuiTabs-scrollButtons': {
                   width: '32px',
                   borderRadius: '4px',
-                  backgroundColor: alpha(themeConfig.colors.slate[100], 0.8),
+                  backgroundColor: themeConfig.colors.slate[100],
                   mx: 0.5,
                   color: themeConfig.colors.primary,
                   transition: 'all 0.2s',
@@ -149,7 +149,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                   '& .MuiTabs-scrollButtons': {
                     width: '28px',
                     borderRadius: '4px',
-                    backgroundColor: alpha(themeConfig.colors.slate[100], 0.3),
+                    backgroundColor: themeConfig.colors.slate[100],
                     transition: 'all 0.2s',
                     '&.Mui-disabled': { display: 'none' }
                   },

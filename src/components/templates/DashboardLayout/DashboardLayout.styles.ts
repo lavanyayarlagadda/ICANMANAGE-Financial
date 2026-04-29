@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Card, Typography, TextField, Button, SxProps, Theme } from '@mui/material';
+import { Box, SxProps, Theme } from '@mui/material';
 import { themeConfig } from '@/theme/themeConfig';
 
 export const DRAWER_WIDTH = 240;
@@ -13,7 +13,7 @@ export const PageWrapper = styled(Box)(({ theme }) => ({
   position: 'relative'
 }));
 
-export const MainContentWrapper = styled(Box)(({ theme }) => ({
+export const MainContentWrapper = styled(Box)(() => ({
   position: 'absolute',
   top: 0,
   left: 0,

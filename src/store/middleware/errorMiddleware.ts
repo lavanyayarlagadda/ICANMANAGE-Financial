@@ -7,7 +7,7 @@ import { showSnackbar } from '../slices/uiSlice';
  */
 export const rtkQueryErrorLogger: Middleware = (api) => (next) => (action) => {
   if (isRejectedWithValue(action)) {
-    const errorData = action.payload as any;
+    const errorData = action.payload as { data?: { message?: string; error?: string }; status?: string | number } | undefined;
     
     // Extract meaningful error message from API response
     // Handing both fetchBaseQuery format and generic formats

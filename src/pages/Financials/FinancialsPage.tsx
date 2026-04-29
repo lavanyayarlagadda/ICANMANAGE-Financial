@@ -8,41 +8,32 @@ import ViewDialog from '@/components/molecules/ViewDialog/ViewDialog';
 import EditDialog from '@/components/molecules/EditDialog/EditDialog';
 import ConfirmDeleteDialog from '@/components/molecules/ConfirmDeleteDialog/ConfirmDeleteDialog';
 import AddNewDialog from '@/components/molecules/AddNewDialog/AddNewDialog';
-import { 
-    PageWrapper, 
-    BackButtonWrapper, 
-    BackText,
-    RestrictedContainer,
-    RestrictedTitle,
-    RestrictedBody
+import {
+  PageWrapper,
+  BackButtonWrapper,
+  BackText,
+  RestrictedContainer,
+  RestrictedTitle,
+  RestrictedBody
 } from './FinancialsPage.styles';
 import { useFinancialsPage } from './FinancialsPage.hook';
 import { closeViewDialog, closeEditDialog, closeConfirmDelete } from '@/store/slices/uiSlice';
-import { themeConfig } from '@/theme/themeConfig';
-import ReconciliationScreen from '@/components/pages/ReconciliationScreen/ReconciliationScreen';
 
-const PaymentsScreen = lazy(() => import('@/components/pages/Payments/PaymentsScreen'));
-const AllTransactionsScreen = lazy(() => import('@/components/pages/AllTransactions/AllTransactionsScreen'));
-const RecoupmentsScreen = lazy(() => import('@/components/pages/Recoupments/RecoupmentsScreen'));
-const OtherAdjustmentsScreen = lazy(() => import('@/components/pages/OtherAdjustments/OtherAdjustmentsScreen'));
-const BankDepositsScreen = lazy(() => import('@/components/pages/BankDeposits/BankDepositsScreen'));
-const RemittanceDetailScreen = lazy(() => import('@/components/pages/RemittanceDetail/RemittanceDetailScreen'));
-const TrendsScreen = lazy(() => import('@/components/pages/Trends/TrendsScreen'));
-const VarianceScreen = lazy(() => import('@/components/pages/Variance/VarianceScreen'));
-const StatementsScreen = lazy(() => import('@/components/pages/Statements/StatementsScreen'));
-const CollectionsScreen = lazy(() => import('@/components/pages/Collections/CollectionsScreen'));
+const AllTransactionsScreen = lazy(() => import('@/pages/Financials/screens/AllTransactions/AllTransactionsScreen'));
+const RemittanceDetailScreen = lazy(() => import('@/pages/Financials/screens/RemittanceDetail/RemittanceDetailScreen'));
+const CollectionsScreen = lazy(() => import('@/pages/Financials/screens/Collections/CollectionsScreen'));
 
 const TabLoadingFallback = () => (
-  <Box sx={{ 
-    display: 'flex', 
+  <Box sx={{
+    display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center', 
-    alignItems: 'center', 
+    justifyContent: 'center',
+    alignItems: 'center',
     py: 12,
     gap: 2
   }}>
-    <CircularProgress size={32} thickness={4} sx={{ color: '#94a3b8' }} />
-    <Typography variant="body2" sx={{ color: '#94a3b8', fontWeight: 500 }}>
+    <CircularProgress size={32} thickness={4} sx={{ color: 'text.secondary' }} />
+    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
       Preparing module view...
     </Typography>
   </Box>
@@ -80,17 +71,17 @@ const FinancialsPage: React.FC = () => {
     if (!mainTab) return <AllTransactionsScreen skip={false} />;
 
     if (mainTab.subTabs && mainTab.subTabs.length > 0) {
-        const subTab = mainTab.subTabs.find(st => st.id === activeSubTab) || mainTab.subTabs[0];
-        const Component = subTab.component;
-        if (Component) return <Component skip={false} />;
+      const subTab = mainTab.subTabs.find(st => st.id === activeSubTab) || mainTab.subTabs[0];
+      const Component = subTab.component;
+      if (Component) return <Component skip={false} />;
 
-        // Fallback for screens like "Statements" or "Variance" which still have their own internal sub-tab logic or are compound
-        // If we want to strictly use our dynamic structure for everything, we might need to adjust those screens.
-        // For now, let's see if the main component can handle it.
-        const MainComponent = mainTab.component;
-        if (MainComponent) return <MainComponent skip={false} />;
-        
-        return <AllTransactionsScreen skip={false} />;
+      // Fallback for screens like "Statements" or "Variance" which still have their own internal sub-tab logic or are compound
+      // If we want to strictly use our dynamic structure for everything, we might need to adjust those screens.
+      // For now, let's see if the main component can handle it.
+      const MainComponent = mainTab.component;
+      if (MainComponent) return <MainComponent skip={false} />;
+
+      return <AllTransactionsScreen skip={false} />;
     }
 
     const Component = mainTab.component;
@@ -122,32 +113,43 @@ const FinancialsPage: React.FC = () => {
 
     return (
       <>
-        <FinancialsTabs 
-        onPrint={handlePrint}
-        onReload={handleReload}
-        onExportWizard={handleExport}
-        isRestricted={isRestricted}
-      />
-      
-      {isRestricted ? (
+        <FinancialsTabs
+          onPrint={handlePrint}
+          onReload={handleReload}
+          onExportWizard={handleExport}
+          isRestricted={isRestricted}
+        />
+
+        {isRestricted ? (
           <RestrictedContainer>
-              <SecurityIcon sx={{ fontSize: 64, color: '#CBD5E1', mb: 2 }} />
-              <RestrictedTitle variant="h5">
-                  Access Restricted
-              </RestrictedTitle>
-              <RestrictedBody variant="body1">
-                  You don't have the necessary permissions to view this module. 
-                  Please contact your administrator for access.
-              </RestrictedBody>
+            <Box sx={{
+              width: 100,
+              height: 100,
+              borderRadius: '50%',
+              bgcolor: 'grey.100',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mb: 4
+            }}>
+              <SecurityIcon sx={{ fontSize: 48, color: theme.palette.primary.main }} />
+            </Box>
+            <RestrictedTitle variant="h5">
+              Access Restricted
+            </RestrictedTitle>
+            <RestrictedBody variant="body1">
+              You don't have the necessary permissions to view this module.
+              Please contact your administrator to request access to this specific financial data.
+            </RestrictedBody>
           </RestrictedContainer>
-      ) : (
+        ) : (
           <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, px: 2, pt: 1 }}>
             {tabContent}
           </Box>
-      )}
+        )}
       </>
     );
-  }, [activePage, showRemittanceDetail, theme, handleBackToPayments, handlePrint, handleReload, handleExport, tabContent, isRestricted]);
+  }, [activePage, showRemittanceDetail, theme, handleBackToPayments, handlePrint, handleReload, handleExport, tabContent, isRestricted, isLoadingUserDetails]);
 
   return (
     <DashboardLayout>

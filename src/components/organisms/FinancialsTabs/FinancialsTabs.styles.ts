@@ -1,5 +1,4 @@
 import { SxProps, Theme } from '@mui/material';
-import { alpha } from '@mui/material/styles';
 import { themeConfig } from '@/theme/themeConfig';
 
 export const containerStyles: SxProps<Theme> = {
@@ -71,7 +70,7 @@ export const subTabItemStyles = (isActive: boolean, isDisabled?: boolean): SxPro
   borderRadius: '16px',
   cursor: isDisabled ? 'not-allowed' : 'pointer',
   backgroundColor: isDisabled 
-    ? alpha(themeConfig.colors.slate[100], 0.5) 
+    ? themeConfig.colors.slate[100] 
     : (isActive ? themeConfig.colors.tabs.activeBgHover : 'transparent'),
   color: isDisabled 
     ? themeConfig.colors.slate[300] 
@@ -83,8 +82,8 @@ export const subTabItemStyles = (isActive: boolean, isDisabled?: boolean): SxPro
   border: isDisabled ? `1px dashed ${themeConfig.colors.slate[200]}` : 'none',
   '&:hover': {
     backgroundColor: isDisabled 
-      ? alpha(themeConfig.colors.slate[100], 0.5) 
-      : (isActive ? alpha(themeConfig.colors.primary, 0.8) : themeConfig.colors.tabs.subBg),
+      ? themeConfig.colors.slate[100] 
+      : (isActive ? themeConfig.colors.primary : themeConfig.colors.tabs.subBg),
   },
 });
 
@@ -123,7 +122,7 @@ export const reloadButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
   fontWeight: 700,
   flex: isMobile ? 1 : 'unset',
   minWidth: isMobile ? 'calc(50% - 12px)' : 'unset',
-  '&:hover': { borderWidth: 1.5, bgcolor: alpha(themeConfig.colors.text.primary, 0.04) },
+  '&:hover': { borderWidth: 1.5, bgcolor: themeConfig.colors.slate[50] },
 });
 
 export const exportButtonStyles = (isMobile: boolean): SxProps<Theme> => ({

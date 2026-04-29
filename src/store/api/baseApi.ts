@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError, BaseQueryApi } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../index';
 import { logout, updateToken } from '../slices/authSlice';
-import { API_CONFIG, COMPANIES } from '@/config/constants';
+import { API_CONFIG } from '@/config/constants';
 
 const BASE_URL = import.meta.env.VITE_API_URL || API_CONFIG.BASE_URL;
 
@@ -39,10 +39,8 @@ const baseQuery = fetchBaseQuery({
       console.warn(`[BaseAPI] No token available for authenticated request:`, endpoint);
     }
 
-    const isSpecialCompanyUser = state.auth.user?.company?.toLowerCase() === COMPANIES.COGNITIVE_HEALTH_IT;
     const tenants = state.tenant?.tenants || [];
     const selectedTenantId = state.tenant?.selectedTenantId;
-    const selectedTenant = tenants.find(t => t.tenantId === selectedTenantId) || tenants[0];
 
     const tenantId = selectedTenantId || tenants[0]?.tenantId;
     if (tenantId && endpoint !== 'getTenants') {
@@ -118,6 +116,17 @@ const baseQueryWithReauth: BaseQueryFn<
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Descriptions', 'Financials', 'Auth', 'UserPermissions'],
+  tagTypes: [
+    'Descriptions',
+    'Financials',
+    'Auth',
+    'UserPermissions',
+    'Payments',
+    'Pip',
+    'Variances',
+    'Reconciliation',
+    'Transactions',
+    'Analytics'
+  ],
   endpoints: () => ({}),
 });

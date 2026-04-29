@@ -31,7 +31,7 @@ export const selectStyles: SxProps<Theme> = {
   },
 };
 
-export const datePickersContainerStyles = (isMobile: boolean): SxProps<Theme> => ({
+export const datePickersContainerStyles = (): SxProps<Theme> => ({
   display: 'flex',
   alignItems: 'center',
   gap: 1,
@@ -39,7 +39,7 @@ export const datePickersContainerStyles = (isMobile: boolean): SxProps<Theme> =>
   width: 'auto'
 });
 
-export const datePickerItemStyles = (isMobile: boolean): SxProps<Theme> => ({
+export const datePickerItemStyles = (): SxProps<Theme> => ({
   display: 'flex',
   alignItems: 'center',
   gap: 0.5,
@@ -53,11 +53,11 @@ export const dateLabelStyles: SxProps<Theme> = {
   color: themeConfig.colors.slate[400],
 };
 
-export const getDatePickerSx = (isMobile: boolean): SxProps<Theme> => ({
-  '& .MuiInputBase-root': { 
-    height: 32, 
-    fontSize: '0.75rem', 
-    borderRadius: 1.5, 
+export const getDatePickerSx = (): SxProps<Theme> => ({
+  '& .MuiInputBase-root': {
+    height: 32,
+    fontSize: '0.75rem',
+    borderRadius: 1.5,
     width: 120, // Smaller width
     backgroundColor: themeConfig.colors.surface,
   },

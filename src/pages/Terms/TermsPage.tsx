@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Typography, Container, Divider } from '@mui/material';
+
+import { Box, Typography, Container } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import {

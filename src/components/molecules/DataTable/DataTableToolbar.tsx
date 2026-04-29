@@ -7,7 +7,6 @@ import {
   IconButton,
   Collapse,
   FormControl,
-  Select,
   MenuItem,
   Menu,
   ListItemIcon,
@@ -15,9 +14,7 @@ import {
   Divider,
   Autocomplete,
   TextField,
-  Paper,
   CircularProgress,
-  GlobalStyles,
   createFilterOptions,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -220,27 +217,6 @@ export function DataTableToolbar<T>({
 
       <Collapse in={showFilters}>
         <FilterWrapper>
-          <GlobalStyles
-            styles={{
-              '.MuiAutocomplete-listbox::-webkit-scrollbar': {
-                width: '8px !important',
-                display: 'block !important',
-                WebkitAppearance: 'none !important',
-              },
-              '.MuiAutocomplete-listbox::-webkit-scrollbar-track': {
-                backgroundColor: '#e0e0e0 !important',
-                borderRadius: '8px !important',
-              },
-              '.MuiAutocomplete-listbox::-webkit-scrollbar-thumb': {
-                backgroundColor: '#9e9e9e !important',
-                borderRadius: '8px !important',
-                border: '2px solid #e0e0e0 !important',
-              },
-              '.MuiAutocomplete-listbox::-webkit-scrollbar-thumb:hover': {
-                backgroundColor: '#757575 !important',
-              },
-            }}
-          />
           <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
             {filterableColumns.map((col) => {
               const options = col.filterOptions.map((opt) =>
@@ -254,13 +230,11 @@ export function DataTableToolbar<T>({
                     size="small"
                     options={options}
                     getOptionLabel={(option) => String(option.label || '')}
-                    filterOptions={(opts, state) => {
-                      const search = (state.inputValue || (value ? String(value.label || '') : '')).toLowerCase().trim();
-                      if (!search) return opts;
-                      return opts.filter(o =>
-                        String(o.label || '').toLowerCase().includes(search)
-                      );
-                    }}
+                    filterOptions={createFilterOptions({
+                      matchFrom: 'any',
+                      stringify: (option) => String(option.label || ''),
+                      trim: true
+                    })}
                     value={value}
                     isOptionEqualToValue={(option, val) => String(option.value) === String(val.value)}
                     onChange={(_, newValue) => {
@@ -279,7 +253,7 @@ export function DataTableToolbar<T>({
                       },
                     }}
                     renderOption={(props, option) => {
-                      const { key, ...rest } = props as any;
+                      const { key: _key, ...rest } = props as React.HTMLAttributes<HTMLLIElement> & { key?: React.Key };
                       return (
                         <li key={option.value || option.label} {...rest}>
                           {option.label}

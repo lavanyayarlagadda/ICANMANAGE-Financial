@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 
 /* MAIN CONTAINER */
-export const MainContainer = styled(Paper)(({ theme }) => ({
+export const MainContainer = styled(Paper)(() => ({
   width: '100%',
   maxWidth: '100%',
   overflow: 'hidden',
@@ -199,7 +199,7 @@ export const HeaderTableCell = styled(TableCell)(({ theme }) => ({
   whiteSpace: 'nowrap',
 }));
 
-export const StyledTable = styled('table')(({ theme }) => ({
+export const StyledTable = styled('table')(() => ({
   width: '100%',
   borderCollapse: 'collapse',
 }));
@@ -217,7 +217,7 @@ export const MobileCard = styled(Paper)(({ theme }) => ({
   boxShadow: 'none',
 }));
 
-export const FilterButtonBox = styled(Box)(({ theme }) => ({
+export const FilterButtonBox = styled(Box)(() => ({
   display: 'flex',
   gap: 8,
 }));

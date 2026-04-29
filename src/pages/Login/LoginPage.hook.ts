@@ -1,13 +1,11 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@/store';
 import { setCredentials } from '@/store/slices/authSlice';
 import { resetUiState } from '@/store/slices/uiSlice';
-import { STATIC_AUTH_TOKEN, STATIC_REFRESH_TOKEN, DUMMY_USER } from '@/constants/auth';
 import { useLoginMutation } from '@/store/api/authApi';
 import { baseApi } from '@/store/api/baseApi';
-import { NAV_CONFIG } from '@/config/navigation';
 import { resetRemittanceViewState } from '@/store/slices/financialsSlice';
 
 export const useLoginPage = () => {
@@ -19,8 +17,7 @@ export const useLoginPage = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (isAuthenticated) {

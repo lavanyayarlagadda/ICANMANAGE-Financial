@@ -3,18 +3,16 @@ import {
   TablePagination,
   useTheme,
   useMediaQuery,
-  Box,
 } from '@mui/material';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { exportToCSV, exportToPDF } from '@/utils/exportUtils';
 
 import DictionaryDrawer from '../DictionaryDrawer/DictionaryDrawer';
 import { useDataTable, DataColumn, SortDirection, AccessorColumn, FilterableColumn } from './DataTable.hook';
 import { MainContainer } from './DataTable.styles';
-import { formatCurrency } from '@/utils/formatters';
 import { DataTableToolbar } from './DataTableToolbar';
 import { DataTableDesktop } from './DataTableDesktop';
 import { DataTableMobile } from './DataTableMobile';
+import { TableSkeleton } from '../../atoms/TableSkeleton/TableSkeleton';
 
 interface DataTableProps<T> {
   columns: DataColumn<T>[];
@@ -48,6 +46,7 @@ interface DataTableProps<T> {
   disableHover?: boolean;
   getRowStyle?: (row: T) => React.CSSProperties;
   dense?: boolean;
+  loading?: boolean;
 }
 
 function DataTable<T>({
@@ -66,11 +65,10 @@ function DataTable<T>({
   disableHover = false,
   getRowStyle,
   dense = false,
+  loading = false,
   ...props
 }: DataTableProps<T>) {
   const hasAccessor = (column: DataColumn<T>): column is AccessorColumn<T> => !!column.accessor;
-  const hasFilterOptions = (column: DataColumn<T>): column is FilterableColumn<T> =>
-    !!column.filterOptions && Array.isArray(column.filterOptions);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -113,6 +111,7 @@ function DataTable<T>({
 
   const filterableColumns = useMemo(() =>
     columns
+      .filter((col) => !!col)
       .filter((col) =>
         (Array.isArray(col.filterOptions) && col.filterOptions.length > 0) ||
         !!col.isFilterLoading ||
@@ -124,7 +123,9 @@ function DataTable<T>({
       })) as FilterableColumn<T>[],
     [columns]
   );
-  const exportableColumns = columns.filter((c): c is AccessorColumn<T> => c.id !== 'actions' && hasAccessor(c));
+  const exportableColumns = columns
+    .filter((col) => !!col)
+    .filter((c): c is AccessorColumn<T> => c.id !== 'actions' && hasAccessor(c));
   const paginatedData = paginated && !props.serverSide
     ? sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : sortedData;
@@ -151,47 +152,11 @@ function DataTable<T>({
   const isIndeterminate = paginatedData.some((row) => selectedKeys.has(rowKey(row))) && !isAllSelected;
 
   const handleCSVExport = () => {
-    const headers = exportableColumns.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
-    const rows = sortedData.map((row) => exportableColumns.map((col) => {
-      const val = col.accessor(row);
-      // If it's a currency column or contains amount, format it
-      if (col.id.toLowerCase().includes('amount') || col.id.toLowerCase().includes('balance') || col.id.toLowerCase().includes('variance')) {
-        const numVal = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.-]+/g, ''));
-        return isNaN(numVal) ? (val === null || val === undefined ? '' : String(val)) : formatCurrency(numVal);
-      }
-      return val === null || val === undefined ? '' : String(val);
-    }));
-    const csvContent = [headers.join(','), ...rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${exportTitle.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+    exportToCSV(sortedData, exportableColumns, exportTitle);
   };
 
   const handlePDFExport = () => {
-    const headers = exportableColumns.map((c) => c.exportLabel || (typeof c.label === 'string' ? c.label : String(c.id)));
-    const rows = sortedData.map((row) => exportableColumns.map((col) => {
-      const val = col.accessor(row);
-      if (col.id.toLowerCase().includes('amount') || col.id.toLowerCase().includes('balance') || col.id.toLowerCase().includes('variance')) {
-        const numVal = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.-]+/g, ''));
-        return isNaN(numVal) ? (val === null || val === undefined ? '' : String(val)) : formatCurrency(numVal);
-      }
-      return val === null || val === undefined ? '' : String(val);
-    }));
-    const doc = new jsPDF({ orientation: headers.length > 6 ? 'landscape' : 'portrait' });
-    doc.setFontSize(14).text(exportTitle, 14, 18);
-    autoTable(doc, {
-      head: [headers],
-      body: rows,
-      startY: 30,
-      styles: { fontSize: 7, cellPadding: 2 },
-      headStyles: { fillColor: [33, 150, 243], textColor: 255 },
-      alternateRowStyles: { fillColor: [245, 247, 250] }
-    });
-    doc.save(`${exportTitle.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`);
+    exportToPDF(sortedData, exportableColumns, exportTitle);
   };
 
   return (
@@ -224,7 +189,9 @@ function DataTable<T>({
         handlePDFExport={handlePDFExport}
       />
 
-      {isMobile ? (
+      {loading ? (
+        <TableSkeleton rows={rowsPerPage} columns={columns.length} hasCheckbox={!!props.selectable} />
+      ) : isMobile ? (
         <DataTableMobile
           paginatedData={paginatedData}
           rowKey={rowKey}

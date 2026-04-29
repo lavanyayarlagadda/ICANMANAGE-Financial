@@ -8,9 +8,8 @@ import {
     closeSnackbar
 } from '@/store/slices/uiSlice';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { useGetMeDetailsQuery, MenuItem } from '@/store/api/userApi';
+import { MenuItem } from '@/store/api/userApi';
 import { getNavigationStructure } from '@/utils/navigationUtils';
-import { MENU_STATUS } from '@/config/constants';
 
 export const useDashboardLayout = () => {
     const navigate = useNavigate();

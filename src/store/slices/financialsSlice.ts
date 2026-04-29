@@ -12,7 +12,7 @@ import {
   BankDepositEntity,
   ForwardBalanceNotice,
 } from '@/interfaces/financials';
-import { subMonths, format } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
 
 import {
   mockPayments,
@@ -78,9 +78,9 @@ const initialState: FinancialsState = {
   addDialogOpen: false,
   addDialogType: '',
   globalFilters: {
-    fromDate: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
+    fromDate: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
     toDate: format(new Date(), 'yyyy-MM-dd'),
-    rangeLabel: '1 month',
+    rangeLabel: 'MTD',
   },
 };
 
@@ -146,9 +146,9 @@ const financialsSlice = createSlice({
     },
     resetGlobalFilters: (state) => {
       state.globalFilters = {
-        fromDate: format(subMonths(new Date(), 1), 'yyyy-MM-dd'),
+        fromDate: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
         toDate: format(new Date(), 'yyyy-MM-dd'),
-        rangeLabel: '1 month',
+        rangeLabel: 'MTD',
       };
     },
     resetRemittanceViewState: (state) => {

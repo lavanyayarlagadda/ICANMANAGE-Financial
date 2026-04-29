@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Button, Box } from '@mui/material';
+import { Typography, Button } from '@mui/material';
 import { NotFoundWrapper, ContentBox } from './NotFound.styles';
 import { useNotFound } from './NotFound.hook';
 

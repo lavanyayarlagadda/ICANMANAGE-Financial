@@ -60,7 +60,6 @@ const UserProfilePage: React.FC = () => {
         confirmPassword,
         setConfirmPassword,
         landingPage,
-        setLandingPage,
         successMessage,
         handleTabChange,
         handleUpdateUsername,
@@ -68,8 +67,6 @@ const UserProfilePage: React.FC = () => {
         handleLandingPageChange,
         getAccessiblePages,
         handleBack,
-        isModuleVisible,
-        isModuleDisabled,
         isLoadingDetails,
         landingPageChanged,
     } = useUserProfilePage();
@@ -150,12 +147,12 @@ const UserProfilePage: React.FC = () => {
                             <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Default Landing Page</Typography>
                             <Typography variant="caption" color="primary">Current: {landingPage}</Typography>
                         </Box>
-                        <Select 
-                            fullWidth 
-                            size="small" 
-                            disabled={user?.role === 'user' || user?.username === 'demo' || isLoadingDetails} 
-                            value={landingPage} 
-                            onChange={(e) => handleLandingPageChange(e.target.value)} 
+                        <Select
+                            fullWidth
+                            size="small"
+                            disabled={user?.role === 'user' || user?.username === 'demo' || isLoadingDetails}
+                            value={landingPage}
+                            onChange={(e) => handleLandingPageChange(e.target.value)}
                             sx={{ ...styles.textFieldStyles, mb: 1 }}
                         >
                             {getAccessiblePages().map(pageLabel => (
@@ -167,12 +164,12 @@ const UserProfilePage: React.FC = () => {
                         </Typography>
                         {/* Note: Save button is now mostly redundant due to auto-save on select, but kept for UX clarity */}
                         <Box sx={styles.actionsBoxStyles}>
-                            <Button 
-                                variant="contained" 
+                            <Button
+                                variant="contained"
                                 disabled={isLoadingDetails || !landingPageChanged}
-                                startIcon={isLoadingDetails ? <CircularProgress size={16} color="inherit" /> : <SaveIcon fontSize="small" />} 
-                                onClick={() => handleLandingPageChange(landingPage)} 
-                                sx={{ 
+                                startIcon={isLoadingDetails ? <CircularProgress size={16} color="inherit" /> : <SaveIcon fontSize="small" />}
+                                onClick={() => handleLandingPageChange(landingPage)}
+                                sx={{
                                     backgroundColor: themeConfig.colors.primary,
                                     '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary }
                                 }}

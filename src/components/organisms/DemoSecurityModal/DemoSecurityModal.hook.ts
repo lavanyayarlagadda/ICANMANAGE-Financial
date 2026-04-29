@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SelectChangeEvent } from '@mui/material';
-import { useGetMeDetailsQuery, useGetUserMenuConfigQuery, useUpdateUserMenuConfigMutation, EffectiveMenuItem, EffectiveMenuModule, EffectiveSubMenuItem, MenuOverride } from '@/store/api/userApi';
+import { useGetUserMenuConfigQuery, useUpdateUserMenuConfigMutation, EffectiveMenuItem, EffectiveMenuModule, EffectiveSubMenuItem, MenuOverride } from '@/store/api/userApi';
 import { MenuStatus } from '@/utils/dummyData';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 
@@ -68,8 +68,8 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       const populateMap = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
         items.forEach(item => {
           statusMap[item.menuId] = item.effectiveStatus;
-          if ('modules' in item && item.modules) populateMap(item.modules);
-          if ('subModules' in item && item.subModules) populateMap(item.subModules);
+          if ('modules' in item && (item as EffectiveMenuItem).modules) populateMap((item as EffectiveMenuItem).modules!);
+          if ('subModules' in item && (item as EffectiveMenuModule).subModules) populateMap((item as EffectiveMenuModule).subModules!);
         });
       };
 
@@ -99,14 +99,14 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
             const setRecursive = (children: MenuOrModule[]) => {
               children.forEach(child => {
                 next[child.menuId] = targetStatus;
-                const grandChildren = ('modules' in child ? child.modules : ('subModules' in child ? child.subModules : undefined));
+                const grandChildren = ('modules' in child ? (child as EffectiveMenuItem).modules : ('subModules' in child ? (child as EffectiveMenuModule).subModules : undefined));
                 if (grandChildren) setRecursive(grandChildren);
               });
             };
-            const currentChildren = ('modules' in item ? item.modules : ('subModules' in item ? item.subModules : undefined));
+            const currentChildren = ('modules' in item ? (item as EffectiveMenuItem).modules : ('subModules' in item ? (item as EffectiveMenuModule).subModules : undefined));
             if (currentChildren) setRecursive(currentChildren);
           } else {
-            const children = ('modules' in item ? item.modules : ('subModules' in item ? item.subModules : undefined));
+            const children = ('modules' in item ? (item as EffectiveMenuItem).modules : ('subModules' in item ? (item as EffectiveMenuModule).subModules : undefined));
             if (children && cascadeDown(children, targetId, targetStatus)) {
               found = true;
             }
@@ -115,13 +115,12 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
         return found;
       };
 
-      // Cascade down for any status change to ensure consistency
       cascadeDown(menuConfig.menus, menuId, status);
 
       // 2. Cascade UP: Update parents based on children's state
       const updateParentStatuses = (items: MenuOrModule[]) => {
         items.forEach(item => {
-          const children = ('modules' in item ? item.modules : ('subModules' in item ? item.subModules : undefined));
+          const children = ('modules' in item ? (item as EffectiveMenuItem).modules : ('subModules' in item ? (item as EffectiveMenuModule).subModules : undefined));
           if (children && children.length > 0) {
             updateParentStatuses(children); // Process children first (post-order)
 
@@ -174,8 +173,8 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
             overrides.push({ menuId: item.menuId, status: moduleStatuses[item.menuId] });
           }
 
-          if ('modules' in item && item.modules) collectAllOverrides(item.modules);
-          if ('subModules' in item && item.subModules) collectAllOverrides(item.subModules);
+          if ('modules' in item && (item as EffectiveMenuItem).modules) collectAllOverrides((item as EffectiveMenuItem).modules!);
+          if ('subModules' in item && (item as EffectiveMenuModule).subModules) collectAllOverrides((item as EffectiveMenuModule).subModules!);
         });
       };
 
@@ -191,6 +190,9 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
 
       localStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
       window.dispatchEvent(new Event('ican_inactivity_timeout_changed'));
+
+      // Give a tiny delay for RTK Query to start refetching and for the user to see 'Success'
+      await new Promise(resolve => setTimeout(resolve, 500));
       onClose();
     } catch (error) {
       console.error('Failed to save menu config:', error);
@@ -218,9 +220,8 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
 
       // 1. Check user change
       const initialUserId = users.find(u => u.id === currentUser.id)?.id || users[0]?.id;
-      if (selectedUser !== initialUserId && !moduleStatuses[Object.keys(moduleStatuses)[0] as any]) {
-        // This is tricky because selectedUser is set on mount.
-        // If the user selects a DIFFERENT user than the one that was auto-selected, that's a change.
+      if (selectedUser !== initialUserId) {
+        return true;
       }
 
       // 2. Check Module Statuses
@@ -228,13 +229,13 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       const populateInitialMap = (items: (EffectiveMenuItem | EffectiveMenuModule | EffectiveSubMenuItem)[]) => {
         items.forEach(item => {
           initialStatusMap[item.menuId] = item.effectiveStatus;
-          if ('modules' in item && item.modules) populateInitialMap(item.modules);
-          if ('subModules' in item && item.subModules) populateInitialMap(item.subModules);
+          if ('modules' in item && (item as EffectiveMenuItem).modules) populateInitialMap((item as EffectiveMenuItem).modules!);
+          if ('subModules' in item && (item as EffectiveMenuModule).subModules) populateInitialMap((item as EffectiveMenuModule).subModules!);
         });
       };
       populateInitialMap(menuConfig.menus);
 
-      const statusesChanged = Object.keys(moduleStatuses).some(id => 
+      const statusesChanged = Object.keys(moduleStatuses).some(id =>
         moduleStatuses[Number(id)] !== initialStatusMap[Number(id)]
       );
       if (statusesChanged) return true;

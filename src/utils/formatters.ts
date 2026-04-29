@@ -8,8 +8,15 @@ import { format, parseISO, isValid } from 'date-fns';
 /**
  * Format a number as USD currency string.
  */
-export const formatCurrency = (value: number | null | undefined): string => {
-  if (value === null || value === undefined || isNaN(value)) {
+export const formatCurrency = (value: number | string | null | undefined): string => {
+  if (value === 0 || value === '0') {
+    return '$0.00';
+  }
+  if (value === null || value === undefined || value === '') {
+    return '-';
+  }
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numValue)) {
     return '$0.00';
   }
   return new Intl.NumberFormat('en-US', {
@@ -17,7 +24,7 @@ export const formatCurrency = (value: number | null | undefined): string => {
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(Number(value));
 };
 
 /**
@@ -25,7 +32,7 @@ export const formatCurrency = (value: number | null | undefined): string => {
  */
 export const formatDate = (dateStr: string | null | undefined): string => {
   if (!dateStr) return '';
-  
+
   // If it's already in MM-dd-yyyy format, return it
   if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
 
@@ -34,15 +41,15 @@ export const formatDate = (dateStr: string | null | undefined): string => {
     if (isValid(date)) {
       return format(date, 'MM-dd-yyyy');
     }
-    
+
     // Fallback to native Date for non-ISO formats
     const d = new Date(dateStr);
     if (!isNaN(d.getTime())) {
       return format(d, 'MM-dd-yyyy');
     }
-    
+
     return dateStr;
-  } catch (e) {
+  } catch {
     return dateStr;
   }
 };

@@ -1,30 +1,29 @@
 import { SxProps, Theme } from '@mui/material';
-import { alpha } from '@mui/material/styles';
 
 export const appBarStyles = (theme: Theme): SxProps<Theme> => ({
   backgroundColor: theme.palette.background.paper,
   color: theme.palette.text.primary,
   zIndex: theme.zIndex.drawer + 1,
-  pointerEvents: 'none', // Allow scroll to pass through to the page behind
+  pointerEvents: 'none',
 });
 
 export const toolbarStyles: SxProps<Theme> = {
   justifyContent: 'space-between',
   minHeight: { xs: 56, md: 64 },
   px: { xs: 1.5, md: 3 },
-  pointerEvents: 'none', // Pass-through for the bar background
+  pointerEvents: 'none',
 };
 
 export const tenantSelectStyles = (theme: Theme): SxProps<Theme> => ({
   borderRadius: 2,
   fontSize: '0.85rem',
   fontWeight: 600,
-  bgcolor: alpha(theme.palette.primary.main, 0.04),
+  bgcolor: theme.palette.action.hover,
   '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: alpha(theme.palette.primary.main, 0.2),
+    borderColor: theme.palette.divider,
   },
   '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: alpha(theme.palette.primary.main, 0.4),
+    borderColor: theme.palette.primary.light,
   },
   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
     borderColor: theme.palette.primary.main,

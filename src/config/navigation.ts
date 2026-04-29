@@ -1,20 +1,19 @@
 import React from 'react';
-import AllTransactionsScreen from '@/components/pages/AllTransactions/AllTransactionsScreen';
-import PaymentsScreen from '@/components/pages/Payments/PaymentsScreen';
-import RecoupmentsScreen from '@/components/pages/Recoupments/RecoupmentsScreen';
-import OtherAdjustmentsScreen from '@/components/pages/OtherAdjustments/OtherAdjustmentsScreen';
-import BankDepositsScreen from '@/components/pages/BankDeposits/BankDepositsScreen';
-import PipScreen from '@/components/pages/Pip/PipScreen';
-import SuspenseAccountsScreen from '@/components/pages/Suspense/SuspenseAccountsScreen';
-import VarianceScreen from '@/components/pages/Variance/VarianceScreen';
-import TrendsScreen from '@/components/pages/Trends/TrendsScreen';
-import ReconciliationScreen from '@/components/pages/ReconciliationScreen/ReconciliationScreen';
-import CollectionsScreen from '@/components/pages/Collections/CollectionsScreen';
-import StatementsScreen from '@/components/pages/Statements/StatementsScreen';
+import AllTransactionsScreen from '@/pages/Financials/screens/AllTransactions/AllTransactionsScreen';
+import PaymentsScreen from '@/pages/Financials/screens/Payments/PaymentsScreen';
+import RecoupmentsScreen from '@/pages/Financials/screens/Recoupments/RecoupmentsScreen';
+import OtherAdjustmentsScreen from '@/pages/Financials/screens/OtherAdjustments/OtherAdjustmentsScreen';
+import BankDepositsScreen from '@/pages/Financials/screens/BankDeposits/BankDepositsScreen';
+import PipScreen from '@/pages/Financials/screens/Pip/PipScreen';
+import SuspenseAccountsScreen from '@/pages/Financials/screens/Suspense/SuspenseAccountsScreen';
+import VarianceScreen from '@/pages/Financials/screens/Variance/VarianceScreen';
+import TrendsScreen from '@/pages/Financials/screens/Trends/TrendsScreen';
+import ReconciliationScreen from '@/pages/Financials/screens/ReconciliationScreen/ReconciliationScreen';
+import CollectionsScreen from '@/pages/Financials/screens/Collections/CollectionsScreen';
+import StatementsScreen from '@/pages/Financials/screens/Statements/StatementsScreen';
 
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 
 export interface NavMetadata {
     path: string;

@@ -13,7 +13,7 @@ export interface RangeDropdownProps {
 const RangeDropdown: React.FC<RangeDropdownProps> = ({
   value = '1 month',
   onChange,
-  options = ['1 month', '3 months', '6 months', '1 year', 'Custom']
+  options = ['MTD', '1 month', '3 months', '6 months', '1 year', 'Custom']
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
