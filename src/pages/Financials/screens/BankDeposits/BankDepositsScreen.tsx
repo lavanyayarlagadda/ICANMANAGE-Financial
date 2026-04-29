@@ -230,7 +230,6 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             const lowerName = dc.displayName.toLowerCase();
             const base = Object.values(baseColumns).find(c => {
                 const cid = c.id.toLowerCase();
-                console.log
                 if (lowerName.includes('status')) return cid === 'status';
                 if (lowerName.includes('payer') || lowerName.includes('payor')) return cid === 'payername';
                 if (lowerName.includes('bank') || lowerName.includes('amount') || lowerName.includes('deposit')) return cid === 'baiamount';
