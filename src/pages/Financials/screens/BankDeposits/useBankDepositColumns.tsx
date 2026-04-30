@@ -14,7 +14,7 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 import { BankDepositItem } from '@/interfaces/financials';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import { themeConfig } from '@/theme/themeConfig';
-import { ReconStatus } from '@/constants/statuses';
+import { ReconStatus, SystemStatus } from '@/constants/statuses';
 
 import { DynamicColumn } from '@/interfaces/api/common';
 
@@ -55,6 +55,13 @@ export const useBankDepositColumns = ({
                 align: 'center',
                 accessor: (row) => row.transactionNo,
                 render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.transactionNo}</Typography>,
+            },
+            baiReceivedDate: {
+                id: 'baiReceivedDate',
+                label: 'DEPOSIT DATE',
+                align: 'center',
+                accessor: (row) => row.baiReceivedDate,
+                render: (row) => <Typography variant="body2">{formatDate(row.baiReceivedDate)}</Typography>,
             },
             reference: {
                 id: 'reference',
@@ -120,7 +127,7 @@ export const useBankDepositColumns = ({
                         const status = row.status;
                         if (!status) return '-';
                         const isMatched = status === ReconStatus.MATCHED || status === ReconStatus.RECONCILED;
-                        const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
+                        const statusColors = isMatched ? themeConfig.status[ReconStatus.MATCHED] : themeConfig.status[SystemStatus.CRITICAL];
                         return <Chip label={status} sx={{ backgroundColor: statusColors.bg, color: statusColors.text, border: `1px solid ${theme.palette.divider}` }} icon={isMatched ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />} />;
                     }
                     if (!row.variance1Status && !row.variance2Status) return '-';
@@ -140,7 +147,7 @@ export const useBankDepositColumns = ({
                                 <Chip
                                     label={row.variance2Status}
                                     sx={{
-                                        backgroundColor: themeConfig.status.critical,
+                                        backgroundColor: themeConfig.status[SystemStatus.CRITICAL].bg,
                                         color: themeConfig.colors.warning,
                                         fontWeight: 500,
                                     }}
@@ -168,11 +175,19 @@ export const useBankDepositColumns = ({
                 const cid = c.id.toLowerCase();
                 if (lowerName.includes('status')) return cid === 'status';
                 if (lowerName.includes('payer') || lowerName.includes('payor')) return cid === 'payername';
+                
+                // Prioritize date-specific columns to avoid "deposit" catching "deposit date"
+                if (lowerName.includes('date')) {
+                    if (lowerName.includes('deposit')) return cid === 'baireceiveddate';
+                    if (lowerName.includes('ref')) return cid === 'reference';
+                    return cid === 'baireceiveddate'; // Default for other dates to avoid amount mapping
+                }
+
                 if (lowerName.includes('bank') || lowerName.includes('amount') || lowerName.includes('deposit')) return cid === 'baiamount';
                 if (lowerName.includes('remittance')) return cid === 'remitamount';
                 if (lowerName.includes('variance')) return cid === 'variance';
                 if (lowerName.includes('trans') || (lowerName.includes('check') && !lowerName.includes('pay'))) return cid === 'transactionno';
-                if (lowerName.includes('ref') || (lowerName.includes('date') && !lowerName.includes('received'))) return cid === 'reference';
+                if (lowerName.includes('ref')) return cid === 'reference';
                 return false;
             });
 

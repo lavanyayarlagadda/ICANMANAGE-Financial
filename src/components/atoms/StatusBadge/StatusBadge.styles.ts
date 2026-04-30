@@ -1,15 +1,16 @@
 import { themeConfig } from '@/theme/themeConfig';
+import { ReconStatus, SystemStatus } from '@/constants/statuses';
 
 export const statusColorMap: Record<string, { bg: string; text: string }> = {
   posted: themeConfig.status.posted,
   completed: themeConfig.status.completed,
-  reconciled: themeConfig.status.reconciled,
+  reconciled: themeConfig.status[ReconStatus.RECONCILED],
   needsreview: themeConfig.status.needsReview,
   pendingreview: themeConfig.status.pendingReview,
-  match: themeConfig.status.match,
-  improving: themeConfig.status.stable,
+  match: themeConfig.status[ReconStatus.MATCHED],
+  improving: themeConfig.status[SystemStatus.IMPROVING],
   growing: themeConfig.status.completed,
-  decreasing: themeConfig.status.critical,
+  decreasing: themeConfig.status[SystemStatus.CRITICAL],
   open: themeConfig.status.needsReview,
   closed: themeConfig.status.posted,
   approved: themeConfig.status.approved,
@@ -21,6 +22,6 @@ export const statusColorMap: Record<string, { bg: string; text: string }> = {
   applied: themeConfig.status.applied,
   reversed: themeConfig.status.reversed,
   underreview: themeConfig.status.underReview,
-  stable: themeConfig.status.stable,
-  critical: themeConfig.status.critical,
+  stable: themeConfig.status[SystemStatus.STABLE],
+  critical: themeConfig.status[SystemStatus.CRITICAL],
 };
