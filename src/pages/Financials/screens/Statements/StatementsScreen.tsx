@@ -190,7 +190,6 @@ const ForwardBalanceNoticesTable = ({
 const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
     const {
-        activeSubTab,
         finalActiveSubTab,
         forwardBalanceNotices,
         totalElements,
