@@ -213,11 +213,11 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Box>
             )}
 
-            {activeSubTab === 1 && (
+            {finalActiveSubTab === 1 && (
                 <Grid container spacing={2} sx={{ mb: 4 }}>
-                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL ORIGINAL AMOUNT" value={formatCurrency(stats.totalOriginalAmount)} backgroundColor={theme.palette.background.paper} /></Grid>
-                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL REMAINING BALANCE" value={formatCurrency(stats.totalRemainingBalance)} variant="negative" backgroundColor={theme.palette.background.paper} /></Grid>
-                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="ACTION REQUIRED" value={String(stats.actionRequired ?? 0)} backgroundColor={theme.palette.background.paper} /></Grid>
+                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL ORIGINAL AMOUNT" value={formatCurrency(stats?.totalOriginalAmount)} backgroundColor={theme.palette.background.paper} /></Grid>
+                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL REMAINING BALANCE" value={formatCurrency(stats?.totalRemainingBalance)} variant="negative" backgroundColor={theme.palette.background.paper} /></Grid>
+                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="ACTION REQUIRED" value={String(stats?.actionRequired)} backgroundColor={theme.palette.background.paper} /></Grid>
                 </Grid>
             )}
 

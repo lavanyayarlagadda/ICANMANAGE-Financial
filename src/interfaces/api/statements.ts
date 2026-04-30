@@ -14,7 +14,7 @@ export interface PipSearchRequest {
     payerName?: string | null;
     transactionNo?: string | null;
     icanManageId?: string | number;
-    payerIds?: (string | number)[];
+    payerIds?: (string | number) | null;
 }
 
 export interface PipSearchResponse {

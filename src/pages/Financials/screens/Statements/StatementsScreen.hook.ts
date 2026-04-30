@@ -139,7 +139,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
             return {
                 totalOriginalAmount: s.totalOriginalAmount ?? null,
                 totalRemainingBalance: s.totalRemainingBalance ?? null,
-                actionRequired: s.actionRequired ?? 0
+                actionRequired: s.actionRequired ?? '-'
             };
         }
         const totalOriginalAmount = forwardBalanceNotices.reduce((sum, r) => sum + (r.originalAmount ?? 0), 0);

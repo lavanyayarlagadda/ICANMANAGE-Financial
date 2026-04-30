@@ -81,7 +81,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         status: queryParams.status,
         category: queryParams.category,
         type: queryParams.type,
-        payerIds: queryParams.payer ? [queryParams.payer] : [],
+        payerIds: queryParams.payer ? queryParams.payer : null,
         transactionNo: queryParams.transactionNo,
     }, { skip: isActualSkip });
 

@@ -12,7 +12,7 @@ export interface TableQueryParams {
     payerName?: string | null;
     sourceProvider?: string | null;
     transactionNo?: string | null;
-    payerIds?: string[] | number[];
+    payerIds?: string | number | null;
 }
 
 export interface DateRangeParams {
