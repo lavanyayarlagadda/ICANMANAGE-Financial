@@ -60,6 +60,7 @@ const ForwardBalanceNoticesTable = ({
     onRangeChange,
     rangeLabel,
     onFilterChange,
+    payerOptions,
     loading,
 }: {
     data: ForwardBalanceNotice[],
@@ -71,6 +72,7 @@ const ForwardBalanceNoticesTable = ({
     onRangeChange: (range: string) => void,
     rangeLabel: string,
     onFilterChange: (filters: Record<string, string>) => void,
+    payerOptions: { label: string, value: string }[],
     loading?: boolean,
 }) => {
     const { expandedRows, toggleRow, noticeDetails, loadingDetails } = useForwardBalanceNoticesTable();
@@ -103,9 +105,10 @@ const ForwardBalanceNoticesTable = ({
         },
         {
             id: 'provider',
-            label: 'PROVIDER / NPI',
+            label: 'PAYER / NPI',
             align: 'center',
             accessor: (row) => `${row.providerName} ${row.npi}`,
+            filterOptions: payerOptions,
             render: (row) => (
                 <Box sx={{ textAlign: 'center' }}>
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>{row.providerName}</Typography>
@@ -135,7 +138,7 @@ const ForwardBalanceNoticesTable = ({
             // filterOptions: statusOptions,
             render: (row) => <StatusBadge status={row.status} />,
         },
-    ], [expandedRows, toggleRow]);
+    ], [expandedRows, toggleRow, payerOptions]);
 
     return (
         <Box>
@@ -202,6 +205,7 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         onPageChange,
         onRowsPerPageChange,
         handleFilterChange,
+        payerOptions,
         stats,
         globalFilters,
         isFetching
@@ -237,6 +241,7 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     onRangeChange={handleRangeChange}
                     rangeLabel={globalFilters.rangeLabel}
                     onFilterChange={handleFilterChange}
+                    payerOptions={payerOptions}
                     loading={isFetching}
                 />
             ) : (

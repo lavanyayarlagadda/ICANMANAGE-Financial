@@ -61,6 +61,7 @@ export interface AllTransactionsFilterResponse {
         transactionTypes: TransactionTypeFilter[];
         categories: CategoryFilter[];
         transactionStatusTypes: string[];
+        payerNames: string[];
     };
     message: string | null;
 }

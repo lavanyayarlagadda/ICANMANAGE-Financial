@@ -117,7 +117,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         if (dropdownData?.data?.payers) {
             return dropdownData.data.payers.map((p) => ({
                 label: p.payerName,
-                value: p.payerName
+                value: String(p.payerId)
             }));
         }
         return [];

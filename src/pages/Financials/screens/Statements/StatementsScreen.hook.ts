@@ -33,7 +33,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         status: null as string | null,
-        payer: null as string | null,
+        payerName: null as string | null,
         transactionNo: '',
     });
 
@@ -71,13 +71,13 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
-        payer: queryParams.payer,
+        payerName: queryParams.payerName,
         transactionNo: queryParams.transactionNo
     }, { skip: skip || !isNoticesTab });
 
     const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip: !isNoticesTab });
     const statusOptions = useMemo(() => filterData?.data?.transactionStatusTypes || [], [filterData]);
-    const payerOptions = useMemo(() => filterData?.data?.payers?.map(p => ({ label: p.payerName, value: String(p.payerId) })) || [], [filterData]);
+    const payerOptions = useMemo(() => filterData?.data?.payerNames?.map(p => ({ label: p, value: p })) || [], [filterData]);
 
     useEffect(() => {
         if (!isNoticesTab || skip) {
@@ -178,10 +178,10 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
             const next = {
                 ...prev,
                 status: filters.status || null,
-                payer: filters.payerName || null,
+                payerName: filters.provider || null,
                 page: 0
             };
-            const isChanged = prev.status !== next.status || prev.payer !== next.payer;
+            const isChanged = prev.status !== next.status || prev.payerName !== next.payerName;
             return isChanged ? next : prev;
         });
     }, []);
