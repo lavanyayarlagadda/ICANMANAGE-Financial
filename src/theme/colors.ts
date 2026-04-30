@@ -1,3 +1,5 @@
+import { ReconStatus, SystemStatus } from '@/constants/statuses';
+
 /**
  * Centralized Color Palette – iCAN Manage
  */
@@ -120,12 +122,13 @@ export const colors = {
   status: {
     posted: { bg: '#E8F5E9', text: '#2E7D32' },
     completed: { bg: '#E3F2FD', text: '#1565C0' },
-    reconciled: { bg: '#F3E5F5', text: '#7B1FA2' },
+    [ReconStatus.RECONCILED]: { bg: '#F3E5F5', text: '#7B1FA2' },
     needsReview: { bg: '#FFF3E0', text: '#E65100' },
     pendingReview: { bg: '#FFF8E1', text: '#F57F17' },
-    match: { bg: '#E8F5E9', text: '#2E7D32' },
-    stable: { bg: '#F0FDF4', text: '#166534' },
-    critical: { bg: '#FEF2F2', text: '#991B1B' },
+    [ReconStatus.MATCHED]: { bg: '#E8F5E9', text: '#2E7D32' },
+    [SystemStatus.STABLE]: { bg: '#F0FDF4', text: '#166534' },
+    [SystemStatus.CRITICAL]: { bg: '#FEF2F2', text: '#991B1B' },
+    [SystemStatus.IMPROVING]: { bg: '#F0FDF4', text: '#166534' },
     disputed: { bg: '#FFEBEE', text: '#C62828' },
     approved: { bg: '#E3F2FD', text: '#1565C0' },
     pending: { bg: '#FFF8E1', text: '#F57F17' },

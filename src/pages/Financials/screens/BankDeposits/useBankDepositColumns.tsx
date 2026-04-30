@@ -14,6 +14,7 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 import { BankDepositItem } from '@/interfaces/financials';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import { themeConfig } from '@/theme/themeConfig';
+import { ReconStatus } from '@/constants/statuses';
 
 import { DynamicColumn } from '@/interfaces/api/common';
 
@@ -118,7 +119,7 @@ export const useBankDepositColumns = ({
                     if (isZeroTransaction) {
                         const status = row.status;
                         if (!status) return '-';
-                        const isMatched = status === 'Matched' || status === 'Reconciled';
+                        const isMatched = status === ReconStatus.MATCHED || status === ReconStatus.RECONCILED;
                         const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
                         return <Chip label={status} sx={{ backgroundColor: statusColors.bg, color: statusColors.text, border: `1px solid ${theme.palette.divider}` }} icon={isMatched ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />} />;
                     }

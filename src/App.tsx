@@ -10,6 +10,8 @@ import { store } from '@/store';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { GlobalHooksWrapper } from '@/components/GlobalHooksWrapper';
 import { GlobalStyles } from '@/theme/GlobalStyles';
+import { ErrorBoundary } from '@/components/atoms/ErrorBoundary';
+import { GlobalSnackbar } from '@/components/atoms/GlobalSnackbar';
 
 import { NAV_CONFIG } from '@/config/navigation';
 import { useAppSelector } from '@/store';
@@ -72,49 +74,52 @@ const App = () => (
           }}
         >
           <GlobalHooksWrapper>
-            <Suspense fallback={<LoadingFallback />}>
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/terms" element={<TermsPage />} />
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
 
-                {/* Protected Routes */}
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <RootRedirect />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/financials/*"
-                  element={
-                    <ProtectedRoute>
-                      <FinancialsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/collections"
-                  element={
-                    <ProtectedRoute>
-                      <FinancialsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/profile"
-                  element={
-                    <ProtectedRoute>
-                      <UserProfilePage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
+                  {/* Protected Routes */}
+                  <Route
+                    path="/"
+                    element={
+                      <ProtectedRoute>
+                        <RootRedirect />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/financials/*"
+                    element={
+                      <ProtectedRoute>
+                        <FinancialsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/collections"
+                    element={
+                      <ProtectedRoute>
+                        <FinancialsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <UserProfilePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
           </GlobalHooksWrapper>
+          <GlobalSnackbar />
         </BrowserRouter>
       </ThemeProvider>
     </LocalizationProvider>

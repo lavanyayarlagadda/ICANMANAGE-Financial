@@ -8,9 +8,14 @@ import {
   BankDepositSearchResponse,
   BankDepositSearchRequest,
   BankDepositWidgetResponse,
+  BankDepositWidgetParams,
   BankDepositExportRequest,
   MappedHeadersResponse,
-  DynamicTabsResponse
+  MappedHeadersParams,
+  DynamicTabsResponse,
+  UserMappedBrandsParams,
+  BankDepositHistoryParams,
+  BaiTriggerHistoryParams
 } from "@/interfaces/api";
 
 export const reconciliationApi = baseApi.injectEndpoints({
@@ -28,7 +33,7 @@ export const reconciliationApi = baseApi.injectEndpoints({
     }),
     getBankDepositWidgets: builder.query<
       BankDepositWidgetResponse,
-      { startDate: string; endDate: string; icanManageId: string | number }
+      BankDepositWidgetParams
     >({
       query: (params) => ({
         url: "financials/reconciliation/bank-deposits/widgets-data",
@@ -50,7 +55,7 @@ export const reconciliationApi = baseApi.injectEndpoints({
     }),
     getMappedHeadersData: builder.query<
       MappedHeadersResponse,
-      { hospitalId: number; pageName: string }
+      MappedHeadersParams
     >({
       query: (params) => ({
         url: "financials/reconciliation/get-mapped-headers-data",
@@ -61,7 +66,7 @@ export const reconciliationApi = baseApi.injectEndpoints({
     }),
     getUserMappedBrands: builder.query<
       DynamicTabsResponse,
-      { icanManageId: string | number; facilityMasterId: number }
+      UserMappedBrandsParams
     >({
       query: (params) => ({
         url: "financials/reconciliation/get-user-mapped-brands",
@@ -72,7 +77,7 @@ export const reconciliationApi = baseApi.injectEndpoints({
     }),
     getBankDepositHistory: builder.query<
       { data: { remittanceAdvice: RemitDataRecord[]; postingApplication: CashPostingRecord[] } },
-      { transactionNo: string }
+      BankDepositHistoryParams
     >({
       query: (params) => ({
         url: "financials/reconciliation/bank-deposits/history",
@@ -83,7 +88,7 @@ export const reconciliationApi = baseApi.injectEndpoints({
     }),
     getBaiTriggerHistory: builder.query<
       { data: { baiDataRecords: BaiDataRecord[]; remitDataRecords: RemitDataRecord[]; cashPostingRecords: CashPostingRecord[] } },
-      { eftNo: string; pageFlag: string; clientName: string }
+      BaiTriggerHistoryParams
     >({
       query: (params) => ({
         url: "financials/reconciliation/bai-trigger/history",

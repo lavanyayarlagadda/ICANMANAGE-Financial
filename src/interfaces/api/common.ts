@@ -46,3 +46,13 @@ export interface DynamicTabsResponse {
     data: BrandTab[];
     message: string | null;
 }
+
+export interface MappedHeadersParams {
+    hospitalId: number;
+    pageName: string;
+}
+
+export interface UserMappedBrandsParams {
+    icanManageId: string | number;
+    facilityMasterId: number;
+}

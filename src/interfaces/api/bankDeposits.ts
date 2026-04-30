@@ -46,3 +46,19 @@ export interface BankDepositWidgetResponse {
 }
 
 export type BankDepositSearchResponse = BankDepositItem[];
+
+export interface BankDepositWidgetParams {
+    startDate: string;
+    endDate: string;
+    icanManageId: string | number;
+}
+
+export interface BankDepositHistoryParams {
+    transactionNo: string;
+}
+
+export interface BaiTriggerHistoryParams {
+    eftNo: string;
+    pageFlag: string;
+    clientName: string;
+}

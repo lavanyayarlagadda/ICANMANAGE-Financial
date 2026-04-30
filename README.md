@@ -13,6 +13,7 @@ Key features include:
 - **Recoupments & Other Adjustments**
 - **Data Grids & Data Exporting**
 - **Charts & Financial Visualization**
+- **Terms and Conditions & Legal Compliance**
 
 ## Tech Stack
 
@@ -61,28 +62,44 @@ This project is built using modern frontend technologies:
 - `npm run check`: Runs ESLint, Type Checking (tsc), and Prettier format checking.
 - `npm run test`: Runs unit tests via Vitest.
 
+## Architecture & Coding Standards
+
+This project follows a strict modular architecture and modern coding standards to ensure maintainability and type safety:
+
+### Modular Hook Pattern
+Every major screen is divided into a consistent four-file structure:
+- `[Name]Screen.tsx`: The main UI component (kept lean, focuses on rendering).
+- `[Name]Screen.hook.ts`: The "brain" of the screen, containing all state, API calls, and business logic.
+- `sub-hooks/`: For complex screens, logic is further decomposed into specialized hooks (e.g., `use[Name]Data`, `use[Name]Filters`).
+- `[Name]Screen.styles.ts`: Styled components using Emotion/MUI.
+- `components/`: Sub-components specific to that screen to prevent monolithic files.
+
+### Type Safety & Standards
+- **Enums for Statuses**: All reconciliation and system statuses are managed via enums in `src/constants/statuses.ts`.
+- **Centralized Constants**: Magic strings (like brand names or default client IDs) are stored in `src/constants/brands.ts` and `src/constants/common.ts`.
+- **Standardized Interfaces**: All API request/response parameters are defined as named interfaces in `src/interfaces/api/`.
+- **Formatting**: Use centralized utilities in `src/utils/formatters.ts` for currency and date formatting. For file exports, use `formatDateForFilename` to ensure consistent naming.
+
 ## Project Structure
 
 ```text
 ICANMANAGE-Financial/
 ├── src/
-│   ├── components/
-│   │   ├── atoms/         # Smallest UI components
-│   │   ├── molecules/     # Compound UI components
-│   │   ├── organisms/     # Complex sections
-│   │   ├── pages/         # Page components (BankDeposits, Variance, Recoupments, etc.)
-│   │   └── templates/     # Page layout templates
-│   ├── interfaces/        # TypeScript type definitions and API interfaces
-│   ├── store/             # Redux configuration, slices, and RTK Query APIs automatically cached
-│   ├── utils/             # Helper functions configured for project usage
-│   └── App.tsx            # Main Application router configuration
-├── package.json           # Scripts and dependencies configurations
-└── vite.config.ts         # Vite build configuration file
+│   ├── components/        # Atomic Design: atoms, molecules, organisms
+│   ├── constants/         # Centralized Enums, Brands, and Common constants
+│   ├── interfaces/        # Standardized TypeScript definitions and API schemas
+│   ├── pages/             # Screens following the Modular Hook Pattern
+│   ├── store/             # Redux Toolkit, slices, and RTK Query services
+│   ├── utils/             # Helper functions (formatters, date utils, etc.)
+│   └── theme/             # MUI theme configuration and design tokens
 ```
 
-## Setup Environment Variables
-
-To run the application correctly, you may need to configure your environment variables. Typically, `.env` files are used locally (e.g., `.env.local`). Check with your team for the required API base URLs and keys.
+## Recent Updates
+- **Bank Deposits & Financial Modules**: Implemented advanced modularization using the `sub-hooks/` pattern for cleaner state management.
+- **Export System**: Standardized all export filenames to `MM-DD-YYYY` format using universal utilities.
+- **API Consistency**: Aligned payload schemas (e.g., `payerIds` and `payerName`) across all modules for reliable backend communication.
+- **SEO & Accessibility**: Achieved high Lighthouse scores through semantic HTML, ARIA labels, and performance optimizations.
+- **Legal**: Added a dedicated Terms and Conditions page with dynamic copyright information.
 
 ## License
 

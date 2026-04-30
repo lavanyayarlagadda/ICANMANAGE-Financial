@@ -29,6 +29,16 @@ import {
 import { PayerPerformanceRecord, RemittanceDetail } from '@/interfaces/financials';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 import { SORT_ORDER, DEFAULT_PAGE_SIZE } from '@/constants/common';
+import { BRANDS } from '@/constants/brands';
+
+export interface TrendsQueryParams {
+    fromDate: string;
+    toDate: string;
+    page?: number;
+    size?: number;
+    sortField?: string;
+    sortOrder?: 'asc' | 'desc';
+}
 
 export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -46,7 +56,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const isMindpath = useMemo(() => {
         const userCompany = user?.company?.toLowerCase() || '';
         const tenantName = activeTenantName.toLowerCase();
-        return userCompany.includes('mindpath') || tenantName.includes('mindpath');
+        return userCompany.includes(BRANDS.MINDPATH) || tenantName.includes(BRANDS.MINDPATH);
     }, [user, activeTenantName]);
 
     const location = useLocation();
@@ -55,14 +65,6 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const isSummaryPath = useMemo(() => location.pathname.includes('/summary'), [location.pathname]);
     const isPayerPath = useMemo(() => location.pathname.includes('/payer-performance'), [location.pathname]);
 
-    interface TrendsQueryParams {
-        fromDate: string;
-        toDate: string;
-        page?: number;
-        size?: number;
-        sortField?: string;
-        sortOrder?: 'asc' | 'desc';
-    }
 
     const [queryParams, setQueryParams] = useState<TrendsQueryParams>({
         fromDate: globalFilters.fromDate,

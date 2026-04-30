@@ -23,6 +23,7 @@ import { useTrendsScreen } from './TrendsScreen.hook';
 import { ForecastDashboardResponse } from '@/interfaces/api';
 import { PayerPerformanceRecord } from '@/interfaces/financials';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
+import { SystemStatus } from '@/constants/statuses';
 
 interface PerformanceData {
     month: string;
@@ -162,12 +163,12 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     py: 0.5,
                     borderRadius: 1,
                     display: 'inline-block',
-                    backgroundColor: row.status === 'Critical' ? theme.palette.error.light :
-                        row.status === 'Improving' ? theme.palette.success.light :
+                    backgroundColor: row.status === SystemStatus.CRITICAL ? theme.palette.error.light :
+                        row.status === SystemStatus.IMPROVING ? theme.palette.success.light :
                             theme.palette.info.light,
                     color:
-                        row.status === 'Critical' ? theme.palette.error.contrastText :
-                            row.status === 'Improving' ? theme.palette.success.contrastText :
+                        row.status === SystemStatus.CRITICAL ? theme.palette.error.contrastText :
+                            row.status === SystemStatus.IMPROVING ? theme.palette.success.contrastText :
                                 theme.palette.info.contrastText
                 }}>
                     <Typography variant="caption" sx={{ fontWeight: 700 }}>{row.status}</Typography>
