@@ -5,7 +5,6 @@ import { financialsApi } from '@/store/api/financialsApi';
 import {
     toggleMobileMenu,
     closeMobileMenu,
-    closeSnackbar
 } from '@/store/slices/uiSlice';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { MenuItem } from '@/store/api/userApi';
@@ -48,10 +47,6 @@ export const useDashboardLayout = () => {
         dispatch(toggleMobileMenu());
     }, [dispatch]);
 
-    const handleSnackbarClose = useCallback(() => {
-        dispatch(closeSnackbar());
-    }, [dispatch]);
-
     const handleMobileMenuClose = useCallback(() => {
         dispatch(closeMobileMenu());
     }, [dispatch]);
@@ -72,7 +67,6 @@ export const useDashboardLayout = () => {
         ...permissions,
         handleNavClick,
         handleMenuToggle,
-        handleSnackbarClose,
         handleMobileMenuClose,
         dispatch
     };

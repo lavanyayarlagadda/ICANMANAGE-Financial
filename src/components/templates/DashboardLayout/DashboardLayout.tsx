@@ -11,8 +11,6 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
-  Snackbar,
-  Alert,
   Tooltip,
   CircularProgress,
 } from '@mui/material';
@@ -47,7 +45,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     getMenuStatus,
     handleNavClick,
     handleMenuToggle,
-    handleSnackbarClose,
     handleMobileMenuClose,
     tenant,
     ui,
@@ -57,9 +54,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const {
     mobileMenuOpen,
     sidebarCollapsed,
-    snackbarOpen,
-    snackbarMessage,
-    snackbarSeverity,
   } = ui;
 
   const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
@@ -188,16 +182,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       </MainContentWrapper>
       <Footer />
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </PageWrapper>
   );
 };

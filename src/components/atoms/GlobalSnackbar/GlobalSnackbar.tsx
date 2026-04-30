@@ -4,8 +4,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { closeSnackbar } from '@/store/slices/uiSlice';
 
-function TransitionUp(props: SlideProps) {
-  return <Slide {...props} direction="up" />;
+function TransitionDown(props: SlideProps) {
+  return <Slide {...props} direction="down" />;
 }
 
 /**
@@ -28,10 +28,10 @@ export const GlobalSnackbar: React.FC = () => {
       open={snackbarOpen}
       autoHideDuration={6000}
       onClose={handleClose}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      TransitionComponent={TransitionUp}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      TransitionComponent={TransitionDown}
       sx={{
-        bottom: { xs: 16, sm: 24 },
+        top: { xs: 16, sm: 24 },
       }}
     >
       <Alert
