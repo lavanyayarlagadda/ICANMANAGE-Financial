@@ -28,6 +28,7 @@ import {
 } from '@/store/api/financialsApi';
 import { PayerPerformanceRecord, RemittanceDetail } from '@/interfaces/financials';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE } from '@/constants/common';
 
 export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -79,9 +80,9 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
 
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'paymentDate',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
     });
 
     const reloadCount = useRef(actionTriggers.reload);
@@ -143,13 +144,13 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc'
+                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC
                     }).unwrap(),
                     triggerSearchServiceLines({
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc',
+                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC,
                         check: identifier
                     }).unwrap()
                 ]);
@@ -224,6 +225,7 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         handlePageChange,
         handleRowsPerPageChange,
         onDrillDownParamsChange: (params: Partial<typeof drillDownParams>) => setDrillDownParams(prev => ({ ...prev, ...params })),
-        handleDrillDown
+        handleDrillDown,
+        isFetching,
     };
 };

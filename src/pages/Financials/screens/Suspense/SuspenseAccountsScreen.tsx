@@ -107,7 +107,8 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         handleSortChange,
         searchTerm,
         setSearchTerm,
-        onSearch
+        onSearch,
+        isFetching
     } = useSuspenseAccountsScreen({ skip });
 
     interface AccountRow {
@@ -238,6 +239,7 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
                     onPageChange={onPageChange}
                     onRowsPerPageChange={onRowsPerPageChange}
                     onSortChange={handleSortChange}
+                    loading={isFetching}
                 />
             </Box>
         );

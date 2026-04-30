@@ -1,4 +1,5 @@
 import { format, parseISO, isValid } from 'date-fns';
+import { DATE_FORMATS } from '@/constants/common';
 
 /**
  * Utility functions for formatting values throughout the application.
@@ -24,30 +25,55 @@ export const formatCurrency = (value: number | string | null | undefined): strin
     currency: 'USD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(Number(value));
+  }).format(Number(numValue));
 };
 
 /**
- * Format a date string as MM-DD-YYYY.
+ * Format a date string using the standard display format.
  */
 export const formatDate = (dateStr: string | null | undefined): string => {
   if (!dateStr) return '';
 
-  // If it's already in MM-dd-yyyy format, return it
-  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) return dateStr;
+  // If it's already in the display format, return it
+  const displayPattern = DATE_FORMATS.DISPLAY === 'MM/dd/yyyy' ? /^\d{2}\/\d{2}\/\d{4}$/ : /^\d{2}-\d{2}-\d{4}$/;
+  if (displayPattern.test(dateStr)) return dateStr;
 
   try {
     const date = parseISO(dateStr);
     if (isValid(date)) {
-      return format(date, 'MM-dd-yyyy');
+      return format(date, DATE_FORMATS.DISPLAY);
     }
 
     // Fallback to native Date for non-ISO formats
     const d = new Date(dateStr);
     if (!isNaN(d.getTime())) {
-      return format(d, 'MM-dd-yyyy');
+      return format(d, DATE_FORMATS.DISPLAY);
     }
 
+    return dateStr;
+  } catch {
+    return dateStr;
+  }
+};
+
+/**
+ * Format a date string for use in filenames (MM-DD-YYYY).
+ */
+export const formatDateForFilename = (dateStr: string | null | undefined): string => {
+  if (!dateStr) return '';
+  try {
+    const date = parseISO(dateStr);
+    if (isValid(date)) {
+      return format(date, 'MM-dd-yyyy');
+    }
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return format(d, 'MM-dd-yyyy');
+    }
+    // If it's already MM/DD/YYYY, convert to MM-DD-YYYY
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+      return dateStr.replace(/\//g, '-');
+    }
     return dateStr;
   } catch {
     return dateStr;

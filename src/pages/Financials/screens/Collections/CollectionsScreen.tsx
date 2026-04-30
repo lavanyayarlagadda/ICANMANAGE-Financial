@@ -29,6 +29,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handlePageChange,
         handleRowsPerPageChange,
         globalFilters,
+        isFetching,
     } = useCollectionsScreen({ skip });
     const theme = useTheme();
 
@@ -116,6 +117,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 onRowsPerPageChange={handleRowsPerPageChange}
                 onSortChange={handleSortChange}
                 download={false}
+                loading={isFetching}
             />
         </ScreenWrapper>
     );

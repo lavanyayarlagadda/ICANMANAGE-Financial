@@ -60,7 +60,8 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         onSearch,
         summaryData,
         rowHistory,
-        globalFilters
+        globalFilters,
+        isFetching
     } = useBankDepositsScreen({ skip });
 
     const summaryStats = useMemo(() => {
@@ -173,61 +174,62 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     // When zero transaction – fall back to regular status
                     if (isZeroTransaction) {
                         const status = row.status;
+                        if (!status) return '-';
                         const isMatched = status === 'Matched' || status === 'Reconciled';
                         const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
                         return <Chip label={status} sx={{ backgroundColor: statusColors.bg, color: statusColors.text, border: `1px solid ${theme.palette.divider}` }} icon={isMatched ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />}
                         />;
                     }
                     // Otherwise show variance status hierarchy
+                    if (!row.variance1Status && !row.variance2Status) return '-';
                     return (
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                             {/* variance1Status – top, green */}
-                            <Chip
-                                label={row.variance1Status ?? '-'}
-                                sx={{
-                                    backgroundColor: themeConfig.colors.slate[50], // green from theme
-                                    color: themeConfig.colors.success,
-                                    fontWeight: 500,
-                                }}
-                            />
+                            {row.variance1Status && (
+                                <Chip
+                                    label={row.variance1Status}
+                                    sx={{
+                                        backgroundColor: themeConfig.colors.slate[50], // green from theme
+                                        color: themeConfig.colors.success,
+                                        fontWeight: 500,
+                                    }}
+                                />
+                            )}
                             {/* variance2Status – bottom, light reddish */}
-                            <Chip
-                                label={row.variance2Status ?? '-'}
-                                sx={{
-                                    backgroundColor: themeConfig.status.critical, // light red from theme
-                                    color: themeConfig.colors.warning,
-                                    fontWeight: 500,
-                                }}
-                            />
+                            {row.variance2Status && (
+                                <Chip
+                                    label={row.variance2Status}
+                                    sx={{
+                                        backgroundColor: themeConfig.status.critical, // light red from theme
+                                        color: themeConfig.colors.warning,
+                                        fontWeight: 500,
+                                    }}
+                                />
+                            )}
                         </Box>
                     );
                 },
             },
         };
 
-        const defaultColumns = [
-            baseColumns.expand,
-            baseColumns.transactionNo,
-            baseColumns.reference,
-            baseColumns.payerName,
-            baseColumns.baiAmount,
-            baseColumns.remitAmount,
-            baseColumns.variance,
-            baseColumns.status,
-        ];
-
+        // If headers have not loaded successfully or are empty, return only the expand toggle (if we want to allow it)
+        // or an empty array to indicate no columns are ready.
         if (!isHeadersSuccess || !dynamicColumns || dynamicColumns.length === 0) {
-            return defaultColumns;
+            // If we're still loading or have no headers, we shouldn't show hardcoded fallbacks
+            return [baseColumns.expand];
         }
 
         // Map dynamic columns from API
         const mappedColumns: DataColumn<BankDepositItem>[] = dynamicColumns.map(dc => {
+            // Create a camelCase ID from the display name for accessor fallback
             const mappedId = dc.displayName
                 .toLowerCase()
                 .replace(/[^a-z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
                 .replace(/^(.)/, (_, chr) => chr.toLowerCase());
 
             const lowerName = dc.displayName.toLowerCase();
+            
+            // Try to find a base column that matches the dynamic column's purpose
             const base = Object.values(baseColumns).find(c => {
                 const cid = c.id.toLowerCase();
                 if (lowerName.includes('status')) return cid === 'status';
@@ -247,33 +249,34 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     ...base,
                     label: dc.displayName.toUpperCase(),
                     accessor: (row: BankDepositItem) => {
-                        const val = row[actualField];
+                        const val = (row as any)[actualField];
                         if (typeof val === 'string' || typeof val === 'number' || val === null) return val;
                         return (base.accessor ? (base.accessor(row) as string | number | null) : null);
                     },
                     render: (row: BankDepositItem) => {
-                        const val = row[actualField];
-                        // If it's a numeric column (Amount/Variance), use formatCurrency with the actual value
+                        const val = (row as any)[actualField];
+                        // Special handling for currency formatting based on name or field type
                         if (typeof val === 'number' && (actualField.toLowerCase().includes('amt') || actualField.toLowerCase().includes('amount') || actualField.toLowerCase().includes('variance') || actualField.toLowerCase().includes('remit') || actualField.toLowerCase().includes('deposit'))) {
                             return <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(val)}</Typography>;
                         }
                         // Fallback to base render if available
-                        return base.render ? base.render(row) : <Typography variant="body2">{val !== null ? String(val) : '-'}</Typography>;
+                        return base.render ? base.render(row) : <Typography variant="body2">{val !== null && val !== undefined ? String(val) : '-'}</Typography>;
                     },
-                    filterOptions: actualField === 'payerName' ? payerOptions : base.filterOptions
+                    filterOptions: actualField === 'payerName' ? payerOptions : (actualField === 'status' ? statusOptions : base.filterOptions)
                 };
             }
 
+            // Fallback for completely unknown dynamic columns
             return {
                 id: mappedId,
                 label: dc.displayName.toUpperCase(),
                 align: 'center',
                 accessor: (row: BankDepositItem) => {
-                    const val = row[actualField];
+                    const val = (row as any)[mappedId];
                     return (typeof val === 'string' || typeof val === 'number' || val === null) ? val : null;
                 },
                 render: (row: BankDepositItem) => {
-                    const val = row[actualField];
+                    const val = (row as any)[mappedId];
                     if (typeof val === 'number' && (mappedId.toLowerCase().includes('amt') || mappedId.toLowerCase().includes('amount') || mappedId.toLowerCase().includes('variance'))) {
                         return <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(val)}</Typography>;
                     }
@@ -285,6 +288,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             };
         });
 
+        // Always ensure the expand toggle is at the start
         if (!mappedColumns.find(c => c.id === 'expand')) {
             mappedColumns.unshift(baseColumns.expand);
         }
@@ -506,7 +510,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                             });
                         }}
                         download={false}
-                        rowsPerPageOptions={[5, 10, 20, 50, 10, 200]}
+                        loading={isFetching}
                     />
                 </Box>
             ))}

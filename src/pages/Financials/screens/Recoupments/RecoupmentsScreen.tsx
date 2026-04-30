@@ -29,7 +29,8 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         onSearch,
         payerOptionsLoading,
         payerOptionsError,
-        globalFilters
+        globalFilters,
+        isFetching,
     } = useRecoupmentsScreen({ skip });
 
     const columns = useMemo<DataColumn<RecoupmentRecord>[]>(() => [
@@ -130,6 +131,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 onSortChange={handleSortChange}
                 onFilterChange={handleFilterChange}
                 download={false}
+                loading={isFetching}
             />
         </Box>
     );

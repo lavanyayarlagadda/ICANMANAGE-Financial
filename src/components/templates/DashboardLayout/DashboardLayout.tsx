@@ -124,14 +124,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 : (ui.isReloading
                   ? 'Syncing Fresh Financial Data...'
                   : (ui.activeExportType
-                    ? `Preparing your ${ui.activeExportType.toUpperCase()} report. Due to the high volume of data, it may take a bit longer. Please wait...`
+                    ? `Generating ${ui.activeExportType.toUpperCase()} Report`
                     : (ui.isDrillingDown ? 'Resolving Transaction Details...' : (ui.isGlobalFetching || financials.loading ? 'Fetching Records...' : 'Configuring View...')))))}
           </Typography>
-          {!ui.activeExportType &&
-            <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8 }}>
+
+          {ui.activeExportType ? (
+            <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1, maxWidth: 450, textAlign: 'center' }}>
+              Your report is being prepared. Due to the high volume of data, this may take a moment. 
+              Your file will download automatically once ready.
+            </Typography>
+          ) : (
+            <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1 }}>
               Please wait while we load your data securely...
             </Typography>
-          }
+          )}
         </GlobalOverlay>
       )}
 

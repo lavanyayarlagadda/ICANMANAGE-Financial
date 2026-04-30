@@ -8,6 +8,8 @@ import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { BankDepositItem, RowHistoryData } from '@/interfaces/financials';
+import { formatDateForFilename } from '@/utils/formatters';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
 
 export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -31,9 +33,9 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     });
     const [queryParams, setQueryParams] = useState({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'date',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         transactionNo: '',
@@ -136,7 +138,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
             pageNumber: queryParams.page + 1,
             pageSize: queryParams.size,
             sort: queryParams.sortField === 'date' ? 'bai_received_date' : queryParams.sortField || 'transactionNo',
-            desc: queryParams.sortOrder === 'desc',
+            desc: queryParams.sortOrder === SORT_ORDER.DESC,
             clientName: selectedTenant?.displayName?.toLowerCase() || 'ican',
             status: filters.status || null
         }
@@ -153,7 +155,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
 
     const [triggerExport] = useLazyExportBankDepositsQuery();
 
-    const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
+    const handleExport = useCallback(async (formatType: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         try {
             dispatch(setActiveExportType(formatType));
             const result = await triggerExport({
@@ -168,7 +170,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
             if (result !== undefined) {
                 downloadFileFromBlob(
                     result,
-                    `Bank_Deposits_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
+                    `Bank_Deposits_Report_${formatDateForFilename(queryParams.fromDate)}_to_${formatDateForFilename(queryParams.toDate)}.${formatType}`
                 );
             }
         } catch (err) {
@@ -180,14 +182,14 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
-            handleExport('xlsx');
+            handleExport(EXPORT_FORMATS.XLSX);
             exportCount.current = actionTriggers.export;
         }
     }, [actionTriggers.export, handleExport]);
 
     useEffect(() => {
         if (actionTriggers.print > printCount.current) {
-            handleExport('pdf');
+            handleExport(EXPORT_FORMATS.PDF);
             printCount.current = actionTriggers.print;
         }
     }, [actionTriggers.print, handleExport]);
@@ -331,6 +333,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         payerOptions,
         dynamicColumns,
         isError,
+        isFetching: isFetching || isWidgetsFetching || isHeadersFetching || isTabsFetching,
         isHeadersSuccess,
         summaryData: widgetData?.data,
         rowHistory,

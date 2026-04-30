@@ -73,3 +73,17 @@ export interface RecoupmentFilterResponse {
     }[];
     message: string | null;
 }
+
+export interface AllTransactionsSearchRequest {
+    page: number;
+    size: number;
+    sort: string;
+    desc: boolean;
+    fromDate: string;
+    toDate: string;
+    statusId: string | number | null;
+    categoryIds: string | number | null;
+    transactionTypeIds: string | number | null;
+    payerIds: string | number | null;
+    transactionNo: string;
+}

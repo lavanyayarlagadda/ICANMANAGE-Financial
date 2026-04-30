@@ -17,6 +17,7 @@ import {
 } from '@/store/slices/financialsSlice';
 
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
+import { formatDateForFilename } from '@/utils/formatters';
 import {
     useSearchPaymentsQuery,
     useLazyExportPaymentsQuery,
@@ -28,6 +29,7 @@ import { PaymentQueryParams } from '@/interfaces/api';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
 
 export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -36,11 +38,11 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const [queryParams, setQueryParams] = useState<PaymentQueryParams>({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: '',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
         status: null as string | null,
-        payer: null as string | null,
+        payerIds: null as string | null,
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         transactionNo: '',
@@ -74,9 +76,9 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     // Dynamic parameters for Drill-down APIs
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'paymentDate',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC,
     });
 
     const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
@@ -86,9 +88,9 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
+        desc: queryParams.sortOrder === SORT_ORDER.DESC,
         status: queryParams.status === 'All' ? null : queryParams.status,
-        payer: queryParams.payer,
+        payerIds: queryParams.payerIds as string | null,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         transactionNo: queryParams.transactionNo,
@@ -130,7 +132,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         return () => { dispatch(setIsGlobalFetching(false)); };
     }, [isFetching, skip, dispatch]);
 
-    const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
+    const handleExport = useCallback(async (formatType: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         try {
             dispatch(setActiveExportType(formatType));
             const result = await triggerExport({
@@ -142,7 +144,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             if (result !== undefined) {
                 downloadFileFromBlob(
                     result,
-                    `Payments_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
+                    `Payments_Report_${formatDateForFilename(queryParams.fromDate)}_to_${formatDateForFilename(queryParams.toDate)}.${formatType}`
                 );
             }
         } catch (err) {
@@ -154,14 +156,14 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
-            handleExport('xlsx');
+            handleExport(EXPORT_FORMATS.XLSX);
             exportCount.current = actionTriggers.export;
         }
     }, [actionTriggers.export, handleExport]);
 
     useEffect(() => {
         if (actionTriggers.print > printCount.current) {
-            handleExport('pdf');
+            handleExport(EXPORT_FORMATS.PDF);
             printCount.current = actionTriggers.print;
         }
     }, [actionTriggers.print, handleExport]);
@@ -197,13 +199,13 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc'
+                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC
                     }).unwrap(),
                     triggerSearchServiceLines({
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc',
+                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC,
                         check: identifier
                     }).unwrap()
                 ]);
@@ -256,14 +258,14 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const handleFilterChange = useCallback((filters: Record<string, string>) => {
         setQueryParams(prev => {
             const newStatus = filters.status || null;
-            const newPayer = filters.payer || null;
+            const newPayerIds = filters.payer || filters.payerIds || null;
             const newCategory = filters.transactionType || null;
             const newType = filters.type || null;
             const newSource = filters.sourceProvider || null;
 
             const isChanged =
                 prev.status !== newStatus ||
-                prev.payer !== newPayer ||
+                prev.payerIds !== newPayerIds ||
                 prev.category !== newCategory ||
                 prev.type !== newType ||
                 prev.sourceProvider !== newSource;
@@ -273,7 +275,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             return {
                 ...prev,
                 status: newStatus,
-                payer: newPayer,
+                payerIds: newPayerIds,
                 category: newCategory,
                 type: newType,
                 sourceProvider: newSource,
@@ -314,6 +316,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         setSearchTerm,
         onSearch: handleSearch,
         isError,
+        isFetching,
         dispatch,
         statusOptions,
         payerOptions

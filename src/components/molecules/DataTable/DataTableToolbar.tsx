@@ -23,6 +23,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import { EXPORT_FORMATS } from '@/constants/common';
 import {
   ToolbarContainer,
   SelectionBar,
@@ -196,7 +197,7 @@ export function DataTableToolbar<T>({
                   {onDownload ? (
                     <MenuItem onClick={() => { setDownloadAnchor(null); onDownload(); }}>
                       <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
-                      <ListItemText>Download Excel</ListItemText>
+                      <ListItemText>Download {EXPORT_FORMATS.XLSX.toUpperCase()}</ListItemText>
                     </MenuItem>
                   ) : (
                     <MenuItem onClick={() => { handleCSVExport(); setDownloadAnchor(null); }}>
@@ -206,7 +207,7 @@ export function DataTableToolbar<T>({
                   )}
                   <MenuItem onClick={() => { handlePDFExport(); setDownloadAnchor(null); }}>
                     <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText>Download PDF</ListItemText>
+                    <ListItemText>Download {EXPORT_FORMATS.PDF.toUpperCase()}</ListItemText>
                   </MenuItem>
                 </Menu>
               </>

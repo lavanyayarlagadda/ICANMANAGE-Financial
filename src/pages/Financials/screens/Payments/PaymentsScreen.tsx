@@ -27,7 +27,8 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         payerOptions,
         searchTerm,
         setSearchTerm,
-        onSearch
+        onSearch,
+        isFetching,
     } = usePaymentsScreen({ skip });
 
     const theme = useTheme();
@@ -115,6 +116,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 onSortChange={handleSortChange}
                 onFilterChange={handleFilterChange}
                 download={false}
+                loading={isFetching}
             />
         </ScreenWrapper>
     );

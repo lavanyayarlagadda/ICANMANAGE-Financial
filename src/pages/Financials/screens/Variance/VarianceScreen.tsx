@@ -41,6 +41,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         payerOptions,
         payerOptionsLoading,
         payerOptionsError,
+        isFetching,
     } = useVarianceScreen({ skip });
     const theme = useTheme();
     const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
@@ -186,6 +187,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 onFilterChange={handleFilterChange}
                 dictionaryId="variance-analysis"
                 download={false}
+                loading={isFetching}
             />
         </ScreenWrapper>
     );

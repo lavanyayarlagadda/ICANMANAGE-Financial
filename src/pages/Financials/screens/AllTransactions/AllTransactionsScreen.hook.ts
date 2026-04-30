@@ -5,12 +5,14 @@ import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfac
 import { useLazyExportAllTransactionsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery, useGetPaymentStatusQuery, useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
 import { TableQueryParams } from '@/interfaces/api';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
+import { formatDateForFilename } from '@/utils/formatters';
 import { setRemittanceClaims, setRemittanceDetail, setSelectedClaimIndex, setSelectedPaymentId, setShowRemittanceDetail, setGlobalFilters } from '@/store/slices/financialsSlice';
 import {
     setIsDrillingDown as setGlobalDrillingDown,
 } from '@/store/slices/uiSlice';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
 
 
 export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
@@ -25,13 +27,13 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
 
     const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'effectiveDate',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC,
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         status: null,
-        payer: null,
+        payerIds: null,
         transactionNo: '',
     });
 
@@ -63,9 +65,9 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     // Dynamic parameters for Drill-down APIs
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'paymentDate',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC,
     });
 
     const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
@@ -75,14 +77,14 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
+        desc: queryParams.sortOrder === SORT_ORDER.DESC,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
-        status: queryParams.status,
-        category: queryParams.category,
-        type: queryParams.type,
-        payerIds: queryParams.payer ? queryParams.payer : null,
-        transactionNo: queryParams.transactionNo,
+        statusId: queryParams.status || null,
+        categoryIds: queryParams.category || null,
+        transactionTypeIds: queryParams.type || "",
+        payerIds: queryParams.payerIds || null,
+        transactionNo: queryParams.transactionNo || "",
     }, { skip: isActualSkip });
 
     // Fetch dynamic status options
@@ -143,7 +145,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
 
     const [triggerExport] = useLazyExportAllTransactionsQuery();
 
-    const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
+    const handleExport = useCallback(async (formatType: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         try {
             dispatch(setActiveExportType(formatType));
             const result = await triggerExport({
@@ -155,7 +157,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
             if (result !== undefined) {
                 downloadFileFromBlob(
                     result,
-                    `All_Transactions_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
+                    `All_Transactions_Report_${formatDateForFilename(queryParams.fromDate)}_to_${formatDateForFilename(queryParams.toDate)}.${formatType}`
                 );
             }
         } catch (err) {
@@ -167,14 +169,14 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
-            handleExport('xlsx');
+            handleExport(EXPORT_FORMATS.XLSX);
             exportCount.current = actionTriggers.export;
         }
     }, [actionTriggers.export, handleExport]);
 
     useEffect(() => {
         if (actionTriggers.print > printCount.current) {
-            handleExport('pdf');
+            handleExport(EXPORT_FORMATS.PDF);
             printCount.current = actionTriggers.print;
         }
     }, [actionTriggers.print, handleExport]);
@@ -204,13 +206,13 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc'
+                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC
                     }).unwrap(),
                     triggerSearchServiceLines({
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc',
+                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC,
                         check: identifier
                     }).unwrap()
                 ]);
@@ -272,14 +274,14 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
             const next = {
                 ...prev,
                 status: filters.status || null,
-                payer: filters.payer || null,
+                payerIds: filters.payer || filters.payerIds || null,
                 category: filters.transactionType || null,
                 type: filters.type || null,
                 page: 0
             };
             const isChanged =
                 prev.status !== next.status ||
-                prev.payer !== next.payer ||
+                prev.payerIds !== next.payerIds ||
                 prev.category !== next.category ||
                 prev.type !== next.type;
 

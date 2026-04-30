@@ -23,7 +23,6 @@ import {
     PatientNameHeader,
     StyledListItemButton,
     StyledAvatar,
-    StyledAvatar,
 } from './RemittanceDetailScreen.styles';
 import { useRemittanceDetailScreen } from './RemittanceDetailScreen.hook';
 
@@ -152,6 +151,7 @@ const RemittanceDetailScreen: React.FC = () => {
                 page={slQueryParams.page} rowsPerPage={slQueryParams.size} sortCol={slQueryParams.sort}
                 sortDir={slQueryParams.desc ? 'desc' : 'asc'} totalElements={totalElements}
                 onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange} download={false}
+                loading={isSlFetching || isSlLoading}
             />
         </ScreenWrapper>
     );

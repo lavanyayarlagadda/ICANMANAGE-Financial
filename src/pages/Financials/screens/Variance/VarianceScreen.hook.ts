@@ -26,10 +26,12 @@ import {
     useGetAllTransactionsFiltersQuery
 } from '@/store/api/financialsApi';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
+import { formatDateForFilename } from '@/utils/formatters';
 import { FeeScheduleVariance, PaymentVariance, RemittanceDetail } from '@/interfaces/financials';
 import { TableQueryParams } from '@/interfaces/api';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
 
 export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -41,9 +43,9 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'paymentDate',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         payerName: null as string | null,
@@ -76,9 +78,9 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'paymentDate',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC,
     });
 
     const reloadCount = useRef(actionTriggers.reload);
@@ -87,7 +89,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
+        desc: queryParams.sortOrder === SORT_ORDER.DESC,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         payerName: queryParams.payerName,
@@ -103,7 +105,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
+        desc: queryParams.sortOrder === SORT_ORDER.DESC,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         payerName: queryParams.payerName,
@@ -163,7 +165,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc',
+                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC,
                         check: identifier
                     }).unwrap()
                 ]);
@@ -221,7 +223,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             }
         }
     }, [dispatch]);
-    const handleExport = useCallback(async (format: 'pdf' | 'xlsx') => {
+    const handleExport = useCallback(async (format: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         try {
             dispatch(setActiveExportType(format));
 
@@ -238,7 +240,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
                 blob = await triggerExportPayment(params).unwrap();
             }
 
-            const filename = `${activeSubTab === 0 ? 'fee-schedule-variance' : 'payment-variance'}-${queryParams.fromDate}-to-${queryParams.toDate}.${format}`;
+            const filename = `${activeSubTab === 0 ? 'fee-schedule-variance' : 'payment-variance'}-${formatDateForFilename(queryParams.fromDate)}-to-${formatDateForFilename(queryParams.toDate)}.${format}`;
             downloadFileFromBlob(blob, filename);
 
         } catch (error) {
@@ -250,14 +252,14 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     }, [dispatch, queryParams.fromDate, queryParams.toDate, activeSubTab, triggerExportFee, triggerExportPayment]);
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
-            handleExport('xlsx');
+            handleExport(EXPORT_FORMATS.XLSX);
             exportCount.current = actionTriggers.export;
         }
     }, [actionTriggers.export, handleExport]);
 
     useEffect(() => {
         if (actionTriggers.print > printCount.current) {
-            handleExport('pdf');
+            handleExport(EXPORT_FORMATS.PDF);
             printCount.current = actionTriggers.print;
         }
     }, [actionTriggers.print, handleExport]);
@@ -306,6 +308,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         payerOptions,
         payerOptionsLoading: filterFetching,
         payerOptionsError: filterError,
+        isFetching: feeFetching || paymentFetching,
         dispatch
     };
 };

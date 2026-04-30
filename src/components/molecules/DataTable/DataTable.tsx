@@ -5,6 +5,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { exportToCSV, exportToPDF } from '@/utils/exportUtils';
+import { PAGE_SIZE_OPTIONS } from '@/constants/common';
 
 import DictionaryDrawer from '../DictionaryDrawer/DictionaryDrawer';
 import { useDataTable, DataColumn, SortDirection, AccessorColumn, FilterableColumn } from './DataTable.hook';
@@ -55,7 +56,7 @@ function DataTable<T>({
   rowKey,
   paginated = true,
   download = true,
-  rowsPerPageOptions = [10, 25, 50, 100, 200],
+  rowsPerPageOptions = PAGE_SIZE_OPTIONS,
   onRowClick,
   expandedContent,
   expandedRows,

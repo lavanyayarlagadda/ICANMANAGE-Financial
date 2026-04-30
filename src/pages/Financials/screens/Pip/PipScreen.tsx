@@ -72,6 +72,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     onSearch,
     statusOptions,
     globalFilters,
+    isFetching,
   } = usePipScreen({ skip });
   const theme = useTheme();
 
@@ -144,6 +145,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         download={false}
         onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}
         onFilterChange={handleFilterChange}
+        loading={isFetching}
         customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}
       />
     </Box>

@@ -4,10 +4,12 @@ import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/stor
 import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery } from "@/store/api/financialsApi";
 import { useGetAllTransactionsFiltersQuery } from "@/store/api/transactionsApi";
 import { TableQueryParams } from "@/interfaces/api";
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from "@/constants/common";
 
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
 import { setGlobalFilters } from "@/store/slices/financialsSlice";
+import { formatDateForFilename } from "@/utils/formatters";
 
 
 export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
@@ -22,9 +24,9 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
 
     const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: '',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         status: null,
@@ -63,7 +65,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
+        desc: queryParams.sortOrder === SORT_ORDER.DESC,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
@@ -92,7 +94,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
 
     const [triggerExport] = useLazyExportPipQuery();
 
-    const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
+    const handleExport = useCallback(async (formatType: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         try {
             dispatch(setActiveExportType(formatType));
             const result = await triggerExport({
@@ -104,7 +106,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
             if (result !== undefined) {
                 downloadFileFromBlob(
                     result,
-                    `PIP_Report_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
+                    `PIP_Report_${formatDateForFilename(queryParams.fromDate)}_to_${formatDateForFilename(queryParams.toDate)}.${formatType}`
                 );
             }
         } catch (err) {
@@ -129,14 +131,14 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
-            handleExport('xlsx');
+            handleExport(EXPORT_FORMATS.XLSX);
             exportCount.current = actionTriggers.export;
         }
     }, [actionTriggers.export, handleExport]);
 
     useEffect(() => {
         if (actionTriggers.print > printCount.current) {
-            handleExport('pdf');
+            handleExport(EXPORT_FORMATS.PDF);
             printCount.current = actionTriggers.print;
         }
     }, [actionTriggers.print, handleExport]);
@@ -228,6 +230,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         handleExport,
         statusOptions,
         isError,
+        isFetching: isAnyFetching,
         globalFilters,
     };
 };

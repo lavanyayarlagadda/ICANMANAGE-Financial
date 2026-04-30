@@ -3,11 +3,13 @@ import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice';
 import { useSearchForwardBalanceNoticesQuery, useLazyExportForwardBalanceNoticesQuery, useGetForwardBalanceSummaryQuery, useLazyGetForwardBalanceDetailsQuery } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { formatDateForFilename } from '@/utils/formatters';
 import { ForwardBalanceDetailsResponse, TableQueryParams } from '@/interfaces/api';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
 import { OffsetEvent } from '@/interfaces/financials';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
 
 export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -25,9 +27,9 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
 
     const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'notificationDate',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         status: null as string | null,
@@ -65,7 +67,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
+        desc: queryParams.sortOrder === SORT_ORDER.DESC,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
@@ -88,7 +90,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
 
     const [triggerExport] = useLazyExportForwardBalanceNoticesQuery();
 
-    const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
+    const handleExport = useCallback(async (formatType: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         try {
             dispatch(setActiveExportType(formatType));
             const result = await triggerExport({
@@ -100,7 +102,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
             if (result !== undefined) {
                 downloadFileFromBlob(
                     result,
-                    `Forward_Balance_Notices_${queryParams.fromDate}_to_${queryParams.toDate}.${formatType}`
+                    `Forward_Balance_Notices_${formatDateForFilename(queryParams.fromDate)}_to_${formatDateForFilename(queryParams.toDate)}.${formatType}`
                 );
             }
         } catch (err) {
@@ -113,7 +115,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
     useEffect(() => {
         if (!isNoticesTab) return;
         if (actionTriggers.export > exportCount.current) {
-            handleExport('xlsx');
+            handleExport(EXPORT_FORMATS.XLSX);
             exportCount.current = actionTriggers.export;
         }
     }, [actionTriggers.export, handleExport, isNoticesTab]);
@@ -121,7 +123,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
     useEffect(() => {
         if (!isNoticesTab) return;
         if (actionTriggers.print > printCount.current) {
-            handleExport('pdf');
+            handleExport(EXPORT_FORMATS.PDF);
             printCount.current = actionTriggers.print;
         }
     }, [actionTriggers.print, handleExport, isNoticesTab]);
@@ -202,6 +204,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         statusOptions,
         payerOptions,
         stats,
+        isFetching: isFetchingNotices,
         isError: isErrorNotices,
         refetchNotices
     };

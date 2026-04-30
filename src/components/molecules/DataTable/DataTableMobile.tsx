@@ -10,6 +10,7 @@ import {
   useTheme,
 } from '@mui/material';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import EmptyState from '../../atoms/EmptyState/EmptyState';
 import { DataColumn } from './DataTable.hook';
 import { TableDescriptions } from '@/services/descriptionService';
 
@@ -49,10 +50,11 @@ export function DataTableMobile<T>({
   return (
     <Box sx={{ p: 1.5 }}>
       {paginatedData.length === 0 ? (
-        <Box sx={{ py: 6, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, opacity: 0.6 }}>
-          <Typography variant="body1" fontWeight={600}>No Data Available</Typography>
-          {/* <Typography variant="body2">No records found matching your criteria.</Typography> */}
-        </Box>
+        <EmptyState
+          icon="search"
+          title="No Records Found"
+          description="Adjust your filters or search terms to find what you're looking for."
+        />
       ) : paginatedData.map((row) => {
         const key = rowKey(row);
         const isSelected = selectedKeys.has(key);

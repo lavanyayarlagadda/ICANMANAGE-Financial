@@ -1,6 +1,7 @@
 import { baseApi } from "./baseApi";
 import {
   TableSearchRequest,
+  AllTransactionsSearchRequest,
   AllTransactionSearchResponse,
   AllTransactionsFilterResponse,
   RecoupmentSearchResponse,
@@ -13,7 +14,7 @@ export const transactionsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     searchAllTransactions: builder.query<
       AllTransactionSearchResponse,
-      TableSearchRequest
+      AllTransactionsSearchRequest
     >({
       query: (body) => ({
         url: "financials/all-transactions",
@@ -23,7 +24,7 @@ export const transactionsApi = baseApi.injectEndpoints({
       providesTags: ["Transactions"],
     }),
     getAllTransactionsFilters: builder.query<AllTransactionsFilterResponse, void>({
-      query: () => "/financials/dropdown",
+      query: () => "financials/dropdown",
       providesTags: ["Transactions"],
     }),
     searchRecoupments: builder.query<
@@ -31,7 +32,7 @@ export const transactionsApi = baseApi.injectEndpoints({
       TableSearchRequest
     >({
       query: (body) => ({
-        url: "/financials/transactions/recoupments",
+        url: "financials/transactions/recoupments",
         method: "POST",
         body,
       }),

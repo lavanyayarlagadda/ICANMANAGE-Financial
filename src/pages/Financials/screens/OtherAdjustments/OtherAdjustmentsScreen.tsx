@@ -28,7 +28,8 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         searchTerm,
         setSearchTerm,
         onSearch,
-        globalFilters
+        globalFilters,
+        isFetching,
     } = useOtherAdjustmentsScreen({ skip });
 
     const columns = useMemo<DataColumn<OtherAdjustmentRecord>[]>(() => [
@@ -121,6 +122,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
                 onSortChange={handleSortChange}
                 onFilterChange={handleFilterChange}
                 download={false}
+                loading={isFetching}
             />
         </Box>
     );

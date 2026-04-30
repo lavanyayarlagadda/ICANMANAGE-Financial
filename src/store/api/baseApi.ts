@@ -73,38 +73,45 @@ const baseQueryWithReauth: BaseQueryFn<
 
   let result = await baseQuery(fullArgs, api, extraOptions);
 
-  if (result.error && result.error.status === 401) {
-    const currentState = toRootState(api.getState());
-    const refreshToken = currentState?.auth.refreshToken;
+  if (result.error) {
+    if (result.error.status === 401) {
+      const currentState = toRootState(api.getState());
+      const refreshToken = currentState?.auth.refreshToken;
 
-    if (refreshToken) {
-      // Try to refresh the token
-      const refreshResult = await baseQuery(
-        {
-          url: `${BASE_URL}/auth/refresh`,
-          method: 'POST',
-          body: { refreshToken },
-        },
-        api,
-        extraOptions
-      );
+      if (refreshToken) {
+        // Try to refresh the token
+        const refreshResult = await baseQuery(
+          {
+            url: `${BASE_URL}/auth/refresh`,
+            method: 'POST',
+            body: { refreshToken },
+          },
+          api,
+          extraOptions
+        );
 
-      if (refreshResult.data) {
-        // Successful refresh
-        const { accessToken, refreshToken: newRefreshToken } = refreshResult.data as { accessToken: string; refreshToken: string };
+        if (refreshResult.data) {
+          // Successful refresh
+          const { accessToken, refreshToken: newRefreshToken } = refreshResult.data as { accessToken: string; refreshToken: string };
 
-        // Update the token in the store
-        api.dispatch(updateToken({ accessToken, refreshToken: newRefreshToken }));
+          // Update the token in the store
+          api.dispatch(updateToken({ accessToken, refreshToken: newRefreshToken }));
 
-        // Retry the original query with the new token
-        result = await baseQuery(fullArgs, api, extraOptions);
+          // Retry the original query with the new token
+          result = await baseQuery(fullArgs, api, extraOptions);
+        } else {
+          // Refresh failed, logout
+          api.dispatch(logout());
+        }
       } else {
-        // Refresh failed, logout
+        // No refresh token available, logout
         api.dispatch(logout());
       }
     } else {
-      // No refresh token available, logout
-      api.dispatch(logout());
+      // Handle other errors with a snackbar
+      const errorMessage = (result.error as any)?.data?.message || 'An unexpected error occurred. Please try again.';
+      const { showSnackbar } = await import('../slices/uiSlice');
+      api.dispatch(showSnackbar({ message: errorMessage, severity: 'error' }));
     }
   }
   return result;

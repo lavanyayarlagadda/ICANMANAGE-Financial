@@ -48,6 +48,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleDrillDown,
         globalFilters,
         isMindpath,
+        isFetching,
     } = useTrendsScreen({ skip });
 
     const teamColumns = useMemo<DataColumn<ForecastDashboardResponse['data'][0]>[]>(() => [
@@ -120,6 +121,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     searchable={false}
                     dictionaryId="forecast-trends"
                     download={false}
+                    loading={isFetching}
                 />
             )}
         </>
@@ -192,6 +194,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 onRowsPerPageChange={handleRowsPerPageChange}
                 dictionaryId="payer-performance"
                 download={false}
+                loading={isFetching}
             />
         </>
     ), [payerPerformanceRecords, totalElementsPayer, handlePageChange, handleRowsPerPageChange, payerColumns]);

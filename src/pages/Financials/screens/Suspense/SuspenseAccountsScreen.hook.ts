@@ -1,21 +1,27 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { setIsGlobalFetching } from '@/store/slices/uiSlice';
+import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
-import { useSearchSuspenseAccountsQuery } from '@/store/api/financialsApi';
+import { useSearchSuspenseAccountsQuery, useLazyExportSuspenseAccountsQuery } from '@/store/api/financialsApi';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { formatDateForFilename } from '@/utils/formatters';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
 
 export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { globalFilters } = useAppSelector(s => s.financials);
+    const { actionTriggers } = useAppSelector(s => s.ui);
+    const exportCount = useRef(actionTriggers.export);
+    const printCount = useRef(actionTriggers.print);
     const [viewType, setViewType] = useState<'account' | 'payer' | 'month'>('account');
     const [manageDialogOpen, setManageDialogOpen] = useState(false);
 
     const [queryParams, setQueryParams] = useState({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: '',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         transactionNo: '',
@@ -39,7 +45,7 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
+        desc: queryParams.sortOrder === SORT_ORDER.DESC,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         transactionNo: queryParams.transactionNo
@@ -80,6 +86,44 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
     }, []);
 
+    const [triggerExport] = useLazyExportSuspenseAccountsQuery();
+
+    const handleExport = useCallback(async (formatType: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
+        try {
+            dispatch(setActiveExportType(formatType));
+            const result = await triggerExport({
+                fromDate: queryParams.fromDate,
+                toDate: queryParams.toDate,
+                format: formatType
+            }).unwrap();
+
+            if (result !== undefined) {
+                downloadFileFromBlob(
+                    result,
+                    `Suspense_Accounts_Report_${formatDateForFilename(queryParams.fromDate)}_to_${formatDateForFilename(queryParams.toDate)}.${formatType}`
+                );
+            }
+        } catch (err) {
+            console.error('Suspense Accounts Export failed:', err);
+        } finally {
+            dispatch(setActiveExportType(null));
+        }
+    }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
+
+    useEffect(() => {
+        if (actionTriggers.export > exportCount.current) {
+            handleExport(EXPORT_FORMATS.XLSX);
+            exportCount.current = actionTriggers.export;
+        }
+    }, [actionTriggers.export, handleExport]);
+
+    useEffect(() => {
+        if (actionTriggers.print > printCount.current) {
+            handleExport(EXPORT_FORMATS.PDF);
+            printCount.current = actionTriggers.print;
+        }
+    }, [actionTriggers.print, handleExport]);
+
     const onPageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
@@ -102,6 +146,7 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
         searchTerm,
         setSearchTerm,
         onSearch: handleSearch,
+        isFetching,
         isError,
         refetch,
     };

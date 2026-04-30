@@ -1,9 +1,13 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
+import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType } from '@/store/slices/uiSlice';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { CollectionAccount } from '@/interfaces/financials';
+import { useLazyExportCollectionsQuery } from '@/store/api/financialsApi';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { formatDateForFilename } from '@/utils/formatters';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
 
 const DUMMY_COLLECTIONS: CollectionAccount[] = [
     {
@@ -81,6 +85,9 @@ const DUMMY_COLLECTIONS: CollectionAccount[] = [
 export const useCollectionsScreen = (_props?: { skip?: boolean }) => {
     const dispatch = useAppDispatch();
     const { globalFilters } = useAppSelector(s => s.financials);
+    const { actionTriggers } = useAppSelector(s => s.ui);
+    const exportCount = useRef(actionTriggers.export);
+    const printCount = useRef(actionTriggers.print);
 
     interface CollectionsQueryParams {
         page: number;
@@ -93,9 +100,9 @@ export const useCollectionsScreen = (_props?: { skip?: boolean }) => {
 
     const [queryParams, setQueryParams] = useState<CollectionsQueryParams>({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'accountNumber',
-        sortOrder: 'desc',
+        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
     });
@@ -146,6 +153,44 @@ export const useCollectionsScreen = (_props?: { skip?: boolean }) => {
 
     const handlePageChange = useCallback((p: number) => setQueryParams((prev) => ({ ...prev, page: p })), []);
     const handleRowsPerPageChange = useCallback((s: number) => setQueryParams((prev) => ({ ...prev, size: s, page: 0 })), []);
+
+    const [triggerExport] = useLazyExportCollectionsQuery();
+
+    const handleExport = useCallback(async (formatType: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
+        try {
+            dispatch(setActiveExportType(formatType));
+            const result = await triggerExport({
+                fromDate: queryParams.fromDate,
+                toDate: queryParams.toDate,
+                format: formatType
+            }).unwrap();
+
+            if (result !== undefined) {
+                downloadFileFromBlob(
+                    result,
+                    `Collections_Report_${formatDateForFilename(queryParams.fromDate)}_to_${formatDateForFilename(queryParams.toDate)}.${formatType}`
+                );
+            }
+        } catch (err) {
+            console.error('Collections Export failed:', err);
+        } finally {
+            dispatch(setActiveExportType(null));
+        }
+    }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
+
+    useEffect(() => {
+        if (actionTriggers.export > exportCount.current) {
+            handleExport(EXPORT_FORMATS.XLSX);
+            exportCount.current = actionTriggers.export;
+        }
+    }, [actionTriggers.export, handleExport]);
+
+    useEffect(() => {
+        if (actionTriggers.print > printCount.current) {
+            handleExport(EXPORT_FORMATS.PDF);
+            printCount.current = actionTriggers.print;
+        }
+    }, [actionTriggers.print, handleExport]);
 
     return {
         collections,

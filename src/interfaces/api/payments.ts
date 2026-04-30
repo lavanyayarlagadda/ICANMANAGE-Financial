@@ -7,7 +7,7 @@ export interface PaymentSearchRequest {
     sort: string;
     desc: boolean;
     status: string | null;
-    payer?: string | null;
+    payerIds?: string | null;
     fromDate: string;
     toDate: string;
     transactionNo?: string | null;

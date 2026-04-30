@@ -3,6 +3,7 @@ import { useAppSelector, useAppDispatch } from '@/store';
 import { setRemittanceDetail, setSelectedClaimIndex } from '@/store/slices/financialsSlice';
 import { setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { useSearchServiceLinesQuery, useGetRemittanceClaimsQuery } from '@/store/api/financialsApi';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE } from '@/constants/common';
 
 export const useRemittanceDetailScreen = () => {
     const dispatch = useAppDispatch();
@@ -18,7 +19,7 @@ export const useRemittanceDetailScreen = () => {
 
     const [slQueryParams, setSlQueryParams] = useState({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sort: 'lineNumber',
         desc: false,
     });
@@ -77,7 +78,7 @@ export const useRemittanceDetailScreen = () => {
 
     const handlePageChange = useCallback((p: number) => setSlQueryParams(prev => ({ ...prev, page: p })), []);
     const handleRowsPerPageChange = useCallback((s: number) => setSlQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
-    const handleSortChange = useCallback((col: string, dir: string) => setSlQueryParams(prev => ({ ...prev, sort: col, desc: dir === 'desc', page: 0 })), []);
+    const handleSortChange = useCallback((col: string, dir: string) => setSlQueryParams(prev => ({ ...prev, sort: col, desc: dir === SORT_ORDER.DESC, page: 0 })), []);
 
     return {
         detail,

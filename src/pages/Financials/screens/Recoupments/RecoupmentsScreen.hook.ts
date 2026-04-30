@@ -23,7 +23,9 @@ import {
 import { TableQueryParams } from '@/interfaces/api';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { formatDateForFilename } from '@/utils/formatters';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
 
 export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -32,9 +34,9 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
 
     const [queryParams, setQueryParams] = useState<TableQueryParams>({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: '',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
         fromDate: globalFilters.fromDate,
         toDate: globalFilters.toDate,
         status: null,
@@ -68,9 +70,9 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
 
     const [drillDownParams] = useState({
         page: 0,
-        size: 10,
+        size: DEFAULT_PAGE_SIZE,
         sortField: 'paymentDate',
-        sortOrder: 'desc' as 'asc' | 'desc',
+        sortOrder: SORT_ORDER.DESC,
     });
 
     const { selectedTenantId } = useAppSelector(s => s.tenant);
@@ -80,7 +82,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
-        desc: queryParams.sortOrder === 'desc',
+        desc: queryParams.sortOrder === SORT_ORDER.DESC,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
@@ -113,7 +115,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         return () => { dispatch(setIsGlobalFetching(false)); };
     }, [isFetching, skip, dispatch]);
 
-    const handleExport = useCallback(async (exportFormat: 'pdf' | 'xlsx') => {
+    const handleExport = useCallback(async (exportFormat: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         dispatch(setActiveExportType(exportFormat));
         try {
             const blob = await triggerExportRecoupments({
@@ -122,7 +124,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
                 format: exportFormat
             }).unwrap();
 
-            const filename = `recoupments_${queryParams.fromDate}_to_${queryParams.toDate}.${exportFormat}`;
+            const filename = `recoupments_${formatDateForFilename(queryParams.fromDate)}_to_${formatDateForFilename(queryParams.toDate)}.${exportFormat}`;
             downloadFileFromBlob(blob, filename);
         } catch (error) {
             console.error('Export failed:', error);
@@ -135,14 +137,14 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
-            handleExport('xlsx');
+            handleExport(EXPORT_FORMATS.XLSX);
             exportCount.current = actionTriggers.export;
         }
     }, [actionTriggers.export, handleExport]);
 
     useEffect(() => {
         if (actionTriggers.print > printCount.current) {
-            handleExport('pdf');
+            handleExport(EXPORT_FORMATS.PDF);
             printCount.current = actionTriggers.print;
         }
     }, [actionTriggers.print, handleExport]);
@@ -168,13 +170,13 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc'
+                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC
                     }).unwrap(),
                     triggerSearchServiceLines({
                         page: drillDownParams.page + 1,
                         size: drillDownParams.size,
                         sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc',
+                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC,
                         check: identifier
                     }).unwrap()
                 ]);
@@ -253,6 +255,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         setSearchTerm,
         onSearch: handleSearch,
         globalFilters,
+        isFetching,
         dispatch
     };
 };

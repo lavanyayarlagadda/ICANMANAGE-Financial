@@ -60,6 +60,7 @@ const ForwardBalanceNoticesTable = ({
     onRangeChange,
     rangeLabel,
     onFilterChange,
+    loading,
 }: {
     data: ForwardBalanceNotice[],
     totalElements: number,
@@ -70,6 +71,7 @@ const ForwardBalanceNoticesTable = ({
     onRangeChange: (range: string) => void,
     rangeLabel: string,
     onFilterChange: (filters: Record<string, string>) => void,
+    loading?: boolean,
 }) => {
     const { expandedRows, toggleRow, noticeDetails, loadingDetails } = useForwardBalanceNoticesTable();
 
@@ -182,6 +184,7 @@ const ForwardBalanceNoticesTable = ({
                 onSortChange={onSortChange}
                 onFilterChange={onFilterChange}
                 download={false}
+                loading={loading}
             />
         </Box>
     );
@@ -200,7 +203,8 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         onRowsPerPageChange,
         handleFilterChange,
         stats,
-        globalFilters
+        globalFilters,
+        isFetching
     } = useStatementsScreen({ skip });
 
     return (
@@ -233,6 +237,7 @@ const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     onRangeChange={handleRangeChange}
                     rangeLabel={globalFilters.rangeLabel}
                     onFilterChange={handleFilterChange}
+                    loading={isFetching}
                 />
             ) : (
                 <SuspenseAccountsScreen skip={finalActiveSubTab !== 2} />

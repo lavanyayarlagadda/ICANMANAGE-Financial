@@ -23,7 +23,7 @@ export const paymentsApi = baseApi.injectEndpoints({
       providesTags: ["Payments"],
     }),
     getPaymentStatus: builder.query<PaymentStatusResponse, void>({
-      query: () => '/financials/posting-status/list',
+      query: () => 'financials/posting-status/list',
       providesTags: ["Payments"],
     }),
     getRemittanceClaims: builder.query<RemittanceDetail[], { claimId: string; } & Partial<PaymentSearchRequest>>({
@@ -41,7 +41,7 @@ export const paymentsApi = baseApi.injectEndpoints({
       ServiceLineSearchRequest
     >({
       query: (body) => ({
-        url: "/financials/payments/service-lines/search",
+        url: "financials/payments/service-lines/search",
         method: "POST",
         body,
       }),
