@@ -28,7 +28,7 @@ export const reconciliationApi = baseApi.injectEndpoints({
     }),
     getBankDepositWidgets: builder.query<
       BankDepositWidgetResponse,
-      { startDate: string; endDate: string }
+      { startDate: string; endDate: string; icanManageId: string | number }
     >({
       query: (params) => ({
         url: "financials/reconciliation/bank-deposits/widgets-data",

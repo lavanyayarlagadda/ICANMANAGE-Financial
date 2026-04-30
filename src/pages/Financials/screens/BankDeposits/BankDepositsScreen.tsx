@@ -1,40 +1,28 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
     Box,
-    Chip,
-    Tabs,
-    Tab,
     Typography,
     useTheme,
     InputAdornment,
-    Grid,
-    IconButton,
     Button
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import { formatCurrency, formatDate } from '@/utils/formatters';
 import { BankDepositItem } from '@/interfaces/financials';
 import DataTable from '@/components/molecules/DataTable/DataTable';
-import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
-import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
-import { themeConfig } from '@/theme/themeConfig';
 import {
     ScreenWrapper,
     ScreenHeader,
     ToolbarWrapper,
     SearchField,
     EntitySectionHeader,
-    ExpandedContentBox,
-    SubSectionWrapper,
-    SubSectionHeader,
-    PostingItemBox
 } from './BankDepositsScreen.styles';
 import { useBankDepositsScreen } from './BankDepositsScreen.hook';
+import { useBankDepositColumns } from './useBankDepositColumns';
+
+import BankDepositSummary from './components/BankDepositSummary';
+import BankDepositTabs from './components/BankDepositTabs';
+import BankDepositExpandedContent from './components/BankDepositExpandedContent';
 
 const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
@@ -58,323 +46,26 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         dynamicColumns,
         isHeadersSuccess,
         onSearch,
-        summaryData,
         rowHistory,
         globalFilters,
-        isFetching
+        isFetching,
+        summaryStats
     } = useBankDepositsScreen({ skip });
 
-    const summaryStats = useMemo(() => {
-        if (summaryData) {
-            const { totalBaiAmount, actionRequiredCount, reconciliationRatePercentage } = summaryData;
-            return {
-                totalBankAmt: totalBaiAmount,
-                reconRate: (reconciliationRatePercentage || 0).toFixed(2),
-                exceptions: actionRequiredCount
-            };
-        }
-
-        let totalItems = 0;
-        let exceptions = 0;
-        let totalBankAmt = 0;
-
-        filteredDeposits.forEach(entity => {
-            totalItems += entity.items.length;
-            entity.items.forEach((item: BankDepositItem) => {
-                totalBankAmt += item.baiAmount;
-                if (item.reconciliationStatus === 'Exception' || item.varianceAmount !== 0) exceptions++;
-            });
-        });
-
-        const reconRate = totalItems > 0 ? (((totalItems - exceptions) / totalItems) * 100).toFixed(2) : '100.00';
-        return { totalBankAmt, reconRate, exceptions };
-    }, [filteredDeposits, summaryData]);
-
-    const columns = useMemo<DataColumn<BankDepositItem>[]>(() => {
-        // Base columns that are always present or have complex custom rendering
-        const baseColumns: Record<string, DataColumn<BankDepositItem>> = {
-            expand: {
-                id: 'expand',
-                label: '',
-                render: (row) => (
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); toggleRow(row.transactionNo); }}>
-                        {expandedRows.has(row.transactionNo) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
-                    </IconButton>
-                ),
-            },
-            transactionNo: {
-                id: 'transactionNo',
-                label: 'TRANSACTION NO',
-                align: 'center',
-                accessor: (row) => row.transactionNo,
-                render: (row) => <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{row.transactionNo}</Typography>,
-            },
-            reference: {
-                id: 'reference',
-                label: 'REF / DATE',
-                align: 'center',
-                accessor: (row) => row.accountNo,
-                render: (row) => (
-                    <Box>
-                        <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>{row.accountNo}</Typography>
-                        <Typography variant="caption" color="text.secondary">{formatDate(row.baiReceivedDate)}</Typography>
-                    </Box>
-                ),
-            },
-            payerName: {
-                id: 'payerName',
-                label: 'PAYER NAME',
-                align: 'center',
-                accessor: (row) => row.payerName,
-                filterOptions: payerOptions,
-                render: (row) => <Typography variant="body2">{row.payerName}</Typography>,
-            },
-            baiAmount: {
-                id: 'baiAmount',
-                label: 'BANK AMT',
-                align: 'center',
-                accessor: (row) => row.baiAmount,
-                render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.baiAmount)}</Typography>,
-            },
-            remitAmount: {
-                id: 'remitAmount',
-                label: 'REMITTANCE',
-                align: 'center',
-                accessor: (row) => row.remitAmount,
-                render: (row) => <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(row.remitAmount)}</Typography>,
-            },
-            variance: {
-                id: 'variance',
-                label: 'VARIANCE',
-                align: 'center',
-                accessor: (row) => row.varianceAmount,
-                disableSort: true,
-                render: (row) => (
-                    <Typography
-                        variant="body2"
-                        sx={{
-                            fontWeight: 600,
-                            color: row.varianceAmount < 0 ? theme.palette.error.main : theme.palette.text.primary
-                        }}
-                    >
-                        {formatCurrency(row.varianceAmount)}
-                    </Typography>
-                ),
-            },
-            status: {
-                id: 'status',
-                label: 'STATUS',
-                align: 'center',
-                // No sorting – simply omit any `sort`/`sortable` property
-                accessor: (row) => row.status,
-                filterOptions: statusOptions,
-                render: (row) => {
-                    // If transaction number (or similar field) indicates “zero transaction”
-                    const isZeroTransaction = row.transactionNo === "No Transaction#"
-                    // When zero transaction – fall back to regular status
-                    if (isZeroTransaction) {
-                        const status = row.status;
-                        if (!status) return '-';
-                        const isMatched = status === 'Matched' || status === 'Reconciled';
-                        const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
-                        return <Chip label={status} sx={{ backgroundColor: statusColors.bg, color: statusColors.text, border: `1px solid ${theme.palette.divider}` }} icon={isMatched ? <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} /> : <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />}
-                        />;
-                    }
-                    // Otherwise show variance status hierarchy
-                    if (!row.variance1Status && !row.variance2Status) return '-';
-                    return (
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                            {/* variance1Status – top, green */}
-                            {row.variance1Status && (
-                                <Chip
-                                    label={row.variance1Status}
-                                    sx={{
-                                        backgroundColor: themeConfig.colors.slate[50], // green from theme
-                                        color: themeConfig.colors.success,
-                                        fontWeight: 500,
-                                    }}
-                                />
-                            )}
-                            {/* variance2Status – bottom, light reddish */}
-                            {row.variance2Status && (
-                                <Chip
-                                    label={row.variance2Status}
-                                    sx={{
-                                        backgroundColor: themeConfig.status.critical, // light red from theme
-                                        color: themeConfig.colors.warning,
-                                        fontWeight: 500,
-                                    }}
-                                />
-                            )}
-                        </Box>
-                    );
-                },
-            },
-        };
-
-        // If headers have not loaded successfully or are empty, return only the expand toggle (if we want to allow it)
-        // or an empty array to indicate no columns are ready.
-        if (!isHeadersSuccess || !dynamicColumns || dynamicColumns.length === 0) {
-            // If we're still loading or have no headers, we shouldn't show hardcoded fallbacks
-            return [baseColumns.expand];
-        }
-
-        // Map dynamic columns from API
-        const mappedColumns: DataColumn<BankDepositItem>[] = dynamicColumns.map(dc => {
-            // Create a camelCase ID from the display name for accessor fallback
-            const mappedId = dc.displayName
-                .toLowerCase()
-                .replace(/[^a-z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
-                .replace(/^(.)/, (_, chr) => chr.toLowerCase());
-
-            const lowerName = dc.displayName.toLowerCase();
-            
-            // Try to find a base column that matches the dynamic column's purpose
-            const base = Object.values(baseColumns).find(c => {
-                const cid = c.id.toLowerCase();
-                if (lowerName.includes('status')) return cid === 'status';
-                if (lowerName.includes('payer') || lowerName.includes('payor')) return cid === 'payername';
-                if (lowerName.includes('bank') || lowerName.includes('amount') || lowerName.includes('deposit')) return cid === 'baiamount';
-                if (lowerName.includes('remittance')) return cid === 'remitamount';
-                if (lowerName.includes('variance')) return cid === 'variance';
-                if (lowerName.includes('trans') || (lowerName.includes('check') && !lowerName.includes('pay'))) return cid === 'transactionno';
-                if (lowerName.includes('ref') || (lowerName.includes('date') && !lowerName.includes('received'))) return cid === 'reference';
-                return false;
-            });
-
-            const actualField = base ? base.id : mappedId;
-
-            if (base) {
-                return {
-                    ...base,
-                    label: dc.displayName.toUpperCase(),
-                    accessor: (row: BankDepositItem) => {
-                        const val = (row as any)[actualField];
-                        if (typeof val === 'string' || typeof val === 'number' || val === null) return val;
-                        return (base.accessor ? (base.accessor(row) as string | number | null) : null);
-                    },
-                    render: (row: BankDepositItem) => {
-                        const val = (row as any)[actualField];
-                        // Special handling for currency formatting based on name or field type
-                        if (typeof val === 'number' && (actualField.toLowerCase().includes('amt') || actualField.toLowerCase().includes('amount') || actualField.toLowerCase().includes('variance') || actualField.toLowerCase().includes('remit') || actualField.toLowerCase().includes('deposit'))) {
-                            return <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(val)}</Typography>;
-                        }
-                        // Fallback to base render if available
-                        return base.render ? base.render(row) : <Typography variant="body2">{val !== null && val !== undefined ? String(val) : '-'}</Typography>;
-                    },
-                    filterOptions: actualField === 'payerName' ? payerOptions : (actualField === 'status' ? statusOptions : base.filterOptions)
-                };
-            }
-
-            // Fallback for completely unknown dynamic columns
-            return {
-                id: mappedId,
-                label: dc.displayName.toUpperCase(),
-                align: 'center',
-                accessor: (row: BankDepositItem) => {
-                    const val = (row as any)[mappedId];
-                    return (typeof val === 'string' || typeof val === 'number' || val === null) ? val : null;
-                },
-                render: (row: BankDepositItem) => {
-                    const val = (row as any)[mappedId];
-                    if (typeof val === 'number' && (mappedId.toLowerCase().includes('amt') || mappedId.toLowerCase().includes('amount') || mappedId.toLowerCase().includes('variance'))) {
-                        return <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(val)}</Typography>;
-                    }
-                    if (mappedId.toLowerCase().includes('date') && val) {
-                        return <Typography variant="body2">{formatDate(String(val))}</Typography>;
-                    }
-                    return <Typography variant="body2">{val !== null && val !== undefined ? String(val) : '-'}</Typography>;
-                }
-            };
-        });
-
-        // Always ensure the expand toggle is at the start
-        if (!mappedColumns.find(c => c.id === 'expand')) {
-            mappedColumns.unshift(baseColumns.expand);
-        }
-
-        return mappedColumns;
-    }, [expandedRows, theme, toggleRow, dynamicColumns, isHeadersSuccess, payerOptions, statusOptions]);
+    const { columns } = useBankDepositColumns({
+        expandedRows,
+        toggleRow,
+        dynamicColumns,
+        isHeadersSuccess,
+        payerOptions,
+        statusOptions,
+    });
 
     const renderExpandedContent = useCallback((item: BankDepositItem) => {
         const history = rowHistory[item.transactionNo];
         const { data: historyData, isLoading } = history || { data: null, isLoading: false };
-
-        return (
-            <ExpandedContentBox sx={{ backgroundColor: theme.palette.action.hover, p: 2 }}>
-                {isLoading ? (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4, gap: 1 }}>
-                        <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>Loading History...</Typography>
-                        <Typography variant="caption" color="text.secondary">Fetching detailed reconciliation data</Typography>
-                    </Box>
-                ) : (
-                    <Grid container spacing={2}>
-                        {/* Section B: REMITTANCE ADVICE */}
-                        <Grid size={{ xs: 12, lg: 4 }}>
-                            <SubSectionWrapper sx={{ height: '100%' }}>
-                                <SubSectionHeader>
-                                    <Typography variant="caption" sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}>(B) REMITTANCE ADVICE</Typography>
-                                </SubSectionHeader>
-                                <Box sx={{ p: 0 }}>
-                                    <Box sx={{ display: 'flex', px: 2, py: 1.5, borderBottom: `1px solid ${theme.palette.divider}` }}>
-                                        <Typography variant="caption" color="text.secondary" sx={{ flex: 1, fontWeight: 700 }}>PAYER / DATE</Typography>
-                                        <Typography variant="caption" color="text.secondary" sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}>AMOUNT</Typography>
-                                    </Box>
-                                    {historyData?.remitDataRecords?.map((remit, idx: number) => (
-                                        <Box key={idx} sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${theme.palette.divider}` }}>
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                                <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>{remit.payerName}</Typography>
-                                                <Typography variant="body2" sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}>{formatCurrency(remit.amount)}</Typography>
-                                            </Box>
-                                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>Date: {remit.receivedDate ? formatDate(remit.receivedDate) : '-'} | File: {remit.fileName}</Typography>
-                                        </Box>
-                                    )) || (
-                                            <Box sx={{ p: 4, textAlign: 'center' }}>
-                                                <Typography variant="caption" color="text.secondary">No remittance advice found</Typography>
-                                            </Box>
-                                        )}
-                                </Box>
-                            </SubSectionWrapper>
-                        </Grid>
-
-                        {/* Section C: POSTING & APPLICATION */}
-                        <Grid size={{ xs: 12, lg: 4 }}>
-                            <SubSectionWrapper sx={{ height: '100%' }}>
-                                <SubSectionHeader>
-                                    <Typography variant="caption" sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}>(C) POSTING & APPLICATION</Typography>
-                                </SubSectionHeader>
-                                <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                                    {historyData?.cashPostingRecords?.map((post, idx: number) => (
-                                        <PostingItemBox key={idx} sx={{ p: 1.5, borderRadius: '8px', borderLeft: `4px solid ${theme.palette.warning.main}`, backgroundColor: theme.palette.background.paper, boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                                <Typography variant="body2" sx={{ fontWeight: 700 }}>{post.payerName || 'Unknown Payer'}</Typography>
-                                                <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCurrency(post.amount)}</Typography>
-                                            </Box>
-                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                <Typography variant="caption" color="text.secondary">
-                                                    {post.depositDate ? formatDate(post.depositDate) : '-'} | {post.paymentMethod}
-                                                </Typography>
-                                                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-                                                    Batch: {post.batchId}
-                                                </Typography>
-                                            </Box>
-                                            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                                                {post.fileName} | {post.paymentType}
-                                            </Typography>
-                                        </PostingItemBox>
-                                    )) || (
-                                            <Box sx={{ p: 4, textAlign: 'center' }}>
-                                                <Typography variant="caption" color="text.secondary">No posting application data found</Typography>
-                                            </Box>
-                                        )}
-                                </Box>
-                            </SubSectionWrapper>
-                        </Grid>
-                    </Grid>
-                )}
-            </ExpandedContentBox>
-        );
-    }, [theme, rowHistory]);
+        return <BankDepositExpandedContent historyData={historyData} isLoading={isLoading} />;
+    }, [rowHistory]);
 
     return (
         <ScreenWrapper>
@@ -383,58 +74,11 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Typography variant="body2" color="text.secondary">Match bank deposits to remittances and track their posting status across various systems.</Typography>
             </ScreenHeader>
 
-            <Box sx={{ mb: 3 }}>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', mb: 1.5, display: 'block', letterSpacing: '0.05em' }}>View Entity</Typography>
-                <Tabs
-                    value={selectedEntityId}
-                    onChange={(_, val) => setSelectedEntityId(val)}
-                    variant="scrollable"
-                    scrollButtons={true}
-                    allowScrollButtonsMobile
-                    sx={{
-                        minHeight: 'auto',
-                        '& .MuiTabs-indicator': { display: 'none' },
-                        '& .MuiTabs-flexContainer': { gap: 1 },
-                        '& .MuiTabs-scrollButtons': {
-                            width: 28,
-                            borderRadius: '4px',
-                            backgroundColor: theme.palette.action.hover,
-                            '&.Mui-disabled': { opacity: 0 }
-                        }
-                    }}
-                >
-                    {entities.map((e) => {
-                        const isActive = selectedEntityId === e.id;
-                        return (
-                            <Tab
-                                key={e.id}
-                                value={e.id}
-                                sx={{
-                                    textTransform: 'none',
-                                    fontWeight: 500,
-                                    fontSize: '13px',
-                                    minHeight: 'auto',
-                                    p: 0,
-                                    opacity: 1,
-                                    '& .MuiBox-root': {
-                                        px: 2,
-                                        py: 0.6,
-                                        borderRadius: '16px',
-                                        transition: 'all 0.2s',
-                                        backgroundColor: isActive ? theme.palette.primary.main : 'transparent',
-                                        color: isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive,
-                                        '&:hover': {
-                                            backgroundColor: isActive ? theme.palette.primary.dark : theme.palette.action.hover,
-                                        }
-                                    }
-                                }}
-                                label={<Box>{e.name}</Box>}
-                                disableRipple
-                            />
-                        );
-                    })}
-                </Tabs>
-            </Box>
+            <BankDepositTabs
+                entities={entities}
+                selectedEntityId={selectedEntityId}
+                onEntityChange={setSelectedEntityId}
+            />
 
             <ToolbarWrapper>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -463,17 +107,11 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Box>
             </ToolbarWrapper>
 
-            <Grid container spacing={2} sx={{ mb: 4 }}>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="TOTAL COLLECTIONS" value={formatCurrency(summaryStats.totalBankAmt)} variant="highlight" backgroundColor={theme.palette.background.paper} />
-                </Grid>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="RECONCILIATION RATE" value={`${summaryStats.reconRate}%`} variant={summaryStats.exceptions > 0 ? "negative" : "positive"} backgroundColor={theme.palette.background.paper} />
-                </Grid>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="ACTION REQUIRED" value={String(summaryStats.exceptions)} backgroundColor={theme.palette.background.paper} />
-                </Grid>
-            </Grid>
+            <BankDepositSummary
+                totalBankAmt={summaryStats.totalBankAmt}
+                reconRate={summaryStats.reconRate}
+                exceptions={summaryStats.exceptions}
+            />
 
             {filteredDeposits.map((entity) => (
                 <Box key={entity.id} sx={{ mb: 4 }}>
@@ -503,10 +141,14 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                             const filterKeys = Object.keys(newFilters);
                             const statusKey = filterKeys.find(k => k.toLowerCase().includes('status'));
                             const payerKey = filterKeys.find(k => k.toLowerCase().includes('payer') || k.toLowerCase().includes('payor'));
+                            const transKey = filterKeys.find(k => k.toLowerCase().includes('transactiontype') || k.toLowerCase().includes('transtype'));
+                            const accountKey = filterKeys.find(k => k.toLowerCase().includes('account'));
 
                             setFilters({
                                 status: statusKey ? newFilters[statusKey] : null,
-                                payerList: payerKey ? [newFilters[payerKey]] : []
+                                payerList: (payerKey && newFilters[payerKey]) ? [newFilters[payerKey]] : [],
+                                transactionsList: (transKey && newFilters[transKey]) ? [newFilters[transKey]] : [],
+                                accountList: (accountKey && newFilters[accountKey]) ? [newFilters[accountKey]] : [],
                             });
                         }}
                         download={false}

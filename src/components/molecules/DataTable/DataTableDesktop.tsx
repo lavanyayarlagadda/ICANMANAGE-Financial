@@ -7,7 +7,6 @@ import {
   TableCell,
   Checkbox,
   Box,
-  Typography,
   TableSortLabel,
   IconButton,
   useTheme,

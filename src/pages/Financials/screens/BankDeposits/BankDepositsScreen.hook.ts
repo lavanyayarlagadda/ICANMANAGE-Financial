@@ -9,7 +9,7 @@ import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { BankDepositItem, RowHistoryData } from '@/interfaces/financials';
 import { formatDateForFilename } from '@/utils/formatters';
-import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS, DEFAULT_CLIENT_NAME } from '@/constants/common';
 
 export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -96,7 +96,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
             startDate: queryParams.fromDate,
             endDate: queryParams.toDate,
             icanManageId: userId
-        } as { startDate: string; endDate: string; icanManageId: string }
+        }
     );
 
     const { data: headersResponse, isFetching: isHeadersFetching, isSuccess: isHeadersSuccess } = useGetMappedHeadersDataQuery(
@@ -139,7 +139,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
             pageSize: queryParams.size,
             sort: queryParams.sortField === 'date' ? 'bai_received_date' : queryParams.sortField || 'transactionNo',
             desc: queryParams.sortOrder === SORT_ORDER.DESC,
-            clientName: selectedTenant?.displayName?.toLowerCase() || 'ican',
+            clientName: selectedTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME,
             status: filters.status || null
         }
     );
@@ -162,7 +162,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
                 startDate: queryParams.fromDate,
                 endDate: queryParams.toDate,
                 icanManageId: Number(userId),
-                clientName: selectedTenant?.displayName?.toLowerCase() || 'mindpath',
+                clientName: selectedTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME,
                 hospitalId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
 
             }).unwrap();
@@ -203,8 +203,9 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
 
     const bankDeposits: BankDepositItem[] = useMemo(() => {
         if (Array.isArray(data)) return data as BankDepositItem[];
-        if (data && typeof data === 'object' && 'data' in data && Array.isArray((data as { data: unknown }).data)) {
-            return (data as { data: BankDepositItem[] }).data;
+        const responseData = data as unknown as Record<string, unknown>;
+        if (responseData && typeof responseData === 'object' && 'data' in responseData && Array.isArray(responseData.data)) {
+            return responseData.data as BankDepositItem[];
         }
         return [];
     }, [data]);
@@ -214,6 +215,8 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         if (!list || list.length === 0) return 0;
         return list[0]?.totalRows || list.length;
     }, [bankDeposits]);
+
+
 
 
     const [rowHistory, setRowHistory] = useState<Record<string, { data: RowHistoryData, isLoading: boolean }>>({});
@@ -230,7 +233,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
             const result = await triggerGetHistory({
                 eftNo: transactionNo,
                 pageFlag: pageFlag,
-                clientName: selectedTenant?.displayName?.toLowerCase() || 'ican'
+                clientName: selectedTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME
             }).unwrap();
 
             setRowHistory(prev => ({
@@ -276,6 +279,33 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
             totalItems: totalElements
         }];
     }, [bankDeposits, selectedEntityId, entities, totalElements]);
+
+    const summaryStats = useMemo(() => {
+        const summaryData = widgetData?.data;
+        if (summaryData) {
+            const { totalBaiAmount, actionRequiredCount, reconciliationRatePercentage } = summaryData;
+            return {
+                totalBankAmt: totalBaiAmount,
+                reconRate: (reconciliationRatePercentage || 0).toFixed(2),
+                exceptions: actionRequiredCount
+            };
+        }
+
+        let totalItems = 0;
+        let exceptions = 0;
+        let totalBankAmt = 0;
+
+        filteredDeposits.forEach(entity => {
+            totalItems += entity.items.length;
+            entity.items.forEach((item: BankDepositItem) => {
+                totalBankAmt += item.baiAmount;
+                if (item.reconciliationStatus === 'Exception' || item.varianceAmount !== 0) exceptions++;
+            });
+        });
+
+        const reconRate = totalItems > 0 ? (((totalItems - exceptions) / totalItems) * 100).toFixed(2) : '100.00';
+        return { totalBankAmt, reconRate, exceptions };
+    }, [filteredDeposits, widgetData]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
@@ -337,6 +367,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         isHeadersSuccess,
         summaryData: widgetData?.data,
         rowHistory,
-        globalFilters
+        globalFilters,
+        summaryStats
     };
 };

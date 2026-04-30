@@ -16,3 +16,5 @@ export const DATE_FORMATS = {
   DISPLAY: 'MM/dd/yyyy',
   API: 'yyyy-MM-dd',
 };
+
+export const DEFAULT_CLIENT_NAME = 'ican';

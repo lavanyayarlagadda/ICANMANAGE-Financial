@@ -125,7 +125,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 />
             )}
         </>
-    ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns, isMindpath, globalFilters.rangeLabel]);
+    ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns, isMindpath, globalFilters.rangeLabel, isFetching]);
 
     const payerColumns = useMemo<DataColumn<PayerPerformanceRecord>[]>(() => [
         {
@@ -197,7 +197,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 loading={isFetching}
             />
         </>
-    ), [payerPerformanceRecords, totalElementsPayer, handlePageChange, handleRowsPerPageChange, payerColumns]);
+    ), [payerPerformanceRecords, totalElementsPayer, handlePageChange, handleRowsPerPageChange, payerColumns, isFetching]);
 
     const executiveSummaryContent = useMemo(() => {
         const chartColors = [theme.palette.primary.main, theme.palette.warning.main];

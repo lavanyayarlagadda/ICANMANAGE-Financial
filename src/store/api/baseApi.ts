@@ -109,7 +109,7 @@ const baseQueryWithReauth: BaseQueryFn<
       }
     } else {
       // Handle other errors with a snackbar
-      const errorMessage = (result.error as any)?.data?.message || 'An unexpected error occurred. Please try again.';
+      const errorMessage = (result.error as { data?: { message?: string } })?.data?.message || 'An unexpected error occurred. Please try again.';
       const { showSnackbar } = await import('../slices/uiSlice');
       api.dispatch(showSnackbar({ message: errorMessage, severity: 'error' }));
     }
