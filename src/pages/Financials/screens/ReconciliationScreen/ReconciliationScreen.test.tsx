@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import ReconciliationScreen from './ReconciliationScreen';
-import { ReconciliationStatus, useReconciliation } from './ReconciliationScreen.hook';
+import { ReconciliationStatus, useReconciliation, HeaderConfig, ReconciliationRow, FilterState } from './ReconciliationScreen.hook';
 import { renderWithProviders } from '@/test/test-utils';
 
 // Mock the hook
@@ -17,10 +17,10 @@ describe('ReconciliationScreen', () => {
         loading: false,
         headerData: [
             { id: 'transactionNo', label: 'TX NO', align: 'left', isLink: true },
-            { id: 'amount', label: 'AMOUNT', align: 'right', isCurrency: true },
+            { id: 'bankDeposit', label: 'AMOUNT', align: 'right', isCurrency: true },
             { id: 'actions', label: 'ACTIONS', align: 'center' }
-        ],
-        filteredData: [],
+        ] as HeaderConfig[],
+        filteredData: [] as ReconciliationRow[],
         stats: {
             bankDeposit: 1000,
             remittance: 1000,
@@ -30,10 +30,16 @@ describe('ReconciliationScreen', () => {
             reconciliationRate: 98.4,
         },
         handleToggle: vi.fn(),
-        locations: ['All Locations'],
-        activeLocation: 'All Locations',
+        locations: ['All'],
+        activeLocation: 'All',
         setActiveLocation: vi.fn(),
-        searchFilters: { transactionNo: '' },
+        searchFilters: { 
+            payor: 'All',
+            status: 'All',
+            fromDate: '2023-11-25',
+            toDate: '2023-12-25',
+            transactionNo: '' 
+        } as FilterState,
         setSearchFilters: vi.fn(),
         applyFilters: vi.fn(),
         handleGlobalTransactionSearch: vi.fn(),
