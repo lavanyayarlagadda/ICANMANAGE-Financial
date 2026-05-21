@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Button, ButtonGroup, Stack, Typography } from '@mui/material';
+import React from "react";
+import { Box, Button, ButtonGroup, Stack, Typography } from "@mui/material";
 
 interface DepositReconciliationHeaderProps {
   title: string;
@@ -18,7 +18,9 @@ interface DepositReconciliationHeaderProps {
   };
 }
 
-export const DepositReconciliationHeader: React.FC<DepositReconciliationHeaderProps> = ({
+export const DepositReconciliationHeader: React.FC<
+  DepositReconciliationHeaderProps
+> = ({
   title,
   subtitle,
   updatedAt,
@@ -28,17 +30,17 @@ export const DepositReconciliationHeader: React.FC<DepositReconciliationHeaderPr
   setForecastWindow,
   compareMode,
   setCompareMode,
-  controls
+  controls,
 }) => {
   return (
     <Box
       sx={{
         mb: 2,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: 2
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        gap: 2,
       }}
     >
       <Box>
@@ -50,17 +52,27 @@ export const DepositReconciliationHeader: React.FC<DepositReconciliationHeaderPr
         </Typography>
       </Box>
 
-      <Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap', rowGap: 1, justifyContent: 'flex-end' }}>
+      <Stack
+        direction="row"
+        spacing={1.5}
+        sx={{ flexWrap: "wrap", rowGap: 1, justifyContent: "flex-end" }}
+      >
         <Box>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mb: 0.5 }}
+          >
             Trailing window
           </Typography>
           <ButtonGroup size="small" variant="outlined">
-            {(controls?.trailingWindow?.options || ['3m', '6m', '12m', '24m']).map((opt) => (
+            {(
+              controls?.trailingWindow?.options || ["3m", "6m", "12m", "24m"]
+            ).map((opt) => (
               <Button
                 key={opt}
                 onClick={() => setTrailingWindow(opt)}
-                variant={trailingWindow === opt ? 'contained' : 'outlined'}
+                variant={trailingWindow === opt ? "contained" : "outlined"}
                 sx={{ minWidth: 40 }}
               >
                 {opt}
@@ -70,38 +82,50 @@ export const DepositReconciliationHeader: React.FC<DepositReconciliationHeaderPr
         </Box>
 
         <Box>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mb: 0.5 }}
+          >
             Forecast
           </Typography>
           <ButtonGroup size="small" variant="outlined">
-            {(controls?.forecastWindow?.options || ['off', '3m', '6m']).map((opt) => (
-              <Button
-                key={opt}
-                onClick={() => setForecastWindow(opt)}
-                variant={forecastWindow === opt ? 'contained' : 'outlined'}
-                sx={{ minWidth: 40 }}
-              >
-                {opt}
-              </Button>
-            ))}
+            {(controls?.forecastWindow?.options || ["off", "3m", "6m"]).map(
+              (opt) => (
+                <Button
+                  key={opt}
+                  onClick={() => setForecastWindow(opt)}
+                  variant={forecastWindow === opt ? "contained" : "outlined"}
+                  sx={{ minWidth: 40 }}
+                >
+                  {opt}
+                </Button>
+              ),
+            )}
           </ButtonGroup>
         </Box>
 
         <Box>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: "block", mb: 0.5 }}
+          >
             Compare
           </Typography>
           <ButtonGroup size="small" variant="outlined">
-            {(controls?.comparisonMode?.options || ['MoM', 'YoY']).map((opt) => (
-              <Button
-                key={opt}
-                onClick={() => setCompareMode(opt)}
-                variant={compareMode === opt ? 'contained' : 'outlined'}
-                sx={{ minWidth: 48 }}
-              >
-                {opt}
-              </Button>
-            ))}
+            {(controls?.comparisonMode?.options || ["MoM", "YoY"]).map(
+              (opt) => (
+                <Button
+                  key={opt}
+                  onClick={() => setCompareMode(opt)}
+                  variant={compareMode === opt ? "contained" : "outlined"}
+                  sx={{ minWidth: 48 }}
+                >
+                  {opt}
+                </Button>
+              ),
+            )}
           </ButtonGroup>
         </Box>
       </Stack>

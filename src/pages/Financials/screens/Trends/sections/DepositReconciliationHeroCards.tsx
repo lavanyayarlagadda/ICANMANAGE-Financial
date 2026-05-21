@@ -1,19 +1,26 @@
-import React from 'react';
-import { Box, Card, CardContent, Grid, Typography, useTheme } from '@mui/material';
-import { Sparkline } from './Sparkline';
+import React from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  Grid,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { Sparkline } from "./Sparkline";
 import {
   deltaColor,
   toText,
-  type HeroCard
-} from '../helpers/depositReconciliationHelpers';
+  type HeroCard,
+} from "../helpers/depositReconciliationHelpers";
 
 interface DepositReconciliationHeroCardsProps {
   heroCards: HeroCard[];
 }
 
-export const DepositReconciliationHeroCards: React.FC<DepositReconciliationHeroCardsProps> = ({
-  heroCards
-}) => {
+export const DepositReconciliationHeroCards: React.FC<
+  DepositReconciliationHeroCardsProps
+> = ({ heroCards }) => {
   const theme = useTheme();
 
   return (
@@ -21,7 +28,7 @@ export const DepositReconciliationHeroCards: React.FC<DepositReconciliationHeroC
       <Grid container spacing={2} sx={{ mb: 2 }}>
         {heroCards.slice(0, 4).map((card, idx) => (
           <Grid key={`${card.id}-${idx}`} size={{ xs: 12, md: 3 }}>
-            <Card sx={{ height: '100%' }}>
+            <Card sx={{ height: "100%" }}>
               <CardContent>
                 <Typography variant="caption" color="text.secondary">
                   {card.title}
@@ -36,9 +43,9 @@ export const DepositReconciliationHeroCards: React.FC<DepositReconciliationHeroC
                       card.delta,
                       theme.palette.success.main,
                       theme.palette.error.main,
-                      theme.palette.text.secondary
+                      theme.palette.text.secondary,
                     ),
-                    fontWeight: 700
+                    fontWeight: 700,
                   }}
                 >
                   {toText(card.delta)}
@@ -51,9 +58,9 @@ export const DepositReconciliationHeroCards: React.FC<DepositReconciliationHeroC
                     <Sparkline
                       values={card.sparkline}
                       color={
-                        card.deltaTrend === 'up'
+                        card.deltaTrend === "up"
                           ? theme.palette.success.main
-                          : card.deltaTrend === 'down'
+                          : card.deltaTrend === "down"
                             ? theme.palette.error.main
                             : theme.palette.primary.main
                       }
@@ -84,9 +91,9 @@ export const DepositReconciliationHeroCards: React.FC<DepositReconciliationHeroC
                       heroCards[4].delta,
                       theme.palette.success.main,
                       theme.palette.error.main,
-                      theme.palette.text.secondary
+                      theme.palette.text.secondary,
                     ),
-                    fontWeight: 700
+                    fontWeight: 700,
                   }}
                 >
                   {toText(heroCards[4].delta)}
@@ -95,13 +102,14 @@ export const DepositReconciliationHeroCards: React.FC<DepositReconciliationHeroC
                   {heroCards[4].subLabel}
                 </Typography>
                 <Box sx={{ mt: 1 }}>
-                  {heroCards[4].sparkline && heroCards[4].sparkline.length > 1 ? (
+                  {heroCards[4].sparkline &&
+                  heroCards[4].sparkline.length > 1 ? (
                     <Sparkline
                       values={heroCards[4].sparkline}
                       color={
-                        heroCards[4].deltaTrend === 'up'
+                        heroCards[4].deltaTrend === "up"
                           ? theme.palette.success.main
-                          : heroCards[4].deltaTrend === 'down'
+                          : heroCards[4].deltaTrend === "down"
                             ? theme.palette.error.main
                             : theme.palette.primary.main
                       }

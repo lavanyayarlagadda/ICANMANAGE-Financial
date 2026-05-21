@@ -1,12 +1,12 @@
-import React from 'react';
-import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
-import { Sparkline } from './Sparkline';
+import React from "react";
+import { Box, Card, CardContent, Typography, useTheme } from "@mui/material";
+import { Sparkline } from "./Sparkline";
 import {
   deltaColor,
   toText,
   type TrendColumn,
-  type SectionRow
-} from '../helpers/depositReconciliationHelpers';
+  type SectionRow,
+} from "../helpers/depositReconciliationHelpers";
 
 interface SectionTableProps {
   title: string;
@@ -19,10 +19,10 @@ export const SectionTable: React.FC<SectionTableProps> = ({
   title,
   description,
   columns,
-  rows
+  rows,
 }) => {
   const theme = useTheme();
-  const firstForecastIdx = columns.findIndex((col) => col.kind === 'FORECAST');
+  const firstForecastIdx = columns.findIndex((col) => col.kind === "FORECAST");
 
   return (
     <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
@@ -33,30 +33,35 @@ export const SectionTable: React.FC<SectionTableProps> = ({
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {description}
         </Typography>
-        <Box sx={{ overflowX: 'auto' }}>
-          <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', minWidth: 960 }}>
+        <Box sx={{ overflowX: "auto" }}>
+          <Box
+            component="table"
+            sx={{ width: "100%", borderCollapse: "collapse", minWidth: 960 }}
+          >
             <Box component="thead">
               <Box component="tr">
-                {['', 'Trend', 'Δ MoM', ...columns.map((col) => col.label)].map((label, idx) => (
-                  <Box
-                    component="th"
-                    key={`${label}-${idx}`}
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      textAlign: idx === 0 ? 'left' : 'right',
-                      color: theme.palette.text.secondary,
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      borderLeft:
-                        firstForecastIdx >= 0 && idx === firstForecastIdx + 3
-                          ? `1px dotted ${theme.palette.divider}`
-                          : 'none',
-                      fontSize: 12
-                    }}
-                  >
-                    {label}
-                  </Box>
-                ))}
+                {["", "Trend", "Δ MoM", ...columns.map((col) => col.label)].map(
+                  (label, idx) => (
+                    <Box
+                      component="th"
+                      key={`${label}-${idx}`}
+                      sx={{
+                        py: 1,
+                        px: 1,
+                        textAlign: idx === 0 ? "left" : "right",
+                        color: theme.palette.text.secondary,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        borderLeft:
+                          firstForecastIdx >= 0 && idx === firstForecastIdx + 3
+                            ? `1px dotted ${theme.palette.divider}`
+                            : "none",
+                        fontSize: 12,
+                      }}
+                    >
+                      {label}
+                    </Box>
+                  ),
+                )}
               </Box>
             </Box>
             <Box component="tbody">
@@ -72,7 +77,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                           px: 1,
                           borderBottom: `1px solid ${theme.palette.divider}`,
                           fontWeight: 600,
-                          color: theme.palette.text.primary
+                          color: theme.palette.text.primary,
                         }}
                       >
                         {row.name}
@@ -88,7 +93,9 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                     component="tr"
                     key={row.id}
                     sx={{
-                      backgroundColor: isBoldRow ? theme.palette.action.hover : 'transparent'
+                      backgroundColor: isBoldRow
+                        ? theme.palette.action.hover
+                        : "transparent",
                     }}
                   >
                     <Box
@@ -98,16 +105,29 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                         px: 1,
                         pl: row.isSubtotal || row.isTotal ? 1 : 2.5,
                         borderBottom: `1px solid ${theme.palette.divider}`,
-                        fontWeight: isBoldRow ? 700 : 500
+                        fontWeight: isBoldRow ? 700 : 500,
                       }}
                     >
                       {row.name}
                     </Box>
-                    <Box component="td" sx={{ py: 1, px: 1, borderBottom: `1px solid ${theme.palette.divider}`, textAlign: 'right' }}>
+                    <Box
+                      component="td"
+                      sx={{
+                        py: 1,
+                        px: 1,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        textAlign: "right",
+                      }}
+                    >
                       {row.sparkline && row.sparkline.length > 0 ? (
                         <Sparkline
                           values={row.sparkline}
-                          color={deltaColor(row.momDelta, theme.palette.success.main, theme.palette.error.main, theme.palette.primary.main)}
+                          color={deltaColor(
+                            row.momDelta,
+                            theme.palette.success.main,
+                            theme.palette.error.main,
+                            theme.palette.primary.main,
+                          )}
                         />
                       ) : null}
                     </Box>
@@ -117,20 +137,21 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                         py: 1,
                         px: 1,
                         borderBottom: `1px solid ${theme.palette.divider}`,
-                        textAlign: 'right',
+                        textAlign: "right",
                         color: deltaColor(
                           row.momDelta,
                           theme.palette.success.main,
                           theme.palette.error.main,
-                          theme.palette.text.secondary
+                          theme.palette.text.secondary,
                         ),
-                        fontWeight: 700
+                        fontWeight: 700,
                       }}
                     >
                       {toText(row.momDelta)}
                     </Box>
                     {row.amounts.map((value, idx) => {
-                      const isForecast = firstForecastIdx >= 0 && idx >= firstForecastIdx;
+                      const isForecast =
+                        firstForecastIdx >= 0 && idx >= firstForecastIdx;
                       return (
                         <Box
                           component="td"
@@ -138,13 +159,17 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                           sx={{
                             py: 1,
                             px: 1,
-                            textAlign: 'right',
+                            textAlign: "right",
                             borderBottom: `1px solid ${theme.palette.divider}`,
                             borderLeft:
-                              idx === firstForecastIdx ? `1px dotted ${theme.palette.divider}` : 'none',
-                            color: isForecast ? theme.palette.text.secondary : theme.palette.text.primary,
-                            fontStyle: isForecast ? 'italic' : 'normal',
-                            fontWeight: isBoldRow ? 700 : 500
+                              idx === firstForecastIdx
+                                ? `1px dotted ${theme.palette.divider}`
+                                : "none",
+                            color: isForecast
+                              ? theme.palette.text.secondary
+                              : theme.palette.text.primary,
+                            fontStyle: isForecast ? "italic" : "normal",
+                            fontWeight: isBoldRow ? 700 : 500,
                           }}
                         >
                           {value}

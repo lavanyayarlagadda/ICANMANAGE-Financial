@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface SparklineProps {
   values: number[];
@@ -8,7 +8,7 @@ interface SparklineProps {
 export const Sparkline: React.FC<SparklineProps> = ({ values, color }) => {
   const points =
     values.length <= 1
-      ? ''
+      ? ""
       : (() => {
           const min = Math.min(...values);
           const max = Math.max(...values);
@@ -18,11 +18,15 @@ export const Sparkline: React.FC<SparklineProps> = ({ values, color }) => {
               const y = 22 - ((point - min) / range) * 18;
               return `${(idx * 120) / (values.length - 1)},${y}`;
             })
-            .join(' ');
+            .join(" ");
         })();
 
   return (
-    <svg viewBox="0 0 120 24" preserveAspectRatio="none" style={{ width: 92, height: 18 }}>
+    <svg
+      viewBox="0 0 120 24"
+      preserveAspectRatio="none"
+      style={{ width: 92, height: 18 }}
+    >
       <polyline fill="none" stroke={color} strokeWidth="1.8" points={points} />
     </svg>
   );
