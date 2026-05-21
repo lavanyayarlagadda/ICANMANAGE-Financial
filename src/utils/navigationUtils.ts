@@ -20,23 +20,6 @@ export const getNavigationStructure = (
     accessibleModules: string[] = [],
     selectedTenantId?: string | null
 ): NavigationStructure => {
-    const isCareHospiceTenant = (): boolean => {
-        const tenantId = (
-            selectedTenantId ||
-            localStorage.getItem('ican_selected_tenant') ||
-            ''
-        ).trim().toLowerCase();
-        return tenantId === 'carehospice';
-    };
-
-    const getDepositReconStatus = (): 'Active' | 'Hidden' | 'Disabled' => {
-        const selectedUserId = localStorage.getItem('ican_demo_security_selected_user') || '';
-        const key = `ican_deposit_reconciliation_status_${selectedUserId}`;
-        const saved = localStorage.getItem(key) || localStorage.getItem('ican_deposit_reconciliation_status_');
-        if (saved === 'Hidden' || saved === 'Disabled' || saved === 'Active') return saved;
-        return 'Active';
-    };
-
     const sidebar: DynamicTab[] = [];
     let financialsTabs: DynamicTab[] = [];
 
@@ -110,46 +93,8 @@ export const getNavigationStructure = (
                         subTabs = fallbacks.filter(f => isAccessible(f.label) || isAccessible('Trends & Forecast'));
                     }
 
-                    // Ensure Deposit Reconciliation is visible for Trends & Forecast.
+                    // Ensure sub-tabs are properly indexed.
                     if (isTrendsForecastModule) {
-                        const isCareHospice = isCareHospiceTenant();
-                        const depositReconConfig = NAV_CONFIG['Deposit Reconciliation'] || { path: '/financials/trends-forecast/forecast/deposit-reconciliation' };
-                        const depositReconciliationPath = '/financials/trends-forecast/forecast/deposit-reconciliation';
-                        const depositReconStatus = getDepositReconStatus();
-                        const hasDepositReconciliation = subTabs.some(st => st.label === 'Deposit Reconciliation');
-
-                        if (!hasDepositReconciliation && depositReconStatus !== 'Disabled' && isCareHospice) {
-                            const executiveSummaryIndex = subTabs.findIndex(st => st.label === 'Executive Summary');
-                            const newTab: DynamicTab = {
-                                id: -1,
-                                label: 'Deposit Reconciliation',
-                                path: depositReconciliationPath,
-                                status: depositReconStatus,
-                                component: depositReconConfig.component || modConfig.component,
-                            };
-
-                            const nextSubTabs = [...subTabs];
-                            if (executiveSummaryIndex >= 0) {
-                                nextSubTabs.splice(executiveSummaryIndex + 1, 0, newTab);
-                            } else {
-                                nextSubTabs.push(newTab);
-                            }
-
-                            subTabs = nextSubTabs;
-                        }
-
-                        if (!isCareHospice && hasDepositReconciliation) {
-                            subTabs = subTabs.filter(st => st.label !== 'Deposit Reconciliation');
-                        } else if (hasDepositReconciliation) {
-                            if (depositReconStatus === 'Disabled') {
-                                subTabs = subTabs.filter(st => st.label !== 'Deposit Reconciliation');
-                            } else {
-                                subTabs = subTabs.map(st =>
-                                    st.label === 'Deposit Reconciliation' ? { ...st, status: depositReconStatus } : st
-                                );
-                            }
-                        }
-
                         subTabs = subTabs.map((st, idx) => ({ ...st, id: idx }));
                     }
 
