@@ -1,16 +1,14 @@
 import React from 'react';
-import { Box, Typography, useTheme, CircularProgress } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { PaymentTransaction } from '@/interfaces/financials';
+import { PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import { formatCurrency } from '@/utils/formatters';
-import { openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
 import { setShowRemittanceDetail, setSelectedPaymentId, setRemittanceDetail, setRemittanceClaims, setSelectedClaimIndex } from '@/store/slices/financialsSlice';
 import { setActiveExportType, setIsReloading, setIsDrillingDown as setGlobalDrillingDown, setIsGlobalFetching } from '@/store/slices/uiSlice';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { subMonths, format } from 'date-fns';
 import { useSearchPaymentsQuery, useLazyExportPaymentsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useGetPaymentStatusQuery } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
@@ -20,7 +18,7 @@ type DataWithArray<T> = { data?: T[] };
 
 const PaymentsScreen: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { actionTriggers, isDrillingDown, activeExportType, isReloading } = useAppSelector(s => s.ui);
+  const { actionTriggers } = useAppSelector(s => s.ui);
 
   // Unified search state
   const [queryParams, setQueryParams] = React.useState({
@@ -32,7 +30,7 @@ const PaymentsScreen: React.FC = () => {
     fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
     toDate: format(new Date(), 'yyyy-MM-dd'),
   });
-  const { data, isLoading, isError, isFetching, refetch } = useSearchPaymentsQuery({
+  const { data,  isError, isFetching, refetch } = useSearchPaymentsQuery({
     page: queryParams.page + 1, // API is 1-indexed
     size: queryParams.size,
     sort: queryParams.sortField,
@@ -99,7 +97,7 @@ const PaymentsScreen: React.FC = () => {
     };
   }, [isFetching, dispatch]);
 
-  const handleExport = async (formatType: 'pdf' | 'xlsx') => {
+  const handleExport = React.useCallback(async (formatType: 'pdf' | 'xlsx') => {
     try {
       dispatch(setActiveExportType(formatType));
       const result = await triggerExport({
@@ -119,7 +117,7 @@ const PaymentsScreen: React.FC = () => {
     } finally {
       dispatch(setActiveExportType(null));
     }
-  };
+  }, [dispatch, triggerExport, queryParams.fromDate, queryParams.toDate]);
 
   // Handle Global Action Triggers from FinancialsTabs
   React.useEffect(() => {
@@ -127,14 +125,14 @@ const PaymentsScreen: React.FC = () => {
       handleExport('xlsx');
       exportCount.current = actionTriggers.export;
     }
-  }, [actionTriggers.export]);
+  }, [actionTriggers.export, handleExport]);
 
   React.useEffect(() => {
     if (actionTriggers.print > printCount.current) {
       handleExport('pdf');
       printCount.current = actionTriggers.print;
     }
-  }, [actionTriggers.print]);
+  }, [actionTriggers.print, handleExport]);
 
   React.useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {
@@ -155,13 +153,13 @@ const PaymentsScreen: React.FC = () => {
     try {
       dispatch(setGlobalDrillingDown(true));
       const identifier = row.transactionNo || row.adjustmentId || row.recoupmentId || row.id;
-      dispatch(setSelectedPaymentId(identifier));
+      dispatch(setSelectedPaymentId(identifier ?? null));
 
       // Fetch remittance claim details and service lines simultaneously
-      const [claimResult, slResult] = await Promise.all([
-        triggerGetRemittance(identifier).unwrap(),
+      const [claimResult, _slResult] = await Promise.all([
+        triggerGetRemittance({ claimId: identifier ?? '' }).unwrap(),
         triggerSearchServiceLines({
-          check: identifier,
+          check: identifier ?? '',
           page: queryParams.page + 1,
           size: queryParams.size,
           sort: queryParams.sortField || 'lineNumber',
@@ -169,10 +167,15 @@ const PaymentsScreen: React.FC = () => {
         }).unwrap()
       ]);
 
-      const claimResultData = (claimResult as DataWithArray<unknown>)?.data;
-      const claimsArr = Array.isArray(claimResultData)
-        ? claimResultData
-        : (Array.isArray(claimResult) ? claimResult : (claimResult ? [claimResult] : []));
+const claimResultData = (claimResult as DataWithArray<RemittanceDetail>)?.data;
+
+const claimsArr: RemittanceDetail[] = Array.isArray(claimResultData)
+  ? claimResultData
+  : Array.isArray(claimResult)
+    ? claimResult as RemittanceDetail[]
+    : claimResult
+      ? [claimResult as RemittanceDetail]
+      : [];
 
       // If no claims, just show empty
       if (claimsArr.length === 0) {

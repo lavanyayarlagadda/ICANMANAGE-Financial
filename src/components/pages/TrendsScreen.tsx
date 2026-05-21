@@ -5,9 +5,9 @@ import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { TeamPerformance, PayerPerformanceRecord } from '@/types/financials';
+import {  PayerPerformanceRecord } from '@/types/financials';
 import { setIsGlobalFetching, setIsReloading } from '@/store/slices/uiSlice';
-import { formatPercent, formatCurrency } from '@/utils/formatters';
+import {  formatCurrency } from '@/utils/formatters';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -36,17 +36,17 @@ import { useRef, useEffect } from 'react';
 
 type TeamPerformanceRow = {
   team: string;
-  reconciledCheckCountPct: number;
-  unreconciledCheckCountPct: number;
-  checkCountPctByTeam: number;
-  reconciledCheckCount: number;
-  unreconciledCheckCount: number;
-  reconciledAmountPct: number;
-  unreconciledAmountPct: number;
-  amountPctByTeam: number;
-  totalAmountPosted: number | string;
-  totalAmountNotPosted: number | string;
-  avgDaysToReconcile?: number | string | null;
+  reconciledCheckCountPct: string;
+  unreconciledCheckCountPct: string;
+  checkCountPctByTeam: string;
+  reconciledCheckCount: string;
+  unreconciledCheckCount: string;
+  reconciledAmountPct: string;
+  unreconciledAmountPct: string;
+  amountPctByTeam: string;
+  totalAmountPosted: string;
+  totalAmountNotPosted: string;
+  avgDaysToReconcile: string | null;
 };
 
 const TrendsScreen: React.FC = () => {
@@ -107,7 +107,6 @@ const TrendsScreen: React.FC = () => {
     }
   }, [actionTriggers.reload, activeSubTab, refetchForecast, refetchRecon, refetchDashboard, refetchExec, refetchMix, refetchAdj, dispatch]);
 
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const isSmallMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -152,7 +151,7 @@ const TrendsScreen: React.FC = () => {
       { id: 'amountPctByTeam', label: 'AMOUNT % BY TEAM', align: 'right', render: (row) => `${row.amountPctByTeam}%`, accessor: (row) => row.amountPctByTeam },
       { id: 'totalAmountPosted', label: 'TOTAL AMOUNT POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountPosted)), accessor: (row) => row.totalAmountPosted },
       { id: 'totalAmountNotPosted', label: 'TOTAL AMOUNT NOT POSTED', align: 'right', render: (row) => formatCurrency(Number(row.totalAmountNotPosted)), accessor: (row) => row.totalAmountNotPosted },
-      { id: 'avgDaysToReconcile', label: 'AVG DAYS TO RECONCILE', align: 'right', render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile },
+      { id: 'avgDaysToReconcile', label: 'AVG DAYS TO RECONCILE', align: 'right', render: (row) => row.avgDaysToReconcile || 'N/A', accessor: (row) => row.avgDaysToReconcile ?? '' },
     ];
 
     const teamTableData = dashboardData?.data || [];

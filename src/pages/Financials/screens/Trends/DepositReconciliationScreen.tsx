@@ -13,7 +13,6 @@ import {
   type Theme
 } from '@mui/material';
 import { addMonths, format, parse, subMonths } from 'date-fns';
-import PrintIcon from '@mui/icons-material/Print';
 import summaryContract from '@/data/depositReconciliationExecutiveSummary.json';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setIsGlobalFetching, setIsReloading } from '@/store/slices/uiSlice';

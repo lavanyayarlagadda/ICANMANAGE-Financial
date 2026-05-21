@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import {
     Chip,
     alpha,
@@ -8,8 +8,6 @@ import {
     Typography,
     useTheme,
     InputAdornment,
-    Switch,
-    FormControlLabel,
     Grid,
     IconButton,
     Button
@@ -20,20 +18,18 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { BankDepositItem } from '@/interfaces/financials';
+import { BankDepositItem, RowHistoryData } from '@/interfaces/financials';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import { themeConfig } from '@/theme/themeConfig';
+import { ReconStatus, SystemStatus } from '@/constants/statuses';
 import {
     ScreenWrapper,
     ScreenHeader,
-    EntityChip,
     ToolbarWrapper,
     SearchField,
-    RefreshButton,
-    FinalizeButton,
     EntitySectionHeader,
     ExpandedContentBox,
     SubSectionWrapper,
@@ -42,7 +38,7 @@ import {
 } from './BankDepositsScreen.styles';
 import { useBankDepositsScreen } from './BankDepositsScreen.hook';
 
-type RowData = Record<string, unknown>;
+type RowData = Record<string, string | number | null>;
 type RemitHistoryItem = {
     payerName?: string;
     amount?: number;
@@ -63,7 +59,6 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
     const {
         filteredDeposits,
-        totalElements,
         queryParams,
         searchTerm,
         setSearchTerm,
@@ -72,8 +67,6 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         setSelectedEntityId,
         expandedRows,
         entities,
-        exceptionsOnly,
-        setExceptionsOnly,
         toggleRow,
         handleRangeChange,
         handleSortChange,
@@ -82,10 +75,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         statusOptions,
         payerOptions,
         dynamicColumns,
-        isHeadersFetching,
         isHeadersSuccess,
-        isError,
-        refetch,
         onSearch,
         summaryData,
         rowHistory
@@ -195,8 +185,8 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 filterOptions: statusOptions,
                 render: (row) => {
                     const status = row.reconciliationStatus || row.status || 'Pending';
-                    const isMatched = status === 'Matched' || status === 'Reconciled';
-                    const statusColors = isMatched ? themeConfig.status.match : themeConfig.status.critical;
+                    const isMatched = status === ReconStatus.MATCHED || status === ReconStatus.RECONCILED;
+                    const statusColors = isMatched ? themeConfig.status[ReconStatus.MATCHED] : themeConfig.status[SystemStatus.CRITICAL];
 
                     return (
                         <Chip
@@ -259,7 +249,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     label: dc.displayName.toUpperCase(),
                     accessor: (row: BankDepositItem) => {
                         const val = (row as RowData)[actualField];
-                        return val !== undefined ? val : base.accessor?.(row);
+                    return val !== undefined && val !== null ? val : base.accessor ? base.accessor(row) : null;
                     },
                     filterOptions: actualField === 'payerName' ? payerOptions : base.filterOptions
                 };
@@ -275,9 +265,16 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     if (typeof val === 'number' && (mappedId.toLowerCase().includes('amt') || mappedId.toLowerCase().includes('amount') || mappedId.toLowerCase().includes('variance'))) {
                         return <Typography variant="body2" sx={{ fontWeight: 600 }}>{formatCurrency(val)}</Typography>;
                     }
-                    if (mappedId.toLowerCase().includes('date') && val) {
-                        return <Typography variant="body2">{formatDate(val)}</Typography>;
-                    }
+                   if (
+  mappedId.toLowerCase().includes('date') &&
+  (typeof val === 'string' || typeof val === 'number')
+) {
+  return (
+    <Typography variant="body2">
+      {formatDate(String(val))}
+    </Typography>
+  );
+}
                     return <Typography variant="body2">{val !== null && val !== undefined ? String(val) : '-'}</Typography>;
                 }
             };
@@ -291,8 +288,9 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     }, [expandedRows, theme, toggleRow, dynamicColumns, isHeadersSuccess, payerOptions, statusOptions]);
 
     const renderExpandedContent = useCallback((item: BankDepositItem) => {
+
         const history = rowHistory[item.transactionNo];
-        const { data: historyData, isLoading } = history || { data: null, isLoading: false };
+        const { data: historyData, isLoading } = history ?? { data: null, isLoading: false };
 
         return (
             <ExpandedContentBox sx={{ backgroundColor: alpha(theme.palette.primary.main, 0.02), p: 2 }}>

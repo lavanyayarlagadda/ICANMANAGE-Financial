@@ -1,14 +1,14 @@
 import React from 'react';
-import { Box, Typography, Chip, useTheme } from '@mui/material';
+import { Typography, Chip, useTheme } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { AllTransaction } from '@/types/financials';
+import { AllTransaction } from '@/interfaces/financials';
 import { formatCurrency } from '@/utils/formatters';
-import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
-import { useRef, useEffect } from 'react';
+import { openViewDialog, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
+import { useRef, useEffect, useCallback } from 'react';
 
 const transactionTypeColors: Record<string, { bg: string; text: string }> = {
   PAYMENT: { bg: '#E3F2FD', text: '#1565C0' },
@@ -38,7 +38,7 @@ const AllTransactionsScreen: React.FC = () => {
   const printCount = useRef(actionTriggers.print);
   const reloadCount = useRef(actionTriggers.reload);
 
-  const handleExport = (format: 'pdf' | 'xlsx') => {
+  const handleExport = useCallback((format: 'pdf' | 'xlsx') => {
     // For now, since AllTransactions might not have a server-side endpoint yet,
     // we'll just simulate a brief loader or tell the user.
     // If there was an endpoint, we'd call triggerExport here.
@@ -47,21 +47,21 @@ const AllTransactionsScreen: React.FC = () => {
       dispatch(setActiveExportType(null));
       alert(`Exporting All Transactions as ${format.toUpperCase()}... (Endpoint pending)`);
     }, 1500);
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     if (actionTriggers.export > exportCount.current) {
       handleExport('xlsx');
       exportCount.current = actionTriggers.export;
     }
-  }, [actionTriggers.export]);
+  }, [actionTriggers.export, handleExport]);
 
   useEffect(() => {
     if (actionTriggers.print > printCount.current) {
       handleExport('pdf');
       printCount.current = actionTriggers.print;
     }
-  }, [actionTriggers.print]);
+  }, [actionTriggers.print, handleExport]);
 
   useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {
@@ -94,13 +94,13 @@ const AllTransactionsScreen: React.FC = () => {
       id: 'transactionType',
       label: 'Category',
       minWidth: 140,
-      accessor: (r) => r.transactionType,
+      accessor: (r) => r.transactionType ?? '',
       filterOptions: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT', ...(!isMindPath ? ['PIP'] : [])],
       render: (r) => {
-        const colors = transactionTypeColors[r.transactionType] || { bg: '#F5F5F5', text: '#616161' };
+        const colors = transactionTypeColors[r.transactionType ?? ''] || { bg: '#F5F5F5', text: '#616161' };
         return (
           <Chip
-            label={r.transactionType.replace('_', ' ')}
+            label={(r.transactionType ?? '').replace('_', ' ')}
             size="small"
             sx={{ backgroundColor: colors.bg, color: colors.text, fontWeight: 600, fontSize: '0.7rem' }}
           />

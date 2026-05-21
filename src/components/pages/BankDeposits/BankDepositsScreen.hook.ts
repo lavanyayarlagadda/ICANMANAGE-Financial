@@ -7,7 +7,7 @@ import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
-import { BankDepositItem } from '@/interfaces/financials';
+import { BankDepositItem, RowHistoryData } from '@/interfaces/financials';
 
 export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
@@ -212,7 +212,6 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         }
         return [];
     }, [data]);
-
     const totalElements = useMemo(() => {
         const list = bankDeposits;
         if (!list || list.length === 0) return 0;
@@ -220,7 +219,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     }, [bankDeposits]);
 
 
-    const [rowHistory, setRowHistory] = useState<Record<string, { data: unknown, isLoading: boolean }>>({});
+    const [rowHistory, setRowHistory] = useState<Record<string, { data: RowHistoryData, isLoading: boolean }>>({});
     const [triggerGetHistory] = useLazyGetBaiTriggerHistoryQuery();
 
     const fetchRowHistory = useCallback(async (transactionNo: string) => {
@@ -259,6 +258,12 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
             return newSet;
         });
     }, [fetchRowHistory]);
+
+    const renderExpandedContent = useCallback((item: BankDepositItem) => {
+        const history = rowHistory[item.transactionNo];
+        const { data: historyData, isLoading } = history ?? { data: null, isLoading: false };
+        return { historyData, isLoading };
+    }, [rowHistory]);
 
     const filteredDeposits = useMemo(() => {
         if (selectedEntityId === 'all') {

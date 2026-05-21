@@ -17,7 +17,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { themeConfig } from '@/theme';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -61,7 +61,7 @@ const UserProfilePage: React.FC = () => {
     const getMenuStatus = (label: string) => {
         const findStatus = (menusArray: MenuNode[]): string | null => {
             for (const m of menusArray) {
-                if (m.menuName === label) return m.status;
+                if (m.menuName === label) return m.status || null;
                 if (m.subModules) {
                     const sub = findStatus(m.subModules);
                     if (sub) return sub;

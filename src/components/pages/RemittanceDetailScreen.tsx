@@ -1,18 +1,13 @@
 import React from 'react';
 import {
   Box,
-  Card,
-  CardContent,
   Typography,
-  Divider,
   useTheme,
 } from '@mui/material';
-import Grid from '@mui/material/Grid';
 import { useAppSelector } from '@/store';
 import { formatCurrency } from '@/utils/formatters';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import DetailCard from '@/components/molecules/DetailCard';
-import RangeDropdown from '@/components/atoms/RangeDropdown';
 import { ServiceLine } from '@/types/financials';
 import { RemittanceDetail } from '@/interfaces/financials';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay';
@@ -56,7 +51,7 @@ const RemittanceDetailScreen: React.FC = () => {
     return () => {
       dispatch(setIsGlobalFetching(false));
     };
-  }, [isSlFetching, dispatch, setIsGlobalFetching]);
+  }, [isSlFetching, dispatch]);
 
   if (!detail && (!claims || claims.length === 0)) return <Typography>No remittance detail selected.</Typography>;
 
@@ -155,7 +150,7 @@ const RemittanceDetailScreen: React.FC = () => {
                 { label: "Payment Amount", value: formatCurrency(detail.paymentAmount) },
                 { label: "Payer Name", value: detail.payerName },
                 { label: "Patient Name", value: detail.patientName },
-                { label: "Patient CTL No", value: detail.patientCtlNo || (detail as Record<string, unknown>).patientCtrlNo || '–' },
+                { label: "Patient CTL No", value: detail.patientCtlNo || detail.patientCtrlNo || '–' },
               ]
             },
             {

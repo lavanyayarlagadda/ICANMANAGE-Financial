@@ -91,7 +91,7 @@ const CalendarScreen: React.FC = () => {
                     try {
                         const tDate = parse(t.effectiveDate, 'MM/dd/yyyy', new Date());
                         return isSameDay(tDate, d);
-                    } catch (e) { return false; }
+                    } catch { return false; }
                 });
 
                 const dayTotal = dayTransactions.reduce((acc, curr) => acc + curr.amount, 0);
@@ -105,7 +105,7 @@ const CalendarScreen: React.FC = () => {
                         {!isMobile && (
                             <Box sx={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 0.5, mt: 0.5 }}>
                                 {dayTransactions.slice(0, isTablet ? 1 : 2).map((t) => (
-                                    <Box key={t.id} sx={styles.transactionBadgeStyles(t.transactionType)}>{t.description}</Box>
+                                    <Box key={t.id} sx={styles.transactionBadgeStyles(t.transactionType??'')}>{t.description}</Box>
                                 ))}
                             </Box>
                         )}
@@ -124,7 +124,7 @@ const CalendarScreen: React.FC = () => {
             try {
                 const tDate = parse(t.effectiveDate, 'MM/dd/yyyy', new Date());
                 return isSameDay(tDate, selectedDate);
-            } catch (e) { return false; }
+            } catch { return false; }
         });
 
         return (

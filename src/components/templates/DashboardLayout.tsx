@@ -15,18 +15,10 @@ import {
   Typography,
   Snackbar,
   Alert,
-  IconButton,
   Tooltip,
   CircularProgress,
 } from '@mui/material';
-import PaymentIcon from '@mui/icons-material/Payment';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TopNavBar from '@/components/organisms/TopNavBar';
 import Footer from '@/components/organisms/Footer';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -37,7 +29,6 @@ import {
   toggleMobileMenu,
   closeMobileMenu,
   closeSnackbar,
-  toggleSidebarCollapse,
 } from '@/store/slices/uiSlice';
 
 const DRAWER_WIDTH = 240;
@@ -57,7 +48,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const dispatch = useAppDispatch();
-  const { mobileMenuOpen, activePage, activeTab, sidebarCollapsed, snackbarOpen, snackbarMessage, snackbarSeverity,
+  const { mobileMenuOpen, activePage, sidebarCollapsed, snackbarOpen, snackbarMessage, snackbarSeverity,
     activeExportType, isReloading, isDrillingDown, isGlobalFetching } = useAppSelector((s) => s.ui);
   const { loading: financialsLoading } = useAppSelector((s) => s.financials);
 
@@ -82,7 +73,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const getMenuStatus = (label: string) => {
     const findStatus = (menusArray: MenuNode[]): string | null => {
       for (const m of menusArray) {
-        if (m.menuName?.toLowerCase() === label.toLowerCase()) return m.status;
+        if (m.menuName?.toLowerCase() === label.toLowerCase()) return m.status || null;
         if (m.subModules) {
           const sub = findStatus(m.subModules);
           if (sub) return sub;
@@ -109,25 +100,25 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     }
   };
 
-  const financialsSubItems = [
-    // { label: 'All Transactions', tab: 0, path: '/financials/all-transactions', icon: <DashboardIcon fontSize="small" /> },
-    { label: 'Payments', tab: 1, path: '/financials/payments', icon: <PaymentIcon fontSize="small" /> },
-    { label: 'PIP', tab: 2, path: '/financials/pip', icon: <AccountBalanceIcon fontSize="small" /> },
-    // { label: 'Forward Balances', tab: 3, path: '/financials/forward-balances', icon: <CompareArrowsIcon fontSize="small" /> },
-    // { label: 'Recoupments', tab: 4, path: '/financials/recoupments', icon: <ReceiptLongIcon fontSize="small" /> },
-    // { label: 'Other Adjustments', tab: 5, path: '/financials/other-adjustments', icon: <CompareArrowsIcon fontSize="small" /> },
-    { label: 'Variance Analysis', tab: 6, path: '/financials/variance-analysis', icon: <CompareArrowsIcon fontSize="small" /> },
-    { label: 'Trends & Forecast', tab: 7, path: '/financials/trends-forecast', icon: <TrendingUpIcon fontSize="small" /> },
-  ].filter(item => {
-    const isMindPath =
-      user?.company?.toLowerCase() === 'mindpath' ||
-      selectedTenantId?.toLowerCase() === 'mindpath';
+  // const financialsSubItems = [
+  //   // { label: 'All Transactions', tab: 0, path: '/financials/all-transactions', icon: <DashboardIcon fontSize="small" /> },
+  //   { label: 'Payments', tab: 1, path: '/financials/payments', icon: <PaymentIcon fontSize="small" /> },
+  //   { label: 'PIP', tab: 2, path: '/financials/pip', icon: <AccountBalanceIcon fontSize="small" /> },
+  //   // { label: 'Forward Balances', tab: 3, path: '/financials/forward-balances', icon: <CompareArrowsIcon fontSize="small" /> },
+  //   // { label: 'Recoupments', tab: 4, path: '/financials/recoupments', icon: <ReceiptLongIcon fontSize="small" /> },
+  //   // { label: 'Other Adjustments', tab: 5, path: '/financials/other-adjustments', icon: <CompareArrowsIcon fontSize="small" /> },
+  //   { label: 'Variance Analysis', tab: 6, path: '/financials/variance-analysis', icon: <CompareArrowsIcon fontSize="small" /> },
+  //   { label: 'Trends & Forecast', tab: 7, path: '/financials/trends-forecast', icon: <TrendingUpIcon fontSize="small" /> },
+  // ].filter(item => {
+  //   const isMindPath =
+  //     user?.company?.toLowerCase() === 'mindpath' ||
+  //     selectedTenantId?.toLowerCase() === 'mindpath';
 
-    if (isMindPath && item.label === 'PIP') return false;
-    return getMenuStatus(item.label) !== 'Hidden';
-  });
+  //   if (isMindPath && item.label === 'PIP') return false;
+  //   return getMenuStatus(item.label) !== 'Hidden';
+  // });
 
-  const hasCollections = getMenuStatus('Collections') !== 'Hidden';
+  // const hasCollections = getMenuStatus('Collections') !== 'Hidden';
   const hasFinancials = getMenuStatus('Financials') !== 'Hidden';
 
   const drawerContent = (

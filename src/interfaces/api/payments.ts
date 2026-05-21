@@ -12,6 +12,7 @@ export interface PaymentSearchRequest {
     toDate: string;
     transactionNo?: string | null;
     icanManageId?: string | number;
+    payer?: string | null;
 }
 
 export interface PaymentSearchResponse {

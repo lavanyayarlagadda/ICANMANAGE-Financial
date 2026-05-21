@@ -27,8 +27,8 @@ import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 
 type ReconPerformancePoint = {
     month: string;
-    actualReconciledAmount?: string;
-    forecastAmount?: string;
+    actualReconciledAmount?: string | null;
+    forecastAmount?: string | null;
 };
 
 const isOverallTeam = (team: unknown): boolean =>

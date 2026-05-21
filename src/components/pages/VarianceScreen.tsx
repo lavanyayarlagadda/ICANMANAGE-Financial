@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Box, Typography, useTheme, IconButton, Grid, CircularProgress } from '@mui/material';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { Box, Typography, useTheme, Grid } from '@mui/material';
 import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { FeeScheduleVariance, PaymentVariance } from '@/types/financials';
@@ -20,6 +20,7 @@ import {
   useLazyExportPaymentVarianceQuery
 } from '@/store/api/financialsApi';
 import { subMonths, format } from 'date-fns';
+import { RemittanceDetail } from '@/interfaces/financials';
 
 type DataWithArray<T> = { data?: T[] };
 type VarianceRow = FeeScheduleVariance | PaymentVariance;
@@ -41,7 +42,6 @@ const VarianceScreen: React.FC = () => {
   // Fee Schedule Variance Data
   const {
     data: feeData,
-    isLoading: feeLoading,
     isFetching: feeFetching,
     refetch: refetchFee
   } = useSearchFeeScheduleVarianceQuery({
@@ -61,7 +61,6 @@ const VarianceScreen: React.FC = () => {
   // Payment Variance Data
   const {
     data: paymentData,
-    isLoading: paymentLoading,
     isFetching: paymentFetching,
     refetch: refetchPayment
   } = useSearchPaymentVarianceQuery({
@@ -86,25 +85,43 @@ const VarianceScreen: React.FC = () => {
   const handleDrillDown = async (row: VarianceRow) => {
     try {
       dispatch(setGlobalDrillingDown(true));
-      const identifier = row.transactionNo || row.claimId || row.adjustmentId || row.id;
-      dispatch(setSelectedPaymentId(identifier));
+const identifier =
+  row.transactionNo ??
+  row.claimId ??
+  row.adjustmentId ??
+  row.id ??
+  '';
 
-      // Fetch remittance claim details and service lines simultaneously
-      const [claimResult, slResult] = await Promise.all([
-        triggerGetRemittance(identifier).unwrap(),
-        triggerSearchServiceLines({
-          check: identifier,
-          page: queryParams.page + 1,
-          size: queryParams.size,
-          sort: queryParams.sortField || 'lineNumber',
-          desc: queryParams.sortOrder === 'desc'
-        }).unwrap()
-      ]);
+if (!identifier) {
+  console.error('No identifier found');
+  return;
+}
 
-      const claimResultData = (claimResult as DataWithArray<unknown>)?.data;
-      const claimsArr = Array.isArray(claimResultData)
-        ? claimResultData
-        : (Array.isArray(claimResult) ? claimResult : (claimResult ? [claimResult] : []));
+dispatch(setSelectedPaymentId(identifier));
+
+const [claimResult] = await Promise.all([
+  triggerGetRemittance({
+    claimId: identifier
+  }).unwrap(),
+  triggerSearchServiceLines({
+    check: identifier,
+    page: queryParams.page + 1,
+    size: queryParams.size,
+    sort: queryParams.sortField || 'lineNumber',
+    desc: queryParams.sortOrder === 'desc'
+  }).unwrap()
+]);
+
+      const claimResultData =
+  (claimResult as DataWithArray<RemittanceDetail>)?.data;
+
+const claimsArr: RemittanceDetail[] = Array.isArray(claimResultData)
+  ? claimResultData
+  : Array.isArray(claimResult)
+    ? (claimResult as RemittanceDetail[])
+    : claimResult
+      ? [claimResult as RemittanceDetail]
+      : [];
 
       if (claimsArr.length === 0) {
         dispatch(setRemittanceClaims([]));
@@ -125,7 +142,6 @@ const VarianceScreen: React.FC = () => {
   };
 
   const isFetching = activeSubTab === 0 ? feeFetching : paymentFetching;
-  const isLoading = activeSubTab === 0 ? feeLoading : paymentLoading;
 
   useEffect(() => {
     dispatch(setIsGlobalFetching(isFetching));
@@ -136,7 +152,7 @@ const VarianceScreen: React.FC = () => {
   const printCount = useRef(actionTriggers.print);
   const reloadCount = useRef(actionTriggers.reload);
 
-  const handleExport = async (format: 'pdf' | 'xlsx') => {
+  const handleExport = useCallback(async (format: 'pdf' | 'xlsx') => {
     try {
       dispatch(setActiveExportType(format));
 
@@ -169,21 +185,21 @@ const VarianceScreen: React.FC = () => {
     } finally {
       dispatch(setActiveExportType(null));
     }
-  };
+  }, [dispatch, queryParams.fromDate, queryParams.toDate, activeSubTab, triggerExportFee, triggerExportPayment]);
 
   useEffect(() => {
     if (actionTriggers.export > exportCount.current) {
       handleExport('xlsx');
       exportCount.current = actionTriggers.export;
     }
-  }, [actionTriggers.export]);
+  }, [actionTriggers.export, handleExport]);
 
   useEffect(() => {
     if (actionTriggers.print > printCount.current) {
       handleExport('pdf');
       printCount.current = actionTriggers.print;
     }
-  }, [actionTriggers.print]);
+  }, [actionTriggers.print, handleExport]);
 
   useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {

@@ -1,8 +1,6 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import {
-    openEditDialog,
-    openConfirmDelete,
     setActiveExportType,
     setIsReloading,
     setIsDrillingDown as setGlobalDrillingDown,
@@ -16,7 +14,6 @@ import {
     setSelectedClaimIndex,
     setGlobalFilters
 } from '@/store/slices/financialsSlice';
-import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import {
     useSearchPaymentsQuery,
@@ -25,7 +22,7 @@ import {
     useLazyGetRemittanceClaimsQuery,
     useGetPaymentStatusQuery
 } from '@/store/api/financialsApi';
-import { PaymentQueryParams, TableQueryParams } from '@/interfaces/api';
+import { PaymentQueryParams } from '@/interfaces/api';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
@@ -88,7 +85,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sort: queryParams.sortField,
         desc: queryParams.sortOrder === 'desc',
         status: queryParams.status === 'All' ? null : queryParams.status,
-        payer: queryParams.payer,
+        payer: queryParams.payer??'',
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         transactionNo: queryParams.transactionNo,

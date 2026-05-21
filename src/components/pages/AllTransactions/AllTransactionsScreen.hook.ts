@@ -1,10 +1,10 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
-import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
+import { openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import { useLazyExportAllTransactionsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery, useGetPaymentStatusQuery, useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
 import { TableQueryParams } from '@/interfaces/api';
-import { format } from 'date-fns';
+
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { setRemittanceClaims, setRemittanceDetail, setSelectedClaimIndex, setSelectedPaymentId, setShowRemittanceDetail, setGlobalFilters } from '@/store/slices/financialsSlice';
 import {
@@ -16,7 +16,7 @@ import { downloadFileFromBlob } from '@/utils/downloadHelper';
 
 export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    const user = useAppSelector((s: RootState) => s.auth.user);
+
     const { actionTriggers } = useAppSelector((s: RootState) => s.ui);
     const { globalFilters } = useAppSelector((s: RootState) => s.financials);
 
@@ -79,11 +79,15 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         desc: queryParams.sortOrder === 'desc',
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
-        status: queryParams.status,
-        category: queryParams.category,
-        type: queryParams.type,
-        payer: queryParams.payer,
-        transactionNo: queryParams.transactionNo,
+        status: queryParams.status??'',
+        category: queryParams.category??'',
+        type: queryParams.type??'',
+        payer: queryParams.payer??'',
+        transactionNo: queryParams.transactionNo??'',
+        // statusIds: null,
+        // categoryIds: null,
+        // transactionTypeIds: null,
+        // payerIds: null,
     }, { skip: isActualSkip });
 
     // Fetch dynamic status options

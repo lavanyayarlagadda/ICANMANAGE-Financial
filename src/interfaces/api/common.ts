@@ -30,6 +30,8 @@ export interface DepositReconTrendsQueryParams extends DateRangeParams {
     globalToDate?: string;
 }
 
+export type DepositReconAgingQueryParams = DateRangeParams;
+
 export interface DynamicColumn {
     displayName: string;
     active?: boolean;
