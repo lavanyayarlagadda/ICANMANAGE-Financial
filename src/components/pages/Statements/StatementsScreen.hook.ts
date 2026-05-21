@@ -4,7 +4,6 @@ import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice
 import { useSearchForwardBalanceNoticesQuery, useLazyExportForwardBalanceNoticesQuery } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { TableQueryParams } from '@/interfaces/api';
-import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
@@ -13,8 +12,6 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
     const dispatch = useAppDispatch();
     const { activeSubTab, actionTriggers } = useAppSelector((s: RootState) => s.ui);
     const { globalFilters } = useAppSelector((s: RootState) => s.financials);
-    const user = useAppSelector((s: RootState) => s.auth.user);
-    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
 

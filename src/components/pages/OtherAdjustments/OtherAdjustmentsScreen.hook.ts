@@ -1,7 +1,6 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import {
-    openViewDialog,
     openEditDialog,
     openConfirmDelete,
     setActiveExportType,
@@ -16,9 +15,8 @@ import {
     setSelectedClaimIndex,
     setGlobalFilters
 } from '@/store/slices/financialsSlice';
-import { OtherAdjustmentRecord, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
+import { OtherAdjustmentRecord, RemittanceDetail } from '@/interfaces/financials';
 import { TableQueryParams } from '@/interfaces/api';
-import { subMonths, format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
@@ -68,7 +66,7 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         payerName: queryParams.payer,
         transactionNo: queryParams.transactionNo
     }, { skip: isActualSkip });
-    const [drillDownParams, setDrillDownParams] = useState({
+    const [drillDownParams, _setDrillDownParams] = useState({
         page: 0,
         size: 10,
         sortField: 'paymentDate',

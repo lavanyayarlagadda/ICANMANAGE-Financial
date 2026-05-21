@@ -47,6 +47,7 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
                 onChange?.(`${format(dates.from, 'yyyy-MM-dd')} to ${format(dates.to, 'yyyy-MM-dd')}`);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleChange = (e: SelectChangeEvent) => {

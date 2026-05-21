@@ -6,14 +6,12 @@ import {
   IconButton,
   Grid,
   Paper,
-  Tooltip,
   useMediaQuery,
   Collapse,
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import TodayIcon from '@mui/icons-material/Today';
-import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import {
   format,
@@ -30,7 +28,6 @@ import {
 } from 'date-fns';
 import { useAppSelector } from '@/store';
 import { formatCurrency } from '@/utils/formatters';
-import { AllTransaction } from '@/types/financials';
 
 const CalendarScreen: React.FC = () => {
   const theme = useTheme();
@@ -126,7 +123,7 @@ const CalendarScreen: React.FC = () => {
           try {
             const tDate = parse(t.effectiveDate, 'MM/dd/yyyy', new Date());
             return isSameDay(tDate, d);
-          } catch (e) {
+          } catch {
             return false;
           }
         });
@@ -255,7 +252,7 @@ const CalendarScreen: React.FC = () => {
       try {
         const tDate = parse(t.effectiveDate, 'MM/dd/yyyy', new Date());
         return isSameDay(tDate, selectedDate);
-      } catch (e) {
+      } catch {
         return false;
       }
     });

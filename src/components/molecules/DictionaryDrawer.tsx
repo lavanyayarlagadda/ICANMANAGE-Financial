@@ -5,7 +5,6 @@ import {
   Typography,
   IconButton,
   Divider,
-  useTheme,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { TableDescription } from '@/services/descriptionService';
@@ -21,7 +20,6 @@ const DictionaryDrawer: React.FC<DictionaryDrawerProps> = ({
   onClose,
   selectedField,
 }) => {
-  const theme = useTheme();
 
   if (!selectedField) return null;
 

@@ -26,7 +26,7 @@ export const FilterContainer = styled(Paper)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
 }));
 
-export const ToggleWrapper = styled(Box)(({ theme }) => ({
+export const ToggleWrapper = styled(Box)(() => ({
   display: 'flex',
   backgroundColor: themeConfig.colors.slate[100],
   borderRadius: '8px',
@@ -36,7 +36,7 @@ export const ToggleWrapper = styled(Box)(({ theme }) => ({
 
 export const ToggleButton = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'active',
-})<{ active?: boolean }>(({ theme, active }) => ({
+})<{ active?: boolean }>(({ active }) => ({
   padding: '6px 20px',
   borderRadius: '6px',
   cursor: 'pointer',
@@ -60,7 +60,7 @@ export const LocationTabWrapper = styled(Box)(({ theme }) => ({
 
 export const LocationTab = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'active',
-})<{ active?: boolean }>(({ theme, active }) => ({
+})<{ active?: boolean }>(({ active }) => ({
   padding: '6px 16px',
   backgroundColor: active ? themeConfig.colors.primary : themeConfig.colors.slate[100],
   color: active ? themeConfig.colors.surface : themeConfig.colors.slate[700],
@@ -105,7 +105,7 @@ export const TotalItem = styled(Box, {
   },
 }));
 
-export const HighlightCell = styled(Box)(({ theme }) => ({
+export const HighlightCell = styled(Box)(() => ({
   backgroundColor: themeConfig.colors.accent,
   color: themeConfig.colors.surface,
   padding: '4px 8px',
@@ -129,7 +129,7 @@ export const DayStripContainer = styled(Box)(({ theme }) => ({
 
 export const DayCard = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'active' && prop !== 'today',
-})<{ active?: boolean; today?: boolean }>(({ theme, active, today }) => ({
+})<{ active?: boolean; today?: boolean }>(({ active }) => ({
   flexShrink: 0,
   minWidth: '54px',
   height: '64px',
@@ -151,7 +151,7 @@ export const DayCard = styled(Box, {
   },
 }));
 
-export const GlassDialog = styled(Paper)(({ theme }) => ({
+export const GlassDialog = styled(Paper)(() => ({
   background: 'rgba(255, 255, 255, 0.95)',
   backdropFilter: 'blur(10px)',
   borderRadius: '16px',
@@ -193,7 +193,7 @@ export const SectionSidebar = styled(Box, {
   }
 }));
 
-export const ModernUploadZone = styled(Box)(({ theme }) => ({
+export const ModernUploadZone = styled(Box)(() => ({
   border: `2px dashed ${themeConfig.colors.slate[300]}`,
   borderRadius: '12px',
   padding: '12px 24px',
@@ -209,7 +209,7 @@ export const ModernUploadZone = styled(Box)(({ theme }) => ({
   }
 }));
 
-export const DynamicTableContainer = styled(Box)(({ theme }) => ({
+export const DynamicTableContainer = styled(Box)(() => ({
    flex: 1,
    overflowX: 'auto',
    WebkitOverflowScrolling: 'touch',

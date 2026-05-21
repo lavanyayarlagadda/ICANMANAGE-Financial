@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, IconButton, Chip, Grid, InputAdornment, Button } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Typography, IconButton, Chip, Grid } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -60,11 +59,7 @@ const ForwardBalanceNoticesTable = ({
     onSortChange,
     onRangeChange,
     rangeLabel,
-    searchTerm,
-    setSearchTerm,
-    onSearch,
     onFilterChange,
-    statusOptions
 }: {
     data: ForwardBalanceNotice[],
     totalElements: number,

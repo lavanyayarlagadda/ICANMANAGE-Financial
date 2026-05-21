@@ -1,14 +1,13 @@
 
 import React, { useEffect } from 'react';
-import { Box, Typography, useTheme, useMediaQuery, Breadcrumbs } from '@mui/material';
+import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
 import Button from '@/components/atoms/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
-import { Select, MenuItem, SelectChangeEvent, FormControl, CircularProgress } from '@mui/material';
+import { Select, MenuItem, SelectChangeEvent, FormControl } from '@mui/material';
 
 const mainTabs = [
   { id: 0, label: 'Transactions', path: '/financials/payments' },
@@ -47,7 +46,6 @@ const trendsSubTabs = [
 
 
 interface FinancialsTabsProps {
-  onAddNew?: () => void;
   onPrint?: () => void;
   onReload?: () => void;
   onExportWizard?: () => void;
@@ -57,7 +55,6 @@ interface FinancialsTabsProps {
 }
 
 const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
-  onAddNew,
   onPrint,
   onReload,
   onExportWizard,
@@ -70,13 +67,12 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const { activeTab, activeSubTab, activeExportType, isReloading } = useAppSelector((s) => s.ui);
+  const { activeTab, activeSubTab, isReloading } = useAppSelector((s) => s.ui);
   const user = useAppSelector((s) => s.auth.user);
   const { selectedTenantId } = useAppSelector((s) => s.tenant);
   const isMindPath =
     user?.company?.toLowerCase() === 'mindpath' ||
     selectedTenantId?.toLowerCase() === 'mindpath';
-  const menus = user?.menus || [];
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
 
   const canShowActions = activeTab === 0 || activeTab === 2 || activeTab === 5 || activeTab === 3;
@@ -176,10 +172,6 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                 {mainTabs
                   .filter(tab => !(tab.id === 2 && isMindPath))
                   .map((tab) => {
-                    let path = tab.path;
-                    if (tab.id === 2 && !isMindPath) {
-                      path = '/financials/statements';
-                    }
                     return (
                       <MenuItem key={tab.id} value={tab.id} sx={{ fontWeight: 500, fontSize: '14px' }}>
                         {tab.label}

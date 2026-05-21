@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { format, startOfMonth, endOfMonth, subMonths } from 'date-fns';
-import { TableQueryParams } from '@/interfaces/api';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
+
 import { RECONCILIATION_DUMMY_DATA } from './ReconciliationDummyData';
 
 export type ReconciliationStatus = 'unreconciled' | 'reconciled' | 'my-queue';
@@ -68,14 +68,7 @@ export const useReconciliation = () => {
     transactionNo: '',
   });
 
-  const [queryParams, setQueryParams] = useState<TableQueryParams>({
-    page: 0,
-    size: 10,
-    sortField: 'effectiveDate',
-    sortOrder: 'desc' as 'asc' | 'desc',
-    fromDate: format(subMonths(new Date(), 6), 'yyyy-MM-dd'),
-    toDate: format(new Date(), 'yyyy-MM-dd'),
-  });
+
 
   // Filters that are actually affecting the table
   const [appliedFilters, setAppliedFilters] = useState<FilterState>(searchFilters);

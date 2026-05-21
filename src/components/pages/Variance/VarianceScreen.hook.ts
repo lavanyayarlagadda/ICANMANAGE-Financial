@@ -25,7 +25,6 @@ import {
     useLazyExportPaymentVarianceQuery,
     useGetAllTransactionsFiltersQuery
 } from '@/store/api/financialsApi';
-import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { FeeScheduleVariance, PaymentVariance, RemittanceDetail } from '@/interfaces/financials';
 import { TableQueryParams } from '@/interfaces/api';
@@ -212,7 +211,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             }
         }
     }, [dispatch]);
-    const handleExport = async (format: 'pdf' | 'xlsx') => {
+    const handleExport = useCallback(async (format: 'pdf' | 'xlsx') => {
         try {
             dispatch(setActiveExportType(format));
 
@@ -238,20 +237,20 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         } finally {
             dispatch(setActiveExportType(null));
         }
-    };
+    }, [dispatch, queryParams.fromDate, queryParams.toDate, activeSubTab, triggerExportFee, triggerExportPayment]);
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
             handleExport('xlsx');
             exportCount.current = actionTriggers.export;
         }
-    }, [actionTriggers.export]);
+    }, [actionTriggers.export, handleExport]);
 
     useEffect(() => {
         if (actionTriggers.print > printCount.current) {
             handleExport('pdf');
             printCount.current = actionTriggers.print;
         }
-    }, [actionTriggers.print]);
+    }, [actionTriggers.print, handleExport]);
     const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
         setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
     }, []);

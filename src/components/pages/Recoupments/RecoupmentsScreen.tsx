@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, useTheme, Grid, InputAdornment, Button } from '@mui/material';
+import { Box, Typography, useTheme, InputAdornment, Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
-import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { RecoupmentRecord } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -19,16 +18,12 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         totalElements,
         queryParams,
         payerOptions,
-        stats,
         handleDrillDown,
-        handleEdit,
-        handleDelete,
         handleRangeChange,
         handleFilterChange,
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
-        isError,
         searchTerm,
         setSearchTerm,
         onSearch,
@@ -86,7 +81,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         },
         { id: 'recoupmentDate', label: 'DATE', minWidth: 110, accessor: (r) => r.recoupmentDate, render: (r) => formatDate(r.recoupmentDate) },
         { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, render: (r) => <StatusBadge status={r.status} /> },
-    ], [theme, handleDrillDown, handleEdit, handleDelete, payerOptions, payerOptionsLoading, payerOptionsError]);
+    ], [theme, handleDrillDown, payerOptions, payerOptionsLoading, payerOptionsError]);
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>

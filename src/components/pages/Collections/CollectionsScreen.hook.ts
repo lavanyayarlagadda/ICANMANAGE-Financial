@@ -1,13 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
+import { openViewDialog, openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { CollectionAccount } from '@/interfaces/financials';
 import { TableQueryParams } from '@/interfaces/api';
-import { useLazyExportCollectionsQuery, useSearchCollectionsQuery } from '@/store/api/financialsApi';
-import { subMonths, format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
-import { downloadFileFromBlob } from '@/utils/downloadHelper';
 
 const DUMMY_COLLECTIONS: CollectionAccount[] = [
     {
@@ -82,7 +79,7 @@ const DUMMY_COLLECTIONS: CollectionAccount[] = [
     }
 ];
 
-export const useCollectionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
+export const useCollectionsScreen = ({ skip: _skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { globalFilters } = useAppSelector(s => s.financials);
 

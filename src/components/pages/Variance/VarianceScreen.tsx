@@ -1,8 +1,7 @@
-import React, { useMemo, useCallback } from 'react';
-import { Box, Typography, IconButton, Grid, useTheme } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import React, { useMemo } from 'react';
+import { Box, Typography, Grid, useTheme } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { InputAdornment, Button, TextField } from '@mui/material';
+import { InputAdornment, Button } from '@mui/material';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -12,9 +11,6 @@ import { themeConfig } from '@/theme/themeConfig';
 import {
     ScreenWrapper,
     HeaderSection,
-    PatientNameText,
-    BoldAmount,
-    VarianceText,
     ToolbarWrapper,
     SearchField
 } from './VarianceScreen.styles';

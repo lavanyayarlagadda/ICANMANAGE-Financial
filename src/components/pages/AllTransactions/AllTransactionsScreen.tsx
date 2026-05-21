@@ -9,7 +9,7 @@ import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { AllTransaction } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { themeConfig } from '@/theme/themeConfig';
-import { AmountText, BalanceText, transactionTypeColors, ToolbarWrapper, SearchField } from './AllTransactionsScreen.styles';
+import { transactionTypeColors, ToolbarWrapper, SearchField } from './AllTransactionsScreen.styles';
 import { useAllTransactionsScreen } from './AllTransactionsScreen.hook';
 
 const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -31,7 +31,6 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         statusOptionsError,
         filterOptionsLoading,
         filterOptionsError,
-        isError,
         globalFilters,
         searchTerm,
         setSearchTerm,
@@ -119,7 +118,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
 
             render: (r) => <StatusBadge status={r.status} />
         },
-    ], [theme.palette.error.main, theme.palette.text.primary, statusOptions, payerOptions, transactionTypeOptions, categoryOptions, filterOptionsLoading, filterOptionsError, statusOptionsLoading, statusOptionsError]);
+    ], [theme.palette.error.main, theme.palette.text.primary, statusOptions, payerOptions, transactionTypeOptions, categoryOptions, filterOptionsLoading, filterOptionsError, statusOptionsLoading, statusOptionsError, handleDrillDown]);
 
     return (
         <Box>

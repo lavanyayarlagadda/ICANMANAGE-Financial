@@ -4,17 +4,14 @@ import {
   Box,
   CircularProgress,
   IconButton,
-  MenuItem,
 } from '@mui/material';
 import { ChatBubbleOutline } from '@mui/icons-material';
-import EditIcon from '@mui/icons-material/Edit';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { useAppSelector, useAppDispatch } from '@/store';
+import { useAppSelector } from '@/store';
 import { useReconciliation, ReconciliationStatus, ReconciliationRow } from './ReconciliationScreen.hook';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { HighlightCell } from './ReconciliationScreen.styles';
-import { startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { themeConfig } from '@/theme/themeConfig';
 
 // Sub Components
@@ -25,7 +22,6 @@ import LocationTabs from './components/LocationTabs';
 import PdfPreviewDialog from './components/PdfPreviewDialog';
 import BaiDataDialog from './components/BaiDataDialog';
 import SubmitConfirmDialog from './components/SubmitConfirmDialog';
-import ReconciliationFilters from './components/ReconciliationFilters';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import CommentsDialog from './components/CommentsDialog';
@@ -36,7 +32,6 @@ import { InputAdornment, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
 const ReconciliationScreen: React.FC = () => {
-  const dispatch = useAppDispatch();
   const { activeSubTab, actionTriggers } = useAppSelector(s => s.ui);
 
   const reconciliation = useReconciliation();
@@ -55,9 +50,7 @@ const ReconciliationScreen: React.FC = () => {
     applyFilters,
     handleGlobalTransactionSearch,
     handleRangeChange,
-    activeAge,
     setActiveAge,
-    ageRanges
   } = reconciliation;
 
   // UI State
@@ -69,9 +62,8 @@ const ReconciliationScreen: React.FC = () => {
   const [submitConfirmOpen, setSubmitConfirmOpen] = useState(false);
   const [baiDataOpen, setBaiDataOpen] = useState(false);
   const [assignUserOpen, setAssignUserOpen] = useState(false);
-  const [selectedAssignee, setSelectedAssignee] = useState('All');
+  const [_selectedAssignee, setSelectedAssignee] = useState('All');
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
-  const [dateMode, setDateMode] = useState<'range' | 'day'>('range');
   const [advancedSearchOpen, setAdvancedSearchOpen] = useState(false);
 
   // Comments Dialog state
@@ -229,7 +221,7 @@ const ReconciliationScreen: React.FC = () => {
           return (val as string | number) ?? '-';
         }
       }));
-  }, [headerData, view, themeConfig]);
+  }, [headerData, view]);
 
   const handleSearchWrapper = useCallback((txNo: string) => {
     handleGlobalTransactionSearch(txNo);

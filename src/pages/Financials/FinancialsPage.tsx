@@ -150,7 +150,7 @@ const FinancialsPage: React.FC = () => {
         )}
       </>
     );
-  }, [activePage, showRemittanceDetail, theme, handleBackToPayments, handlePrint, handleReload, handleExport, tabContent, isRestricted, isLoadingUserDetails]);
+  }, [activePage, showRemittanceDetail, theme, handleBackToPayments, handlePrint, handleReload, handleExport, tabContent, isRestricted, isLoadingUserDetails, isRedirectingFromHiddenRoute]);
 
   return (
     <DashboardLayout>

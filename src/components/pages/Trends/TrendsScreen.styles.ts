@@ -1,7 +1,7 @@
 import { styled, alpha } from '@mui/material/styles';
 import { Box, Typography, Card } from '@mui/material';
 
-export const TrendsWrapper = styled(Box)(({ theme }) => ({
+export const TrendsWrapper = styled(Box)(() => ({
   padding: 0,
   display: 'flex',
   flexDirection: 'column',
@@ -34,7 +34,7 @@ export const LegendWrapper = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-export const PieChartWrapper = styled(Box)(({ theme }) => ({
+export const PieChartWrapper = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
   height: 260,

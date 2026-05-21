@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
 import { Box, Typography, ListItemButton, Avatar } from '@mui/material';
 
-export const ScreenWrapper = styled(Box)(({ theme }) => ({
+export const ScreenWrapper = styled(Box)(() => ({
   // padding handled by parent
 }));
 
@@ -31,6 +31,6 @@ export const StyledAvatar = styled(Avatar)<{ isSelected?: boolean }>(({ theme, i
   height: 32,
 }));
 
-export const MonospaceAmount = styled(Typography)(({ theme }) => ({
+export const MonospaceAmount = styled(Typography)(() => ({
   fontFamily: 'monospace',
 }));

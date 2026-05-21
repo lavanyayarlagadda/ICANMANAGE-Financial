@@ -1,13 +1,11 @@
 import React from "react";
-import { Box, Typography, useTheme } from "@mui/material";
-import { themeConfig } from "@/theme/themeConfig";
+import { Box } from "@mui/material";
 
 interface LogoProps {
   collapsed?: boolean;
 }
 
 const Logo: React.FC<LogoProps> = ({ collapsed = false }) => {
-  const theme = useTheme();
 
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>

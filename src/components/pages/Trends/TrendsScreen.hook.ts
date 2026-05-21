@@ -1,11 +1,10 @@
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import  { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import {
     setIsGlobalFetching,
     setIsReloading,
     setIsDrillingDown as setGlobalDrillingDown,
-    setActiveExportType
 } from '@/store/slices/uiSlice';
 import {
     setShowRemittanceDetail,
@@ -15,7 +14,6 @@ import {
     setSelectedClaimIndex,
     setGlobalFilters
 } from '@/store/slices/financialsSlice';
-import { format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import {
     useGetForecastSummaryQuery,

@@ -4,7 +4,6 @@ import {
   CardContent,
   Typography,
   Box,
-  Grid,
   Divider,
   useTheme,
 } from '@mui/material';

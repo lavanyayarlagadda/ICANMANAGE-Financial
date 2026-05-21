@@ -20,14 +20,11 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         payerOptions,
         // typeOptions,
         handleDrillDown,
-        handleEdit,
-        handleDelete,
         handleRangeChange,
         handleFilterChange,
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
-        isError,
         searchTerm,
         setSearchTerm,
         onSearch
@@ -75,7 +72,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         },
         { id: 'referenceId', label: 'REFERENCE ID', minWidth: 110, accessor: (r) => r.referenceId, render: (r) => r.referenceId },
         { id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status, render: (r) => <StatusBadge status={r.status} /> },
-    ], [theme, handleDrillDown, handleEdit, handleDelete]);
+    ], [theme, handleDrillDown, payerOptions]);
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>

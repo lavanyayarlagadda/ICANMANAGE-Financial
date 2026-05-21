@@ -15,8 +15,6 @@ import {
     SelectChangeEvent,
     Switch,
     InputAdornment,
-    Tabs,
-    Tab,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';

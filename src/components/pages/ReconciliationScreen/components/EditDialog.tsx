@@ -17,7 +17,7 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { GlassDialog } from '../ReconciliationScreen.styles';
 import { ReconciliationRow } from '@/interfaces/financials';
-import { themeConfig } from '@/theme/themeConfig';
+
 
 interface EftDetailsDialogProps {
     open: boolean;

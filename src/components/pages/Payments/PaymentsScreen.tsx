@@ -8,9 +8,7 @@ import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { PaymentTransaction } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { openEditDialog, openConfirmDelete } from '@/store/slices/uiSlice';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { ScreenWrapper, TransactionNumber, MonospaceBox, ToolbarWrapper, SearchField } from './PaymentsScreen.styles';
+import { ScreenWrapper, ToolbarWrapper, SearchField } from './PaymentsScreen.styles';
 import { usePaymentsScreen } from './PaymentsScreen.hook';
 
 const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -25,8 +23,6 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleSortChange,
         onPageChange,
         onRowsPerPageChange,
-        isError,
-        dispatch,
         statusOptions,
         searchTerm,
         setSearchTerm,
@@ -69,7 +65,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: statusOptions,
             render: (r) => <StatusBadge status={r.status} />
         },
-    ], [dispatch, handleDrillDown, statusOptions]);
+    ], [handleDrillDown, statusOptions]);
 
     return (
         <ScreenWrapper>

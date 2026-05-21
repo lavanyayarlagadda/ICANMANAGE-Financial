@@ -4,7 +4,6 @@ import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice
 import { useSearchBankDepositsBodyQuery, useLazyExportBankDepositsQuery, useGetBankDepositWidgetsQuery, useGetMappedHeadersDataQuery, useGetUserMappedBrandsQuery, useLazyGetBaiTriggerHistoryQuery, useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
 import { skipToken } from '@reduxjs/toolkit/query/react';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
-import { subMonths, format } from 'date-fns';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
@@ -173,7 +172,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         } finally {
             dispatch(setActiveExportType(null));
         }
-    }, [dispatch, queryParams.fromDate, queryParams.toDate, userId, selectedTenant, triggerExport]);
+    }, [dispatch, queryParams.fromDate, queryParams.toDate, userId, selectedTenant, triggerExport, selectedEntityId]);
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
@@ -230,8 +229,6 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
         setRowHistory(prev => ({ ...prev, [transactionNo]: { ...prev[transactionNo], isLoading: true } }));
         try {
             // Find the item to get its current status for the pageFlag
-            const item = bankDeposits.find((d) => d.transactionNo === transactionNo);
-            const status = item?.reconciliationStatus || item?.status || 'Pending';
             const pageFlag = 'Reconciled';
 
             const result = await triggerGetHistory({
@@ -248,7 +245,7 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
             console.error('Failed to fetch history:', err);
             setRowHistory(prev => ({ ...prev, [transactionNo]: { ...prev[transactionNo], isLoading: false } }));
         }
-    }, [rowHistory, triggerGetHistory, bankDeposits, selectedTenant]);
+    }, [rowHistory, triggerGetHistory, selectedTenant]);
 
     const toggleRow = useCallback((id: string) => {
         setExpandedRows((prev) => {

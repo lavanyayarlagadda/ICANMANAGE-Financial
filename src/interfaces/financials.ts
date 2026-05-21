@@ -30,6 +30,8 @@ export interface PaymentTransaction {
   amount?: number;
   openBalance?: number | null;
   status?: TransactionStatus;
+  adjustmentId?:string;
+  recoupmentId?:string;
 }
 
 export interface ClaimAllocation {
@@ -200,6 +202,7 @@ export interface AllTransaction {
   openBalance: number | null;
   status: TransactionStatus;
   transactionNo?: string;
+  transactionType?:string;
 }
 
 export interface CollectionAccount {

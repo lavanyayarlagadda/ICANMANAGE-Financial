@@ -4,7 +4,6 @@ import {
   Typography,
   IconButton,
   Chip,
-  useTheme,
   Grid,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -24,7 +23,6 @@ import SummaryCard from '@/components/atoms/SummaryCard';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay';
 
 const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => {
-  const theme = useTheme();
   return (
     <Box sx={{ mb: 1 }}>
       <Accordion
@@ -200,12 +198,12 @@ const StatementsScreen: React.FC = () => {
   const isMindPath =
     user?.company?.toLowerCase() === 'mindpath' ||
     selectedTenantId?.toLowerCase() === 'mindpath';
-  const { forwardBalanceNotices, pipRecords } = useAppSelector((s) => s.financials);
+  const { forwardBalanceNotices } = useAppSelector((s) => s.financials);
 
   const finalActiveSubTab = (isMindPath && activeSubTab === 0) ? 1 : activeSubTab;
 
-  const totalPipAmount = pipRecords.reduce((sum, r) => sum + Number(r.paymentAmount), 0);
-  const totalSuspenseBalance = pipRecords.reduce((sum, r) => sum + Number(r.suspenseBalance), 0);
+  // const totalPipAmount = pipRecords.reduce((sum, r) => sum + Number(r.paymentAmount), 0);
+  // const totalSuspenseBalance = pipRecords.reduce((sum, r) => sum + Number(r.suspenseBalance), 0);
 
   const totalOriginalAmount = forwardBalanceNotices.reduce((sum, r) => sum + r.originalAmount, 0);
   const totalRemainingBalance = forwardBalanceNotices.reduce((sum, r) => sum + r.remainingBalance, 0);

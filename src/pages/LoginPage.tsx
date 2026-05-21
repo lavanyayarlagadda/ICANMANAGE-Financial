@@ -14,7 +14,7 @@ import {
 import { Visibility, VisibilityOff, LockOutlined } from '@mui/icons-material';
 import { themeConfig } from '@/theme';
 import { useDispatch } from 'react-redux';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { setCredentials } from '@/store/slices/authSlice';
 import { useLoginMutation } from '@/store/api/authApi';
 
@@ -26,11 +26,8 @@ const LoginPage = () => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const location = useLocation();
     const [login, { isLoading }] = useLoginMutation();
 
-    // Get the redirect location if we came from a protected route
-    const from = location.state?.from?.pathname || '/financials';
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -72,7 +69,7 @@ const LoginPage = () => {
                 typeof (err as { data?: { message?: unknown } }).data?.message === 'string'
                     ? (err as { data?: { message?: string } }).data?.message
                     : 'Invalid username or password';
-            setErrorMsg(message);
+            setErrorMsg(message??'Login failed. Please try again.');
         }
     };
 

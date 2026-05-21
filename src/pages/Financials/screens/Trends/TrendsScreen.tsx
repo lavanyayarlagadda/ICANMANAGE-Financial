@@ -289,7 +289,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 />
             )}
         </>
-    ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns, isMindpath, globalFilters.rangeLabel, isFetching]);
+    ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns, isMindpath, globalFilters.rangeLabel, isFetching, globalFilters.fromDate]);
 
     const payerColumns = useMemo<DataColumn<PayerPerformanceRecord>[]>(() => [
         {

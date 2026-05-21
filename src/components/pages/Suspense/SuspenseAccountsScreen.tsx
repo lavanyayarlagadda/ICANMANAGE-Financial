@@ -28,16 +28,15 @@ import Button from '@/components/atoms/Button/Button';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useSuspenseAccountsScreen } from './SuspenseAccountsScreen.hook';
 import * as styles from './SuspenseAccountsScreen.styles';
-import { SUSPENSE_ACCOUNTS, BY_ACCOUNT_DATA, BY_PAYER_DATA, BY_MONTH_DATA } from './SuspenseAccounts.constants';
+import { SUSPENSE_ACCOUNTS, BY_PAYER_DATA, BY_MONTH_DATA } from './SuspenseAccounts.constants';
 import { themeConfig } from '@/theme/themeConfig';
 import { useTheme } from '@mui/material/styles';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import DataTable from '@/components/molecules/DataTable/DataTable';
-import { SuspenseAccountSearchResponse, TableQueryParams } from '@/interfaces/api';
+
 
 
 const ManageAccountsModal = ({ open, onClose }: { open: boolean, onClose: () => void }) => {
-    const theme = useTheme();
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ fontWeight: 700, px: 3, pt: 3 }}>Manage Suspense Accounts</DialogTitle>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, Typography, Box, IconButton, Divider } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, Typography, Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { GlassDialog } from '../ReconciliationScreen.styles';

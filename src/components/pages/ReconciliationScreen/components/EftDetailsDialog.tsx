@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,16 +9,11 @@ import {
   Typography,
   IconButton,
   TextField,
-  MenuItem,
   Button,
-  Menu,
-  ListItemIcon,
-  ListItemText,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { GlassDialog, SectionSidebar, ModernUploadZone, DynamicTableContainer } from '../ReconciliationScreen.styles';
@@ -64,7 +59,7 @@ const PopupTable: React.FC<{
               >
                 {cell === 'Delete' ? (
                   <IconButton size="small" color="error" onClick={() => onDeleteClick?.(ri)}>
-                    <DeleteIcon fontSize="small" />
+                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 ) : (
                   cell
@@ -83,7 +78,7 @@ const PopupTable: React.FC<{
 );
 
 const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
-  view,
+  view: _view,
   open,
   onClose,
   selectedRow,
@@ -95,7 +90,6 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
   setBaiDataOpen,
   setPdfPreviewOpen
 }) => {
-  const isMyQueue = view === 'my-queue';
 
   return (
     <Dialog

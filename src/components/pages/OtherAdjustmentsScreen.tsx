@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { Box, Typography, Chip, useTheme } from '@mui/material';
+import React, { useRef, useEffect, useCallback } from 'react';
+import { Typography, Chip, useTheme } from '@mui/material';
 import DataTable, { DataColumn } from '@/components/molecules/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown';
 import StatusBadge from '@/components/atoms/StatusBadge';
@@ -7,7 +7,7 @@ import RowActionMenu from '@/components/molecules/RowActionMenu';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { OtherAdjustmentRecord } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
-import { openViewDialog, openEditDialog, openConfirmDelete, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
+import { openViewDialog, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
 
 const adjustmentTypeColors: Record<string, string> = {
   'WRITE-OFF': '#C62828',
@@ -30,27 +30,27 @@ const OtherAdjustmentsScreen: React.FC = () => {
   const printCount = useRef(actionTriggers.print);
   const reloadCount = useRef(actionTriggers.reload);
 
-  const handleExport = (format: 'pdf' | 'xlsx') => {
+  const handleExport = useCallback((format: 'pdf' | 'xlsx') => {
     dispatch(setActiveExportType(format));
     setTimeout(() => {
       dispatch(setActiveExportType(null));
       alert(`Exporting Other Adjustments as ${format.toUpperCase()}... (Endpoint pending)`);
     }, 1200);
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     if (actionTriggers.export > exportCount.current) {
       handleExport('xlsx');
       exportCount.current = actionTriggers.export;
     }
-  }, [actionTriggers.export]);
+  }, [actionTriggers.export, handleExport]);
 
   useEffect(() => {
     if (actionTriggers.print > printCount.current) {
       handleExport('pdf');
       printCount.current = actionTriggers.print;
     }
-  }, [actionTriggers.print]);
+  }, [actionTriggers.print, handleExport]);
 
   useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {

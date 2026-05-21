@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles';
 import { Box, Typography } from '@mui/material';
 import { themeConfig } from '@/theme/themeConfig';
 
-export const ScreenWrapper = styled(Box)(({ theme }) => ({
+export const ScreenWrapper = styled(Box)(() => ({
   // padding handled by parent or layout usually, but we can add specific padding here if needed
 }));
 
@@ -10,11 +10,11 @@ export const HeaderBox = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
 }));
 
-export const AccountNumberText = styled(Typography)(({ theme }) => ({
+export const AccountNumberText = styled(Typography)(() => ({
   fontWeight: 600,
 }));
 
-export const MonospaceBox = styled(Box)(({ theme }) => ({
+export const MonospaceBox = styled(Box)(() => ({
   fontFamily: 'monospace',
 }));
 

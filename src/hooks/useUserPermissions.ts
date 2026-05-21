@@ -6,7 +6,6 @@ import { MenuAccess } from '@/store/slices/authSlice';
 
 export const useUserPermissions = () => {
   const authUser = useAppSelector((state) => state.auth.user);
-  const { tenants } = useAppSelector((s) => s.tenant);
 
   // Skip only when no authenticated user is present.
   const shouldSkipDetails = !authUser;

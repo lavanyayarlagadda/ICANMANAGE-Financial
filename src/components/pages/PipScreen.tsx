@@ -6,7 +6,7 @@ import StatusBadge from "@/components/atoms/StatusBadge";
 import { PipRecord, NpiAllocation } from "@/types/financials";
 import DataTable, { DataColumn } from "../molecules/DataTable";
 import RangeDropdown from "@/components/atoms/RangeDropdown";
-import { Box, Typography, IconButton, Chip, CircularProgress } from "@mui/material";
+import { Box, Typography, IconButton, Chip } from "@mui/material";
 import MultiValueDisplay from "@/components/atoms/MultiValueDisplay";
 import { formatCurrency, formatPercent } from "@/utils/formatters";
 import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery } from "@/store/api/financialsApi";
@@ -15,7 +15,7 @@ import SummaryCard from "@/components/atoms/SummaryCard";
 import { subMonths, format } from 'date-fns';
 import { useAppSelector, useAppDispatch } from "@/store";
 import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
-import { useRef } from 'react';
+import { useRef, useCallback } from 'react';
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
 
 interface Props {
@@ -88,7 +88,7 @@ export const NpiSection: React.FC<Props> = ({ allocation }) => {
 
 const PipScreen: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { actionTriggers, activeExportType, isReloading } = useAppSelector(s => s.ui);
+  const { actionTriggers } = useAppSelector(s => s.ui);
   const user = useAppSelector(s => s.auth.user);
   const { selectedTenantId } = useAppSelector(s => s.tenant);
 
@@ -111,7 +111,7 @@ const PipScreen: React.FC = () => {
     toDate: format(new Date(), 'yyyy-MM-dd'),
   });
 
-  const { data, isLoading, isError, isFetching, refetch } = useSearchPipQuery({
+  const { data, isError, isFetching, refetch } = useSearchPipQuery({
     page: queryParams.page + 1, // API is 1-indexed
     size: queryParams.size,
     sort: queryParams.sortField,
@@ -132,7 +132,7 @@ const PipScreen: React.FC = () => {
 
   const [triggerExport] = useLazyExportPipQuery();
 
-  const handleExport = async (formatType: 'pdf' | 'xlsx') => {
+  const handleExport = useCallback(async (formatType: 'pdf' | 'xlsx') => {
     try {
       dispatch(setActiveExportType(formatType));
       const result = await triggerExport({
@@ -152,7 +152,7 @@ const PipScreen: React.FC = () => {
     } finally {
       dispatch(setActiveExportType(null));
     }
-  };
+  }, [dispatch, triggerExport, queryParams.fromDate, queryParams.toDate]);
 
   // Sync isFetching to global store - guard against redundant dispatches
   const lastFetching = useRef(false);
@@ -174,14 +174,14 @@ const PipScreen: React.FC = () => {
       handleExport('xlsx');
       exportCount.current = actionTriggers.export;
     }
-  }, [actionTriggers.export]);
+  }, [actionTriggers.export, handleExport]);
 
   useEffect(() => {
     if (actionTriggers.print > printCount.current) {
       handleExport('pdf');
       printCount.current = actionTriggers.print;
     }
-  }, [actionTriggers.print]);
+  }, [actionTriggers.print, handleExport]);
 
   useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {

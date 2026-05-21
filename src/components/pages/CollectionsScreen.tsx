@@ -11,7 +11,6 @@ import { useAppSelector, useAppDispatch } from '@/store';
 import { CollectionAccount } from '@/types/financials';
 import { formatCurrency } from '@/utils/formatters';
 import { openViewDialog, openEditDialog, openConfirmDelete, setIsReloading } from '@/store/slices/uiSlice';
-import { useRef, useEffect } from 'react';
 
 const priorityColors: Record<string, { bg: string; text: string }> = {
   High: { bg: '#FFEBEE', text: '#C62828' },

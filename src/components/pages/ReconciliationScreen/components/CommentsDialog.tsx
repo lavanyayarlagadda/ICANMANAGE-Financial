@@ -20,7 +20,7 @@ interface CommentsDialogProps {
   row: ReconciliationRow | null;
 }
 
-const CommentsDialog: React.FC<CommentsDialogProps> = ({ open, onClose, row }) => {
+const CommentsDialog: React.FC<CommentsDialogProps> = ({ open, onClose, row: _row }) => {
   // Mock comments history
   const history = [
     { text: 'Gl Amount updated to 123.0', user: 'Naga Kiran', date: '04/06/2026' },

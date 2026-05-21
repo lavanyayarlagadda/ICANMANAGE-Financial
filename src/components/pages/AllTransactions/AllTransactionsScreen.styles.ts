@@ -8,7 +8,7 @@ export const AmountText = styled(Typography)<{ amount: number }>(({ theme, amoun
   color: amount < 0 ? theme.palette.error.main : theme.palette.text.primary,
 }));
 
-export const BalanceText = styled(Typography)(({ theme }) => ({
+export const BalanceText = styled(Typography)(() => ({
   fontFamily: 'monospace',
 }));
 

@@ -1,11 +1,9 @@
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import {
-    openViewDialog,
     openEditDialog,
     openConfirmDelete,
     setActiveExportType,
-    setIsReloading,
     setIsGlobalFetching,
     setIsDrillingDown as setGlobalDrillingDown
 } from '@/store/slices/uiSlice';
@@ -17,7 +15,7 @@ import {
     setSelectedClaimIndex,
     setGlobalFilters
 } from '@/store/slices/financialsSlice';
-import { RecoupmentRecord, RemittanceDetail, PaymentTransaction } from '@/interfaces/financials';
+import { RecoupmentRecord, RemittanceDetail } from '@/interfaces/financials';
 import {
     useLazyExportRecoupmentsQuery,
     useLazyGetRemittanceClaimsQuery,
@@ -26,7 +24,6 @@ import {
     useGetRecoupmentFiltersQuery
 } from '@/store/api/financialsApi';
 import { TableQueryParams } from '@/interfaces/api';
-import { subMonths, format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { isRemittanceDetail, normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
@@ -72,7 +69,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         }));
     }, [globalFilters.fromDate, globalFilters.toDate]);
 
-    const [drillDownParams, setDrillDownParams] = useState({
+    const [drillDownParams] = useState({
         page: 0,
         size: 10,
         sortField: 'paymentDate',

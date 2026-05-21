@@ -11,9 +11,6 @@ import { formatCurrency, formatDate } from '@/utils/formatters';
 import {
     ScreenWrapper,
     HeaderBox,
-    AccountNumberText,
-    MonospaceBox,
-    BalanceText,
     priorityColors,
 } from './CollectionsScreen.styles';
 import { useCollectionsScreen } from './CollectionsScreen.hook';
@@ -31,7 +28,6 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleSortChange,
         handlePageChange,
         handleRowsPerPageChange,
-        isError,
     } = useCollectionsScreen({ skip });
     const theme = useTheme();
 

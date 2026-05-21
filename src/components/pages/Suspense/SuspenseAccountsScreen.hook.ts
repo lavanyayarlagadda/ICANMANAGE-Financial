@@ -1,9 +1,8 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { useSearchSuspenseAccountsQuery } from '@/store/api/financialsApi';
-import { subMonths, format } from 'date-fns';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 
 export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } = {}) => {

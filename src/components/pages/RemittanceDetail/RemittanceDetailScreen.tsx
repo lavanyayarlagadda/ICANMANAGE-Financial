@@ -7,7 +7,6 @@ import {
     ListItemText,
     ListItemAvatar,
     CircularProgress,
-    Stack,
     Pagination,
     alpha
 } from '@mui/material';
@@ -24,9 +23,7 @@ import {
     SectionHeader,
     PatientNameHeader,
     StyledListItemButton,
-    StyledAvatar,
-    MonospaceAmount
-} from './RemittanceDetailScreen.styles';
+    StyledAvatar} from './RemittanceDetailScreen.styles';
 import { useRemittanceDetailScreen } from './RemittanceDetailScreen.hook';
 
 const RemittanceDetailScreen: React.FC = () => {

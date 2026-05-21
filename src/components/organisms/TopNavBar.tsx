@@ -14,18 +14,10 @@ import {
   Divider,
   FormControl,
   Select,
-  InputLabel,
   SelectChangeEvent,
 } from '@mui/material';
-import Button from '@/components/atoms/Button';
 import MenuIcon from '@mui/icons-material/Menu';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
 import LogoutIcon from '@mui/icons-material/Logout';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import { RootState, useAppSelector, useAppDispatch } from '@/store';
 import { logout } from '@/store/slices/authSlice';
 import { toggleSidebarCollapse } from '@/store/slices/uiSlice';
@@ -48,7 +40,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
   const dispatch = useAppDispatch();
 
   const user = useAppSelector((state: RootState) => state.auth.user);
-  const { selectedTenantId, tenants, isLoading: isTenantsGlobalLoading } = useAppSelector((state: RootState) => state.tenant);
+  const { selectedTenantId } = useAppSelector((state: RootState) => state.tenant);
 
   const isCognitiveUser =
     user?.company?.toLowerCase() === 'cognitivehealthit' ||
@@ -92,16 +84,6 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
     handleClose();
     dispatch(logout());
     navigate('/login');
-  };
-
-  const openProfile = () => {
-    handleClose();
-    navigate('/profile');
-  };
-
-  const openDemoModal = () => {
-    handleClose();
-    setDemoModalOpen(true);
   };
 
   if (!user) return null;

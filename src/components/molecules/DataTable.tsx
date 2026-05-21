@@ -146,7 +146,7 @@ function DataTable<T>({
     }
   }, [dictionaryId]);
 
-  const handleHeaderClick = (colId: string, label: string) => {
+  const handleHeaderClick = (colId: string, _label: string) => {
     if (descriptions && descriptions[colId]) {
       setSelectedField(descriptions[colId]);
       setDictionaryOpen(true);

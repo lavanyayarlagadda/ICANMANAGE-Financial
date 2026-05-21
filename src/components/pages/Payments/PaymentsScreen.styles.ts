@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
 import { Box, Typography, TextField } from '@mui/material';
 
-export const ScreenWrapper = styled(Box)(({ theme }) => ({
+export const ScreenWrapper = styled(Box)(() => ({
   position: 'relative',
   display: 'flex',
   flexDirection: 'column',
@@ -18,7 +18,7 @@ export const TransactionNumber = styled(Typography)(({ theme }) => ({
   }
 }));
 
-export const MonospaceBox = styled(Box)(({ theme }) => ({
+export const MonospaceBox = styled(Box)(() => ({
   fontFamily: 'monospace',
 }));
 

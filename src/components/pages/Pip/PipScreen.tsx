@@ -68,12 +68,10 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     handleSortChange,
     handlePageChange,
     handleRowsPerPageChange,
-    handleExport,
     searchTerm,
     setSearchTerm,
     onSearch,
     statusOptions,
-    isError,
   } = usePipScreen({ skip });
   const theme = useTheme();
 

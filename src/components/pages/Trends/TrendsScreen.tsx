@@ -287,7 +287,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 />
             )}
         </>
-    ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns, isMindpath, globalFilters.rangeLabel]);
+    ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns, isMindpath, globalFilters.rangeLabel, globalFilters.fromDate]);
 
     const payerColumns = useMemo<DataColumn<PayerPerformanceRecord>[]>(() => [
         {
@@ -466,7 +466,7 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Grid>
             </Box>
         );
-    }, [execSummary, paymentMix, adjBreakdown, theme, isMindpath]);
+    }, [execSummary, paymentMix, adjBreakdown, isMindpath]);
 
     return (
         <TrendsWrapper>

@@ -15,8 +15,8 @@ import {
 import { addMonths, format, parse, subMonths } from 'date-fns';
 import PrintIcon from '@mui/icons-material/Print';
 import summaryContract from '@/data/depositReconciliationExecutiveSummary.json';
-import { useAppDispatch } from '@/store';
-import { setIsGlobalFetching } from '@/store/slices/uiSlice';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { setIsGlobalFetching, setIsReloading } from '@/store/slices/uiSlice';
 import {
   useGetDepositReconciliationAdjustedCashDepositQuery,
   useGetDepositReconciliationAgingQuery,
@@ -779,14 +779,49 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({skip = false
 
   // Base trends endpoint is intentionally disabled for this project.
   // const { data: pageResponse, isFetching: isFetchingPage } = useGetDepositReconciliationPageQuery(queryParams, { skip: skip ?? false });
-  const { data: executiveResponse, isFetching: isFetchingExecutive } = useGetDepositReconciliationExecutiveSummaryQuery(trendsQueryParams, { skip: skip ?? false });
-  const { data: agingResponse, isFetching: isFetchingAging } = useGetDepositReconciliationAgingQuery(agingQueryParams, { skip: skip ?? false });
-  const { data: adjustedCashResponse, isFetching: isFetchingAdjustedCash } = useGetDepositReconciliationAdjustedCashDepositQuery(trendsQueryParams, { skip: skip ?? false });
-  const { data: reconciledResponse, isFetching: isFetchingReconciled } = useGetDepositReconciliationPostedEmrReconciledQuery(trendsQueryParams, { skip: skip ?? false });
-  const { data: unreconciledResponse, isFetching: isFetchingUnreconciled } = useGetDepositReconciliationPostedEmrUnreconciledQuery(trendsQueryParams, { skip: skip ?? false });
+  const { data: executiveResponse, isFetching: isFetchingExecutive, refetch: refetchExecutive } = useGetDepositReconciliationExecutiveSummaryQuery(trendsQueryParams, { skip: skip ?? false });
+  const { data: agingResponse, isFetching: isFetchingAging, refetch: refetchAging } = useGetDepositReconciliationAgingQuery(agingQueryParams, { skip: skip ?? false });
+  const { data: adjustedCashResponse, isFetching: isFetchingAdjustedCash, refetch: refetchAdjustedCash } = useGetDepositReconciliationAdjustedCashDepositQuery(trendsQueryParams, { skip: skip ?? false });
+  const { data: reconciledResponse, isFetching: isFetchingReconciled, refetch: refetchReconciled } = useGetDepositReconciliationPostedEmrReconciledQuery(trendsQueryParams, { skip: skip ?? false });
+  const { data: unreconciledResponse, isFetching: isFetchingUnreconciled, refetch: refetchUnreconciled } = useGetDepositReconciliationPostedEmrUnreconciledQuery(trendsQueryParams, { skip: skip ?? false });
   // Other Category endpoint is intentionally disabled for this project.
   // const { data: otherCategoryResponse, isFetching: isFetchingOtherCategory } = useGetDepositReconciliationOtherCategoryQuery(trendsQueryParams, { skip: skip ?? false });
-  const { data: topPayersResponse, isFetching: isFetchingTopPayers } = useGetDepositReconciliationTopPayersQuery(trendsQueryParams, { skip: skip ?? false });
+  const { data: topPayersResponse, isFetching: isFetchingTopPayers, refetch: refetchTopPayers } = useGetDepositReconciliationTopPayersQuery(trendsQueryParams, { skip: skip ?? false });
+
+  const { actionTriggers } = useAppSelector((s) => s.ui);
+  const printCount = React.useRef(actionTriggers.print);
+  const reloadCount = React.useRef(actionTriggers.reload);
+
+  React.useEffect(() => {
+    if (actionTriggers.print > printCount.current) {
+      handleExportPdf();
+      printCount.current = actionTriggers.print;
+    }
+  }, [actionTriggers.print, handleExportPdf]);
+
+  React.useEffect(() => {
+    if (actionTriggers.reload > reloadCount.current) {
+      const doReload = async () => {
+        try {
+          dispatch(setIsReloading(true));
+          await Promise.all([
+            refetchExecutive(),
+            refetchAging(),
+            refetchAdjustedCash(),
+            refetchReconciled(),
+            refetchUnreconciled(),
+            refetchTopPayers()
+          ]);
+        } catch (err) {
+          console.error('Reload failed:', err);
+        } finally {
+          dispatch(setIsReloading(false));
+        }
+      };
+      doReload();
+      reloadCount.current = actionTriggers.reload;
+    }
+  }, [actionTriggers.reload, dispatch, refetchExecutive, refetchAging, refetchAdjustedCash, refetchReconciled, refetchUnreconciled, refetchTopPayers]);
 
   const isLoadingData =
     isFetchingExecutive ||
@@ -940,18 +975,8 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({skip = false
                   {opt}
                 </Button>
               ))}
-            </ButtonGroup>
+              </ButtonGroup>
           </Box>
-
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<PrintIcon fontSize="small" />}
-            onClick={handleExportPdf}
-            disabled={isExportingPdf}
-          >
-            {contract.controls.export.actionText}
-          </Button>
         </Stack>
       </Box>
 

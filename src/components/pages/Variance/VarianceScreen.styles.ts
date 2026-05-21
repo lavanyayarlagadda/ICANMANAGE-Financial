@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
 import { Box, Typography, TextField } from '@mui/material';
 
-export const ScreenWrapper = styled(Box)(({ theme }) => ({
+export const ScreenWrapper = styled(Box)(() => ({
   // padding handled by parent
 }));
 
@@ -15,7 +15,7 @@ export const PatientNameText = styled(Typography)(({ theme }) => ({
   textTransform: 'uppercase',
 }));
 
-export const BoldAmount = styled(Typography)(({ theme }) => ({
+export const BoldAmount = styled(Typography)(() => ({
   fontWeight: 600,
 }));
 
