@@ -13,9 +13,6 @@ interface UseDemoSecurityModalProps {
 export type PasswordPolicy = '15 Days' | '30 Days' | '60 Days' | '90 Days' | 'Never';
 export const PASSWORD_POLICY_OPTIONS: PasswordPolicy[] = ['15 Days', '30 Days', '60 Days', '90 Days', 'Never'];
 export const MODULE_STATUS_OPTIONS: MenuStatus[] = ['Active', 'Hidden', 'Disabled'];
-const DEPOSIT_RECON_MENU_ID = -9001;
-const DEPOSIT_RECON_STATUS_KEY = 'ican_deposit_reconciliation_status';
-
 const isMenuStatus = (value: string): value is MenuStatus =>
   MODULE_STATUS_OPTIONS.includes(value as MenuStatus);
 
@@ -38,12 +35,6 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
   const [moduleSelectionEnabled, setModuleSelectionEnabled] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [moduleStatuses, setModuleStatuses] = useState<Record<number, MenuStatus>>({});
-  const depositReconStorageKey = useMemo(() => `${DEPOSIT_RECON_STATUS_KEY}_${selectedUser || currentUser.id}`, [selectedUser, currentUser.id]);
-
-  const getSavedDepositReconStatus = useCallback((): MenuStatus => {
-    const saved = localStorage.getItem(depositReconStorageKey);
-    return saved === 'Hidden' || saved === 'Disabled' || saved === 'Active' ? saved : 'Active';
-  }, [depositReconStorageKey]);
 
   const users = useMemo(() => {
     return meDetails?.users || meDetails?.usersDropdown?.map(u => ({ id: String(u.userId), username: u.username, firstName: '', lastName: '', role: 'User' })) || [];
@@ -88,10 +79,9 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       };
 
       populateMap(menuConfig.menus);
-      statusMap[DEPOSIT_RECON_MENU_ID] = getSavedDepositReconStatus();
       setModuleStatuses(statusMap);
     }
-  }, [menuConfig, getSavedDepositReconStatus]);
+  }, [menuConfig]);
 
   const handleUserChange = useCallback((event: SelectChangeEvent<string>) => {
     const userId = event.target.value;
@@ -206,7 +196,6 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       }).unwrap();
 
       localStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
-      localStorage.setItem(depositReconStorageKey, moduleStatuses[DEPOSIT_RECON_MENU_ID] || 'Active');
       window.dispatchEvent(new Event('ican_inactivity_timeout_changed'));
 
       // Give a tiny delay for RTK Query to start refetching and for the user to see 'Success'
@@ -215,37 +204,11 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
     } catch (error) {
       console.error('Failed to save menu config:', error);
     }
-  }, [selectedUser, moduleSelectionEnabled, moduleStatuses, menuConfig, updateMenuConfig, inactivityTimeout, onClose, depositReconStorageKey]);
+  }, [selectedUser, moduleSelectionEnabled, moduleStatuses, menuConfig, updateMenuConfig, inactivityTimeout, onClose]);
 
   const menusWithDepositRecon = useMemo(() => {
-    if (!menuConfig?.menus) return [];
-
-    const clone = JSON.parse(JSON.stringify(menuConfig.menus)) as EffectiveMenuItem[];
-    const trendsModule = clone
-      .flatMap((menu) => menu.modules || [])
-      .find((mod) => mod.menuName.toLowerCase().includes('trend'));
-
-    if (!trendsModule) return clone;
-
-    const existing = (trendsModule.subModules || []).some(
-      (sub) => sub.menuName.toLowerCase() === 'deposit reconciliation'
-    );
-
-    if (!existing) {
-      const depositStatus = moduleStatuses[DEPOSIT_RECON_MENU_ID] || getSavedDepositReconStatus();
-      const newSub: EffectiveSubMenuItem = {
-        menuId: DEPOSIT_RECON_MENU_ID,
-        menuName: 'Deposit Reconciliation',
-        effectiveStatus: depositStatus,
-        source: 'LOCAL_OVERRIDE',
-        roleStatus: 'Active',
-        statusAfterTenantFeatures: depositStatus
-      };
-      trendsModule.subModules = [...(trendsModule.subModules || []), newSub];
-    }
-
-    return clone;
-  }, [menuConfig?.menus, moduleStatuses, getSavedDepositReconStatus]);
+    return menuConfig?.menus || [];
+  }, [menuConfig?.menus]);
 
   const userBeingEdited = users.find(u => u.id === selectedUser);
   const selectedUsername = userBeingEdited ? userBeingEdited.username : currentUser.username;
@@ -288,16 +251,13 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       );
       if (statusesChanged) return true;
 
-      // 3. Check Deposit Reconciliation local status override
-      if ((moduleStatuses[DEPOSIT_RECON_MENU_ID] || 'Active') !== getSavedDepositReconStatus()) return true;
-
-      // 4. Check others
+      // 3. Check others
       if (moduleSelectionEnabled !== true) return true; // Assuming default is true
       if (inactivityTimeout !== (localStorage.getItem('ican_inactivity_timeout') || '15')) return true;
       if (passwordPolicy !== '30 Days') return true; // Assuming default
 
       return false;
-    }, [menuConfig, moduleStatuses, moduleSelectionEnabled, inactivityTimeout, passwordPolicy, selectedUser, users, currentUser.id, getSavedDepositReconStatus]),
+    }, [menuConfig, moduleStatuses, moduleSelectionEnabled, inactivityTimeout, passwordPolicy, selectedUser, users, currentUser.id]),
     setInactivityTimeout,
     setPasswordPolicy,
     setModuleSelectionEnabled,
