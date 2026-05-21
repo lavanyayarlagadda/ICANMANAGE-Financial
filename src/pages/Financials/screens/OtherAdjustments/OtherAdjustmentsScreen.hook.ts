@@ -157,7 +157,7 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
     const handleDrillDown = useCallback(async (row: OtherAdjustmentRecord) => {
         try {
             dispatch(setGlobalDrillingDown(true));
-            const identifier = row.adjustmentId || row.referenceId || row.id || '';
+            const identifier =row.transactionNo || '';
             if (identifier) {
                 dispatch(setSelectedPaymentId(identifier));
 
