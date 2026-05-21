@@ -28,30 +28,14 @@ export const NpiDataRow = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const ToolbarWrapper = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'stretch',
-  backgroundColor: theme.palette.background.default,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(1),
-  padding: theme.spacing(1.5),
-  gap: theme.spacing(2),
-  marginBottom: theme.spacing(3),
-  [theme.breakpoints.up('md')]: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-}));
-
+/** Sits next to Status in DataTable filter row (sibling flex items, not a full-width row) */
 export const SearchField = styled(TextField)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
-  flex: '1 1 auto',
-  [theme.breakpoints.up('md')]: {
-    flex: '0 0 320px',
-  },
+  flex: '0 0 150px',
+  width: 150,
+  minWidth: 120,
   '& .MuiOutlinedInput-root': {
     height: 36,
-    fontSize: '13px'
-  }
+    fontSize: '13px',
+  },
 }));

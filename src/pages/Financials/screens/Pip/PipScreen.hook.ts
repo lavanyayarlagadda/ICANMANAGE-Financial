@@ -1,21 +1,46 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "@/store";
 import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
-import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery, useGetPaymentStatusQuery } from "@/store/api/financialsApi";
-import { TableQueryParams } from "@/interfaces/api";
+import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery } from "@/store/api/financialsApi";
+import { useLazyGetPipDetailsQuery } from "@/store/api/analyticsApi";
+import { PipRecord, NpiAllocation } from "@/interfaces/financials";
+import { useGetAllTransactionsFiltersQuery } from "@/store/api/transactionsApi";
+import { PipSearchRequest, TableQueryParams } from "@/interfaces/api";
 import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from "@/constants/common";
-
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
 import { setGlobalFilters } from "@/store/slices/financialsSlice";
 import { formatDateForFilename } from "@/utils/formatters";
 
+export type PipSearchFilters = Pick<
+    PipSearchRequest,
+    'ptanNo' | 'checkEftNo' | 'npiPayerName' | 'claimId' | 'patientName'
+>;
+
+const EMPTY_PIP_SEARCH_FILTERS: PipSearchFilters = {
+    ptanNo: '',
+    checkEftNo: '',
+    npiPayerName: '',
+    claimId: '',
+    patientName: '',
+};
+
+/** Only non-empty optional filters are sent; all five search fields are optional. */
+function optionalPipSearchFields(filters: PipSearchFilters): Partial<PipSearchFilters> {
+    const out: Partial<PipSearchFilters> = {};
+    (Object.keys(EMPTY_PIP_SEARCH_FILTERS) as (keyof PipSearchFilters)[]).forEach((key) => {
+        const value = filters[key]?.trim();
+        if (value) {
+            out[key] = value;
+        }
+    });
+    return out;
+}
 
 export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
     const { actionTriggers } = useAppSelector(s => s.ui);
     const { globalFilters } = useAppSelector(s => s.financials);
-    // const { canViewPip } = useUserPermissions();
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
@@ -33,21 +58,24 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         transactionNo: '',
     });
 
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchFilters, setSearchFilters] = useState<PipSearchFilters>(EMPTY_PIP_SEARCH_FILTERS);
+    const [appliedSearchFilters, setAppliedSearchFilters] = useState<PipSearchFilters>(EMPTY_PIP_SEARCH_FILTERS);
 
-    const handleSearch = useCallback((term: string) => {
-        setSearchTerm(term);
-        setQueryParams(prev => ({ ...prev, transactionNo: term, page: 0 }));
+    const handleSearchFilterChange = useCallback((field: keyof PipSearchFilters, value: string) => {
+        setSearchFilters((prev) => ({ ...prev, [field]: value }));
     }, []);
 
-    // Handle auto-reset when search is cleared
-    useEffect(() => {
-        if (searchTerm === '' && queryParams.transactionNo !== '') {
-            setQueryParams(prev => ({ ...prev, transactionNo: '', page: 0 }));
-        }
-    }, [searchTerm, queryParams.transactionNo]);
+    const handleApplySearch = useCallback(() => {
+        setAppliedSearchFilters({ ...searchFilters });
+        setQueryParams((prev) => ({ ...prev, page: 0 }));
+    }, [searchFilters]);
 
-    // Keep local queryParams in sync with global filters
+    const handleClearSearch = useCallback(() => {
+        setSearchFilters(EMPTY_PIP_SEARCH_FILTERS);
+        setAppliedSearchFilters(EMPTY_PIP_SEARCH_FILTERS);
+        setQueryParams((prev) => ({ ...prev, page: 0 }));
+    }, []);
+
     useEffect(() => {
         setQueryParams(prev => ({
             ...prev,
@@ -67,23 +95,44 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
         status: queryParams.status,
-        payer: queryParams.payer,
-        category: queryParams.category,
-        transactionNo: queryParams.transactionNo,
+        ...optionalPipSearchFields(appliedSearchFilters),
+        includeDetails: false,
     }, { skip: isActualSkip });
+
+    const [fetchPipDetails] = useLazyGetPipDetailsQuery();
+    const [detailsByPtan, setDetailsByPtan] = useState<Record<string, NpiAllocation[]>>({});
+    const [loadingDetailsPtans, setLoadingDetailsPtans] = useState<Set<string>>(new Set());
+    const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        setDetailsByPtan({});
+        setExpandedRows(new Set());
+    }, [
+        queryParams.fromDate,
+        queryParams.toDate,
+        appliedSearchFilters,
+        queryParams.status,
+        queryParams.page,
+        queryParams.size,
+        queryParams.sortField,
+        queryParams.sortOrder,
+    ]);
 
     const { data: pipSummaryData, isFetching: isFetchingSummary } = useGetPipSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
     }, { skip: isActualSkip });
 
-    const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
+    const { data: dropdownData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
     const statusOptions = useMemo(() => {
-        return statusData?.data?.map((s) => ({
-            label: s.postingStatus,
-            value: String(s.postingStatusMasterId)
-        })) ?? [];
-    }, [statusData]);
+        if (dropdownData?.data?.transactionStatusTypes) {
+            return dropdownData.data.transactionStatusTypes.map((status) => ({
+                label: status,
+                value: status
+            }));
+        }
+        return [];
+    }, [dropdownData]);
 
     const isAnyFetching = isFetching || isFetchingSummary;
 
@@ -155,17 +204,64 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         }
     }, [actionTriggers.reload, isActualSkip, refetch, dispatch]);
 
-    const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+    const pipRecords = useMemo(() => {
+        const content = data?.data?.content ?? [];
+        return content.map((row) => ({
+            ...row,
+            npiDetails: detailsByPtan[row.ptan] ?? row.npiDetails ?? [],
+        }));
+    }, [data?.data?.content, detailsByPtan]);
 
-    const toggleRow = useCallback((id: string, e: React.MouseEvent) => {
+    const toggleRow = useCallback(async (row: PipRecord, e: React.MouseEvent) => {
         e.stopPropagation();
-        setExpandedRows((prev) => {
-            const newSet = new Set(prev);
-            if (newSet.has(id)) newSet.delete(id);
-            else newSet.add(id);
-            return newSet;
-        });
-    }, []);
+        const id = row.id || row.ptan;
+        const isExpanded = expandedRows.has(id);
+        if (isExpanded) {
+            setExpandedRows((prev) => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+            });
+            return;
+        }
+
+        setExpandedRows((prev) => new Set(prev).add(id));
+
+        const hasDetails = (detailsByPtan[row.ptan]?.length ?? 0) > 0 || (row.npiDetails?.length ?? 0) > 0;
+        if (hasDetails || loadingDetailsPtans.has(row.ptan)) {
+            return;
+        }
+
+        setLoadingDetailsPtans((prev) => new Set(prev).add(row.ptan));
+        try {
+            const result = await fetchPipDetails({
+                ptan: row.ptan,
+                fromDate: queryParams.fromDate,
+                toDate: queryParams.toDate,
+            }).unwrap();
+            setDetailsByPtan((prev) => ({ ...prev, [row.ptan]: result.data ?? [] }));
+        } catch (err) {
+            console.error("Failed to load PIP details:", err);
+            setExpandedRows((prev) => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+            });
+        } finally {
+            setLoadingDetailsPtans((prev) => {
+                const next = new Set(prev);
+                next.delete(row.ptan);
+                return next;
+            });
+        }
+    }, [
+        expandedRows,
+        detailsByPtan,
+        loadingDetailsPtans,
+        fetchPipDetails,
+        queryParams.fromDate,
+        queryParams.toDate,
+    ]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
@@ -209,8 +305,8 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const handleRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
     return {
-        // canViewPip,
-        pipRecords: data?.data?.content ?? [],
+        pipRecords,
+        loadingDetailsPtans,
         totalElements: data?.data?.totalElements ?? 0,
         pipSummary: pipSummaryData?.data,
         queryParams,
@@ -221,9 +317,11 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         handleSortChange,
         handlePageChange,
         handleRowsPerPageChange,
-        searchTerm,
-        setSearchTerm,
-        onSearch: handleSearch,
+        searchFilters,
+        appliedSearchFilters,
+        handleSearchFilterChange,
+        handleApplySearch,
+        handleClearSearch,
         handleExport,
         statusOptions,
         isError,

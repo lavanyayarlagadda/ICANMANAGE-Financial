@@ -1,4 +1,4 @@
-import { PipRecord, ForwardBalanceNotice, OffsetEvent } from '../financials';
+import { PipRecord, ForwardBalanceNotice, OffsetEvent, NpiAllocation } from '../financials';
 
 export interface PipSearchRequest {
     page: number;
@@ -15,6 +15,12 @@ export interface PipSearchRequest {
     transactionNo?: string | null;
     icanManageId?: string | number;
     payerIds?: (string | number) | null;
+    ptanNo?: string;
+    checkEftNo?: string;
+    npiPayerName?: string;
+    claimId?: string;
+    patientName?: string;
+    includeDetails?: boolean;
 }
 
 export interface PipSearchResponse {
@@ -34,6 +40,16 @@ export interface PipSummaryResponse {
         actionRequired: number;
     };
     message: string | null;
+}
+
+export interface PipDetailsParams {
+    ptan: string;
+    fromDate: string;
+    toDate: string;
+}
+
+export interface PipDetailsResponse {
+    data: NpiAllocation[];
 }
 
 export interface ForwardBalanceNoticeSearchResponse {

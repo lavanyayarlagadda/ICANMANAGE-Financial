@@ -177,23 +177,27 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
         description={String(adjustedCashData.description || "")}
         columns={safeAdjustedCashColumns}
         rows={safeAdjustedCashRows}
+        compareMode={compareMode}
       />
       <SectionTable
         title={String(reconciledData.title || "")}
         description={String(reconciledData.description || "")}
         columns={safePostedColumns}
         rows={safePostedRows}
+        compareMode={compareMode}
       />
       <SectionTable
         title={String(unreconciledData.title || "")}
         description={String(unreconciledData.description || "")}
         columns={safeNotPostedColumns}
         rows={safeNotPostedRows}
+        compareMode={compareMode}
       />
 
       <DepositReconciliationTopPayers
         topPayersData={topPayersData}
         topPayers={safeTopPayers}
+        compareMode={compareMode}
       />
 
       <Card sx={{ borderLeft: `4px solid ${theme.palette.error.main}` }}>

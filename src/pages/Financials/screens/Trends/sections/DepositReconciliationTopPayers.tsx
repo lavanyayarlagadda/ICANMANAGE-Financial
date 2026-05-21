@@ -13,11 +13,12 @@ interface DepositReconciliationTopPayersProps {
     description?: unknown;
   };
   topPayers: PayerRow[];
+  compareMode?: string;
 }
 
 export const DepositReconciliationTopPayers: React.FC<
   DepositReconciliationTopPayersProps
-> = ({ topPayersData, topPayers }) => {
+> = ({ topPayersData, topPayers, compareMode }) => {
   const theme = useTheme();
 
   return (
@@ -41,7 +42,7 @@ export const DepositReconciliationTopPayers: React.FC<
                   "Total $",
                   "% of Total",
                   "Match Rate",
-                  "Δ MoM",
+                  compareMode?.toUpperCase() === "YOY" ? "Δ YoY" : "Δ MoM",
                   "6-mo Trend",
                 ].map((label) => (
                   <Box

@@ -191,6 +191,7 @@ export function DataTableDesktop<T>({
                           align={col.align || 'center'}
                           rowSpan={cellMeta?.rowSpan}
                           colSpan={cellMeta?.colSpan}
+                          sx={cellMeta?.rowSpan && cellMeta.rowSpan > 1 ? { verticalAlign: 'middle' } : undefined}
                         >
                           {col.render(row)}
                         </TableCell>

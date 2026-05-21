@@ -13,6 +13,7 @@ interface SectionTableProps {
   description: string;
   columns: TrendColumn[];
   rows: SectionRow[];
+  compareMode?: string;
 }
 
 export const SectionTable: React.FC<SectionTableProps> = ({
@@ -20,9 +21,11 @@ export const SectionTable: React.FC<SectionTableProps> = ({
   description,
   columns,
   rows,
+  compareMode,
 }) => {
   const theme = useTheme();
   const firstForecastIdx = columns.findIndex((col) => col.kind === "FORECAST");
+  const deltaLabel = compareMode?.toUpperCase() === "YOY" ? "Δ YoY" : "Δ MoM";
 
   return (
     <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
@@ -40,7 +43,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
           >
             <Box component="thead">
               <Box component="tr">
-                {["", "Trend", "Δ MoM", ...columns.map((col) => col.label)].map(
+                {["", "Trend", deltaLabel, ...columns.map((col) => col.label)].map(
                   (label, idx) => (
                     <Box
                       component="th"

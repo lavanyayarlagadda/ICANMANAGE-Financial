@@ -62,6 +62,7 @@ interface DataTableToolbarProps<T> {
   setColumnFilters: (filters: Record<string, string>) => void;
   totalCount?: number;
   onFilterChange?: (filters: Record<string, string>) => void;
+  customFilterContent?: React.ReactNode;
   download?: boolean;
   onDownload?: () => void;
   handleCSVExport: () => void;
@@ -90,6 +91,7 @@ export function DataTableToolbar<T>({
   setColumnFilters,
   totalCount,
   onFilterChange,
+  customFilterContent,
   download,
   onDownload,
   handleCSVExport,
@@ -218,7 +220,17 @@ export function DataTableToolbar<T>({
 
       <Collapse in={showFilters}>
         <FilterWrapper>
-          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1.5,
+              flexWrap: customFilterContent ? 'nowrap' : 'wrap',
+              alignItems: 'center',
+              width: '100%',
+              overflowX: customFilterContent ? 'auto' : 'visible',
+              pb: customFilterContent ? 0.5 : 0,
+            }}
+          >
             {filterableColumns.map((col) => {
               const options = col.filterOptions.map((opt) =>
                 typeof opt === 'string' ? { label: opt, value: opt } : opt
@@ -226,7 +238,7 @@ export function DataTableToolbar<T>({
               const value = options.find((o) => String(o.value) === String(columnFilters[col.id])) || null;
 
               return (
-                <FormControl key={col.id} size="small" sx={{ minWidth: 200, maxWidth: 250 }}>
+                <FormControl key={col.id} size="small" sx={{ minWidth: 160, maxWidth: 200, flexShrink: 0 }}>
                   <Autocomplete
                     size="small"
                     options={options}
@@ -283,6 +295,7 @@ export function DataTableToolbar<T>({
                 </FormControl>
               );
             })}
+            {customFilterContent}
           </Box>
         </FilterWrapper>
       </Collapse>

@@ -30,6 +30,10 @@ interface DataTableProps<T> {
   onSelectionChange?: (selectedKeys: Set<string>) => void;
   selectedKeys?: Set<string>;
   customToolbarContent?: React.ReactNode;
+  /** Rendered in the filter panel after column dropdown filters (e.g. text search fields). */
+  customFilterContent?: React.ReactNode;
+  /** Extra active filters for the filter badge (server-side search fields, etc.). */
+  additionalFilterCount?: number;
   dictionaryId?: string;
   serverSide?: boolean;
   totalElements?: number;
@@ -188,6 +192,7 @@ function DataTable<T>({
         onDownload={props.onDownload}
         handleCSVExport={handleCSVExport}
         handlePDFExport={handlePDFExport}
+        customFilterContent={props.customFilterContent}
       />
 
       {loading ? (

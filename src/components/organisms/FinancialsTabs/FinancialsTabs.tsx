@@ -114,6 +114,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 >
                   <Tab
                     value={tab.id}
+                    disabled={tab.status === 'Disabled'}
                     label={
                       <Box sx={styles.mainTabItemStyles(activeTab === tab.id, tab.status === 'Disabled')}>
                         {tab.label}

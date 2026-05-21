@@ -2,6 +2,8 @@ import { baseApi } from "./baseApi";
 import {
   PipSearchRequest,
   PipSearchResponse,
+  PipDetailsParams,
+  PipDetailsResponse,
   PipSummaryResponse,
   ForecastSummaryResponse,
   ReconciliationPerformanceResponse,
@@ -26,6 +28,12 @@ export const analyticsApi = baseApi.injectEndpoints({
         body,
       }),
       providesTags: ["Analytics"],
+    }),
+    getPipDetails: builder.query<PipDetailsResponse, PipDetailsParams>({
+      query: ({ ptan, fromDate, toDate }) => ({
+        url: `financials/pip/${encodeURIComponent(ptan)}/details`,
+        params: { fromDate, toDate },
+      }),
     }),
     getPipSummary: builder.query<PipSummaryResponse, DateRangeParams>({
       query: (params) => ({
@@ -206,6 +214,7 @@ export const analyticsApi = baseApi.injectEndpoints({
 
 export const {
   useSearchPipQuery,
+  useLazyGetPipDetailsQuery,
   useGetPipSummaryQuery,
   useGetForecastSummaryQuery,
   useGetReconciliationPerformanceQuery,
