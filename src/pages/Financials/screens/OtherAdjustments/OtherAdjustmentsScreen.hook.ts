@@ -66,8 +66,7 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         }));
     }, [globalFilters.fromDate, globalFilters.toDate]);
 
-    const { selectedTenantId } = useAppSelector(s => s.tenant);
-    const isActualSkip = skip || !selectedTenantId;
+    const isActualSkip = skip;
 
     const { data, isFetching, isError, refetch } = useSearchOtherAdjustmentsQuery({
         page: queryParams.page + 1,
@@ -148,10 +147,12 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
 
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
-            refetch();
+            if (!isActualSkip) {
+                refetch();
+            }
             reloadCount.current = actionTriggers.reload;
         }
-    }, [actionTriggers.reload, refetch]);
+    }, [actionTriggers.reload, isActualSkip, refetch]);
 
     const handleDrillDown = useCallback(async (row: OtherAdjustmentRecord) => {
         try {

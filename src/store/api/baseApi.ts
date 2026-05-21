@@ -39,12 +39,11 @@ const baseQuery = fetchBaseQuery({
       console.warn(`[BaseAPI] No token available for authenticated request:`, endpoint);
     }
 
-    const tenants = state.tenant?.tenants || [];
-    const selectedTenantId = state.tenant?.selectedTenantId;
-
-    const tenantId = selectedTenantId || tenants[0]?.tenantId;
-    if (tenantId && endpoint !== 'getTenants') {
-      // Always send x-tenantid if we have one, except for the tenants list request itself
+    const clientId = state.auth.user?.company;
+    const selectedTenantId = state.tenant.selectedTenantId;
+    const isCognitiveClient = String(clientId || '').toLowerCase() === 'cognitivehealthit';
+    const tenantId = isCognitiveClient && selectedTenantId ? selectedTenantId : clientId;
+    if (tenantId) {
       headers.set('X-Tenant-Id', String(tenantId));
     }
 

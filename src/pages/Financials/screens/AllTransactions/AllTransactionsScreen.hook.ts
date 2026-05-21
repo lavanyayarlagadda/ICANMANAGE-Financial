@@ -70,8 +70,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         sortOrder: SORT_ORDER.DESC,
     });
 
-    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
-    const isActualSkip = skip || !selectedTenantId;
+    const isActualSkip = skip;
 
     const { data, isFetching, isError, refetch } = useSearchAllTransactionsQuery({
         page: queryParams.page + 1,
@@ -80,7 +79,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         desc: queryParams.sortOrder === SORT_ORDER.DESC,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
-        statusId: queryParams.status || null,
+        statusIds: queryParams.status || null,
         categoryIds: queryParams.category || null,
         transactionTypeIds: queryParams.type || "",
         payerIds: queryParams.payerIds || null,
@@ -90,11 +89,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     // Fetch dynamic status options
     const { data: statusData, isFetching: statusFetching, isError: statusError } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
     const statusOptions = useMemo(() => {
-        const base = statusData?.data?.map(s => ({ label: s.postingStatus, value: String(s.postingStatusMasterId) })) ?? [];
-        if (!base.find(o => o.label === 'Forward Balance')) {
-            base.push({ label: 'Forward Balance', value: 'Forward Balance' });
-        }
-        return base;
+        return statusData?.data?.map(s => ({ label: s.postingStatus, value: String(s.postingStatusMasterId) })) ?? [];
     }, [statusData]);
 
     // Fetch dynamic payer and transaction type options
@@ -109,20 +104,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         [filterData]);
 
     const categoryOptions = useMemo(() => {
-        const base = filterData?.data?.categories?.map(c => ({ label: c.name, value: String(c.id) })) ?? [];
-        const additional = [
-            { label: 'Fee', value: 'Fee' },
-            { label: 'Payment', value: 'Payment' },
-            { label: 'Variance', value: 'Variance' }
-        ];
-        // Filter out any that already exist
-        const result = [...base];
-        additional.forEach(item => {
-            if (!result.find(r => r.label === item.label)) {
-                result.push(item);
-            }
-        });
-        return result;
+        return filterData?.data?.categories?.map(c => ({ label: c.name, value: String(c.id) })) ?? [];
     }, [filterData]);
 
     const transactions = useMemo(() => {
@@ -183,10 +165,12 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
 
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
-            refetch();
+            if (!isActualSkip) {
+                refetch();
+            }
             reloadCount.current = actionTriggers.reload;
         }
-    }, [actionTriggers.reload, refetch]);
+    }, [actionTriggers.reload, isActualSkip, refetch]);
 
 
     const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();

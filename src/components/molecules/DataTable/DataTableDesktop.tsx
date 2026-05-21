@@ -181,11 +181,21 @@ export function DataTableDesktop<T>({
                         />
                       </TableCell>
                     )}
-                    {columns.map((col) => (
-                      <TableCell key={col.id} align={col.align || 'center'}>
-                        {col.render(row)}
-                      </TableCell>
-                    ))}
+                    {columns.map((col) => {
+                      const rowIndex = paginatedData.indexOf(row);
+                      const cellMeta = col.getCellProps?.(row, rowIndex, paginatedData);
+                      if (cellMeta?.skip) return null;
+                      return (
+                        <TableCell
+                          key={col.id}
+                          align={col.align || 'center'}
+                          rowSpan={cellMeta?.rowSpan}
+                          colSpan={cellMeta?.colSpan}
+                        >
+                          {col.render(row)}
+                        </TableCell>
+                      );
+                    })}
                   </StyledTableRow>
                   {expandedContent && expandedRows?.has(key) && (
                     <TableRow>

@@ -32,6 +32,10 @@ const tenantSlice = createSlice({
       state.selectedTenantId = action.payload;
       localStorage.setItem(TENANT_STORAGE_KEY, action.payload);
     },
+    clearSelectedTenant: (state) => {
+      state.selectedTenantId = null;
+      localStorage.removeItem(TENANT_STORAGE_KEY);
+    },
     setTenantLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
@@ -41,5 +45,5 @@ const tenantSlice = createSlice({
   },
 });
 
-export const { setTenants, setSelectedTenantId, setTenantLoading, setTenantError } = tenantSlice.actions;
+export const { setTenants, setSelectedTenantId, clearSelectedTenant, setTenantLoading, setTenantError } = tenantSlice.actions;
 export default tenantSlice.reducer;

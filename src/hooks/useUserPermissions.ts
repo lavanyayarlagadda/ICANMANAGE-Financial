@@ -6,11 +6,10 @@ import { MenuAccess } from '@/store/slices/authSlice';
 
 export const useUserPermissions = () => {
   const authUser = useAppSelector((state) => state.auth.user);
-  const { selectedTenantId, tenants } = useAppSelector((s) => s.tenant);
+  const { tenants } = useAppSelector((s) => s.tenant);
 
-  const isCognitiveAuth = authUser?.company?.toLowerCase().includes('cognitive');
-  // Skip if we don't have a user yet, or if the user is cognitive and we're waiting for tenants
-  const shouldSkipDetails = !authUser || (isCognitiveAuth && (!selectedTenantId || tenants.length === 0));
+  // Skip only when no authenticated user is present.
+  const shouldSkipDetails = !authUser;
 
   const { data: userDetails, isLoading: isLoadingDetails } = useGetMeDetailsQuery(undefined, {
     skip: shouldSkipDetails

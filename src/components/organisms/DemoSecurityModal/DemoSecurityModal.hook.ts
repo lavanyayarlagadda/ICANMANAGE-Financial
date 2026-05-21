@@ -13,6 +13,8 @@ interface UseDemoSecurityModalProps {
 export type PasswordPolicy = '15 Days' | '30 Days' | '60 Days' | '90 Days' | 'Never';
 export const PASSWORD_POLICY_OPTIONS: PasswordPolicy[] = ['15 Days', '30 Days', '60 Days', '90 Days', 'Never'];
 export const MODULE_STATUS_OPTIONS: MenuStatus[] = ['Active', 'Hidden', 'Disabled'];
+const DEPOSIT_RECON_MENU_ID = -9001;
+const DEPOSIT_RECON_STATUS_KEY = 'ican_deposit_reconciliation_status';
 
 const isMenuStatus = (value: string): value is MenuStatus =>
   MODULE_STATUS_OPTIONS.includes(value as MenuStatus);
@@ -36,6 +38,12 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
   const [moduleSelectionEnabled, setModuleSelectionEnabled] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [moduleStatuses, setModuleStatuses] = useState<Record<number, MenuStatus>>({});
+  const depositReconStorageKey = useMemo(() => `${DEPOSIT_RECON_STATUS_KEY}_${selectedUser || currentUser.id}`, [selectedUser, currentUser.id]);
+
+  const getSavedDepositReconStatus = useCallback((): MenuStatus => {
+    const saved = localStorage.getItem(depositReconStorageKey);
+    return saved === 'Hidden' || saved === 'Disabled' || saved === 'Active' ? saved : 'Active';
+  }, [depositReconStorageKey]);
 
   const users = useMemo(() => {
     return meDetails?.users || meDetails?.usersDropdown?.map(u => ({ id: String(u.userId), username: u.username, firstName: '', lastName: '', role: 'User' })) || [];
@@ -52,6 +60,12 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       }
     }
   }, [users, currentUser, open, selectedUser]);
+
+  useEffect(() => {
+    if (selectedUser) {
+      localStorage.setItem('ican_demo_security_selected_user', selectedUser);
+    }
+  }, [selectedUser]);
 
 
   // Reset selected user when modal closes
@@ -74,12 +88,15 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       };
 
       populateMap(menuConfig.menus);
+      statusMap[DEPOSIT_RECON_MENU_ID] = getSavedDepositReconStatus();
       setModuleStatuses(statusMap);
     }
-  }, [menuConfig]);
+  }, [menuConfig, getSavedDepositReconStatus]);
 
   const handleUserChange = useCallback((event: SelectChangeEvent<string>) => {
-    setSelectedUser(event.target.value);
+    const userId = event.target.value;
+    setSelectedUser(userId);
+    localStorage.setItem('ican_demo_security_selected_user', userId);
   }, []);
 
   const handleModuleStatusChange = useCallback((menuId: number, status: MenuStatus) => {
@@ -189,6 +206,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       }).unwrap();
 
       localStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
+      localStorage.setItem(depositReconStorageKey, moduleStatuses[DEPOSIT_RECON_MENU_ID] || 'Active');
       window.dispatchEvent(new Event('ican_inactivity_timeout_changed'));
 
       // Give a tiny delay for RTK Query to start refetching and for the user to see 'Success'
@@ -197,7 +215,37 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
     } catch (error) {
       console.error('Failed to save menu config:', error);
     }
-  }, [selectedUser, moduleSelectionEnabled, moduleStatuses, menuConfig, updateMenuConfig, inactivityTimeout, onClose]);
+  }, [selectedUser, moduleSelectionEnabled, moduleStatuses, menuConfig, updateMenuConfig, inactivityTimeout, onClose, depositReconStorageKey]);
+
+  const menusWithDepositRecon = useMemo(() => {
+    if (!menuConfig?.menus) return [];
+
+    const clone = JSON.parse(JSON.stringify(menuConfig.menus)) as EffectiveMenuItem[];
+    const trendsModule = clone
+      .flatMap((menu) => menu.modules || [])
+      .find((mod) => mod.menuName.toLowerCase().includes('trend'));
+
+    if (!trendsModule) return clone;
+
+    const existing = (trendsModule.subModules || []).some(
+      (sub) => sub.menuName.toLowerCase() === 'deposit reconciliation'
+    );
+
+    if (!existing) {
+      const depositStatus = moduleStatuses[DEPOSIT_RECON_MENU_ID] || getSavedDepositReconStatus();
+      const newSub: EffectiveSubMenuItem = {
+        menuId: DEPOSIT_RECON_MENU_ID,
+        menuName: 'Deposit Reconciliation',
+        effectiveStatus: depositStatus,
+        source: 'LOCAL_OVERRIDE',
+        roleStatus: 'Active',
+        statusAfterTenantFeatures: depositStatus
+      };
+      trendsModule.subModules = [...(trendsModule.subModules || []), newSub];
+    }
+
+    return clone;
+  }, [menuConfig?.menus, moduleStatuses, getSavedDepositReconStatus]);
 
   const userBeingEdited = users.find(u => u.id === selectedUser);
   const selectedUsername = userBeingEdited ? userBeingEdited.username : currentUser.username;
@@ -212,7 +260,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
     userBeingEdited,
     selectedUsername,
     users,
-    menus: menuConfig?.menus || [],
+    menus: menusWithDepositRecon,
     isLoading: isLoadingUsers || isLoadingMenu || isFetchingMenu,
     isSaving,
     hasChanges: useMemo(() => {
@@ -240,13 +288,16 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
       );
       if (statusesChanged) return true;
 
-      // 3. Check others
+      // 3. Check Deposit Reconciliation local status override
+      if ((moduleStatuses[DEPOSIT_RECON_MENU_ID] || 'Active') !== getSavedDepositReconStatus()) return true;
+
+      // 4. Check others
       if (moduleSelectionEnabled !== true) return true; // Assuming default is true
       if (inactivityTimeout !== (localStorage.getItem('ican_inactivity_timeout') || '15')) return true;
       if (passwordPolicy !== '30 Days') return true; // Assuming default
 
       return false;
-    }, [menuConfig, moduleStatuses, moduleSelectionEnabled, inactivityTimeout, passwordPolicy, selectedUser, users, currentUser.id]),
+    }, [menuConfig, moduleStatuses, moduleSelectionEnabled, inactivityTimeout, passwordPolicy, selectedUser, users, currentUser.id, getSavedDepositReconStatus]),
     setInactivityTimeout,
     setPasswordPolicy,
     setModuleSelectionEnabled,

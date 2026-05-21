@@ -5,6 +5,7 @@ export * from './api/bankDeposits';
 export * from './api/statements';
 export * from './api/forecast';
 export * from './api/transactions';
+export * from './api/depositRecon';
 
 import {
   PaymentTransaction,

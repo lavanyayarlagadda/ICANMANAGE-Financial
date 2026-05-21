@@ -54,7 +54,10 @@ export const useDashboardLayout = () => {
     const userDetails = permissions.user;
     const menus = useMemo(() => (userDetails?.menus || []) as MenuItem[], [userDetails]);
     const accessibleModules = useMemo(() => userDetails?.accessibleModules, [userDetails]);
-    const { sidebar, financialsTabs } = useMemo(() => getNavigationStructure(menus, accessibleModules), [menus, accessibleModules]);
+    const { sidebar, financialsTabs } = useMemo(
+        () => getNavigationStructure(menus, accessibleModules, tenant.selectedTenantId),
+        [menus, accessibleModules, tenant.selectedTenantId]
+    );
 
     return {
         ui,

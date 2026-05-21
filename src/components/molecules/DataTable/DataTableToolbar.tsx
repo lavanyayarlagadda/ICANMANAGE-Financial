@@ -122,7 +122,7 @@ export function DataTableToolbar<T>({
       <ToolbarRow isMobile={isMobile}>
         <ToolbarLeft>
           <RecordsText variant="caption">
-            {totalCount ?? sortedData.length} records
+            {totalCount ?? sortedData.length} record{(totalCount ?? sortedData.length) === 1 ? '' : 's'}
           </RecordsText>
           {activeFilterCount > 0 && (
             <Chip

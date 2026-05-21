@@ -40,7 +40,10 @@ export const useFinancialsPage = () => {
   const { userDetails, isLoadingDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
   const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
-  const { financialsTabs }: NavigationStructure = useMemo(() => getNavigationStructure(menus, accessibleModules), [menus, accessibleModules]);
+  const { financialsTabs }: NavigationStructure = useMemo(
+    () => getNavigationStructure(menus, accessibleModules, selectedTenantId),
+    [menus, accessibleModules, selectedTenantId]
+  );
 
   // Build dynamic path map from financialsTabs
   const pathMap = useMemo(() => {
@@ -51,11 +54,48 @@ export const useFinancialsPage = () => {
 
       mainTab.subTabs?.forEach(subTab => {
         const subPath = subTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
-        if (subPath) map[subPath] = { tab: mainTab.id, subTab: subTab.id };
+        if (subPath) {
+          map[subPath] = { tab: mainTab.id, subTab: subTab.id };
+
+          // Keep explicit aliases for Deposit Reconciliation because backend menu/path
+          // variants have used multiple route shapes over time.
+          if (subPath.endsWith('deposit-reconciliation')) {
+            map['trends-forecast/forecast/deposit-reconciliation'] = { tab: mainTab.id, subTab: subTab.id };
+            map['trends-forecast/summary/deposit-reconciliation'] = { tab: mainTab.id, subTab: subTab.id };
+            map['trends-forecast/deposit-reconciliation'] = { tab: mainTab.id, subTab: subTab.id };
+          }
+        }
       });
     });
     return map;
   }, [financialsTabs]);
+
+  const firstAvailablePath = useMemo(() => {
+    const firstTab = financialsTabs[0];
+    return firstTab?.subTabs?.[0]?.path || firstTab?.path || null;
+  }, [financialsTabs]);
+
+  const hiddenRouteRedirectPath = useMemo(() => {
+    if (isLoadingDetails) return null;
+    if (!location.pathname.startsWith('/financials')) return null;
+
+    const currentPath = location.pathname.toLowerCase().replace(/\/$/, '');
+    const pathPart = currentPath.split('/financials/')[1] || '';
+    const match = pathMap[pathPart];
+    if (match || currentPath === '/financials') return null;
+
+    const isKnownRoute = Object.values(NAV_CONFIG).some(cfg =>
+      cfg.path.toLowerCase().replace(/\/$/, '').endsWith(pathPart)
+    );
+    if (!isKnownRoute) return null;
+
+    const fallbackPath = firstAvailablePath;
+
+    if (!fallbackPath) return null;
+    if (fallbackPath.toLowerCase().replace(/\/$/, '') === currentPath) return null;
+
+    return fallbackPath;
+  }, [isLoadingDetails, location.pathname, pathMap, firstAvailablePath]);
 
   useEffect(() => {
     // 1. Handle Active Page switching (instantly update layout based on URL)
@@ -72,22 +112,36 @@ export const useFinancialsPage = () => {
       // Normalize current path
       const currentPath = location.pathname.toLowerCase().replace(/\/$/, '');
 
-      // Find the best match in our path map
-      // We check for exact matches, then sub-matches
+      // Find the best match in our path map.
+      // Use exact matching first, then parent/child prefix matching.
       let match = pathMap[currentPath.split('/financials/')[1] || ''];
 
       if (!match) {
-        // Try fuzzy matching (sometimes paths have extra segments or are nested further)
-        const bestPath = Object.keys(pathMap).find(p => p && (currentPath.endsWith(p) || p.endsWith(currentPath.split('/financials/')[1] || 'VOID')));
+        const pathPart = currentPath.split('/financials/')[1] || '';
+        const bestPath = Object.keys(pathMap).find((p) => p && pathPart.startsWith(`${p}/`));
         if (bestPath) match = pathMap[bestPath];
       }
 
       if (match) {
+        const activeMainTab = financialsTabs.find(t => t.id === match.tab);
+        const matchedSubTab = activeMainTab?.subTabs?.find(st => st.id === match.subTab);
+        const isMatchedSubTabAccessible = matchedSubTab?.status === 'Active';
+
+        if (!isMatchedSubTabAccessible && activeMainTab?.subTabs?.length) {
+          const currentPathPart = currentPath.split('/financials/')[1] || '';
+          const nextActiveSubTab = activeMainTab.subTabs.find(st => st.status === 'Active');
+          if (nextActiveSubTab && nextActiveSubTab.path.toLowerCase().replace(/\/$/, '') !== `/financials/${currentPathPart}`) {
+            if (uiState.activeTab !== activeMainTab.id) dispatch(setActiveTab(activeMainTab.id));
+            if (uiState.activeSubTab !== nextActiveSubTab.id) dispatch(setActiveSubTab(nextActiveSubTab.id));
+            navigate(nextActiveSubTab.path, { replace: true });
+            return;
+          }
+        }
+
         if (uiState.activeTab !== match.tab) dispatch(setActiveTab(match.tab));
         if (uiState.activeSubTab !== match.subTab) dispatch(setActiveSubTab(match.subTab));
 
         // Automatic redirect for main modules with subtabs
-        const activeMainTab = financialsTabs.find(t => t.id === match.tab);
         if (activeMainTab && activeMainTab.subTabs && activeMainTab.subTabs.length > 0) {
           const pathPart = currentPath.split('/financials/')[1] || '';
           const mainPathPart = activeMainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
@@ -98,15 +152,15 @@ export const useFinancialsPage = () => {
           }
         }
       } else if (currentPath === '/financials') {
-        const firstTab = financialsTabs[0];
-        if (firstTab) {
-          const defaultPath = firstTab.subTabs?.[0]?.path || firstTab.path;
-          navigate(defaultPath, { replace: true });
+        if (firstAvailablePath) {
+          navigate(firstAvailablePath, { replace: true });
         }
+      } else if (hiddenRouteRedirectPath) {
+        navigate(hiddenRouteRedirectPath, { replace: true });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, dispatch, navigate, financialsTabs, isLoadingDetails, pathMap]);
+  }, [location.pathname, dispatch, navigate, financialsTabs, isLoadingDetails, pathMap, firstAvailablePath, hiddenRouteRedirectPath]);
 
   useEffect(() => {
     const previousTenantId = previousTenantIdRef.current;
@@ -154,6 +208,8 @@ export const useFinancialsPage = () => {
     const pathPart = location.pathname.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
     const match = pathMap[pathPart];
 
+    if (hiddenRouteRedirectPath) return false;
+
     if (match) {
       const activeMain = financialsTabs.find((t: DynamicTab) => t.id === match.tab);
       if (!activeMain) return false;
@@ -179,7 +235,7 @@ export const useFinancialsPage = () => {
     }
 
     return false;
-  }, [financialsTabs, location.pathname, pathMap]);
+  }, [financialsTabs, location.pathname, pathMap, hiddenRouteRedirectPath]);
 
   return {
     ...uiState,
@@ -187,6 +243,7 @@ export const useFinancialsPage = () => {
     showRemittanceDetail,
     addDialogOpen,
     isRestricted,
+    isRedirectingFromHiddenRoute: Boolean(hiddenRouteRedirectPath),
     isLoadingUserDetails: isLoadingDetails,
     setAddDialogOpen,
     handleDelete,

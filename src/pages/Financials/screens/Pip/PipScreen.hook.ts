@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "@/store";
 import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
-import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery } from "@/store/api/financialsApi";
-import { useGetAllTransactionsFiltersQuery } from "@/store/api/transactionsApi";
+import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery, useGetPaymentStatusQuery } from "@/store/api/financialsApi";
 import { TableQueryParams } from "@/interfaces/api";
 import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from "@/constants/common";
 
@@ -58,8 +57,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         }));
     }, [globalFilters.fromDate, globalFilters.toDate]);
 
-    const { selectedTenantId } = useAppSelector(s => s.tenant);
-    const isActualSkip = skip || !selectedTenantId;
+    const isActualSkip = skip;
 
     const { data, isError, isFetching, refetch } = useSearchPipQuery({
         page: queryParams.page + 1,
@@ -79,16 +77,13 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         toDate: queryParams.toDate,
     }, { skip: isActualSkip });
 
-    const { data: dropdownData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
+    const { data: statusData } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
     const statusOptions = useMemo(() => {
-        if (dropdownData?.data?.transactionStatusTypes) {
-            return dropdownData.data.transactionStatusTypes.map((status) => ({
-                label: status,
-                value: status
-            }));
-        }
-        return [];
-    }, [dropdownData]);
+        return statusData?.data?.map((s) => ({
+            label: s.postingStatus,
+            value: String(s.postingStatusMasterId)
+        })) ?? [];
+    }, [statusData]);
 
     const isAnyFetching = isFetching || isFetchingSummary;
 
@@ -148,7 +143,9 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
             const doReload = async () => {
                 try {
                     dispatch(setIsReloading(true));
-                    await refetch();
+                    if (!isActualSkip) {
+                        await refetch();
+                    }
                 } finally {
                     dispatch(setIsReloading(false));
                 }
@@ -156,7 +153,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
             doReload();
             reloadCount.current = actionTriggers.reload;
         }
-    }, [actionTriggers.reload, refetch, dispatch]);
+    }, [actionTriggers.reload, isActualSkip, refetch, dispatch]);
 
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 

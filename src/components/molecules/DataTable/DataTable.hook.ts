@@ -12,6 +12,15 @@ export interface DataColumn<T> {
   minWidth?: number;
   align?: 'left' | 'center' | 'right';
   render: (row: T) => React.ReactNode;
+  getCellProps?: (
+    row: T,
+    rowIndex: number,
+    rows: T[]
+  ) => {
+    rowSpan?: number;
+    colSpan?: number;
+    skip?: boolean;
+  };
   hideOnMobile?: boolean;
   primary?: boolean;
   accessor?: (row: T) => string | number | null;

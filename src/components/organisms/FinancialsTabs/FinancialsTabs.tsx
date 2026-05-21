@@ -139,7 +139,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 allowScrollButtonsMobile
                 onChange={(_, val) => {
                   const subTab = currentSubTabs.find(st => st.id === val);
-                  if (subTab && subTab.status !== 'Disabled') handleSubTabChange(subTab.id, subTab.path);
+                  if (subTab && subTab.status === 'Active') handleSubTabChange(subTab.id, subTab.path);
                 }}
                 sx={{
                   width: '100%',
@@ -165,15 +165,20 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 {currentSubTabs.map((subTab) => (
                   <Tooltip
                     key={subTab.id}
-                    title={subTab.status === 'Disabled' ? "This sub-module is currently unavailable" : ""}
+                    title={subTab.status === 'Disabled'
+                      ? "This sub-module is currently unavailable"
+                      : subTab.status === 'Hidden'
+                        ? "This sub-module is hidden"
+                        : ""}
                     placement="top"
                     arrow
                     disableFocusListener
                   >
                     <Tab
                       value={subTab.id}
+                      disabled={subTab.status !== 'Active'}
                       label={
-                        <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, subTab.status === 'Disabled')}>
+                        <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, subTab.status !== 'Active')}>
                           {subTab.label}
                         </Box>
                       }

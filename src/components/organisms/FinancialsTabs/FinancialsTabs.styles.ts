@@ -87,6 +87,7 @@ export const subTabItemStyles = (isActive: boolean, isDisabled?: boolean): SxPro
   },
 });
 
+
 export const actionsGroupStyles = (isMobile: boolean): SxProps<Theme> => ({
   display: 'flex',
   gap: 1.5,

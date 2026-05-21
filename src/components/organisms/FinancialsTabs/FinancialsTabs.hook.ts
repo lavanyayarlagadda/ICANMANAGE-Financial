@@ -22,12 +22,16 @@ export const useFinancialsTabs = ({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { activeTab, activeSubTab, isReloading } = useAppSelector((s) => s.ui);
+  const selectedTenantId = useAppSelector((s) => s.tenant.selectedTenantId);
   const { userDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
 
   const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
 
-  const { financialsTabs } = useMemo(() => getNavigationStructure(menus, accessibleModules), [menus, accessibleModules]);
+  const { financialsTabs } = useMemo(
+    () => getNavigationStructure(menus, accessibleModules, selectedTenantId),
+    [menus, accessibleModules, selectedTenantId]
+  );
 
   // const isMindPath = useMemo(
   //   () =>

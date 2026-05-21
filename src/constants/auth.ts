@@ -26,7 +26,8 @@ export const DUMMY_USER: User = {
                 { menuName: 'Recoupments', status: 'Active' },
                 { menuName: 'Other Adjustments', status: 'Active' },
                 { menuName: 'Variance Analysis', status: 'Active' },
-                { menuName: 'Trends & Forecast', status: 'Active' }
+                { menuName: 'Trends & Forecast', status: 'Active' },
+                { menuName: 'Deposit Reconciliation', status: 'Active' }
             ]
         },
         {

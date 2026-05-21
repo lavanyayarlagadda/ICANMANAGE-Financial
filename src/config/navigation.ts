@@ -8,6 +8,8 @@ import PipScreen from '@/pages/Financials/screens/Pip/PipScreen';
 import SuspenseAccountsScreen from '@/pages/Financials/screens/Suspense/SuspenseAccountsScreen';
 import VarianceScreen from '@/pages/Financials/screens/Variance/VarianceScreen';
 import TrendsScreen from '@/pages/Financials/screens/Trends/TrendsScreen';
+// import DepositReconciliationScreen from '@/pages/Financials/screens/Trends/DepositReconciliationScreen';
+import DepositReconciliationScreen from '@/pages/Financials/screens/Trends/DepositReconciliationScreen';
 import ReconciliationScreen from '@/pages/Financials/screens/ReconciliationScreen/ReconciliationScreen';
 import CollectionsScreen from '@/pages/Financials/screens/Collections/CollectionsScreen';
 import StatementsScreen from '@/pages/Financials/screens/Statements/StatementsScreen';
@@ -97,6 +99,10 @@ export const NAV_CONFIG: Record<string, NavMetadata> = {
     'Payer Performance': {
         path: '/financials/trends-forecast/payer-performance',
         component: TrendsScreen,
+    },
+    'Deposit Reconciliation': {
+        path: '/financials/trends-forecast/forecast/deposit-reconciliation',
+        component: DepositReconciliationScreen,
     },
     'Reconciliation': {
         path: '/financials/reconciliation/unreconciled',

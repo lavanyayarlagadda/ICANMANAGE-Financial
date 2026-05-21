@@ -10,8 +10,12 @@ import {
   PaymentMixResponse,
   AdjustmentBreakdownResponse,
   PayerPerformanceResponse,
-  DateRangeParams
+  DateRangeParams,
+  DepositReconAgingQueryParams,
+  DepositReconTrendsQueryParams
 } from "@/interfaces/api";
+
+type DepositReconciliationApiResponse = Record<string, unknown>;
 
 export const analyticsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -107,6 +111,96 @@ export const analyticsApi = baseApi.injectEndpoints({
         responseHandler: (response) => response.blob(),
       }),
     }),
+    getDepositReconciliationPage: builder.query<
+      DepositReconciliationApiResponse,
+      DepositReconTrendsQueryParams
+    >({
+      query: (params) => ({
+        url: "financials/deposit-reconciliation/trends",
+        params,
+      }),
+      providesTags: ["Analytics"],
+    }),
+    getDepositReconciliationExecutiveSummary: builder.query<
+      DepositReconciliationApiResponse,
+      DepositReconTrendsQueryParams
+    >({
+      query: (params) => ({
+        url: "financials/deposit-reconciliation/trends/executive-summary",
+        params,
+      }),
+      providesTags: ["Analytics"],
+    }),
+    getDepositReconciliationAging: builder.query<
+      DepositReconciliationApiResponse,
+      DepositReconAgingQueryParams
+    >({
+      query: (params) => ({
+        url: "financials/deposit-reconciliation/trends/reconciliation-aging",
+        params,
+      }),
+      providesTags: ["Analytics"],
+    }),
+    getDepositReconciliationAdjustedCashDeposit: builder.query<
+      DepositReconciliationApiResponse,
+      DepositReconTrendsQueryParams
+    >({
+      query: (params) => ({
+        url: "financials/deposit-reconciliation/trends/adjusted-cash-deposit",
+        params,
+      }),
+      providesTags: ["Analytics"],
+    }),
+    getDepositReconciliationPostedEmrReconciled: builder.query<
+      DepositReconciliationApiResponse,
+      DepositReconTrendsQueryParams
+    >({
+      query: (params) => ({
+        url: "financials/deposit-reconciliation/trends/posted-emr/reconciled",
+        params,
+      }),
+      providesTags: ["Analytics"],
+    }),
+    getDepositReconciliationPostedEmrUnreconciled: builder.query<
+      DepositReconciliationApiResponse,
+      DepositReconTrendsQueryParams
+    >({
+      query: (params) => ({
+        url: "financials/deposit-reconciliation/trends/posted-emr/unreconciled",
+        params,
+      }),
+      providesTags: ["Analytics"],
+    }),
+    getDepositReconciliationOtherCategory: builder.query<
+      DepositReconciliationApiResponse,
+      DepositReconTrendsQueryParams
+    >({
+      query: (params) => ({
+        url: "financials/deposit-reconciliation/trends/other-category",
+        params,
+      }),
+      providesTags: ["Analytics"],
+    }),
+    getDepositReconciliationTopPayers: builder.query<
+      DepositReconciliationApiResponse,
+      DepositReconTrendsQueryParams
+    >({
+      query: (params) => ({
+        url: "financials/deposit-reconciliation/trends/top-payers",
+        params,
+      }),
+      providesTags: ["Analytics"],
+    }),
+    exportDepositReconciliationPdf: builder.query<
+      Blob,
+      DepositReconTrendsQueryParams
+    >({
+      query: (params) => ({
+        url: "financials/deposit-reconciliation/trends/export/pdf",
+        params,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -121,4 +215,13 @@ export const {
   useGetAdjustmentBreakdownQuery,
   useGetPayerPerformanceQuery,
   useLazyExportPipQuery,
+  useGetDepositReconciliationPageQuery,
+  useGetDepositReconciliationExecutiveSummaryQuery,
+  useGetDepositReconciliationAgingQuery,
+  useGetDepositReconciliationAdjustedCashDepositQuery,
+  useGetDepositReconciliationPostedEmrReconciledQuery,
+  useGetDepositReconciliationPostedEmrUnreconciledQuery,
+  useGetDepositReconciliationOtherCategoryQuery,
+  useGetDepositReconciliationTopPayersQuery,
+  useLazyExportDepositReconciliationPdfQuery,
 } = analyticsApi;

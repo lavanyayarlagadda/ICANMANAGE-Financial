@@ -7,6 +7,7 @@ import { resetUiState } from '@/store/slices/uiSlice';
 import { useLoginMutation } from '@/store/api/authApi';
 import { baseApi } from '@/store/api/baseApi';
 import { resetRemittanceViewState } from '@/store/slices/financialsSlice';
+import { clearSelectedTenant } from '@/store/slices/tenantSlice';
 
 export const useLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,7 +47,7 @@ export const useLoginPage = () => {
 
       // Wipe prior cached user queries (like /me/details) and tenants
       dispatch(baseApi.util.resetApiState());
-      localStorage.removeItem('ican_selected_tenant');
+      dispatch(clearSelectedTenant());
 
       // Success! Store credentials and navigate to root resolver
       dispatch(setCredentials({

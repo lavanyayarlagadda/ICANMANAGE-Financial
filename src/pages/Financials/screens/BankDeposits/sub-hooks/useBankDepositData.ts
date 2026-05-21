@@ -100,11 +100,7 @@ export const useBankDepositData = ({
 
     const statusOptions = useMemo(() => {
         const base = filterData?.data?.transactionStatusTypes ?? [];
-        const combined = [...base];
-        if (!combined.includes('Forward Balance')) {
-            combined.push('Forward Balance');
-        }
-        return combined;
+        return [...base];
     }, [filterData]);
 
     const dynamicColumns = useMemo(() => headersResponse?.data || [], [headersResponse]);
@@ -126,7 +122,7 @@ export const useBankDepositData = ({
             sort: queryParams.sortField === 'date' ? 'bai_received_date' : queryParams.sortField || 'transactionNo',
             desc: queryParams.sortOrder === SORT_ORDER.DESC,
             clientName: selectedTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME,
-            status: filters.status || null
+            statusList: filters.status ? [filters.status] : []
         }
     );
 
@@ -141,9 +137,18 @@ export const useBankDepositData = ({
 
     const bankDeposits: BankDepositItem[] = useMemo(() => {
         if (Array.isArray(data)) return data as BankDepositItem[];
-        const responseData = data as unknown as Record<string, unknown>;
-        if (responseData && typeof responseData === 'object' && 'data' in responseData && Array.isArray(responseData.data)) {
-            return responseData.data as BankDepositItem[];
+        const responseData = data as unknown as Record<string, unknown> | null;
+        if (responseData && typeof responseData === 'object') {
+            if (Array.isArray(responseData.data)) {
+                return responseData.data as BankDepositItem[];
+            }
+            const nestedData = responseData.data as Record<string, unknown> | undefined;
+            if (nestedData && Array.isArray(nestedData.content)) {
+                return nestedData.content as BankDepositItem[];
+            }
+            if (Array.isArray(responseData.content)) {
+                return responseData.content as BankDepositItem[];
+            }
         }
         return [];
     }, [data]);

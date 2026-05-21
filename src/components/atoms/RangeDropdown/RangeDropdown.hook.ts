@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { format, isAfter } from 'date-fns';
 import { calculateDatesFromLabel, getInitialCustomRange } from '@/utils/dateUtils';
+import { RootState, useAppSelector } from '@/store';
 
 export interface UseRangeDropdownProps {
   value: string;
@@ -8,6 +9,7 @@ export interface UseRangeDropdownProps {
 }
 
 export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => {
+  const { globalFilters } = useAppSelector((s: RootState) => s.financials);
   const [internalVal, setInternalVal] = useState(value);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
@@ -21,7 +23,9 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
   
   const [errorOpen, setErrorOpen] = useState(false);
 
-  // Sync internal value and dates with prop
+  // Sync internal value and dates with prop.
+  // Only react to incoming value changes to avoid resetting picker month
+  // while the user is interacting with calendar navigation.
   useEffect(() => {
     setInternalVal(value);
     
@@ -42,24 +46,35 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
         setToTouched(true);
         setInternalVal('Custom');
     } else {
+      // For shared "Custom" mode, prefer globally selected date range
+      // so the same custom dates persist across all screens.
+      if (globalFilters.rangeLabel === 'Custom') {
+        const globalFrom = new Date(globalFilters.fromDate);
+        const globalTo = new Date(globalFilters.toDate);
+        if (!Number.isNaN(globalFrom.getTime()) && !Number.isNaN(globalTo.getTime())) {
+          setFromDate(globalFrom);
+          setToDate(globalTo);
+          setCustomRange({ from: globalFrom, to: globalTo });
+          return;
+        }
+      }
       setFromDate(customRange.from);
       setToDate(customRange.to);
     }
-  }, [value, customRange.from, customRange.to]);
+  }, [value, globalFilters.fromDate, globalFilters.toDate, globalFilters.rangeLabel]);
 
   const handleRangeChange = useCallback((val: string) => {
     setInternalVal(val);
     
     if (val === 'Custom') {
-      // Restore previous custom dates but consider them "untouched" for a fresh session
-      // if they were just switching from a preset.
-      setFromDate(customRange.from);
-      setToDate(customRange.to);
-      setFromTouched(false);
-      setToTouched(false);
-      
-      // We don't trigger onChange immediately on selecting 'Custom' anymore
-      // to avoid using possibly stale custom dates from a previous session.
+      // Default custom to current month whenever switching to Custom.
+      const defaultCustom = getInitialCustomRange();
+      setFromDate(defaultCustom.from);
+      setToDate(defaultCustom.to);
+      setCustomRange(defaultCustom);
+      setFromTouched(true);
+      setToTouched(true);
+      onChange?.(`${format(defaultCustom.from, 'yyyy-MM-dd')} to ${format(defaultCustom.to, 'yyyy-MM-dd')}`);
     } else {
       const dates = calculateDatesFromLabel(val);
       if (dates) {
@@ -72,7 +87,7 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
         onChange?.(val);
       }
     }
-  }, [onChange, customRange]);
+  }, [onChange]);
 
   const handleDateChange = useCallback((type: 'from' | 'to', val: Date | null) => {
     if (!val) return;
@@ -81,8 +96,6 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
 
     let nextFrom = fromDate;
     let nextTo = toDate;
-    let nextFromTouched = fromTouched;
-    let nextToTouched = toTouched;
 
     if (type === 'from') {
       if (toDate && isAfter(val, toDate)) {
@@ -92,7 +105,6 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
       setFromDate(val);
       setCustomRange(prev => ({ ...prev, from: val }));
       nextFrom = val;
-      nextFromTouched = true;
       setFromTouched(true);
     } else {
       if (fromDate && isAfter(fromDate, val)) {
@@ -102,15 +114,14 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
       setToDate(val);
       setCustomRange(prev => ({ ...prev, to: val }));
       nextTo = val;
-      nextToTouched = true;
       setToTouched(true);
     }
 
-    // Only trigger search if BOTH dates have been explicitly selected in this 'Custom' session
-    if (nextFrom && nextTo && nextFromTouched && nextToTouched) {
+    // Trigger on every valid date change so both From and To edits refresh results.
+    if (nextFrom && nextTo) {
       onChange?.(`${format(nextFrom, 'yyyy-MM-dd')} to ${format(nextTo, 'yyyy-MM-dd')}`);
     }
-  }, [fromDate, toDate, fromTouched, toTouched, onChange]);
+  }, [fromDate, toDate, onChange]);
 
   return {
     internalVal,

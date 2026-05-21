@@ -24,6 +24,8 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         onPageChange,
         onRowsPerPageChange,
         statusOptions,
+        statusOptionsLoading,
+        statusOptionsError,
         payerOptions,
         searchTerm,
         setSearchTerm,
@@ -63,12 +65,13 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         },
         { id: 'payer', label: 'PAYER', minWidth: 180, accessor: (r) => r.payer ?? '', filterOptions: payerOptions, render: (r) => r.payer },
         { id: 'amount', label: 'AMOUNT', minWidth: 110, align: 'center', accessor: (r) => r.amount ?? null, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount)}</Box> },
-        { id: 'openBalance', label: 'OPEN BALANCE', minWidth: 120, align: 'center', accessor: (r) => r.openBalance ?? null, render: (r) => formatCurrency(r.openBalance) },
         {
             id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: statusOptions,
+            isFilterLoading: statusOptionsLoading,
+            filterError: statusOptionsError,
             render: (r) => <StatusBadge status={r.status} />
         },
-    ], [handleDrillDown, statusOptions, payerOptions]);
+    ], [handleDrillDown, statusOptions, statusOptionsLoading, statusOptionsError, payerOptions]);
 
     return (
         <ScreenWrapper>

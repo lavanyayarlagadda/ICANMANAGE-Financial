@@ -21,6 +21,15 @@ export interface DateRangeParams {
     icanManageId?: string | number;
 }
 
+/** Matches backend DepositReconTrendsQueryDto query params. */
+export interface DepositReconTrendsQueryParams extends DateRangeParams {
+    trailingWindowMonths?: number;
+    forecastMonths?: number;
+    compare?: string;
+    globalFromDate?: string;
+    globalToDate?: string;
+}
+
 export interface DynamicColumn {
     displayName: string;
     active?: boolean;

@@ -75,8 +75,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         sortOrder: SORT_ORDER.DESC,
     });
 
-    const { selectedTenantId } = useAppSelector(s => s.tenant);
-    const isActualSkip = skip || !selectedTenantId;
+    const isActualSkip = skip;
 
     const { data, isFetching, refetch } = useSearchRecoupmentsQuery({
         page: queryParams.page + 1,
@@ -151,10 +150,12 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
 
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
-            refetch();
+            if (!isActualSkip) {
+                refetch();
+            }
             reloadCount.current = actionTriggers.reload;
         }
-    }, [actionTriggers.reload, refetch]);
+    }, [actionTriggers.reload, isActualSkip, refetch]);
 
 
     const handleDrillDown = useCallback(async (row: RecoupmentRecord) => {

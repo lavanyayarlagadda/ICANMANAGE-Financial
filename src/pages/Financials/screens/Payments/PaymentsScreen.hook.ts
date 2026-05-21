@@ -23,6 +23,7 @@ import {
     useLazyExportPaymentsQuery,
     useLazySearchServiceLinesQuery,
     useLazyGetRemittanceClaimsQuery,
+    useGetPaymentStatusQuery,
 } from '@/store/api/financialsApi';
 import { useGetAllTransactionsFiltersQuery } from '@/store/api/transactionsApi';
 import { PaymentQueryParams } from '@/interfaces/api';
@@ -81,15 +82,14 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sortOrder: SORT_ORDER.DESC,
     });
 
-    const { selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
-    const isActualSkip = skip || !selectedTenantId;
+    const isActualSkip = skip;
 
     const { data, isError, isFetching, refetch } = useSearchPaymentsQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
         desc: queryParams.sortOrder === SORT_ORDER.DESC,
-        status: queryParams.status === 'All' ? null : queryParams.status,
+        status: queryParams.status,
         payerIds: queryParams.payerIds as string | null,
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
@@ -98,20 +98,37 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const [triggerExport] = useLazyExportPaymentsQuery();
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
+    const {
+        data: statusData,
+        isFetching: statusOptionsLoading,
+        isError: statusOptionsError
+    } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
     const { data: dropdownData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
     const statusOptions = useMemo(() => {
-        if (dropdownData?.data?.transactionStatusTypes) {
-            return dropdownData.data.transactionStatusTypes.map((status) => ({
-                label: status,
-                value: status
-            }));
+        if (!Array.isArray(statusData?.data)) {
+            return [];
         }
-        return [];
-    }, [dropdownData]);
+        return statusData.data
+            .filter((item) => item?.postingStatusMasterId != null && !!item?.postingStatus)
+            .map((item) => ({
+                label: item.postingStatus,
+                value: String(item.postingStatusMasterId)
+            }));
+    }, [statusData]);
+
+    useEffect(() => {
+        if (!queryParams.status || statusOptions.length === 0) {
+            return;
+        }
+        const hasSelectedStatus = statusOptions.some((option) => option.value === queryParams.status);
+        if (!hasSelectedStatus) {
+            setQueryParams((prev) => ({ ...prev, status: null, page: 0 }));
+        }
+    }, [queryParams.status, statusOptions]);
 
     const payerOptions = useMemo(() => {
         if (dropdownData?.data?.payers) {
@@ -173,7 +190,9 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             const doReload = async () => {
                 try {
                     dispatch(setIsReloading(true));
-                    await refetch();
+                    if (!isActualSkip) {
+                        await refetch();
+                    }
                 } finally {
                     dispatch(setIsReloading(false));
                 }
@@ -181,7 +200,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             doReload();
             reloadCount.current = actionTriggers.reload;
         }
-    }, [actionTriggers.reload, refetch, dispatch]);
+    }, [actionTriggers.reload, isActualSkip, refetch, dispatch]);
 
     const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
 
@@ -317,6 +336,8 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         onSearch: handleSearch,
         isError,
         isFetching,
+        statusOptionsLoading,
+        statusOptionsError,
         dispatch,
         statusOptions,
         payerOptions

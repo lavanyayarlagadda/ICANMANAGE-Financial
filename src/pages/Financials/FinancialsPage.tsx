@@ -45,6 +45,7 @@ const FinancialsPage: React.FC = () => {
     activeTab,
     activeSubTab,
     isRestricted,
+    isRedirectingFromHiddenRoute,
     activePage,
     financialsTabs,
     viewDialogOpen,
@@ -120,7 +121,7 @@ const FinancialsPage: React.FC = () => {
           isRestricted={isRestricted}
         />
 
-        {isRestricted ? (
+        {isRestricted && !isRedirectingFromHiddenRoute ? (
           <RestrictedContainer>
             <Box sx={{
               width: 100,

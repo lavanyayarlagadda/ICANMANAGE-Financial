@@ -1,0 +1,192 @@
+{
+  "screenMeta": {
+    "title": "Deposit Reconciliation — Executive Summary",
+    "subtitle": "Month-over-month cash flow, posting health, and forecast.",
+    "updatedAt": "2026-05-05T18:28:21Z",
+    "api": {
+      "name": "getDepositReconciliationExecutiveSummaryMeta",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/meta"
+    }
+  },
+  "controls": {
+    "trailingWindow": {
+      "label": "Trailing window",
+      "selected": "3m",
+      "options": ["3m", "6m", "12m", "24m"],
+      "api": {
+        "name": "getDepositReconciliationTrailingWindow",
+        "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/trailing-window"
+      }
+    },
+    "forecastWindow": {
+      "label": "Forecast",
+      "selected": "3m",
+      "options": ["off", "3m", "6m"],
+      "api": {
+        "name": "getDepositReconciliationForecastWindow",
+        "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/forecast-window"
+      }
+    },
+    "comparisonMode": {
+      "label": "Compare",
+      "selected": "MoM",
+      "options": ["MoM", "YoY"],
+      "api": {
+        "name": "getDepositReconciliationCompareMode",
+        "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/compare-mode"
+      }
+    },
+    "export": {
+      "label": "Export",
+      "actionText": "Print / PDF",
+      "api": {
+        "name": "exportDepositReconciliationExecutiveSummary",
+        "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/export"
+      }
+    }
+  },
+  "monthAtGlance": {
+    "title": "This month at a glance",
+    "insights": [
+      "Cash deposits down 35.6% MoM in May 2026, a -$8.9M change — worth a look.",
+      "Year-over-year, May 2026 cash is up 6.3% vs the same month last year ($16.7M vs $15.7M).",
+      "Reconciliation aging has slipped: 22.4% of unreconciled cash is now > 30 days old ($14.7M). Industry target is < 15%."
+    ],
+    "api": {
+      "name": "getDepositReconciliationMonthAtGlance",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/month-at-glance"
+    }
+  },
+  "heroCards": {
+    "api": {
+      "name": "getDepositReconciliationHeroCards",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/hero-cards"
+    },
+    "cards": [
+      {
+        "id": "adjusted-cash-deposit",
+        "title": "Adjusted Cash Deposit (window total)",
+        "value": "$53,845,035.70",
+        "delta": "▼ 35.6%",
+        "deltaTrend": "down",
+        "meta": "May '26 latest"
+      },
+      {
+        "id": "dso-days-in-ar",
+        "title": "DSO — Days in A/R",
+        "value": "58 days",
+        "delta": "—",
+        "deltaTrend": "neutral",
+        "meta": "Open A/R $48,956,087.04 / 90-day avg charges"
+      },
+      {
+        "id": "posted-to-emr-reconciled",
+        "title": "Posted to EMR — Reconciled",
+        "value": "$15,374,089.26",
+        "delta": "▲ 4.8%",
+        "deltaTrend": "up",
+        "meta": "94.1% of total posted"
+      },
+      {
+        "id": "posted-to-emr-unreconciled",
+        "title": "Posted to EMR — Unreconciled",
+        "value": "$952,855.16",
+        "delta": "▼ 11.2%",
+        "deltaTrend": "down",
+        "meta": "Aging > 30d: 18.5%"
+      },
+      {
+        "id": "adjustments-window-total",
+        "title": "Adjustments (FB / Recoupment / CAP)",
+        "value": "$496,099.97",
+        "delta": "▼ 14.8%",
+        "deltaTrend": "down",
+        "meta": "Window total"
+      }
+    ]
+  },
+  "reconciliationAging": {
+    "title": "Reconciliation aging — all unmatched bank deposits",
+    "description": "Cross-period view: bucketed by deposit effectiveDate age — no date filter applied. Industry target: keep > 30 days under 15%.",
+    "headlineValue": "$65,419,588.78",
+    "headlineMeta": "across 12,841 deposits • 22.4% > 30 days",
+    "api": {
+      "name": "getDepositReconciliationAgingBuckets",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/aging-buckets"
+    },
+    "rows": [
+      { "bucket": "0–7 days", "deposits": "4,318", "amount": "$22,861,555.83", "share": "34.9%" },
+      { "bucket": "8–14 days", "deposits": "3,047", "amount": "$16,980,944.93", "share": "26.0%" },
+      { "bucket": "15–30 days", "deposits": "2,194", "amount": "$10,775,529.09", "share": "16.5%" },
+      { "bucket": "31–60 days", "deposits": "1,475", "amount": "$5,862,219.60", "share": "9.0%" },
+      { "bucket": "60+ days", "deposits": "1,807", "amount": "$8,939,339.33", "share": "13.6%" }
+    ]
+  },
+  "adjustedCashDepositTable": {
+    "title": "Adjusted Cash Deposit",
+    "description": "Cash that hit the bank this month, broken by funding source.",
+    "api": {
+      "name": "getAdjustedCashDepositBreakdown",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/adjusted-cash-deposit"
+    },
+    "rows": [
+      { "name": "Actual Bank Deposit", "momDelta": "▼ 38.4%", "mar26": "$25,236,803.66", "apr26": "$23,361,397.00", "may26": "$14,388,194.82", "jun26Forecast": "$20,995,465.16", "jul26Forecast": "$20,995,465.16", "aug26Forecast": "$20,995,465.16" },
+      { "name": "Patient Accounts EMR", "momDelta": "▼ 12.0%", "mar26": "$1,716,881.67", "apr26": "$1,545,012.09", "may26": "$1,359,610.45", "jun26Forecast": "$1,540,501.40", "jul26Forecast": "$1,540,501.40", "aug26Forecast": "$1,540,501.40" },
+      { "name": "GL (General Ledger)", "momDelta": "▲ 4.7%", "mar26": "$842.10", "apr26": "$1,102.01", "may26": "$1,153.60", "jun26Forecast": "$1,032.57", "jul26Forecast": "$1,032.57", "aug26Forecast": "$1,032.57" },
+      { "name": "PIP Payment", "momDelta": "▲ 3.8%", "mar26": "$894,512.40", "apr26": "$971,034.18", "may26": "$1,008,772.55", "jun26Forecast": "$958,106.38", "jul26Forecast": "$958,106.38", "aug26Forecast": "$958,106.38" },
+      { "name": "Total Adjusted Cash Deposit", "momDelta": "▼ 35.6%", "mar26": "$27,849,039.83", "apr26": "$25,878,545.28", "may26": "$16,757,731.42", "jun26Forecast": "$23,495,105.51", "jul26Forecast": "$23,495,105.51", "aug26Forecast": "$23,495,105.51", "isTotal": true }
+    ]
+  },
+  "postedToEmrReconciled": {
+    "title": "Posted to EMR (Reconciled)",
+    "description": "Money posted to a claim and reconciled in the legacy system.",
+    "api": {
+      "name": "getPostedToEmrReconciledSummary",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/posted-to-emr-reconciled"
+    }
+  },
+  "notPostedToEmrUnreconciled": {
+    "title": "Not Posted to EMR (Unreconciled)",
+    "description": "Money posted to a claim but the deposit-side match is incomplete.",
+    "api": {
+      "name": "getNotPostedToEmrUnreconciledSummary",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/not-posted-to-emr-unreconciled"
+    }
+  },
+  "otherCategory": {
+    "title": "Other Category",
+    "description": "Adjustments and balances that flow alongside reconciliation.",
+    "api": {
+      "name": "getDepositReconciliationOtherCategorySummary",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/other-category"
+    }
+  },
+  "topPayerScorecard": {
+    "title": "Top Payer Scorecard",
+    "description": "Largest payers by deposit volume in the visible window. Match rate = % of their remits linked to a deposit.",
+    "api": {
+      "name": "getDepositReconciliationTopPayerScorecard",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/top-payer-scorecard"
+    },
+    "rows": [
+      { "payer": "Payer 1", "total": "$46,225,292.10", "share": "32.7%", "matchRate": "78.6%", "momDelta": "▲ 4.3%" },
+      { "payer": "Payer 2", "total": "$42,723,975.99", "share": "30.3%", "matchRate": "81.2%", "momDelta": "▲ 2.8%" },
+      { "payer": "Payer 3", "total": "$13,216,066.34", "share": "9.4%", "matchRate": "75.6%", "momDelta": "▼ 6.4%" },
+      { "payer": "Payer 4", "total": "$10,154,458.18", "share": "7.2%", "matchRate": "68.7%", "momDelta": "▼ 3.4%" }
+    ]
+  },
+  "readGuide": {
+    "title": "How to read this",
+    "api": {
+      "name": "getDepositReconciliationReadGuide",
+      "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/read-guide"
+    },
+    "points": [
+      "Banner auto-summarizes the largest mover, year-over-year change, and aging health each time the page loads.",
+      "Hero tile dots are HFMA-style benchmarks: green = healthy, yellow = watch, red = action.",
+      "Aging waterfall shows how long unmatched cash has been sitting. Industry target: keep > 30 days under 15%.",
+      "Compare toggle switches Δ between MoM (latest vs prior month) and YoY (latest vs same month last year).",
+      "Forecast columns project a 3-month trailing average forward and can be replaced by backend forecast APIs later."
+    ]
+  }
+}

@@ -1,4 +1,5 @@
 import { baseApi } from "./baseApi";
+import { RootState } from "../index";
 import {
   RemitDataRecord,
   CashPostingRecord,
@@ -24,11 +25,24 @@ export const reconciliationApi = baseApi.injectEndpoints({
       BankDepositSearchResponse,
       BankDepositSearchRequest
     >({
-      query: (body) => ({
-        url: "financials/reconciliation/bank-deposits/search",
-        method: "POST",
-        body,
-      }),
+      queryFn: async (body, api, _extraOptions, baseQuery) => {
+        const state = api.getState() as RootState;
+        const clientIdFromLogin = state.auth?.user?.company;
+        const selectedTenantId = state.tenant?.selectedTenantId;
+        const isCognitiveClient = String(clientIdFromLogin || '').toLowerCase() === 'cognitivehealthit';
+        const clientName = isCognitiveClient && selectedTenantId
+          ? selectedTenantId
+          : (clientIdFromLogin || body.clientName);
+
+        return await baseQuery({
+          url: "financials/reconciliation/bank-deposits/search",
+          method: "POST",
+          body: {
+            ...body,
+            clientName,
+          },
+        });
+      },
       providesTags: ["Reconciliation"],
     }),
     getBankDepositWidgets: builder.query<
@@ -46,12 +60,25 @@ export const reconciliationApi = baseApi.injectEndpoints({
       Blob,
       BankDepositExportRequest
     >({
-      query: (body) => ({
-        url: `financials/reconciliation/bank-deposits/export`,
-        method: 'POST',
-        body,
-        responseHandler: (response) => response.blob(),
-      }),
+      queryFn: async (body, api, _extraOptions, baseQuery) => {
+        const state = api.getState() as RootState;
+        const clientIdFromLogin = state.auth?.user?.company;
+        const selectedTenantId = state.tenant?.selectedTenantId;
+        const isCognitiveClient = String(clientIdFromLogin || '').toLowerCase() === 'cognitivehealthit';
+        const clientName = isCognitiveClient && selectedTenantId
+          ? selectedTenantId
+          : (clientIdFromLogin || body.clientName);
+
+        return await baseQuery({
+          url: `financials/reconciliation/bank-deposits/export`,
+          method: 'POST',
+          body: {
+            ...body,
+            clientName,
+          },
+          responseHandler: (response) => response.blob(),
+        });
+      },
     }),
     getMappedHeadersData: builder.query<
       MappedHeadersResponse,

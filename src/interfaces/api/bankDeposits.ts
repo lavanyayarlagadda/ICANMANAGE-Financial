@@ -16,7 +16,7 @@ export interface BankDepositSearchRequest {
     sort: string;
     desc: boolean;
     clientName: string;
-    status: string | null;
+    statusList: string[];
 }
 
 export interface BankDepositExportRequest {

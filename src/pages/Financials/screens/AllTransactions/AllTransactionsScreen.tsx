@@ -108,16 +108,6 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             ),
         },
         {
-            id: 'openBalance',
-            label: 'OPEN BALANCE',
-            minWidth: 120,
-            align: 'center',
-            accessor: (r) => r.openBalance,
-            render: (r) => (
-                <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.openBalance)}</Typography>
-            ),
-        },
-        {
             id: 'status',
             label: 'STATUS',
             minWidth: 120,

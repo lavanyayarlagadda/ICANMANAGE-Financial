@@ -28,7 +28,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
   });
 
   const { refetch: refetchMeDetails } = useGetMeDetailsQuery(undefined, {
-    skip: !user || (!!isCognitiveUser && (!selectedTenantId || !tenantData || tenantData.length === 0))
+    skip: !user
   });
 
   useEffect(() => {
