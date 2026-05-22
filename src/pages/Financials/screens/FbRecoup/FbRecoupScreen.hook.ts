@@ -179,14 +179,17 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     }, [noticeData]);
 
     const stats = useMemo(() => {
-        const totalAmount = plbDetails.reduce((sum, r) => sum + (r.amount ?? 0), 0);
-        const totalSuspenseBalance = plbDetails.reduce((sum, r) => sum + (r.suspenseBalance ?? 0), 0);
+        const firstRecord = noticeData?.data?.[0];
+        const totalOriginalAmount = firstRecord?.totalOrginalAmount ?? firstRecord?.totalOriginalAmount ?? 0;
+        const totalRemainingAmount = firstRecord?.totalRemainingAmount ?? firstRecord?.totalRemainingBalance ?? 0;
+        const actionRequired = firstRecord?.actionRequired ?? 0;
         return {
-            totalAmount,
-            totalSuspenseBalance,
+            totalOriginalAmount,
+            totalRemainingAmount,
+            actionRequired,
             activeCount: totalElements
         };
-    }, [plbDetails, totalElements]);
+    }, [noticeData, totalElements]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {

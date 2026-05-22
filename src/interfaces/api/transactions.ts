@@ -165,6 +165,11 @@ export interface RawPlbDetailRecord {
     totalAdjustment: number;
     totalCount: number;
     totalPayment: number | null;
+    actionRequired?: number | null;
+    totalOrginalAmount?: number | null;
+    totalOriginalAmount?: number | null;
+    totalRemainingAmount?: number | null;
+    totalRemainingBalance?: number | null;
 }
 
 export interface PlbDetailsSearchResponse {

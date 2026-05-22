@@ -188,13 +188,13 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="TOTAL AMOUNT" value={formatCurrency(stats.totalAmount)} backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="TOTAL AMOUNT" value={formatCurrency(stats.totalOriginalAmount)} backgroundColor={theme.palette.background.paper} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="TOTAL SUSPENSE BALANCE" value={formatCurrency(stats.totalSuspenseBalance)} variant="negative" backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="TOTAL SUSPENSE BALANCE" value={formatCurrency(stats.totalRemainingAmount)} variant="negative" backgroundColor={theme.palette.background.paper} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="ACTIVE RECORDS" value={String(stats.activeCount)} backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="ACTION REQUIRED" value={String(stats.activeCount)} backgroundColor={theme.palette.background.paper} />
                 </Grid>
             </Grid>
                         <styles.ToolbarWrapper>
