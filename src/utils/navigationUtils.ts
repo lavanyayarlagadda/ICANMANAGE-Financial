@@ -18,7 +18,7 @@ export interface NavigationStructure {
 export const getNavigationStructure = (
     menus: MenuItem[],
     accessibleModules: string[] = [],
-    selectedTenantId?: string | null
+    _selectedTenantId?: string | null
 ): NavigationStructure => {
     const sidebar: DynamicTab[] = [];
     let financialsTabs: DynamicTab[] = [];

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, IconButton, Chip, Grid, Button, TextField, MenuItem, InputAdornment, FormControl } from '@mui/material';
+import { Box, Typography, IconButton, Chip, Grid, Button, TextField, InputAdornment, FormControl } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import SearchIcon from '@mui/icons-material/Search';
@@ -56,18 +56,12 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         isFetching,
         isCareHospice,
         setSearchTerm,
-        filterPayor,
-        setFilterPayor,
         filterNpiPtan,
         setFilterNpiPtan,
-        filterStateBrand,
-        setFilterStateBrand,
         brandOrStateOptions,
         applyFilters,
-        clearFilters,
         onSearch,
         searchTerm,
-        setQueryParams
     } = useFbRecoupScreen({ skip });
 
     const { expandedRows, toggleRow } = useFbRecoupTable();
