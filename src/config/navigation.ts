@@ -13,6 +13,8 @@ import DepositReconciliationScreen from '@/pages/Financials/screens/Trends/Depos
 import ReconciliationScreen from '@/pages/Financials/screens/ReconciliationScreen/ReconciliationScreen';
 import CollectionsScreen from '@/pages/Financials/screens/Collections/CollectionsScreen';
 import StatementsScreen from '@/pages/Financials/screens/Statements/StatementsScreen';
+import ForwardBalancesScreen from '@/pages/Financials/screens/ForwardBalances/ForwardBalancesScreen';
+import FbRecoupScreen from '@/pages/Financials/screens/FbRecoup/FbRecoupScreen';
 
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
@@ -40,6 +42,10 @@ export const NAV_CONFIG: Record<string, NavMetadata> = {
         path: '/financials/all-transactions',
         component: AllTransactionsScreen,
     },
+    'FB & Recoup Transactions': {
+        path: '/financials/transactions/fb&recoup',
+        component: FbRecoupScreen,
+    },
     'Payments': {
         path: '/financials/payments',
         component: PaymentsScreen,
@@ -66,7 +72,11 @@ export const NAV_CONFIG: Record<string, NavMetadata> = {
     },
     'Forward Balances': {
         path: '/financials/statements/forward-balance',
-        component: StatementsScreen,
+        component: ForwardBalancesScreen,
+    },
+    'FB & Recoup': {
+        path: '/financials/statements/fb&recoup',
+        component: FbRecoupScreen,
     },
     'Suspense Accounts': {
         path: '/financials/statements/suspense-accounts',

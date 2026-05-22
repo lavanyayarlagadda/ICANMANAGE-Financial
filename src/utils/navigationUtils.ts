@@ -110,11 +110,51 @@ export const getNavigationStructure = (
                     // Fallback for Statements if sub-modules are missing
                     if (subTabs.length === 0 && mod.menuName === 'Statements') {
                         const fallbacks: DynamicTab[] = [
-                            { id: 0, label: 'PIP', path: '/financials/statements/pip', status: 'Active', component: modConfig.component },
-                            { id: 1, label: 'Forward Balances', path: '/financials/statements/forward-balance', status: 'Active', component: modConfig.component },
-                            { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts', status: 'Active', component: modConfig.component },
+                            { id: 0, label: 'PIP', path: '/financials/statements/pip', status: 'Active', component: NAV_CONFIG['PIP']?.component },
+                            { id: 1, label: 'Forward Balances', path: '/financials/statements/forward-balance', status: 'Active', component: NAV_CONFIG['Forward Balances']?.component },
+                            { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts', status: 'Active', component: NAV_CONFIG['Suspense Accounts']?.component },
                         ];
                         subTabs = fallbacks.filter(f => isAccessible(f.label));
+                    }
+
+                    // Append FB & Recoup to Statements subtabs if Forward Balances is accessible
+                    const hasForwardBalances = subTabs.some(st => st.label === 'Forward Balances') || isAccessible('Forward Balances');
+                    if (hasForwardBalances && mod.menuName === 'Statements') {
+                        if (!subTabs.some(st => st.label === 'FB & Recoup')) {
+                            subTabs.push({
+                                id: subTabs.length,
+                                label: 'FB & Recoup',
+                                path: NAV_CONFIG['FB & Recoup']?.path || '/financials/statements/fb&recoup',
+                                status: 'Active',
+                                component: NAV_CONFIG['FB & Recoup']?.component,
+                            });
+                        }
+                    }
+
+                    if (mod.menuName === 'Statements') {
+                        subTabs = subTabs.map((st, idx) => ({ ...st, id: idx }));
+                    }
+
+                    // Append FB & Recoup to All Transactions subtabs if Forward Balances is accessible
+                    if (hasForwardBalances && mod.menuName === 'All Transactions') {
+                        if (!subTabs.some(st => st.label === 'FB & Recoup')) {
+                            subTabs = [
+                                {
+                                    id: 0,
+                                    label: 'All Transactions',
+                                    path: '/financials/all-transactions',
+                                    status: 'Active',
+                                    component: NAV_CONFIG['All Transactions']?.component,
+                                },
+                                {
+                                    id: 1,
+                                    label: 'FB & Recoup',
+                                    path: NAV_CONFIG['FB & Recoup Transactions']?.path || '/financials/transactions/fb&recoup',
+                                    status: 'Active',
+                                    component: NAV_CONFIG['FB & Recoup Transactions']?.component,
+                                }
+                            ];
+                        }
                     }
 
                     // Only return the module if it's explicitly accessible OR has accessible sub-tabs

@@ -79,7 +79,7 @@ export const useFinancialsPage = () => {
     if (isLoadingDetails) return null;
     if (!location.pathname.startsWith('/financials')) return null;
 
-    const currentPath = location.pathname.toLowerCase().replace(/\/$/, '');
+    const currentPath = decodeURIComponent(location.pathname).toLowerCase().replace(/\/$/, '');
     const pathPart = currentPath.split('/financials/')[1] || '';
     const match = pathMap[pathPart];
     if (match || currentPath === '/financials') return null;
@@ -110,7 +110,7 @@ export const useFinancialsPage = () => {
     if (location.pathname.startsWith('/financials')) {
 
       // Normalize current path
-      const currentPath = location.pathname.toLowerCase().replace(/\/$/, '');
+      const currentPath = decodeURIComponent(location.pathname).toLowerCase().replace(/\/$/, '');
 
       // Find the best match in our path map.
       // Use exact matching first, then parent/child prefix matching.
@@ -205,7 +205,7 @@ export const useFinancialsPage = () => {
 
   const isRestricted = useMemo(() => {
     // 1. If we have a match in the pathMap, check for 'Disabled' status
-    const pathPart = location.pathname.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
+    const pathPart = decodeURIComponent(location.pathname).toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
     const match = pathMap[pathPart];
 
     if (hiddenRouteRedirectPath) return false;

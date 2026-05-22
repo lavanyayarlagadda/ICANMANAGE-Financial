@@ -4,8 +4,6 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { ForwardBalanceNotice, OffsetEvent } from '@/interfaces/financials';
-import { TableQueryParams } from '@/interfaces/api';
-import PipScreen from '../Pip/PipScreen';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
@@ -14,11 +12,8 @@ import Accordion from '@/components/atoms/Accordion/Accordion';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
 import { themeConfig } from '@/theme/themeConfig';
-import { useStatementsScreen, useForwardBalanceNoticesTable } from './StatementsScreen.hook';
-import * as styles from './StatementsScreen.styles';
-import SuspenseAccountsScreen from '../Suspense/SuspenseAccountsScreen';
-import FbRecoupScreen from '../FbRecoup/FbRecoupScreen';
-
+import { useForwardBalancesScreen, useForwardBalanceNoticesTable } from './ForwardBalancesScreen.hook';
+import * as styles from './ForwardBalancesScreen.styles';
 import { useTheme } from '@mui/material/styles';
 
 const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
@@ -27,8 +22,12 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
             defaultExpanded={false}
             summary={
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600, flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>Offset EFT: <MultiValueDisplay value={offset.eftNumber} displayCount={1} /> &nbsp; {formatDate(offset.date)}</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 700, textAlign: 'center' }}>{formatCurrency(offset.amount)}</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 600, flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        Offset EFT: <MultiValueDisplay value={offset.eftNumber} displayCount={1} /> &nbsp; {formatDate(offset.date)}
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, textAlign: 'center' }}>
+                        {formatCurrency(offset.amount)}
+                    </Typography>
                     <Chip label={`CODE: ${offset.code}`} size="small" sx={styles.offsetChipStyles} />
                 </Box>
             }
@@ -43,7 +42,9 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
                     <Box key={idx} sx={{ ...styles.offsetGridStyles, borderBottom: `1px solid ${themeConfig.colors.divider}` }}>
                         <Typography fontSize={13} color="primary" sx={{ fontWeight: 500 }}>{claim.claimId}</Typography>
                         <Typography fontSize={13} sx={{ fontWeight: 500 }}>{claim.patientName}</Typography>
-                        <Typography fontSize={13} textAlign="center" color="error.main" sx={{ fontWeight: 700 }}>{formatCurrency(claim.deductedAmount)}</Typography>
+                        <Typography fontSize={13} textAlign="center" color="error.main" sx={{ fontWeight: 700 }}>
+                            {formatCurrency(claim.deductedAmount)}
+                        </Typography>
                     </Box>
                 ))}
             </Box>
@@ -51,31 +52,23 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
     </Box>
 );
 
-const ForwardBalanceNoticesTable = ({
-    data,
-    totalElements,
-    queryParams,
-    onPageChange,
-    onRowsPerPageChange,
-    onSortChange,
-    onRangeChange,
-    rangeLabel,
-    onFilterChange,
-    payerOptions,
-    loading,
-}: {
-    data: ForwardBalanceNotice[],
-    totalElements: number,
-    queryParams: TableQueryParams,
-    onPageChange: (p: number) => void,
-    onRowsPerPageChange: (s: number) => void,
-    onSortChange: (colId: string, dir: 'asc' | 'desc') => void,
-    onRangeChange: (range: string) => void,
-    rangeLabel: string,
-    onFilterChange: (filters: Record<string, string>) => void,
-    payerOptions: { label: string, value: string }[],
-    loading?: boolean,
-}) => {
+const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
+    const theme = useTheme();
+    const {
+        forwardBalanceNotices,
+        totalElements,
+        queryParams,
+        handleRangeChange,
+        handleSortChange,
+        onPageChange,
+        onRowsPerPageChange,
+        handleFilterChange,
+        payerOptions,
+        stats,
+        globalFilters,
+        isFetching
+    } = useForwardBalancesScreen({ skip });
+
     const { expandedRows, toggleRow, noticeDetails, loadingDetails } = useForwardBalanceNoticesTable();
 
     const columns = useMemo<DataColumn<ForwardBalanceNotice>[]>(() => [
@@ -88,7 +81,6 @@ const ForwardBalanceNoticesTable = ({
                     {expandedRows.has(row.id) ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
                 </IconButton>
             ),
-
         },
         {
             id: 'noticeId',
@@ -136,16 +128,32 @@ const ForwardBalanceNoticesTable = ({
             label: 'STATUS',
             align: 'center',
             accessor: (row) => row.status,
-            // filterOptions: statusOptions,
             render: (row) => <StatusBadge status={row.status} />,
         },
     ], [expandedRows, toggleRow, payerOptions]);
 
     return (
         <Box>
+            <Box sx={{ mb: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700 }}>Forward Balance Notices</Typography>
+                <Typography variant="body2" color="text.secondary">Overpayment notices with offset events.</Typography>
+            </Box>
+
+            <Grid container spacing={2} sx={{ mb: 4 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <SummaryCard title="TOTAL ORIGINAL AMOUNT" value={formatCurrency(stats?.totalOriginalAmount)} backgroundColor={theme.palette.background.paper} />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <SummaryCard title="TOTAL REMAINING BALANCE" value={formatCurrency(stats?.totalRemainingBalance)} variant="negative" backgroundColor={theme.palette.background.paper} />
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <SummaryCard title="ACTION REQUIRED" value={String(stats?.actionRequired)} backgroundColor={theme.palette.background.paper} />
+                </Grid>
+            </Grid>
+
             <DataTable
                 columns={columns}
-                data={data}
+                data={forwardBalanceNotices}
                 rowKey={(row) => row.id}
                 expandedRows={expandedRows}
                 expandedContent={(row) => {
@@ -175,7 +183,7 @@ const ForwardBalanceNoticesTable = ({
                     );
                 }}
                 exportTitle="Forward Balance Notices"
-                customToolbarContent={<RangeDropdown value={rangeLabel} onChange={onRangeChange} />}
+                customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}
                 dictionaryId="statements"
                 serverSide
                 totalElements={totalElements}
@@ -185,74 +193,13 @@ const ForwardBalanceNoticesTable = ({
                 sortDir={queryParams.sortOrder}
                 onPageChange={onPageChange}
                 onRowsPerPageChange={onRowsPerPageChange}
-                onSortChange={onSortChange}
-                onFilterChange={onFilterChange}
+                onSortChange={handleSortChange}
+                onFilterChange={handleFilterChange}
                 download={false}
-                loading={loading}
+                loading={isFetching}
             />
         </Box>
     );
 };
 
-const StatementsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-    const theme = useTheme();
-    const {
-        finalActiveSubTab,
-        forwardBalanceNotices,
-        totalElements,
-        queryParams,
-        handleRangeChange,
-        handleSortChange,
-        onPageChange,
-        onRowsPerPageChange,
-        handleFilterChange,
-        payerOptions,
-        stats,
-        globalFilters,
-        isFetching
-    } = useStatementsScreen({ skip });
-
-    return (
-        <Box>
-            {(finalActiveSubTab === 0 || finalActiveSubTab === 1) && (
-                <Box sx={{ mb: 3 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700 }}>{finalActiveSubTab === 0 ? 'PIP Statements' : 'Forward Balance Notices'}</Typography>
-                    <Typography variant="body2" color="text.secondary">{finalActiveSubTab === 0 ? 'Periodic Interim Payment (PIP) records.' : 'Overpayment notices with offset events.'}</Typography>
-                </Box>
-            )}
-
-            {finalActiveSubTab === 1 && (
-                <Grid container spacing={2} sx={{ mb: 4 }}>
-                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL ORIGINAL AMOUNT" value={formatCurrency(stats?.totalOriginalAmount)} backgroundColor={theme.palette.background.paper} /></Grid>
-                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL REMAINING BALANCE" value={formatCurrency(stats?.totalRemainingBalance)} variant="negative" backgroundColor={theme.palette.background.paper} /></Grid>
-                    <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="ACTION REQUIRED" value={String(stats?.actionRequired)} backgroundColor={theme.palette.background.paper} /></Grid>
-                </Grid>
-            )}
-
-            {finalActiveSubTab === 0 ? (
-                <PipScreen skip={finalActiveSubTab !== 0} />
-            ) : finalActiveSubTab === 1 ? (
-                <ForwardBalanceNoticesTable
-                    data={forwardBalanceNotices}
-                    totalElements={totalElements}
-                    queryParams={queryParams}
-                    onPageChange={onPageChange}
-                    onRowsPerPageChange={onRowsPerPageChange}
-                    onSortChange={handleSortChange}
-                    onRangeChange={handleRangeChange}
-                    rangeLabel={globalFilters.rangeLabel}
-                    onFilterChange={handleFilterChange}
-                    payerOptions={payerOptions}
-                    loading={isFetching}
-                />
-            ) : finalActiveSubTab === 2 ? (
-                <SuspenseAccountsScreen skip={finalActiveSubTab !== 2} />
-            ) : (
-                <FbRecoupScreen skip={finalActiveSubTab !== 3} />
-            )}
-        </Box>
-    );
-};
-
-export default StatementsScreen;
-
+export default ForwardBalancesScreen;

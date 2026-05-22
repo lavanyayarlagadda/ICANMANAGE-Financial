@@ -7,7 +7,9 @@ import {
   RecoupmentSearchResponse,
   RecoupmentFilterResponse,
   OtherAdjustmentSearchResponse,
-  DateRangeParams
+  DateRangeParams,
+  PlbDetailsSearchRequest,
+  PlbDetailsSearchResponse
 } from "@/interfaces/api";
 
 export const transactionsApi = baseApi.injectEndpoints({
@@ -83,6 +85,17 @@ export const transactionsApi = baseApi.injectEndpoints({
       query: () => "financials/transactions/recoupments/filters",
       providesTags: ["Transactions"],
     }),
+    searchPlbDetails: builder.query<
+      PlbDetailsSearchResponse,
+      PlbDetailsSearchRequest
+    >({
+      query: (body) => ({
+        url: "financials/transactions/plb-details",
+        method: "POST",
+        body,
+      }),
+      providesTags: ["Transactions"],
+    }),
   }),
 });
 
@@ -94,5 +107,6 @@ export const {
   useLazyExportRecoupmentsQuery,
   useLazyExportOtherAdjustmentsQuery,
   useLazyExportAllTransactionsQuery,
-  useGetRecoupmentFiltersQuery
+  useGetRecoupmentFiltersQuery,
+  useSearchPlbDetailsQuery
 } = transactionsApi;

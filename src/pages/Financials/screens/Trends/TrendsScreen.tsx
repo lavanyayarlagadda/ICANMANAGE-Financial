@@ -69,7 +69,9 @@ const formatYAxisAmount = (value: number): string => {
 const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     const theme = useTheme();
     const {
-        activeSubTab,
+        isForecastPath,
+        isSummaryPath,
+        isPayerPath,
         forecastSummary,
         reconPerformance,
         dashboardData,
@@ -470,9 +472,9 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
     return (
         <TrendsWrapper>
-            {activeSubTab === 0 && forecastTrendsContent}
-            {activeSubTab === 1 && executiveSummaryContent}
-            {activeSubTab === 2 && payerPerformanceContent}
+            {isForecastPath && forecastTrendsContent}
+            {isSummaryPath && executiveSummaryContent}
+            {isPayerPath && payerPerformanceContent}
         </TrendsWrapper>
     );
 };
