@@ -149,6 +149,7 @@ export const colors = {
     red: '#DC2626',
     purple: '#7B1FA2',
     teal: '#00838F',
+    tealDark: '#006064',
   },
 
   // Interactions (Legacy Alpha Support)

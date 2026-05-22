@@ -77,7 +77,11 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
 
     const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip: !isNoticesTab });
     const statusOptions = useMemo(() => filterData?.data?.transactionStatusTypes || [], [filterData]);
-    const payerOptions = useMemo(() => filterData?.data?.payerNames?.map(p => ({ label: p, value: p })) || [], [filterData]);
+    const payerOptions = useMemo(() => {
+  const names = filterData?.data?.payerNames || [];
+  const uniqueNames = Array.from(new Set(names));
+  return uniqueNames.map(p => ({ label: p, value: p }));
+}, [filterData]);
 
     useEffect(() => {
         if (!isNoticesTab || skip) {
@@ -179,8 +183,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
                 ...prev,
                 status: filters.status || null,
                 payerName: filters.provider || null,
-                page: 0
-            };
+                page: 0            };
             const isChanged = prev.status !== next.status || prev.payerName !== next.payerName;
             return isChanged ? next : prev;
         });

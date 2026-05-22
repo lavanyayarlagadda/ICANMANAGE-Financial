@@ -5,6 +5,7 @@ import { colors } from './colors';
  */
 
 export const themeConfig = {
+  teal: colors.charts.teal,
   colors,
 
   logoColor: colors.primary,

@@ -80,3 +80,15 @@ export const SearchField = styled(TextField)(({ theme }) => ({
     fontSize: '13px'
   }
 }));
+
+export const FilterField = styled(TextField)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  flex: '0 0 150px',
+  width: 150,
+  minWidth: 120,
+  '& .MuiOutlinedInput-root': {
+    height: 36,
+    fontSize: '13px',
+  },
+}));
+

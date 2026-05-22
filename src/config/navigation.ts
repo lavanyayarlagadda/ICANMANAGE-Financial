@@ -42,7 +42,7 @@ export const NAV_CONFIG: Record<string, NavMetadata> = {
         path: '/financials/all-transactions',
         component: AllTransactionsScreen,
     },
-    'FB & Recoup Transactions': {
+    'FB & Recoup': {
         path: '/financials/transactions/fb&recoup',
         component: FbRecoupScreen,
     },
@@ -74,7 +74,7 @@ export const NAV_CONFIG: Record<string, NavMetadata> = {
         path: '/financials/statements/forward-balance',
         component: ForwardBalancesScreen,
     },
-    'FB & Recoup': {
+    'Forward Balances & Recoupments': {
         path: '/financials/statements/fb&recoup',
         component: FbRecoupScreen,
     },

@@ -50,12 +50,30 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         setQueryParams(prev => ({
             ...prev,
             transactionNumber: searchTerm,
-            payers: filterPayor === 'All' ? [] : [filterPayor],
+            payers: filterPayor === 'All' || filterPayor === '' ? [] : [filterPayor],
             ptanNumbers: filterNpiPtan ? [filterNpiPtan] : [],
-            brands: filterStateBrand === 'All' ? [] : [filterStateBrand],
+            brands: filterStateBrand === 'All' || filterStateBrand === '' ? [] : [filterStateBrand],
             page: 0
         }));
     }, [searchTerm, filterPayor, filterNpiPtan, filterStateBrand]);
+
+    const handleFilterPayorChange = useCallback((value: string) => {
+        setFilterPayor(value);
+        setQueryParams(prev => ({
+            ...prev,
+            payers: value === 'All' || value === '' ? [] : [value],
+            page: 0
+        }));
+    }, []);
+
+    const handleFilterStateBrandChange = useCallback((value: string) => {
+        setFilterStateBrand(value);
+        setQueryParams(prev => ({
+            ...prev,
+            brands: value === 'All' || value === '' ? [] : [value],
+            page: 0
+        }));
+    }, []);
 
     const clearFilters = useCallback(() => {
         setSearchTerm('');
@@ -109,7 +127,7 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     }, { skip });
 
     const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip });
-    const payerOptions = useMemo(() => filterData?.data?.payerNames?.map(p => ({ label: p, value: p })) || [], [filterData]);
+    const payerOptions = useMemo(() => filterData?.data?.payers?.map(p => ({ label: p.payerName, value: String(p.payerId) })) || [], [filterData]);
 
     const { data: userBrandsData } = useGetUserMappedBrandsQuery({
         icanManageId,
@@ -119,7 +137,7 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const brandOrStateOptions = useMemo(() => {
         return userBrandsData?.data?.map(b => ({
             label: b.hospitalAbbr,
-            value: b.hospitalAbbr
+            value: String(b.fkHospitalMasterId)
         })) || [];
     }, [userBrandsData]);
 
@@ -192,16 +210,36 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const onRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
 
     const handleFilterChange = useCallback((filters: Record<string, string>) => {
-        const nextPayers = filters.payor ? [filters.payor] : [];
-        setFilterPayor(filters.payor || 'All');
-        setQueryParams(prev => ({
-            ...prev,
-            payers: nextPayers,
-            page: 0
-        }));
-    }, []);
+    if (Object.keys(filters).length === 0) {
+      clearFilters();
+      return;
+    }
+    
+    let newPayor = filterPayor;
+    let newStateBrand = filterStateBrand;
+
+    // Update local filter states based on column filters
+    if (filters.payor !== undefined) {
+      newPayor = filters.payor || 'All';
+      setFilterPayor(newPayor);
+    }
+    if (filters.state !== undefined) {
+      newStateBrand = filters.state || 'All';
+      setFilterStateBrand(newStateBrand);
+    }
+    // Update queryParams for server-side filtering
+    const payers = newPayor && newPayor !== 'All' && newPayor !== '' ? [newPayor] : [];
+    const brands = newStateBrand && newStateBrand !== 'All' && newStateBrand !== '' ? [newStateBrand] : [];
+    setQueryParams(prev => ({
+      ...prev,
+      payers,
+      brands,
+      page: 0,
+    }));
+  }, [clearFilters, filterPayor, filterStateBrand]);
 
     return {
+        setQueryParams,
         plbDetails,
         totalElements,
         queryParams,
@@ -210,10 +248,12 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         setSearchTerm,
         filterPayor,
         setFilterPayor,
+        handleFilterPayorChange,
         filterNpiPtan,
         setFilterNpiPtan,
         filterStateBrand,
         setFilterStateBrand,
+        handleFilterStateBrandChange,
         brandOrStateOptions,
         onSearch: handleSearch,
         applyFilters: handleSearch,

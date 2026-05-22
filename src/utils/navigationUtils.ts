@@ -120,13 +120,13 @@ export const getNavigationStructure = (
                     // Append FB & Recoup to Statements subtabs if Forward Balances is accessible
                     const hasForwardBalances = subTabs.some(st => st.label === 'Forward Balances') || isAccessible('Forward Balances');
                     if (hasForwardBalances && mod.menuName === 'Statements') {
-                        if (!subTabs.some(st => st.label === 'FB & Recoup')) {
+                        if (!subTabs.some(st => st.label === 'Forward Balances & Recoupments')) {
                             subTabs.push({
                                 id: subTabs.length,
-                                label: 'FB & Recoup',
-                                path: NAV_CONFIG['FB & Recoup']?.path || '/financials/statements/fb&recoup',
+                                label: 'Forward Balances & Recoupments',
+                                path: NAV_CONFIG['Forward Balances & Recoupments']?.path || '/financials/statements/fb&recoup',
                                 status: 'Active',
-                                component: NAV_CONFIG['FB & Recoup']?.component,
+                                component: NAV_CONFIG['Forward Balances & Recoupments']?.component,
                             });
                         }
                     }
@@ -149,7 +149,7 @@ export const getNavigationStructure = (
                                 {
                                     id: 1,
                                     label: 'FB & Recoup',
-                                    path: NAV_CONFIG['FB & Recoup Transactions']?.path || '/financials/transactions/fb&recoup',
+                                    path: NAV_CONFIG['FB & Recoup Transactions']?.path || '/financials/fb&recoup',
                                     status: 'Active',
                                     component: NAV_CONFIG['FB & Recoup Transactions']?.component,
                                 }

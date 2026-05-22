@@ -82,12 +82,12 @@ export interface AllTransactionsSearchRequest {
     desc: boolean;
     fromDate: string;
     toDate: string;
-    // statusIds: string | number | null;
+     statusIds: string | number | null;
     // categoryIds: string | number | null;
     // transactionTypeIds: string | number | null;
     // payerIds: string | number | null;
     transactionNo: string;
-    status?:string;
+    // status?:string;
     category?:string;
     type?:string;
       payer?:string;

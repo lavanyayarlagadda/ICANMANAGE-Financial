@@ -80,7 +80,9 @@ export const useBankDepositData = ({
         !shouldFetchDependent ? skipToken : {
             startDate: queryParams.fromDate,
             endDate: queryParams.toDate,
-            icanManageId: userId
+            icanManageId: userId,
+            stateId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
+            clientName: selectedTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME
         }
     );
 

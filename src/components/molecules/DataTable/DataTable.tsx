@@ -71,6 +71,7 @@ function DataTable<T>({
   getRowStyle,
   dense = false,
   loading = false,
+  additionalFilterCount = 0,
   ...props
 }: DataTableProps<T>) {
   const hasAccessor = (column: DataColumn<T>): column is AccessorColumn<T> => !!column.accessor;
@@ -134,7 +135,7 @@ function DataTable<T>({
   const paginatedData = paginated && !props.serverSide
     ? sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : sortedData;
-  const activeFilterCount = Object.values(columnFilters).filter(Boolean).length + (search ? 1 : 0);
+  const activeFilterCount = Object.values(columnFilters).filter(Boolean).length + (search ? 1 : 0) + additionalFilterCount;
 
   const handleSelectAll = (checked: boolean) => {
     const newSelection = new Set(selectedKeys);

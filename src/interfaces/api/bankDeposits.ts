@@ -51,6 +51,8 @@ export interface BankDepositWidgetParams {
     startDate: string;
     endDate: string;
     icanManageId: string | number;
+    stateId?: number;
+    clientName?: string;
 }
 
 export interface BankDepositHistoryParams {

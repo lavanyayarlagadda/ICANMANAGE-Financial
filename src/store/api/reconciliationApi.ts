@@ -49,11 +49,24 @@ export const reconciliationApi = baseApi.injectEndpoints({
       BankDepositWidgetResponse,
       BankDepositWidgetParams
     >({
-      query: (params) => ({
-        url: "financials/reconciliation/bank-deposits/widgets-data",
-        params,
-        method: 'POST'
-      }),
+      queryFn: async (params, api, _extraOptions, baseQuery) => {
+        const state = api.getState() as RootState;
+        const clientIdFromLogin = state.auth?.user?.company;
+        const selectedTenantId = state.tenant?.selectedTenantId;
+        const isCognitiveClient = String(clientIdFromLogin || '').toLowerCase() === 'cognitivehealthit';
+        const clientName = isCognitiveClient && selectedTenantId
+          ? selectedTenantId
+          : (clientIdFromLogin || params.clientName);
+
+        return await baseQuery({
+          url: "financials/reconciliation/bank-deposits/widgets-data",
+          method: "GET",
+          params: {
+            ...params,
+            clientName,
+          },
+        });
+      },
       providesTags: ["Reconciliation"],
     }),
     exportBankDeposits: builder.query<

@@ -228,7 +228,8 @@ export function DataTableToolbar<T>({
               alignItems: 'center',
               width: '100%',
               overflowX: customFilterContent ? 'auto' : 'visible',
-              pb: customFilterContent ? 0.5 : 0,
+                          pt: customFilterContent ? 2 : 0,
+              pb: customFilterContent ? 1 : 0,
             }}
           >
             {filterableColumns.map((col) => {
