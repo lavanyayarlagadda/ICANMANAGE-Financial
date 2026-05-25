@@ -36,10 +36,22 @@ export const SectionTable: React.FC<SectionTableProps> = ({
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {description}
         </Typography>
-        <Box sx={{ overflowX: "auto" }}>
+        <Box sx={{ 
+          overflowX: "auto",
+          maxWidth: "100%",
+          "&::-webkit-scrollbar": { height: '8px' },
+          "&::-webkit-scrollbar-track": { background: "transparent" },
+          "&::-webkit-scrollbar-thumb": { 
+            background: "#c1c1c1", 
+            borderRadius: '10px', 
+            "&:hover": { background: "#a8a8a8" } 
+          },
+          scrollbarWidth: 'thin',
+          scrollbarColor: `#c1c1c1 transparent`,
+        }}>
           <Box
             component="table"
-            sx={{ width: "100%", borderCollapse: "collapse", minWidth: 960 }}
+            sx={{ width: "100%", borderCollapse: "collapse", minWidth: "max-content" }}
           >
             <Box component="thead">
               <Box component="tr">
@@ -59,6 +71,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                             ? `1px dotted ${theme.palette.divider}`
                             : "none",
                         fontSize: 12,
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {label}
@@ -81,6 +94,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                           borderBottom: `1px solid ${theme.palette.divider}`,
                           fontWeight: 600,
                           color: theme.palette.text.primary,
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {row.name}
@@ -109,6 +123,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                         pl: row.isSubtotal || row.isTotal ? 1 : 2.5,
                         borderBottom: `1px solid ${theme.palette.divider}`,
                         fontWeight: isBoldRow ? 700 : 500,
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {row.name}
@@ -148,6 +163,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                           theme.palette.text.secondary,
                         ),
                         fontWeight: 700,
+                        whiteSpace: "nowrap",
                       }}
                     >
                       {toText(row.momDelta)}
@@ -173,6 +189,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                               : theme.palette.text.primary,
                             fontStyle: isForecast ? "italic" : "normal",
                             fontWeight: isBoldRow ? 700 : 500,
+                            whiteSpace: "nowrap",
                           }}
                         >
                           {value}

@@ -134,7 +134,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
   const safeTopPayers = ensureArray<PayerRow>(topPayers);
 
   return (
-    <Box sx={{ px: 2, pb: 3, pt: 1 }}>
+    <Box sx={{ px: 2, pb: 3, pt: 1, minWidth: 0, width: '100%', maxWidth: '100%' }}>
       <DepositReconciliationHeader
         title={screenMeta.title}
         subtitle={screenMeta.subtitle}

@@ -8,6 +8,7 @@ export const TrendsWrapper = styled(Box)(() => ({
   flex: 1,
   height: '100%',
   minHeight: 0,
+  minWidth: 0,
 }));
 
 export const SectionHeader = styled(Box)(({ theme }) => ({
