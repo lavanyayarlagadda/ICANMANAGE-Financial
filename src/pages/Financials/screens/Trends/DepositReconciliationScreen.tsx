@@ -134,7 +134,9 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
   const safeTopPayers = ensureArray<PayerRow>(topPayers);
 
   return (
-    <Box sx={{ px: 2, pb: 3, pt: 1, minWidth: 0, width: '100%', maxWidth: '100%' }}>
+    <Box
+      sx={{ px: 2, pb: 3, pt: 1, minWidth: 0, width: "100%", maxWidth: "100%" }}
+    >
       <DepositReconciliationHeader
         title={screenMeta.title}
         subtitle={screenMeta.subtitle}
@@ -147,23 +149,25 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
         setCompareMode={setCompareMode}
         controls={contract.controls}
       />
-
-      <Card sx={{ mb: 2, borderLeft: `4px solid ${theme.palette.error.main}` }}>
-        <CardContent>
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 700, color: theme.palette.error.main, mb: 1 }}
-          >
-            {monthAtGlanceTitle}
-          </Typography>
-          {safeInsights.map((line, idx) => (
-            <Typography key={idx} variant="body2" sx={{ mb: 0.5 }}>
-              {toText(line)}
+      {safeInsights && monthAtGlanceTitle && (
+        <Card
+          sx={{ mb: 2, borderLeft: `4px solid ${theme.palette.error.main}` }}
+        >
+          <CardContent>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 700, color: theme.palette.error.main, mb: 1 }}
+            >
+              {monthAtGlanceTitle}
             </Typography>
-          ))}
-        </CardContent>
-      </Card>
-
+            {safeInsights.map((line, idx) => (
+              <Typography key={idx} variant="body2" sx={{ mb: 0.5 }}>
+                {toText(line)}
+              </Typography>
+            ))}
+          </CardContent>
+        </Card>
+      )}
       <DepositReconciliationHeroCards heroCards={safeHeroCards} />
 
       <DepositReconciliationAging
