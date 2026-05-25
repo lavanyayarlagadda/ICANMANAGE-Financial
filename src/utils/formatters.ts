@@ -94,10 +94,25 @@ export const formatCompactCurrency = (value: number): string => {
 };
 
 /**
+ * Format a percentage number for display (up to 2 decimal places, no trailing zeros).
+ */
+export const formatPercentValue = (
+  value: number | string | null | undefined,
+  maxDecimals = 2,
+): string => {
+  if (value === null || value === undefined || value === '') return '—';
+  const num = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(num)) return '—';
+  const factor = 10 ** maxDecimals;
+  const rounded = Math.round(Math.abs(num) * factor) / factor;
+  return String(rounded);
+};
+
+/**
  * Format a number as a percentage string.
  */
 export const formatPercent = (value: number, decimals = 2): string => {
-  return `${value.toFixed(decimals)}%`;
+  return `${formatPercentValue(value, decimals)}%`;
 };
 
 /**
