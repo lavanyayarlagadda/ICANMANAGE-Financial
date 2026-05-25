@@ -98,6 +98,7 @@ export const useDepositReconciliation = ({
     data: executiveResponse,
     isFetching: isFetchingExecutive,
     refetch: refetchExecutive,
+    isError: isErrorExecutive
   } = useGetDepositReconciliationExecutiveSummaryQuery(trendsQueryParams, {
     skip,
   });
@@ -105,11 +106,13 @@ export const useDepositReconciliation = ({
     data: agingResponse,
     isFetching: isFetchingAging,
     refetch: refetchAging,
+    isError: isErrorAging
   } = useGetDepositReconciliationAgingQuery(agingQueryParams, { skip });
   const {
     data: adjustedCashResponse,
     isFetching: isFetchingAdjustedCash,
     refetch: refetchAdjustedCash,
+    isError: isErrorAdjustedCash
   } = useGetDepositReconciliationAdjustedCashDepositQuery(trendsQueryParams, {
     skip,
   });
@@ -117,6 +120,7 @@ export const useDepositReconciliation = ({
     data: reconciledResponse,
     isFetching: isFetchingReconciled,
     refetch: refetchReconciled,
+    isError: isErrorReconciled
   } = useGetDepositReconciliationPostedEmrReconciledQuery(trendsQueryParams, {
     skip,
   });
@@ -124,6 +128,7 @@ export const useDepositReconciliation = ({
     data: unreconciledResponse,
     isFetching: isFetchingUnreconciled,
     refetch: refetchUnreconciled,
+    isError: isErrorUnreconciled
   } = useGetDepositReconciliationPostedEmrUnreconciledQuery(trendsQueryParams, {
     skip,
   });
@@ -131,6 +136,7 @@ export const useDepositReconciliation = ({
     data: topPayersResponse,
     isFetching: isFetchingTopPayers,
     refetch: refetchTopPayers,
+    isError: isErrorTopPayers
   } = useGetDepositReconciliationTopPayersQuery(trendsQueryParams, { skip });
 
   const { actionTriggers } = useAppSelector((s) => s.ui);
@@ -177,6 +183,14 @@ export const useDepositReconciliation = ({
     refetchTopPayers,
   ]);
 
+  const isAnyError =
+    isErrorExecutive ||
+    isErrorAging ||
+    isErrorAdjustedCash ||
+    isErrorReconciled ||
+    isErrorUnreconciled ||
+    isErrorTopPayers;
+
   const isLoadingData =
     isFetchingExecutive ||
     isFetchingAging ||
@@ -187,7 +201,7 @@ export const useDepositReconciliation = ({
     isExportingPdf;
 
   React.useEffect(() => {
-    if (skip) {
+    if (skip || isAnyError) {
       dispatch(setIsGlobalFetching(false));
       return;
     }
@@ -195,7 +209,7 @@ export const useDepositReconciliation = ({
     return () => {
       dispatch(setIsGlobalFetching(false));
     };
-  }, [dispatch, isLoadingData, skip]);
+  }, [dispatch, isLoadingData, isAnyError, skip]);
 
   return {
     trailingWindow,

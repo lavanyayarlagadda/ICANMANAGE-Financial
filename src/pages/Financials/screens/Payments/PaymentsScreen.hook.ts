@@ -118,7 +118,7 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         isFetching: statusOptionsLoading,
         isError: statusOptionsError
     } = useGetPaymentStatusQuery(undefined, { skip: isActualSkip });
-    const { data: dropdownData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
+    const { data: dropdownData, isError: dropdownError, isFetching: dropdownFetching } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
@@ -155,14 +155,17 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         return [];
     }, [dropdownData]);
 
+    const isAnyError = isError || statusOptionsError || dropdownError;
+    const isAnyFetching = isFetching || statusOptionsLoading || dropdownFetching;
+
     useEffect(() => {
-        if (skip || isError) {
+        if (skip || isAnyError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
-        dispatch(setIsGlobalFetching(isFetching));
+        dispatch(setIsGlobalFetching(isAnyFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, isError, skip, dispatch]);
+    }, [isAnyFetching, isAnyError, skip, dispatch]);
 
     const handleExport = useCallback(async (formatType: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         try {
@@ -349,8 +352,8 @@ export const usePaymentsScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         searchTerm,
         setSearchTerm,
         onSearch: handleSearch,
-        isError,
-        isFetching,
+        isError: isAnyError,
+        isFetching: isAnyFetching,
         statusOptionsLoading,
         statusOptionsError,
         dispatch,

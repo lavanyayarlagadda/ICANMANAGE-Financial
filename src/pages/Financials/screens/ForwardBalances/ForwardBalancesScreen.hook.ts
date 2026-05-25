@@ -66,18 +66,14 @@ export const useForwardBalancesScreen = ({ skip = false }: { skip?: boolean } = 
         transactionNo: queryParams.transactionNo
     }, { skip });
 
-    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip });
+    const { data: filterData, isError: isFilterError, isFetching: isFetchingFilter } = useGetAllTransactionsFiltersQuery(undefined, { skip });
     const statusOptions = useMemo(() => filterData?.data?.transactionStatusTypes || [], [filterData]);
     const payerOptions = useMemo(() => filterData?.data?.payerNames?.map(p => ({ label: p, value: p })) || [], [filterData]);
 
-    useEffect(() => {
-        if (skip || isErrorNotices) {
-            dispatch(setIsGlobalFetching(false));
-            return;
-        }
-        dispatch(setIsGlobalFetching(isFetchingNotices));
-        return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetchingNotices, isErrorNotices, skip, dispatch]);
+    const isAnyError = isErrorNotices || isFilterError;
+    const isAnyFetching = isFetchingNotices || isFetchingFilter;
+
+
 
     const [triggerExport] = useLazyExportForwardBalanceNoticesQuery();
 
@@ -121,10 +117,22 @@ export const useForwardBalancesScreen = ({ skip = false }: { skip?: boolean } = 
 
     const forwardBalanceNotices = useMemo(() => noticeData?.data?.content ?? [], [noticeData]);
 
-    const { data: summaryData } = useGetForwardBalanceSummaryQuery({
+    const { data: summaryData, isError: isSummaryError, isFetching: isFetchingSummary } = useGetForwardBalanceSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip });
+
+    const finalIsAnyError = isAnyError || isSummaryError;
+    const finalIsAnyFetching = isAnyFetching || isFetchingSummary;
+
+    useEffect(() => {
+        if (skip || finalIsAnyError) {
+            dispatch(setIsGlobalFetching(false));
+            return;
+        }
+        dispatch(setIsGlobalFetching(finalIsAnyFetching));
+        return () => { dispatch(setIsGlobalFetching(false)); };
+    }, [finalIsAnyFetching, finalIsAnyError, skip, dispatch]);
 
     const stats = useMemo(() => {
         const s = summaryData?.data || summaryData;
@@ -190,8 +198,8 @@ export const useForwardBalancesScreen = ({ skip = false }: { skip?: boolean } = 
         statusOptions,
         payerOptions,
         stats,
-        isFetching: isFetchingNotices,
-        isError: isErrorNotices,
+        isFetching: finalIsAnyFetching,
+        isError: finalIsAnyError,
         refetchNotices
     };
 };

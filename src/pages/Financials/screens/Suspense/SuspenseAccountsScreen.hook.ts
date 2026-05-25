@@ -52,13 +52,15 @@ export const useSuspenseAccountsScreen = ({ skip = false }: { skip?: boolean } =
     }, { skip });
 
     useEffect(() => {
-        if (!skip) {
-            dispatch(setIsGlobalFetching(isFetching));
+        if (skip || isError) {
+            dispatch(setIsGlobalFetching(false));
+            return;
         }
+        dispatch(setIsGlobalFetching(isFetching));
         return () => {
-            if (!skip) dispatch(setIsGlobalFetching(false));
+            dispatch(setIsGlobalFetching(false));
         };
-    }, [isFetching, skip, dispatch]);
+    }, [isFetching, isError, skip, dispatch]);
 
     const handleViewChange = useCallback((_: React.MouseEvent<HTMLElement>, nextView: 'account' | 'payer' | 'month') => {
         if (nextView !== null) setViewType(nextView);

@@ -75,7 +75,7 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         transactionNo: queryParams.transactionNo
     }, { skip: skip || !isNoticesTab });
 
-    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip: !isNoticesTab });
+    const { data: filterData, isError: isFilterError, isFetching: isFilterFetching } = useGetAllTransactionsFiltersQuery(undefined, { skip: !isNoticesTab });
     const statusOptions = useMemo(() => filterData?.data?.transactionStatusTypes || [], [filterData]);
     const payerOptions = useMemo(() => {
   const names = filterData?.data?.payerNames || [];
@@ -83,14 +83,17 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
   return uniqueNames.map(p => ({ label: p, value: p }));
 }, [filterData]);
 
+    const isAnyError = isErrorNotices || isFilterError;
+    const isAnyFetching = isFetchingNotices || isFilterFetching;
+
     useEffect(() => {
-        if (!isNoticesTab || skip) {
+        if (!isNoticesTab || skip || isAnyError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
-        dispatch(setIsGlobalFetching(isFetchingNotices));
+        dispatch(setIsGlobalFetching(isAnyFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetchingNotices, isNoticesTab, skip, dispatch]);
+    }, [isAnyFetching, isAnyError, isNoticesTab, skip, dispatch]);
 
     const [triggerExport] = useLazyExportForwardBalanceNoticesQuery();
 
@@ -134,10 +137,21 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
 
     const forwardBalanceNotices = useMemo(() => noticeData?.data?.content ?? [], [noticeData]);
 
-    const { data: summaryData } = useGetForwardBalanceSummaryQuery({
+    const { data: summaryData, isError: isSummaryError, isFetching: isSummaryFetching } = useGetForwardBalanceSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip: skip || !isNoticesTab });
+
+    const finalIsAnyError = isAnyError || isSummaryError;
+    const finalIsAnyFetching = isAnyFetching || isSummaryFetching;
+
+    useEffect(() => {
+        if (!isNoticesTab || skip || finalIsAnyError) {
+            dispatch(setIsGlobalFetching(false));
+            return;
+        }
+        dispatch(setIsGlobalFetching(finalIsAnyFetching));
+    }, [finalIsAnyFetching, finalIsAnyError, isNoticesTab, skip, dispatch]);
 
     const stats = useMemo(() => {
         const s = summaryData?.data || summaryData;
@@ -207,8 +221,8 @@ export const useStatementsScreen = ({ skip = false }: { skip?: boolean } = {}) =
         statusOptions,
         payerOptions,
         stats,
-        isFetching: isFetchingNotices,
-        isError: isErrorNotices,
+        isFetching: finalIsAnyFetching,
+        isError: finalIsAnyError,
         refetchNotices
     };
 };

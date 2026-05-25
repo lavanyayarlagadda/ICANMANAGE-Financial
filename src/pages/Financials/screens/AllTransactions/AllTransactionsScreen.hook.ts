@@ -131,14 +131,16 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
 
+    const isAnyError = isError || statusError || filterError;
+
     useEffect(() => {
-        if (skip || isError) {
+        if (skip || isAnyError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
-        dispatch(setIsGlobalFetching(isFetching));
+        dispatch(setIsGlobalFetching(isFetching || statusFetching || filterFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, isError, skip, dispatch]);
+    }, [isFetching, statusFetching, filterFetching, isAnyError, skip, dispatch]);
 
     const [triggerExport] = useLazyExportAllTransactionsQuery();
 
@@ -323,7 +325,7 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
         filterOptionsError: filterError,
         transactionTypeOptions,
         categoryOptions,
-        isError,
+        isError: isAnyError,
         isFetching,
         dispatch
     };

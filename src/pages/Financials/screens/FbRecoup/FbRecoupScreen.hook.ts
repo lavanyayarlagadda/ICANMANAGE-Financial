@@ -151,10 +151,10 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         sortDir: queryParams.sortOrder.toUpperCase() as 'ASC' | 'DESC'
     }, { skip });
 
-    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip });
+    const { data: filterData, isError: isFilterError, isFetching: isFetchingFilter } = useGetAllTransactionsFiltersQuery(undefined, { skip });
     const payerOptions = useMemo(() => filterData?.data?.payers?.map(p => ({ label: p.payerName, value: String(p.payerId) })) || [], [filterData]);
 
-    const { data: userBrandsData } = useGetUserMappedBrandsQuery({
+    const { data: userBrandsData, isError: isBrandsError, isFetching: isFetchingBrands } = useGetUserMappedBrandsQuery({
         icanManageId,
         facilityMasterId: 0
     }, { skip });
@@ -166,14 +166,17 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         })) || [];
     }, [userBrandsData]);
 
+    const isAnyError = isErrorNotices || isFilterError || isBrandsError;
+    const isAnyFetching = isFetchingNotices || isFetchingFilter || isFetchingBrands;
+
     useEffect(() => {
-        if (skip || isErrorNotices) {
+        if (skip || isAnyError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
-        dispatch(setIsGlobalFetching(isFetchingNotices));
+        dispatch(setIsGlobalFetching(isAnyFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetchingNotices, isErrorNotices, skip, dispatch]);
+    }, [isAnyFetching, isAnyError, skip, dispatch]);
 
     const plbDetails = useMemo(() => {
         const rawContent = noticeData?.data ?? [];
@@ -352,8 +355,8 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         handleFilterChange,
         payerOptions,
         stats,
-        isFetching: isFetchingNotices,
-        isError: isErrorNotices,
+        isFetching: isAnyFetching,
+        isError: isAnyError,
         refetchNotices,
         isCareHospice
     };

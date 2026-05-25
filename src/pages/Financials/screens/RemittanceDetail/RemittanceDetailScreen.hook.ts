@@ -25,7 +25,7 @@ export const useRemittanceDetailScreen = () => {
     });
 
     // Dynamically fetch claims if they weren't already provided, or to allow pagination
-    const { data: claimsData, isFetching: isClaimsFetching } = useGetRemittanceClaimsQuery({
+    const { data: claimsData, isFetching: isClaimsFetching, isError: isClaimsError } = useGetRemittanceClaimsQuery({
         claimId: selectedPaymentId as string,
     }, { skip: !selectedPaymentId });
 
@@ -40,7 +40,7 @@ export const useRemittanceDetailScreen = () => {
         return effectiveClaims.slice(start, start + claimsQueryParams.size);
     }, [effectiveClaims, claimsQueryParams]);
 
-    const { data: slData, isFetching: isSlFetching, isLoading: isSlLoading } = useSearchServiceLinesQuery({
+    const { data: slData, isFetching: isSlFetching, isLoading: isSlLoading, isError: isSlError } = useSearchServiceLinesQuery({
         page: slQueryParams.page + 1,
         size: slQueryParams.size,
         sort: slQueryParams.sort,
@@ -48,13 +48,20 @@ export const useRemittanceDetailScreen = () => {
         check: detail?.transactionNo || '',
     }, { skip: !detail?.transactionNo });
 
+    const isAnyError = isClaimsError || isSlError;
+    const isAnyFetching = isClaimsFetching || isSlFetching || isSlLoading;
+
     // Global loader for service lines
     useEffect(() => {
-        dispatch(setIsGlobalFetching(isSlFetching || isSlLoading));
+        if (isAnyError) {
+            dispatch(setIsGlobalFetching(false));
+            return;
+        }
+        dispatch(setIsGlobalFetching(isAnyFetching));
         return () => {
             dispatch(setIsGlobalFetching(false));
         };
-    }, [isSlFetching, isSlLoading, dispatch]);
+    }, [isAnyFetching, isAnyError, dispatch]);
 
     const paginatedSelectedIndex = useMemo(() => {
         const start = claimsQueryParams.page * claimsQueryParams.size;
@@ -97,5 +104,6 @@ export const useRemittanceDetailScreen = () => {
         handlePageChange,
         handleRowsPerPageChange,
         handleSortChange,
+        isError: isAnyError,
     };
 };

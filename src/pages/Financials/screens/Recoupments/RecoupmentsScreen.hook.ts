@@ -77,7 +77,7 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
 
     const isActualSkip = skip;
 
-    const { data, isFetching, refetch } = useSearchRecoupmentsQuery({
+    const { data, isError, isFetching, refetch } = useSearchRecoupmentsQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
@@ -105,14 +105,17 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
 
+    const isAnyError = isError || filtersError;
+    const isAnyFetching = isFetching || filtersFetching;
+
     useEffect(() => {
-        if (skip) {
+        if (skip || isAnyError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
-        dispatch(setIsGlobalFetching(isFetching));
+        dispatch(setIsGlobalFetching(isAnyFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, skip, dispatch]);
+    }, [isAnyFetching, isAnyError, skip, dispatch]);
 
     const handleExport = useCallback(async (exportFormat: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         dispatch(setActiveExportType(exportFormat));
@@ -256,7 +259,8 @@ export const useRecoupmentsScreen = ({ skip = false }: { skip?: boolean } = {}) 
         setSearchTerm,
         onSearch: handleSearch,
         globalFilters,
-        isFetching,
+        isError: isAnyError,
+        isFetching: isAnyFetching,
         dispatch
     };
 };

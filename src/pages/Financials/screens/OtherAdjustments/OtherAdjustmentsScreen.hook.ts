@@ -87,7 +87,7 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
     });
     const adjustments = useMemo(() => data?.data?.content ?? [], [data]);
 
-    const { data: filtersData } = useGetRecoupmentFiltersQuery(undefined, { skip: isActualSkip });
+    const { data: filtersData, isError: filtersError, isFetching: filtersFetching } = useGetRecoupmentFiltersQuery(undefined, { skip: isActualSkip });
     const payerOptions = useMemo(() => filtersData?.data?.map(p => ({
         label: p.payer,
         value: p.payer
@@ -102,14 +102,17 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
     const printCount = useRef(actionTriggers.print);
     const reloadCount = useRef(actionTriggers.reload);
 
+    const isAnyError = isError || filtersError;
+    const isAnyFetching = isFetching || filtersFetching;
+
     useEffect(() => {
-        if (skip || isError) {
+        if (skip || isAnyError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
-        dispatch(setIsGlobalFetching(isFetching));
+        dispatch(setIsGlobalFetching(isAnyFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, isError, skip, dispatch]);
+    }, [isAnyFetching, isAnyError, skip, dispatch]);
 
     const handleExport = useCallback(async (exportFormat: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         dispatch(setActiveExportType(exportFormat));
@@ -255,8 +258,8 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
         searchTerm,
         setSearchTerm,
         onSearch: handleSearch,
-        isError,
-        isFetching,
+        isError: isAnyError,
+        isFetching: isAnyFetching,
         dispatch,
         globalFilters
     };

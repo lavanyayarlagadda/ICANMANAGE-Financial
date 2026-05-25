@@ -110,7 +110,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         transactionNo: queryParams.transactionNo
     }, { skip: skip || activeSubTab !== 0 });
 
-    const { data: feeSummaryData, refetch: refetchFeeSummary } = useGetFeeScheduleVarianceSummaryQuery({
+    const { data: feeSummaryData, refetch: refetchFeeSummary, isFetching: feeSummaryFetching, isError: feeSummaryError } = useGetFeeScheduleVarianceSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip: skip || activeSubTab !== 0 });
@@ -126,7 +126,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         transactionNo: queryParams.transactionNo
     }, { skip: skip || activeSubTab !== 1 });
 
-    const { data: paymentSummaryData, refetch: refetchPaymentSummary } = useGetPaymentVarianceSummaryQuery({
+    const { data: paymentSummaryData, refetch: refetchPaymentSummary, isFetching: paymentSummaryFetching, isError: paymentSummaryError } = useGetPaymentVarianceSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate
     }, { skip: skip || activeSubTab !== 1 });
@@ -206,16 +206,17 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         }
     }, [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams]);
 
-    const isError = activeSubTab === 0 ? feeError : paymentError;
+    const isAnyError = activeSubTab === 0 ? (feeError || feeSummaryError || filterError) : (paymentError || paymentSummaryError || filterError);
+    const isAnyFetching = activeSubTab === 0 ? (feeFetching || feeSummaryFetching || filterFetching) : (paymentFetching || paymentSummaryFetching || filterFetching);
 
     useEffect(() => {
-        if (skip || isError) {
+        if (skip || isAnyError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
-        dispatch(setIsGlobalFetching(feeFetching || paymentFetching));
+        dispatch(setIsGlobalFetching(isAnyFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [feeFetching, paymentFetching, isError, skip, dispatch]);
+    }, [isAnyFetching, isAnyError, skip, dispatch]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
@@ -324,8 +325,8 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         payerOptions,
         payerOptionsLoading: filterFetching,
         payerOptionsError: filterError,
-        isFetching: feeFetching || paymentFetching,
-        isError,
+        isFetching: isAnyFetching,
+        isError: isAnyError,
         dispatch
     };
 };

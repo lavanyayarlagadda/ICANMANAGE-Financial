@@ -58,6 +58,7 @@ export const useBankDepositData = ({
     const {
         data: tabsResponse,
         isFetching: isTabsFetching,
+        isError: isTabsError,
         isSuccess: isTabsSuccess
     } = useGetUserMappedBrandsQuery(
         !isBaseReady ? skipToken : {
@@ -76,7 +77,7 @@ export const useBankDepositData = ({
 
     const shouldFetchDependent = isBaseReady && isTenantReady && (isTabsSuccess || (!!tabsResponse && !isTabsFetching));
 
-    const { data: widgetData, isFetching: isWidgetsFetching } = useGetBankDepositWidgetsQuery(
+    const { data: widgetData, isFetching: isWidgetsFetching, isError: isWidgetsError } = useGetBankDepositWidgetsQuery(
         !shouldFetchDependent ? skipToken : {
             startDate: queryParams.fromDate,
             endDate: queryParams.toDate,
@@ -86,14 +87,14 @@ export const useBankDepositData = ({
         }
     );
 
-    const { data: headersResponse, isFetching: isHeadersFetching, isSuccess: isHeadersSuccess } = useGetMappedHeadersDataQuery(
+    const { data: headersResponse, isFetching: isHeadersFetching, isError: isHeadersError, isSuccess: isHeadersSuccess } = useGetMappedHeadersDataQuery(
         !shouldFetchDependent ? skipToken : {
             hospitalId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
             pageName: 'Bank Deposits'
         }
     );
 
-    const { data: filterData } = useGetAllTransactionsFiltersQuery(undefined, { skip: !isBaseReady });
+    const { data: filterData, isError: isFilterError } = useGetAllTransactionsFiltersQuery(undefined, { skip: !isBaseReady });
 
     const payerOptions = useMemo(() => filterData?.data?.payers?.map(p => ({
         label: p.payerName,
@@ -128,14 +129,16 @@ export const useBankDepositData = ({
         }
     );
 
+    const isAnyError = isError || isTabsError || isWidgetsError || isHeadersError || isFilterError;
+
     useEffect(() => {
-        if (skip || isError) {
+        if (skip || isAnyError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
         dispatch(setIsGlobalFetching(isFetching || isWidgetsFetching || isHeadersFetching || isTabsFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, isWidgetsFetching, isHeadersFetching, isTabsFetching, isError, skip, dispatch]);
+    }, [isFetching, isWidgetsFetching, isHeadersFetching, isTabsFetching, isAnyError, skip, dispatch]);
 
     const bankDeposits: BankDepositItem[] = useMemo(() => {
         if (Array.isArray(data)) return data as BankDepositItem[];
@@ -197,7 +200,7 @@ export const useBankDepositData = ({
         dynamicColumns,
         entities,
         isFetching: isFetching || isWidgetsFetching || isHeadersFetching || isTabsFetching,
-        isError,
+        isError: isAnyError,
         isHeadersSuccess,
         refetch
     };

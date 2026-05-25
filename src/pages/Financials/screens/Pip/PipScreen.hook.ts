@@ -134,12 +134,12 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         queryParams.sortOrder,
     ]);
 
-    const { data: pipSummaryData, isFetching: isFetchingSummary } = useGetPipSummaryQuery({
+    const { data: pipSummaryData, isFetching: isFetchingSummary, isError: isSummaryError } = useGetPipSummaryQuery({
         fromDate: queryParams.fromDate,
         toDate: queryParams.toDate,
     }, { skip: isActualSkip });
 
-    const { data: dropdownData } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
+    const { data: dropdownData, isFetching: dropdownFetching, isError: dropdownError } = useGetAllTransactionsFiltersQuery(undefined, { skip: isActualSkip });
     const statusOptions = useMemo(() => {
         if (dropdownData?.data?.transactionStatusTypes) {
             return dropdownData.data.transactionStatusTypes.map((status) => ({
@@ -150,7 +150,8 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         return [];
     }, [dropdownData]);
 
-    const isAnyFetching = isFetching || isFetchingSummary;
+    const isAnyError = isError || isSummaryError || dropdownError;
+    const isAnyFetching = isFetching || isFetchingSummary || dropdownFetching;
 
     const [triggerExport] = useLazyExportPipQuery();
 
@@ -177,7 +178,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
 
     useEffect(() => {
-        if (isActualSkip || isError) {
+        if (isActualSkip || isAnyError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
@@ -187,7 +188,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         return () => {
             dispatch(setIsGlobalFetching(false));
         };
-    }, [isAnyFetching, isError, isActualSkip, dispatch]);
+    }, [isAnyFetching, isAnyError, isActualSkip, dispatch]);
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {
@@ -340,7 +341,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         handleClearSearch,
         handleExport,
         statusOptions,
-        isError,
+        isError: isAnyError,
         isFetching: isAnyFetching,
         globalFilters,
     };

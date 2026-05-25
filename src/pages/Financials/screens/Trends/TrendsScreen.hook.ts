@@ -89,19 +89,20 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
 
     const reloadCount = useRef(actionTriggers.reload);
 
-    const { data: forecastSummary, isFetching: isFetchingForecast, refetch: refetchForecast } = useGetForecastSummaryQuery(queryParams, { skip: skip || !isForecastPath });
-    const { data: reconPerformance, isFetching: isFetchingRecon, refetch: refetchRecon } = useGetReconciliationPerformanceQuery(queryParams, { skip: skip || !isForecastPath });
-    const { data: dashboardData, isFetching: isFetchingDashboard, refetch: refetchDash } = useGetForecastDashboardQuery(queryParams, { skip: skip || !isForecastPath || isMindpath });
+    const { data: forecastSummary, isFetching: isFetchingForecast, refetch: refetchForecast, isError: isErrorForecast } = useGetForecastSummaryQuery(queryParams, { skip: skip || !isForecastPath });
+    const { data: reconPerformance, isFetching: isFetchingRecon, refetch: refetchRecon, isError: isErrorRecon } = useGetReconciliationPerformanceQuery(queryParams, { skip: skip || !isForecastPath });
+    const { data: dashboardData, isFetching: isFetchingDashboard, refetch: refetchDash, isError: isErrorDashboard } = useGetForecastDashboardQuery(queryParams, { skip: skip || !isForecastPath || isMindpath });
 
-    const { data: execSummary, isFetching: isFetchingExec, refetch: refetchExec } = useGetExecutiveSummaryQuery(queryParams, { skip: skip || !isSummaryPath });
-    const { data: paymentMix, isFetching: isFetchingMix, refetch: refetchMix } = useGetPaymentMixQuery(queryParams, { skip: skip || !isSummaryPath });
-    const { data: adjBreakdown, isFetching: isFetchingAdj, refetch: refetchAdj } = useGetAdjustmentBreakdownQuery(queryParams, { skip: skip || !isSummaryPath });
-    const { data: payerPerformance, isFetching: isFetchingPayer, refetch: refetchPayer } = useGetPayerPerformanceQuery(queryParams, { skip: skip || !isPayerPath });
+    const { data: execSummary, isFetching: isFetchingExec, refetch: refetchExec, isError: isErrorExec } = useGetExecutiveSummaryQuery(queryParams, { skip: skip || !isSummaryPath });
+    const { data: paymentMix, isFetching: isFetchingMix, refetch: refetchMix, isError: isErrorMix } = useGetPaymentMixQuery(queryParams, { skip: skip || !isSummaryPath });
+    const { data: adjBreakdown, isFetching: isFetchingAdj, refetch: refetchAdj, isError: isErrorAdj } = useGetAdjustmentBreakdownQuery(queryParams, { skip: skip || !isSummaryPath });
+    const { data: payerPerformance, isFetching: isFetchingPayer, refetch: refetchPayer, isError: isErrorPayer } = useGetPayerPerformanceQuery(queryParams, { skip: skip || !isPayerPath });
 
     const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
     const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
 
     const isFetching = isFetchingForecast || isFetchingRecon || isFetchingDashboard || isFetchingExec || isFetchingMix || isFetchingAdj || isFetchingPayer;
+    const isError = isErrorForecast || isErrorRecon || isErrorDashboard || isErrorExec || isErrorMix || isErrorAdj || isErrorPayer;
 
     useEffect(() => {
         if (actionTriggers.reload > reloadCount.current) {
@@ -127,9 +128,13 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     }, [actionTriggers.reload, isForecastPath, isSummaryPath, isPayerPath, refetchForecast, refetchRecon, refetchDash, refetchExec, refetchMix, refetchAdj, refetchPayer, dispatch, isMindpath]);
 
     useEffect(() => {
+        if (skip || isError) {
+            dispatch(setIsGlobalFetching(false));
+            return;
+        }
         dispatch(setIsGlobalFetching(isFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, dispatch]);
+    }, [isFetching, isError, skip, dispatch]);
 
     const handleDrillDown = useCallback(async (row: PayerPerformanceRecord) => {
         try {
@@ -232,5 +237,6 @@ export const useTrendsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         onDrillDownParamsChange: (params: Partial<typeof drillDownParams>) => setDrillDownParams(prev => ({ ...prev, ...params })),
         handleDrillDown,
         isFetching,
+        isError,
     };
 };
