@@ -1,5 +1,5 @@
 import React from "react";
-import { format, subMonths } from "date-fns";
+import { format } from "date-fns";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
 import {
@@ -13,6 +13,10 @@ import {
 } from "@/store/api/financialsApi";
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
 import { formatDateForFilename } from "@/utils/formatters";
+import {
+  getCalendarTrailingWindowRange,
+  parseTrailingWindowMonths,
+} from "@/utils/dateUtils";
 import type {
   DepositReconAgingQueryParams,
   DepositReconTrendsQueryParams,
@@ -48,14 +52,7 @@ export const useDepositReconciliation = ({
   );
 
   const trendsQueryParams = React.useMemo((): DepositReconTrendsQueryParams => {
-    const trailingWindowMonths =
-      trailingWindow === "24m"
-        ? 24
-        : trailingWindow === "12m"
-          ? 12
-          : trailingWindow === "6m"
-            ? 6
-            : 3;
+    const trailingWindowMonths = parseTrailingWindowMonths(trailingWindow);
     const forecastMonths =
       forecastWindow === "6m" ? 6 : forecastWindow === "3m" ? 3 : 0;
     const toDateObj = globalFilters.toDate ? new Date(globalFilters.toDate) : new Date();
@@ -65,8 +62,9 @@ export const useDepositReconciliation = ({
     const fromDateObj = subMonths(toDateObj, Math.max(0, trailingWindowMonths - 1));
 
     return {
-      fromDate: format(fromDateObj, "yyyy-MM-dd"),
-      toDate: format(toDateObj, "yyyy-MM-dd"),
+      fromDate: from,
+      toDate: to,
+      asOfDate: format(asOfDate, "yyyy-MM-dd"),
       trailingWindowMonths,
       forecastMonths,
       compare: compareMode.toUpperCase(),

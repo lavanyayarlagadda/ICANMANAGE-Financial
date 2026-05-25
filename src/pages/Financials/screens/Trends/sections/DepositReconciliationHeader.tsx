@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Button, ButtonGroup, Stack, Typography } from "@mui/material";
+import { formatDate } from "@/utils/formatters";
 
 interface DepositReconciliationHeaderProps {
   title: string;
@@ -48,7 +49,7 @@ export const DepositReconciliationHeader: React.FC<
           {title}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {subtitle} Updated {new Date(String(updatedAt)).toLocaleString()}.
+          {subtitle} Updated {formatDate(updatedAt)}.
         </Typography>
       </Box>
 

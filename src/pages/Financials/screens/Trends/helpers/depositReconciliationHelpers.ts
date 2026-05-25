@@ -1,5 +1,6 @@
 import { addMonths, format, parse } from "date-fns";
 import { type Theme } from "@mui/material";
+import { formatPercentValue } from "@/utils/formatters";
 
 export type HeroCard = {
   id: string;
@@ -105,7 +106,7 @@ export const pickArray = <T>(source: GenericRecord, keys: string[]): T[] => {
 export const toPercent = (value: unknown): string => {
   const num = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(num)) return "—";
-  return `${num.toFixed(1)}%`;
+  return `${formatPercentValue(num)}%`;
 };
 
 export const toDeposits = (value: unknown): string => {
@@ -303,10 +304,10 @@ export const toDelta = (percent: unknown, direction: unknown): string => {
   if (!Number.isFinite(num)) return "—";
 
   const dir = String(direction || "").toUpperCase();
-  if (dir === "NONE" || num === 0) return "0.0%";
+  if (dir === "NONE" || num === 0) return "0%";
 
   const arrow = dir === "UP" ? "▲" : dir === "DOWN" ? "▼" : num > 0 ? "▲" : "▼";
-  return `${arrow} ${Math.abs(num).toFixed(1)}%`;
+  return `${arrow} ${formatPercentValue(Math.abs(num))}%`;
 };
 
 export const resolveTrend = (
@@ -470,9 +471,13 @@ export const normalizeTrendRow = (
         );
 
   const calculatedMom = calculateMomFromColumns(amountsByColumn, columns);
-  const momDelta = calculatedMom
-    ? toDelta(calculatedMom.percent, calculatedMom.direction)
-    : toDelta(row.momChangePercent, row.momDirection);
+  const hasApiMom =
+    row.momChangePercent !== undefined && row.momChangePercent !== null;
+  const momDelta = hasApiMom
+    ? toDelta(row.momChangePercent, row.momDirection)
+    : calculatedMom
+      ? toDelta(calculatedMom.percent, calculatedMom.direction)
+      : "—";
 
   return {
     id: rowId,
@@ -607,7 +612,7 @@ export const normalizeTopPayerRows = (rows: unknown): PayerRow[] => {
           ? row.percentOfTotal
           : Number(row.percentOfTotal);
       const share = Number.isFinite(percent)
-        ? `${percent.toFixed(1)}%`
+        ? `${formatPercentValue(percent)}%`
         : toText(row.share);
 
       const matchRateNum =
@@ -615,7 +620,7 @@ export const normalizeTopPayerRows = (rows: unknown): PayerRow[] => {
           ? row.matchRate
           : Number(row.matchRate);
       const matchRate = Number.isFinite(matchRateNum)
-        ? `${matchRateNum.toFixed(1)}%`
+        ? `${formatPercentValue(matchRateNum)}%`
         : toText(row.matchRate);
 
       const sixMonthTrend = Array.isArray(row.sixMonthTrend)
@@ -634,9 +639,13 @@ export const normalizeTopPayerRows = (rows: unknown): PayerRow[] => {
       const calculatedMom = sixMonthTrend
         ? calculateMomFromSeries(sixMonthTrend)
         : null;
-      const momDelta = calculatedMom
-        ? toDelta(calculatedMom.percent, calculatedMom.direction)
-        : toDelta(row.momChangePercent ?? row.momDelta, row.momDirection);
+      const hasApiMom =
+        row.momChangePercent !== undefined && row.momChangePercent !== null;
+      const momDelta = hasApiMom
+        ? toDelta(row.momChangePercent, row.momDirection)
+        : calculatedMom
+          ? toDelta(calculatedMom.percent, calculatedMom.direction)
+          : toDelta(row.momDelta, row.momDirection);
 
       return {
         payer,
