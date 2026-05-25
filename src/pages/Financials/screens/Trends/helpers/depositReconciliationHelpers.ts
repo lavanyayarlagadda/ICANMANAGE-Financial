@@ -160,24 +160,9 @@ export const ensureForecastColumns = (
   }
 
   const existingForecast = columns.filter((col) => col.kind === "FORECAST");
-  const forecastColumns: TrendColumn[] = [...existingForecast];
-
-  if (forecastColumns.length < forecastCount) {
-    const anchor =
-      (actualColumns.length > 0 &&
-        parseMonthColumnLabel(actualColumns[actualColumns.length - 1].label)) ||
-      new Date();
-
-    while (forecastColumns.length < forecastCount) {
-      const monthOffset = forecastColumns.length + 1;
-      forecastColumns.push({
-        label: format(addMonths(anchor, monthOffset), "MMM ''yy"),
-        kind: "FORECAST",
-      });
-    }
-  }
-
-  return [...actualColumns, ...forecastColumns.slice(0, forecastCount)];
+  
+  // We only show forecast columns that actually exist in the data from the API
+  return [...actualColumns, ...existingForecast.slice(0, forecastCount)];
 };
 
 export const toText = (value: unknown, fallback = "") =>
