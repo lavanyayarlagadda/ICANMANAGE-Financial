@@ -30,26 +30,42 @@ export const DepositReconciliationHeroCards: React.FC<
           <Grid key={`${card.id}-${idx}`} size={{ xs: 12, md: 3 }}>
             <Card sx={{ height: "100%" }}>
               <CardContent>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    component="span"
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      backgroundColor: deltaColor(
+                        card.delta,
+                        theme.palette.success.main,
+                        theme.palette.error.main,
+                        theme.palette.warning.main,
+                      ),
+                    }}
+                  />
                   {card.title}
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 700, mt: 0.4 }}>
-                  {card.value}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: deltaColor(
-                      card.delta,
-                      theme.palette.success.main,
-                      theme.palette.error.main,
-                      theme.palette.text.secondary,
-                    ),
-                    fontWeight: 700,
-                  }}
-                >
-                  {toText(card.delta)}
-                </Typography>
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mt: 0.4 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                    {card.value}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: deltaColor(
+                        card.delta,
+                        theme.palette.success.main,
+                        theme.palette.error.main,
+                        theme.palette.text.secondary,
+                      ),
+                      fontWeight: 700,
+                    }}
+                  >
+                    {toText(card.delta)}
+                  </Typography>
+                </Box>
                 <Typography variant="caption" color="text.secondary">
                   {card.subLabel}
                 </Typography>
@@ -78,26 +94,42 @@ export const DepositReconciliationHeroCards: React.FC<
           <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
-                <Typography variant="caption" color="text.secondary">
+                <Typography variant="caption" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    component="span"
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      backgroundColor: deltaColor(
+                        heroCards[4].delta,
+                        theme.palette.success.main,
+                        theme.palette.error.main,
+                        theme.palette.warning.main,
+                      ),
+                    }}
+                  />
                   {heroCards[4].title}
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 700, mt: 0.4 }}>
-                  {heroCards[4].value}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: deltaColor(
-                      heroCards[4].delta,
-                      theme.palette.success.main,
-                      theme.palette.error.main,
-                      theme.palette.text.secondary,
-                    ),
-                    fontWeight: 700,
-                  }}
-                >
-                  {toText(heroCards[4].delta)}
-                </Typography>
+                <Box sx={{ display: "flex", alignItems: "baseline", gap: 1, mt: 0.4 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                    {heroCards[4].value}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: deltaColor(
+                        heroCards[4].delta,
+                        theme.palette.success.main,
+                        theme.palette.error.main,
+                        theme.palette.text.secondary,
+                      ),
+                      fontWeight: 700,
+                    }}
+                  >
+                    {toText(heroCards[4].delta)}
+                  </Typography>
+                </Box>
                 <Typography variant="caption" color="text.secondary">
                   {heroCards[4].subLabel}
                 </Typography>

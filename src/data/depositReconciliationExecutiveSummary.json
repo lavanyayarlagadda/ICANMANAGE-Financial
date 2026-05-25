@@ -2,7 +2,7 @@
   "screenMeta": {
     "title": "Deposit Reconciliation — Executive Summary",
     "subtitle": "Month-over-month cash flow, posting health, and forecast.",
-    "updatedAt": "2026-05-05T18:28:21Z",
+    "updatedAt": "2026-05-05T13:28:21Z",
     "api": {
       "name": "getDepositReconciliationExecutiveSummaryMeta",
       "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/meta"
@@ -182,11 +182,14 @@
       "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/read-guide"
     },
     "points": [
-      "Banner auto-summarizes the largest mover, year-over-year change, and aging health each time the page loads.",
-      "Hero tile dots are HFMA-style benchmarks: green = healthy, yellow = watch, red = action.",
-      "Aging waterfall shows how long unmatched cash has been sitting. Industry target: keep > 30 days under 15%.",
-      "Compare toggle switches Δ between MoM (latest vs prior month) and YoY (latest vs same month last year).",
-      "Forecast columns project a 3-month trailing average forward and can be replaced by backend forecast APIs later."
+      "📌 **Banner** auto-summarizes the largest mover, year-over-year change, and aging health each time the page loads.",
+      "**Hero tile dots** are HFMA-style benchmarks: green = healthy, orange = watch, red = action. Hover for thresholds.",
+      "**Aging waterfall** shows how long unmatched cash has been sitting. Industry target: keep > 30 days under 15%.",
+      "**Compare toggle** switches the Δ column between MoM (latest vs prior month) and YoY (latest vs same month last year). YoY normalizes seasonality.",
+      "**Trend** column shows the row's full trajectory across actual + forecast months. The dot marks the most recent actual.",
+      "**Forecast columns** (italic, dashed border) project a 3-month trailing average forward. Swap in a real model when revenue planning gets in scope.",
+      "**Data pending** badges mark rows whose underlying source is empty in this environment (PIP allocation, CAP liability, recoupments). The structure is reserved so the layout stays stable when those land.",
+      "Hover any cell for the exact dollar figure."
     ]
   }
 }

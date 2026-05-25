@@ -1,4 +1,4 @@
-import { addMonths, format, parse } from "date-fns";
+import { parse } from "date-fns";
 import { type Theme } from "@mui/material";
 import { formatPercentValue } from "@/utils/formatters";
 
@@ -219,7 +219,6 @@ export const agingRiskColor = (riskLevel: string | undefined, theme: Theme) => {
     case "GREEN":
       return theme.palette.success.main;
     case "ORANGE":
-    case "YELLOW":
       return theme.palette.warning.main;
     case "RED":
       return theme.palette.error.main;

@@ -57,6 +57,32 @@ export const formatDate = (dateStr: string | null | undefined): string => {
 };
 
 /**
+ * Format a date string with time using the standard display format.
+ */
+export const formatDateTime = (dateStr: string | null | undefined): string => {
+  if (!dateStr) return '';
+
+  try {
+    const date = new Date(dateStr);
+    if (!isNaN(date.getTime())) {
+      const formatted = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }).format(date);
+      return `${formatted}`;
+    }
+    return dateStr;
+  } catch {
+    return dateStr;
+  }
+};
+
+/**
  * Format a date string for use in filenames (MM-DD-YYYY).
  */
 export const formatDateForFilename = (dateStr: string | null | undefined): string => {

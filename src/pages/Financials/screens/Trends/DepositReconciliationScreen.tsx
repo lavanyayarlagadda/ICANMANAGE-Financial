@@ -63,22 +63,20 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
   const unreconciledData = unwrapResponse(unreconciledResponse);
   const topPayersData = unwrapResponse(topPayersResponse);
 
-  const executiveMeta = pickRecord(executiveData, ["meta", "screenMeta"]);
+  // const executiveMeta = pickRecord(executiveData, ["meta", "screenMeta"]);
   const screenMeta = {
-    title: toText(executiveMeta.title),
-    subtitle: toText(executiveMeta.subtitle),
-    updatedAt: executiveData.lastUpdated || executiveMeta.updatedAt,
+    title: summaryContract.screenMeta.title,
+    subtitle: summaryContract.screenMeta.subtitle,
+    updatedAt: executiveData.lastUpdated,
   };
 
-  const monthAtGlanceTitle = toText(
-    pickRecord(executiveData, ["monthAtGlance", "insightsSummary"]).title,
-  );
-  const insights = pickArray<string>(executiveData, [
-    "atAGlanceInsights",
-    "insights",
-    "highlights",
-    "points",
-  ]);
+  const monthAtGlanceTitle = "📌 This month at a glance";
+  
+  let insights = pickArray<string>(executiveData, ["atAGlanceInsights"]);
+  if (insights.length === 0) {
+    const mag = pickRecord(executiveData, ["monthAtGlance", "insightsSummary"]);
+    insights = pickArray<string>(mag, ["insights", "points"]);
+  }
 
   const heroCardsFromApi = pickArray<unknown>(executiveData, [
     "kpiCards",
@@ -149,7 +147,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
         setCompareMode={setCompareMode}
         controls={contract.controls}
       />
-      {safeInsights && monthAtGlanceTitle && (
+      {safeInsights.length > 0 && (
         <Card
           sx={{ mb: 2, borderLeft: `4px solid ${theme.palette.error.main}` }}
         >
@@ -221,15 +219,15 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
                   variant="body2"
                   key={idx}
                   sx={{ mb: 0.5 }}
-                >
-                  {point}
-                </Typography>
+                  dangerouslySetInnerHTML={{
+                    __html: point.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                  }}
+                />
               ),
             )}
           </Box>
         </CardContent>
-      </Card>
-    </Box>
+      </Card>    </Box>
   );
 };
 

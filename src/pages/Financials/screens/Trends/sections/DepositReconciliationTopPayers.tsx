@@ -55,7 +55,7 @@ export const DepositReconciliationTopPayers: React.FC<
                   "% of Total",
                   "Match Rate",
                   compareMode?.toUpperCase() === "YOY" ? "Δ YoY" : "Δ MoM",
-                  "6-mo Trend",
+                  "6-months Trend",
                 ].map((label) => (
                   <Box
                     component="th"
@@ -64,7 +64,7 @@ export const DepositReconciliationTopPayers: React.FC<
                       py: 1,
                       px: 1,
                       textAlign:
-                        label === "Payer" || label === "6-mo Trend"
+                        label === "Payer" || label === "6-months Trend"
                           ? "left"
                           : "right",
                       color: theme.palette.text.secondary,

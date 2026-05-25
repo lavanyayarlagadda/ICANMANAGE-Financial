@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Button, ButtonGroup, Stack, Typography } from "@mui/material";
-import { formatDate } from "@/utils/formatters";
+import { formatDateTime } from "@/utils/formatters";
 
 interface DepositReconciliationHeaderProps {
   title: string;
@@ -27,8 +27,8 @@ export const DepositReconciliationHeader: React.FC<
   updatedAt,
   trailingWindow,
   setTrailingWindow,
-  forecastWindow,
-  setForecastWindow,
+  // forecastWindow,
+  // setForecastWindow,
   compareMode,
   setCompareMode,
   controls,
@@ -38,9 +38,8 @@ export const DepositReconciliationHeader: React.FC<
       sx={{
         mb: 2,
         display: "flex",
-        flexWrap: "wrap",
+        flexDirection: "column",
         alignItems: "flex-start",
-        justifyContent: "space-between",
         gap: 2,
       }}
     >
@@ -49,16 +48,16 @@ export const DepositReconciliationHeader: React.FC<
           {title}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {subtitle} Updated {formatDate(updatedAt)}.
+          {subtitle} Updated {formatDateTime(updatedAt)}.
         </Typography>
       </Box>
 
       <Stack
         direction="row"
         spacing={1.5}
-        sx={{ flexWrap: "wrap", rowGap: 1, justifyContent: "flex-end" }}
+        sx={{ flexWrap: "wrap", rowGap: 1, justifyContent: "flex-start" }}
       >
-        <Box>
+        <Box sx={{ textAlign: "left" }}>
           <Typography
             variant="caption"
             color="text.secondary"
@@ -81,8 +80,7 @@ export const DepositReconciliationHeader: React.FC<
             ))}
           </ButtonGroup>
         </Box>
-
-        <Box>
+         {/* <Box>
           <Typography
             variant="caption"
             color="text.secondary"
@@ -104,9 +102,11 @@ export const DepositReconciliationHeader: React.FC<
               ),
             )}
           </ButtonGroup>
-        </Box>
+        </Box> */}
 
-        <Box>
+
+
+        <Box sx={{ textAlign: "left" }}>
           <Typography
             variant="caption"
             color="text.secondary"
