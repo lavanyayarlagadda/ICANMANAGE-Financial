@@ -1,5 +1,5 @@
 import React from "react";
-import { format } from "date-fns";
+import { format, subMonths } from "date-fns";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
 import {
@@ -14,7 +14,6 @@ import {
 import { downloadFileFromBlob } from "@/utils/downloadHelper";
 import { formatDateForFilename } from "@/utils/formatters";
 import {
-  getCalendarTrailingWindowRange,
   parseTrailingWindowMonths,
 } from "@/utils/dateUtils";
 import type {
@@ -55,21 +54,16 @@ export const useDepositReconciliation = ({
     const trailingWindowMonths = parseTrailingWindowMonths(trailingWindow);
     const forecastMonths =
       forecastWindow === "6m" ? 6 : forecastWindow === "3m" ? 3 : 0;
-    const toDateObj = globalFilters.toDate ? new Date(globalFilters.toDate) : new Date();
-    
-    // Subtract (months - 1) so that we span exactly `trailingWindowMonths` calendar months 
-    // including the current month. E.g., May minus 2 months = March (March, April, May = 3 months).
+  const toDateObj = globalFilters.toDate ? new Date(globalFilters.toDate) : new Date();
     const fromDateObj = subMonths(toDateObj, Math.max(0, trailingWindowMonths - 1));
-
     return {
-      fromDate: from,
-      toDate: to,
-      asOfDate: format(asOfDate, "yyyy-MM-dd"),
+      fromDate: format(fromDateObj, "yyyy-MM-dd"),
+      toDate: format(toDateObj, "yyyy-MM-dd"),
       trailingWindowMonths,
       forecastMonths,
       compare: compareMode.toUpperCase(),
     };
-  }, [trailingWindow, forecastWindow, compareMode, globalFilters.toDate]);
+  }, [trailingWindow, forecastWindow, compareMode, globalFilters.toDate])
 
   const [triggerExportPdf, { isFetching: isExportingPdf }] =
     useLazyExportDepositReconciliationPdfQuery();
