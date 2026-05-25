@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Typography, Chip, Grid, Box, useTheme, Alert } from '@mui/material';
+import { Typography, Chip, Grid, Box, useTheme } from '@mui/material';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -30,7 +30,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         handleRowsPerPageChange,
         globalFilters,
         isFetching,
-        isError,
+        // isError,
     } = useCollectionsScreen({ skip });
     const theme = useTheme();
 
@@ -85,11 +85,11 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Typography variant="body2" color="text.secondary">Manage collection accounts, track balances, and monitor recovery efforts.</Typography>
             </HeaderBox>
 
-            {isError && (
+            {/* {isError && (
                 <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
                     Failed to load Collections details. Please try reloading or contact support.
                 </Alert>
-            )}
+            )} */}
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>

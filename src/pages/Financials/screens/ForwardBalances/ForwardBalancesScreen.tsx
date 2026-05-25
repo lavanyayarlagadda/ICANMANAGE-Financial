@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, IconButton, Chip, Grid, Alert } from '@mui/material';
+import { Box, Typography, IconButton, Chip, Grid } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -67,7 +67,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         stats,
         globalFilters,
         isFetching,
-        isError,
+        // isError,
     } = useForwardBalancesScreen({ skip });
 
     const { expandedRows, toggleRow, noticeDetails, loadingDetails } = useForwardBalanceNoticesTable();
@@ -139,12 +139,12 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
                 <Typography variant="h5" sx={{ fontWeight: 700 }}>Forward Balance Notices</Typography>
                 <Typography variant="body2" color="text.secondary">Overpayment notices with offset events.</Typography>
             </Box>
-
+{/* 
             {isError && (
                 <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
                     Failed to load Forward Balance Notices. Please try reloading or contact support.
                 </Alert>
-            )}
+            )} */}
 
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid size={{ xs: 12, md: 4 }}>

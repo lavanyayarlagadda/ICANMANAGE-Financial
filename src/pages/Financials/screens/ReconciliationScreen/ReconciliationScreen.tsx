@@ -5,7 +5,6 @@ import {
   CircularProgress,
   IconButton,
   Theme,
-  Alert,
 } from '@mui/material';
 import { ChatBubbleOutline } from '@mui/icons-material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -52,7 +51,6 @@ const ReconciliationScreen: React.FC = () => {
     handleGlobalTransactionSearch,
     handleRangeChange,
     setActiveAge,
-    isError,
     globalFilters,
   } = reconciliation;
 
@@ -257,12 +255,12 @@ const ReconciliationScreen: React.FC = () => {
           daysInView={eachDayOfInterval({ start: startOfMonth(new Date()), end: endOfMonth(new Date()) })}
         /> */}
       </Box>
-
+{/* 
       {isError && (
         <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
           Failed to load Reconciliation details. Please try reloading or contact support.
         </Alert>
-      )}
+      )} */}
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}><CircularProgress /></Box>
