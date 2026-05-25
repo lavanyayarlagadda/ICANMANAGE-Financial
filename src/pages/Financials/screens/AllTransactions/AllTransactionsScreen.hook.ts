@@ -1,5 +1,6 @@
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
+import { useLocation } from 'react-router-dom';
 import { openEditDialog, openConfirmDelete, setActiveExportType, setIsGlobalFetching } from '@/store/slices/uiSlice';
 import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import { useLazyExportAllTransactionsQuery, useLazyGetRemittanceClaimsQuery, useLazySearchServiceLinesQuery, useSearchAllTransactionsQuery, useGetPaymentStatusQuery, useGetAllTransactionsFiltersQuery } from '@/store/api/financialsApi';
@@ -17,8 +18,10 @@ import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/commo
 
 export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
+    const location = useLocation();
     const { actionTriggers } = useAppSelector((s: RootState) => s.ui);
     const { globalFilters } = useAppSelector((s: RootState) => s.financials);
+    const selectedTenantId = useAppSelector((s: RootState) => s.tenant.selectedTenantId);
 
     // const isMindPath = useMemo(
     //     () => user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath',
@@ -61,6 +64,18 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
             page: 0
         }));
     }, [globalFilters.fromDate, globalFilters.toDate]);
+
+    // Reset search term and filters when tenant or tab/route changes
+    useEffect(() => {
+        setSearchTerm('');
+        setQueryParams(prev => ({
+            ...prev,
+            status: null,
+            payerIds: null,
+            transactionNo: '',
+            page: 0
+        }));
+    }, [selectedTenantId, location.pathname]);
 
     // Dynamic parameters for Drill-down APIs
     const [drillDownParams, setDrillDownParams] = useState({
@@ -117,13 +132,13 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
     const reloadCount = useRef(actionTriggers.reload);
 
     useEffect(() => {
-        if (skip) {
+        if (skip || isError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
         dispatch(setIsGlobalFetching(isFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, skip, dispatch]);
+    }, [isFetching, isError, skip, dispatch]);
 
     const [triggerExport] = useLazyExportAllTransactionsQuery();
 

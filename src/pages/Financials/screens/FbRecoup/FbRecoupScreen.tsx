@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, IconButton, Chip, Grid, Button, TextField, InputAdornment, FormControl } from '@mui/material';
+import { Box, Typography, IconButton, Chip, Grid, Button, TextField, InputAdornment, FormControl, Alert } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import SearchIcon from '@mui/icons-material/Search';
@@ -54,6 +54,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         stats,
         globalFilters,
         isFetching,
+        isError,
         isCareHospice,
         setSearchTerm,
         filterNpiPtan,
@@ -186,6 +187,12 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Typography variant="body2" color="text.secondary">Forward Balance and recoupment transaction details.</Typography>
             </Box>
 
+            {isError && (
+                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
+                    Failed to load Forward Balance and Recoupment transaction details. Please try reloading or contact support.
+                </Alert>
+            )}
+
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid size={{ xs: 12, md: 4 }}>
                     <SummaryCard title="TOTAL AMOUNT" value={formatCurrency(stats.totalOriginalAmount)} backgroundColor={theme.palette.background.paper} />
@@ -194,7 +201,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                     <SummaryCard title="TOTAL SUSPENSE BALANCE" value={formatCurrency(stats.totalRemainingAmount)} variant="negative" backgroundColor={theme.palette.background.paper} />
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
-                    <SummaryCard title="ACTION REQUIRED" value={String(stats.activeCount)} backgroundColor={theme.palette.background.paper} />
+                    <SummaryCard title="ACTION REQUIRED" value={String(stats.actionRequired)} backgroundColor={theme.palette.background.paper} />
                 </Grid>
             </Grid>
                         <styles.ToolbarWrapper>

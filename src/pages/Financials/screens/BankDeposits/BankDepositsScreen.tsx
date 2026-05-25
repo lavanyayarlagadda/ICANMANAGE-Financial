@@ -4,7 +4,8 @@ import {
     Typography,
     useTheme,
     InputAdornment,
-    Button
+    Button,
+    Alert
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { BankDepositItem } from '@/interfaces/financials';
@@ -49,6 +50,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         rowHistory,
         globalFilters,
         isFetching,
+        isError,
         summaryStats
     } = useBankDepositsScreen({ skip });
 
@@ -73,6 +75,12 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>Bank Deposit Reconciliation</Typography>
                 <Typography variant="body2" color="text.secondary">Match bank deposits to remittances and track their posting status across various systems.</Typography>
             </ScreenHeader>
+
+            {isError && (
+                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
+                    Failed to load Bank Deposit Details. Please try reloading or contact support.
+                </Alert>
+            )}
 
             <BankDepositTabs
                 entities={entities}

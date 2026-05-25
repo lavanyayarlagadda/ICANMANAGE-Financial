@@ -71,13 +71,13 @@ export const useForwardBalancesScreen = ({ skip = false }: { skip?: boolean } = 
     const payerOptions = useMemo(() => filterData?.data?.payerNames?.map(p => ({ label: p, value: p })) || [], [filterData]);
 
     useEffect(() => {
-        if (skip) {
+        if (skip || isErrorNotices) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
         dispatch(setIsGlobalFetching(isFetchingNotices));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetchingNotices, skip, dispatch]);
+    }, [isFetchingNotices, isErrorNotices, skip, dispatch]);
 
     const [triggerExport] = useLazyExportForwardBalanceNoticesQuery();
 

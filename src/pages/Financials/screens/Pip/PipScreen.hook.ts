@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "@/store";
+import { useLocation } from "react-router-dom";
 import { setActiveExportType, setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
 import { useSearchPipQuery, useLazyExportPipQuery, useGetPipSummaryQuery } from "@/store/api/financialsApi";
 import { useLazyGetPipDetailsQuery } from "@/store/api/analyticsApi";
@@ -39,8 +40,10 @@ function optionalPipSearchFields(filters: PipSearchFilters): Partial<PipSearchFi
 
 export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
+    const location = useLocation();
     const { actionTriggers } = useAppSelector(s => s.ui);
     const { globalFilters } = useAppSelector(s => s.financials);
+    const selectedTenantId = useAppSelector(s => s.tenant.selectedTenantId);
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
@@ -84,6 +87,19 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
             page: 0
         }));
     }, [globalFilters.fromDate, globalFilters.toDate]);
+
+    // Reset search term and filters when tenant or tab/route changes
+    useEffect(() => {
+        setSearchFilters(EMPTY_PIP_SEARCH_FILTERS);
+        setAppliedSearchFilters(EMPTY_PIP_SEARCH_FILTERS);
+        setQueryParams(prev => ({
+            ...prev,
+            status: null,
+            payer: null,
+            transactionNo: '',
+            page: 0
+        }));
+    }, [selectedTenantId, location.pathname]);
 
     const isActualSkip = skip;
 
@@ -161,7 +177,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     }, [dispatch, queryParams.fromDate, queryParams.toDate, triggerExport]);
 
     useEffect(() => {
-        if (isActualSkip) {
+        if (isActualSkip || isError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
@@ -171,7 +187,7 @@ export const usePipScreen = ({ skip = false }: { skip?: boolean } = {}) => {
         return () => {
             dispatch(setIsGlobalFetching(false));
         };
-    }, [isAnyFetching, isActualSkip, dispatch]);
+    }, [isAnyFetching, isError, isActualSkip, dispatch]);
 
     useEffect(() => {
         if (actionTriggers.export > exportCount.current) {

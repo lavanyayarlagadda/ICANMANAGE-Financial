@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Chip, Typography, useTheme, InputAdornment, Button } from '@mui/material';
+import { Box, Chip, Typography, useTheme, InputAdornment, Button, Alert } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -32,6 +32,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         filterOptionsLoading,
         filterOptionsError,
         isFetching,
+        isError,
         globalFilters,
         searchTerm,
         setSearchTerm,
@@ -123,6 +124,12 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
 
     return (
         <Box>
+            {isError && (
+                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
+                    Failed to load All Transactions details. Please try reloading or contact support.
+                </Alert>
+            )}
+
             <ToolbarWrapper>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                     <SearchField

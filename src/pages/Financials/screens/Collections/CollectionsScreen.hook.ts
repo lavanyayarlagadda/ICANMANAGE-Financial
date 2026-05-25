@@ -205,6 +205,7 @@ export const useCollectionsScreen = (_props?: { skip?: boolean }) => {
         handlePageChange,
         handleRowsPerPageChange,
         isError: false,
+        isFetching: false,
         globalFilters,
         dispatch
     };

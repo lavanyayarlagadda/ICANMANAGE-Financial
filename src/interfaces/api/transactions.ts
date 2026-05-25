@@ -83,11 +83,11 @@ export interface AllTransactionsSearchRequest {
     fromDate: string;
     toDate: string;
      statusIds: string | number | null;
-    // categoryIds: string | number | null;
-    // transactionTypeIds: string | number | null;
-    // payerIds: string | number | null;
+     categoryIds: string | number | null;
+     transactionTypeIds: string | number | null;
+    payerIds: string | number | null;
     transactionNo: string;
-    // status?:string;
+     status?:string;
     category?:string;
     type?:string;
       payer?:string;
@@ -127,6 +127,20 @@ export interface PlbDetailsSearchRequest {
     icanManageId: number;
     offset: number;
     limit: number;
+    sortColumn: string;
+    sortDir: 'ASC' | 'DESC';
+}
+
+export interface PlbDetailsExportRequest {
+    fromDate: string;
+    toDate: string;
+    payers: string[];
+    ptanNumbers: string[];
+    transactionNumber: string;
+    brands: string[];
+    status: string;
+    icanManageId: number;
+    clientName: string;
     sortColumn: string;
     sortDir: 'ASC' | 'DESC';
 }

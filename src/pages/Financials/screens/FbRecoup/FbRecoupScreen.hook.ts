@@ -1,16 +1,20 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
-import { setIsGlobalFetching } from '@/store/slices/uiSlice';
-import { useSearchPlbDetailsQuery } from '@/store/api/transactionsApi';
+import { useLocation } from 'react-router-dom';
+import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice';
+import { useSearchPlbDetailsQuery, useLazyExportPlbDetailsQuery } from '@/store/api/transactionsApi';
 import { useGetAllTransactionsFiltersQuery, useGetUserMappedBrandsQuery } from '@/store/api/financialsApi';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { setGlobalFilters } from '@/store/slices/financialsSlice';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
-import { formatDate } from '@/utils/formatters';
-import { SORT_ORDER, DEFAULT_PAGE_SIZE } from '@/constants/common';
+import { formatDate, formatDateForFilename } from '@/utils/formatters';
+import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS, DEFAULT_CLIENT_NAME } from '@/constants/common';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
 
 export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
+    const location = useLocation();
+    const { actionTriggers } = useAppSelector((s: RootState) => s.ui);
     const { globalFilters } = useAppSelector((s: RootState) => s.financials);
     const { tenants, selectedTenantId } = useAppSelector((s: RootState) => s.tenant);
     const { user } = useUserPermissions();
@@ -19,6 +23,11 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     const activeTenant = useMemo(() => 
         tenants.find(t => t.tenantId === selectedTenantId),
         [tenants, selectedTenantId]
+    );
+
+    const clientName = useMemo(() => 
+        activeTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME,
+        [activeTenant]
     );
 
     const isCareHospice = useMemo(() => {
@@ -107,6 +116,22 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         }));
     }, [globalFilters.fromDate, globalFilters.toDate]);
 
+    // Reset search term and filters when tenant or tab/route changes
+    useEffect(() => {
+        setSearchTerm('');
+        setFilterPayor('All');
+        setFilterNpiPtan('');
+        setFilterStateBrand('All');
+        setQueryParams(prev => ({
+            ...prev,
+            transactionNumber: '',
+            payers: [],
+            ptanNumbers: [],
+            brands: [],
+            page: 0
+        }));
+    }, [selectedTenantId, location.pathname]);
+
     // Format dates for API request (YYYY-MM-DD -> MM/DD/YYYY)
     const requestFromDate = useMemo(() => formatDate(queryParams.fromDate), [queryParams.fromDate]);
     const requestToDate = useMemo(() => formatDate(queryParams.toDate), [queryParams.toDate]);
@@ -142,13 +167,13 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     }, [userBrandsData]);
 
     useEffect(() => {
-        if (skip) {
+        if (skip || isErrorNotices) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
         dispatch(setIsGlobalFetching(isFetchingNotices));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetchingNotices, skip, dispatch]);
+    }, [isFetchingNotices, isErrorNotices, skip, dispatch]);
 
     const plbDetails = useMemo(() => {
         const rawContent = noticeData?.data ?? [];
@@ -175,7 +200,7 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const totalElements = useMemo(() => {
         const rawContent = noticeData?.data ?? [];
-        return rawContent[0]?.totalCount ?? 0;
+        return rawContent[0]?.actionRequired ?? 0;
     }, [noticeData]);
 
     const stats = useMemo(() => {
@@ -187,9 +212,8 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             totalOriginalAmount,
             totalRemainingAmount,
             actionRequired,
-            activeCount: totalElements
         };
-    }, [noticeData, totalElements]);
+    }, [noticeData]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
@@ -240,6 +264,66 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
       page: 0,
     }));
   }, [clearFilters, filterPayor, filterStateBrand]);
+
+    const exportCount = useRef(actionTriggers.export);
+    const printCount = useRef(actionTriggers.print);
+    const reloadCount = useRef(actionTriggers.reload);
+
+    const [triggerExport] = useLazyExportPlbDetailsQuery();
+
+    const handleExport = useCallback(async (formatType: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
+        try {
+            dispatch(setActiveExportType(formatType));
+            const result = await triggerExport({
+                fromDate: formatDate(queryParams.fromDate),
+                toDate: formatDate(queryParams.toDate),
+                payers: queryParams.payers,
+                ptanNumbers: queryParams.ptanNumbers,
+                transactionNumber: queryParams.transactionNumber,
+                brands: queryParams.brands,
+                status: queryParams.status,
+                icanManageId,
+                clientName,
+                sortColumn: queryParams.sortField === 'date' ? 'chkdate' : queryParams.sortField,
+                sortDir: queryParams.sortOrder.toUpperCase() as 'ASC' | 'DESC',
+                format: formatType
+            }).unwrap();
+
+            if (result !== undefined) {
+                downloadFileFromBlob(
+                    result,
+                    `FB_Recoup_Report_${formatDateForFilename(queryParams.fromDate)}_to_${formatDateForFilename(queryParams.toDate)}.${formatType}`
+                );
+            }
+        } catch (err) {
+            console.error('FB & Recoup Export failed:', err);
+        } finally {
+            dispatch(setActiveExportType(null));
+        }
+    }, [dispatch, queryParams, icanManageId, clientName, triggerExport]);
+
+    useEffect(() => {
+        if (actionTriggers.export > exportCount.current) {
+            handleExport(EXPORT_FORMATS.XLSX);
+            exportCount.current = actionTriggers.export;
+        }
+    }, [actionTriggers.export, handleExport]);
+
+    useEffect(() => {
+        if (actionTriggers.print > printCount.current) {
+            handleExport(EXPORT_FORMATS.PDF);
+            printCount.current = actionTriggers.print;
+        }
+    }, [actionTriggers.print, handleExport]);
+
+    useEffect(() => {
+        if (actionTriggers.reload > reloadCount.current) {
+            if (!skip) {
+                refetchNotices();
+            }
+            reloadCount.current = actionTriggers.reload;
+        }
+    }, [actionTriggers.reload, skip, refetchNotices]);
 
     return {
         setQueryParams,

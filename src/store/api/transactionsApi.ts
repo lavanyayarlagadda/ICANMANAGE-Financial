@@ -9,7 +9,8 @@ import {
   OtherAdjustmentSearchResponse,
   DateRangeParams,
   PlbDetailsSearchRequest,
-  PlbDetailsSearchResponse
+  PlbDetailsSearchResponse,
+  PlbDetailsExportRequest
 } from "@/interfaces/api";
 
 export const transactionsApi = baseApi.injectEndpoints({
@@ -96,6 +97,17 @@ export const transactionsApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Transactions"],
     }),
+    exportPlbDetails: builder.query<
+      Blob,
+      PlbDetailsExportRequest & { format?: 'pdf' | 'xlsx' }
+    >({
+      query: ({ format, ...body }) => ({
+        url: `financials/transactions/plb-details/export/excel${format ? `?format=${format}` : ''}`,
+        method: "POST",
+        body,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -108,5 +120,6 @@ export const {
   useLazyExportOtherAdjustmentsQuery,
   useLazyExportAllTransactionsQuery,
   useGetRecoupmentFiltersQuery,
-  useSearchPlbDetailsQuery
+  useSearchPlbDetailsQuery,
+  useLazyExportPlbDetailsQuery
 } = transactionsApi;

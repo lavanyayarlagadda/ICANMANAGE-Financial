@@ -233,6 +233,7 @@ export const useReconciliation = () => {
     handleRangeChange,
     applyFilters,
     handleGlobalTransactionSearch,
+    isError: false,
     globalFilters,
   };
 };

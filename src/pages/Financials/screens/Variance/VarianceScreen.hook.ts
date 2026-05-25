@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
+import { useLocation } from 'react-router-dom';
 import {
     setIsReloading,
     setIsGlobalFetching,
@@ -35,10 +36,12 @@ import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/commo
 
 export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => {
     const dispatch = useAppDispatch();
-    const { activeSubTab, actionTriggers, globalFilters } = useAppSelector((s) => ({
+    const location = useLocation();
+    const { activeSubTab, actionTriggers, globalFilters, selectedTenantId } = useAppSelector((s) => ({
         activeSubTab: s.ui.activeSubTab,
         actionTriggers: s.ui.actionTriggers,
-        globalFilters: s.financials.globalFilters
+        globalFilters: s.financials.globalFilters,
+        selectedTenantId: s.tenant.selectedTenantId
     }));
 
     const [queryParams, setQueryParams] = useState<TableQueryParams>({
@@ -76,6 +79,17 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         }));
     }, [globalFilters.fromDate, globalFilters.toDate]);
 
+    // Reset search term and filters when tenant, subtab, or tab/route changes
+    useEffect(() => {
+        setSearchTerm('');
+        setQueryParams(prev => ({
+            ...prev,
+            payerName: null,
+            transactionNo: '',
+            page: 0
+        }));
+    }, [selectedTenantId, activeSubTab, location.pathname]);
+
     const [drillDownParams, setDrillDownParams] = useState({
         page: 0,
         size: DEFAULT_PAGE_SIZE,
@@ -85,7 +99,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const reloadCount = useRef(actionTriggers.reload);
 
-    const { data: feeData, isFetching: feeFetching, refetch: refetchFee } = useSearchFeeScheduleVarianceQuery({
+    const { data: feeData, isFetching: feeFetching, isError: feeError, refetch: refetchFee } = useSearchFeeScheduleVarianceQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
@@ -101,7 +115,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         toDate: queryParams.toDate
     }, { skip: skip || activeSubTab !== 0 });
 
-    const { data: paymentData, isFetching: paymentFetching, refetch: refetchPayment } = useSearchPaymentVarianceQuery({
+    const { data: paymentData, isFetching: paymentFetching, isError: paymentError, refetch: refetchPayment } = useSearchPaymentVarianceQuery({
         page: queryParams.page + 1,
         size: queryParams.size,
         sort: queryParams.sortField,
@@ -192,14 +206,16 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         }
     }, [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams]);
 
+    const isError = activeSubTab === 0 ? feeError : paymentError;
+
     useEffect(() => {
-        if (skip) {
+        if (skip || isError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
         dispatch(setIsGlobalFetching(feeFetching || paymentFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [feeFetching, paymentFetching, skip, dispatch]);
+    }, [feeFetching, paymentFetching, isError, skip, dispatch]);
 
     const handleRangeChange = useCallback((range: string) => {
         if (range.includes(' to ')) {
@@ -309,6 +325,7 @@ export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         payerOptionsLoading: filterFetching,
         payerOptionsError: filterError,
         isFetching: feeFetching || paymentFetching,
+        isError,
         dispatch
     };
 };

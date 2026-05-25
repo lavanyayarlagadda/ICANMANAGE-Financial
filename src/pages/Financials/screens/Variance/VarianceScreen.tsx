@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, Grid, useTheme } from '@mui/material';
+import { Box, Typography, Grid, useTheme, Alert } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { InputAdornment, Button } from '@mui/material';
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -42,6 +42,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         payerOptionsLoading,
         payerOptionsError,
         isFetching,
+        isError,
     } = useVarianceScreen({ skip });
     const theme = useTheme();
     const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(() => [
@@ -145,6 +146,13 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     return (
         <ScreenWrapper>
             <HeaderSection><Typography variant="h6" sx={{ fontWeight: 700 }}>{activeSubTab === 0 ? 'Fee Variance' : 'Payment Variance'}</Typography></HeaderSection>
+            
+            {isError && (
+                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
+                    Failed to load Variance details. Please try reloading or contact support.
+                </Alert>
+            )}
+
             <Grid container spacing={2} sx={{ mb: 4 }}>
                 <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="EXPECTED" value={formatCurrency(summaryValues.tExp)} backgroundColor="background.paper" /></Grid>
                 <Grid size={{ xs: 12, md: 4 }}><SummaryCard title={summaryValues.lbl2} value={formatCurrency(summaryValues.tAct)} backgroundColor="background.paper" /></Grid>

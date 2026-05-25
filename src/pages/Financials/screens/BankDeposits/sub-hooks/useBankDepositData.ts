@@ -129,13 +129,13 @@ export const useBankDepositData = ({
     );
 
     useEffect(() => {
-        if (skip) {
+        if (skip || isError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
         dispatch(setIsGlobalFetching(isFetching || isWidgetsFetching || isHeadersFetching || isTabsFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, isWidgetsFetching, isHeadersFetching, isTabsFetching, skip, dispatch]);
+    }, [isFetching, isWidgetsFetching, isHeadersFetching, isTabsFetching, isError, skip, dispatch]);
 
     const bankDeposits: BankDepositItem[] = useMemo(() => {
         if (Array.isArray(data)) return data as BankDepositItem[];

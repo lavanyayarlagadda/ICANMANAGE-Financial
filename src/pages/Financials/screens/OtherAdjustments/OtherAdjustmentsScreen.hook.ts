@@ -103,13 +103,13 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
     const reloadCount = useRef(actionTriggers.reload);
 
     useEffect(() => {
-        if (skip) {
+        if (skip || isError) {
             dispatch(setIsGlobalFetching(false));
             return;
         }
         dispatch(setIsGlobalFetching(isFetching));
         return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, skip, dispatch]);
+    }, [isFetching, isError, skip, dispatch]);
 
     const handleExport = useCallback(async (exportFormat: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
         dispatch(setActiveExportType(exportFormat));
