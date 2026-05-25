@@ -35,6 +35,7 @@ export const useDepositReconciliation = ({
   skip,
 }: UseDepositReconciliationProps) => {
   const dispatch = useAppDispatch();
+  const { globalFilters } = useAppSelector((s) => s.financials);
 
   const [trailingWindow, setTrailingWindow] = React.useState<string>(
     toText(contract.controls?.trailingWindow?.selected || "3m"),
@@ -57,8 +58,11 @@ export const useDepositReconciliation = ({
             : 3;
     const forecastMonths =
       forecastWindow === "6m" ? 6 : forecastWindow === "3m" ? 3 : 0;
-    const toDateObj = new Date();
-    const fromDateObj = subMonths(toDateObj, trailingWindowMonths);
+    const toDateObj = globalFilters.toDate ? new Date(globalFilters.toDate) : new Date();
+    
+    // Subtract (months - 1) so that we span exactly `trailingWindowMonths` calendar months 
+    // including the current month. E.g., May minus 2 months = March (March, April, May = 3 months).
+    const fromDateObj = subMonths(toDateObj, Math.max(0, trailingWindowMonths - 1));
 
     return {
       fromDate: format(fromDateObj, "yyyy-MM-dd"),
@@ -67,7 +71,7 @@ export const useDepositReconciliation = ({
       forecastMonths,
       compare: compareMode.toUpperCase(),
     };
-  }, [trailingWindow, forecastWindow, compareMode]);
+  }, [trailingWindow, forecastWindow, compareMode, globalFilters.toDate]);
 
   const [triggerExportPdf, { isFetching: isExportingPdf }] =
     useLazyExportDepositReconciliationPdfQuery();

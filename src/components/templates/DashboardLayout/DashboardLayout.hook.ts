@@ -20,8 +20,9 @@ export const useDashboardLayout = () => {
 
     const permissions = useUserPermissions();
 
+    const hasInitError = Boolean(tenant.error) || permissions.isErrorDetails;
     const isWaitingForTenants = permissions.isCognitiveUser && tenant.tenants.length === 0;
-    const isOverlayActive = ui.activeExportType || ui.isReloading || ui.isDrillingDown || tenant.isLoading || isWaitingForTenants || permissions.isLoadingDetails || ui.isGlobalFetching || financials.loading;
+    const isOverlayActive = ui.activeExportType || ui.isReloading || ui.isDrillingDown || tenant.isLoading || isWaitingForTenants || permissions.isLoadingDetails || ui.isGlobalFetching || financials.loading || hasInitError;
 
     const isFirstRender = useRef(true);
     useEffect(() => {
@@ -67,6 +68,7 @@ export const useDashboardLayout = () => {
         financialsTabs,
         isOverlayActive,
         isWaitingForTenants,
+        hasInitError,
         ...permissions,
         handleNavClick,
         handleMenuToggle,

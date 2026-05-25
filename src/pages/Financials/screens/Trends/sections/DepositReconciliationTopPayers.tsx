@@ -32,15 +32,16 @@ export const DepositReconciliationTopPayers: React.FC<
         </Typography>
         <Box sx={{ 
           overflowX: "auto",
+          maxWidth: "100%",
           "&::-webkit-scrollbar": { height: '8px' },
           "&::-webkit-scrollbar-track": { background: "transparent" },
           "&::-webkit-scrollbar-thumb": { 
-            background: "#c1c1c1", 
+            background: theme.palette.grey[300], 
             borderRadius: '10px', 
-            "&:hover": { background: "#a8a8a8" } 
+            "&:hover": { background: theme.palette.grey[400] } 
           },
           scrollbarWidth: 'thin',
-          scrollbarColor: `#c1c1c1 transparent`,
+          scrollbarColor: `${theme.palette.grey[300]} transparent`,
         }}>
           <Box
             component="table"
