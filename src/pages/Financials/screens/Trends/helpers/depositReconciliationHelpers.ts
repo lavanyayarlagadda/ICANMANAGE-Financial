@@ -364,7 +364,14 @@ export const normalizeHeroCards = (cards: unknown): HeroCard[] => {
 
       const sparkline = Array.isArray(card.sparkline)
         ? card.sparkline
-            .map((v) => (typeof v === "number" ? v : Number(v)))
+            .map((v) => {
+              if (typeof v === "number") return v;
+              if (v && typeof v === "object") {
+                const rec = v as Record<string, unknown>;
+                return Number(rec.totalAmount ?? rec.amount ?? rec.value ?? rec.total);
+              }
+              return Number(v);
+            })
             .filter((v) => Number.isFinite(v))
         : undefined;
 
@@ -444,7 +451,14 @@ export const normalizeTrendRow = (
 
   const sparkline = Array.isArray(row.sparkline)
     ? row.sparkline
-        .map((v) => (typeof v === "number" ? v : Number(v)))
+        .map((v) => {
+          if (typeof v === "number") return v;
+          if (v && typeof v === "object") {
+            const rec = v as Record<string, unknown>;
+            return Number(rec.totalAmount ?? rec.amount ?? rec.value ?? rec.total);
+          }
+          return Number(v);
+        })
         .filter((v) => Number.isFinite(v))
     : undefined;
 
@@ -611,7 +625,14 @@ export const normalizeTopPayerRows = (rows: unknown): PayerRow[] => {
 
       const sixMonthTrend = Array.isArray(row.sixMonthTrend)
         ? row.sixMonthTrend
-            .map((v) => (typeof v === "number" ? v : Number(v)))
+            .map((v) => {
+              if (typeof v === "number") return v;
+              if (v && typeof v === "object") {
+                const rec = v as Record<string, unknown>;
+                return Number(rec.totalAmount ?? rec.amount ?? rec.value ?? rec.total);
+              }
+              return Number(v);
+            })
             .filter((v) => Number.isFinite(v))
         : undefined;
 

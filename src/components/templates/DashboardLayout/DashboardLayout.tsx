@@ -41,6 +41,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     isOverlayActive,
     isLoadingDetails,
     isWaitingForTenants,
+    hasInitError,
     sidebar,
     getMenuStatus,
     handleNavClick,
@@ -106,31 +107,47 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   return (
     <PageWrapper>
-      {/* Full-Screen Blurred Loader */}
+      {/* Full-Screen Blurred Loader / Error Overlay */}
       {isOverlayActive && (
         <GlobalOverlay>
-          <CircularProgress size={60} thickness={4} />
-          <Typography variant="h6" color="primary" sx={{ fontWeight: 600, mt: 2 }}>
-            {tenant.isLoading || isWaitingForTenants
-              ? 'Loading Your Organizations...'
-              : (isLoadingDetails
-                ? 'Authorizing Account & Permissions...'
-                : (ui.isReloading
-                  ? 'Syncing Fresh Financial Data...'
-                  : (ui.activeExportType
-                    ? `Generating ${ui.activeExportType.toUpperCase()} Report`
-                    : (ui.isDrillingDown ? 'Resolving Transaction Details...' : (ui.isGlobalFetching || financials.loading ? 'Fetching Records...' : 'Configuring View...')))))}
-          </Typography>
-
-          {ui.activeExportType ? (
-            <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1, maxWidth: 450, textAlign: 'center' }}>
-              Your report is being prepared. Due to the high volume of data, this may take a moment. 
-              Your file will download automatically once ready.
-            </Typography>
+          {hasInitError ? (
+            <>
+              <Typography variant="h4" color="error" sx={{ mb: 2 }}>
+                ⚠️
+              </Typography>
+              <Typography variant="h6" color="error" sx={{ fontWeight: 600 }}>
+                Initialization Failed
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1, maxWidth: 400, textAlign: 'center' }}>
+                We could not load your user permissions or organization details. Please refresh the page or try logging out and back in.
+              </Typography>
+            </>
           ) : (
-            <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1 }}>
-              Please wait while we load your data securely...
-            </Typography>
+            <>
+              <CircularProgress size={60} thickness={4} />
+              <Typography variant="h6" color="primary" sx={{ fontWeight: 600, mt: 2 }}>
+                {tenant.isLoading || isWaitingForTenants
+                  ? 'Loading Your Organizations...'
+                  : (isLoadingDetails
+                    ? 'Authorizing Account & Permissions...'
+                    : (ui.isReloading
+                      ? 'Syncing Fresh Financial Data...'
+                      : (ui.activeExportType
+                        ? `Generating ${ui.activeExportType.toUpperCase()} Report`
+                        : (ui.isDrillingDown ? 'Resolving Transaction Details...' : (ui.isGlobalFetching || financials.loading ? 'Fetching Records...' : 'Configuring View...')))))}
+              </Typography>
+
+              {ui.activeExportType ? (
+                <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1, maxWidth: 450, textAlign: 'center' }}>
+                  Your report is being prepared. Due to the high volume of data, this may take a moment. 
+                  Your file will download automatically once ready.
+                </Typography>
+              ) : (
+                <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1 }}>
+                  Please wait while we load your data securely...
+                </Typography>
+              )}
+            </>
           )}
         </GlobalOverlay>
       )}

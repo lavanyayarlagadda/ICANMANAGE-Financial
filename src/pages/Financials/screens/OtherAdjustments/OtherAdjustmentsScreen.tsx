@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Typography, Chip, useTheme, Box, InputAdornment, Button, Alert } from '@mui/material';
+import { Typography, Chip, useTheme, Box, InputAdornment, Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -30,7 +30,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         onSearch,
         globalFilters,
         isFetching,
-        isError,
+        // isError,
     } = useOtherAdjustmentsScreen({ skip });
 
     const columns = useMemo<DataColumn<OtherAdjustmentRecord>[]>(() => [
@@ -79,11 +79,11 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>
-            {isError && (
+            {/* {isError && (
                 <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
                     Failed to load Other Adjustments details. Please try reloading or contact support.
                 </Alert>
-            )}
+            )} */}
             <styles.ToolbarWrapper>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                     <styles.SearchField

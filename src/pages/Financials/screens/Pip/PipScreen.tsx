@@ -7,7 +7,7 @@ import { PipRecord, NpiAllocation } from "@/interfaces/financials";
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from "@/components/atoms/RangeDropdown/RangeDropdown";
-import { Box, Typography, IconButton, Chip, Grid, Button, CircularProgress, Alert } from "@mui/material";
+import { Box, Typography, IconButton, Chip, Grid, Button, CircularProgress } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import MultiValueDisplay from "@/components/atoms/MultiValueDisplay/MultiValueDisplay";
 import { formatCurrency, formatPercent, formatDate } from "@/utils/formatters";
@@ -76,7 +76,6 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     statusOptions,
     globalFilters,
     isFetching,
-    isError,
   } = usePipScreen({ skip });
 
   const getRowId = useCallback((row: PipRecord) => row.id || row.ptan, []);
@@ -167,11 +166,11 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
   return (
     <Box sx={{ position: 'relative' }}>
-      {isError && (
+      {/* {isError && (
         <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
           Failed to load PIP details. Please try reloading or contact support.
         </Alert>
-      )}
+      )} */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL PAID AMOUNT" value={formatCurrency(pipSummary?.totalPaidAmount)} backgroundColor="background.paper" /></Grid>
         <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL SUSPENSE BALANCE" value={formatCurrency(pipSummary?.totalSuspenseBalance)} backgroundColor="background.paper" /></Grid>

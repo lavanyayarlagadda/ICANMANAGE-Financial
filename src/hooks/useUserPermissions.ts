@@ -10,7 +10,7 @@ export const useUserPermissions = () => {
   // Skip only when no authenticated user is present.
   const shouldSkipDetails = !authUser;
 
-  const { data: userDetails, isLoading: isLoadingDetails } = useGetMeDetailsQuery(undefined, {
+  const { data: userDetails, isLoading: isLoadingDetails, isError: isErrorDetails } = useGetMeDetailsQuery(undefined, {
     skip: shouldSkipDetails
   });
 
@@ -65,5 +65,6 @@ export const useUserPermissions = () => {
     user,
     userDetails,
     isLoadingDetails: isLoadingDetails && !shouldSkipDetails,
+    isErrorDetails,
   };
 };

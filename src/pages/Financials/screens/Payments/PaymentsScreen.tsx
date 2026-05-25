@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, InputAdornment, Button, useTheme, Alert } from '@mui/material';
+import { Box, Typography, InputAdornment, Button, useTheme } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -31,7 +31,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         setSearchTerm,
         onSearch,
         isFetching,
-        isError,
+        // isError,
     } = usePaymentsScreen({ skip });
 
     const theme = useTheme();
@@ -76,11 +76,11 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
     return (
         <ScreenWrapper>
-            {isError && (
+            {/* {isError && (
                 <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
                     Failed to load Payments transaction details. Please try reloading or contact support.
                 </Alert>
-            )}
+            )} */}
             <ToolbarWrapper>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                     <SearchField
