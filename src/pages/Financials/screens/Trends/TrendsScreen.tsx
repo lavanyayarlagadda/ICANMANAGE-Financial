@@ -20,33 +20,25 @@ import {
 } from './TrendsScreen.styles';
 import { useTrendsScreen } from './TrendsScreen.hook';
 
-import { ForecastDashboardResponse } from '@/interfaces/api';
 import { PayerPerformanceRecord } from '@/interfaces/financials';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { SystemStatus } from '@/constants/statuses';
+import {
+    avgDaysFieldFormat,
+    countFieldFormat,
+    createForecastCellValueGetter,
+    createSharedColumnCellProps,
+    currencyFieldFormat,
+    ForecastDashboardRow,
+    isOverallTeam,
+    percentFieldFormat,
+} from './helpers/forecastTrendsTableHelpers';
 
 interface PerformanceData {
     month: string;
     actualReconciledAmount: string | number | null;
     forecastAmount: string | number | null;
 }
-
-const isOverallTeam = (team: unknown): boolean =>
-    String(team ?? '').trim().toUpperCase() === 'OVERALL';
-
-const isNullLike = (value: unknown): boolean => {
-    if (value === null || value === undefined) return true;
-    const normalized = String(value).trim().toLowerCase();
-    return normalized === '' || normalized === 'null' || normalized === 'null%';
-};
-
-const formatPercentCell = (value: unknown): string => {
-    if (isNullLike(value)) return '—';
-    const numeric = Number(value);
-    if (Number.isFinite(numeric)) return `${numeric}%`;
-    const raw = String(value).trim();
-    return raw.endsWith('%') ? raw : `${raw}%`;
-};
 
 const getSafeMonthLabel = (monthValue: string | null | undefined, fallbackDate: string, index: number): string => {
     const parsed = monthValue ? new Date(monthValue) : new Date(fallbackDate);
@@ -74,7 +66,8 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         isPayerPath,
         forecastSummary,
         reconPerformance,
-        dashboardData,
+        dashboardRows,
+        dashboardTableTitle,
         execSummary,
         paymentMix,
         adjBreakdown,
@@ -90,145 +83,73 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     } = useTrendsScreen({ skip });
 
     const overallDashboardRow = useMemo(() => {
-        return (dashboardData || []).find((row) => isOverallTeam(row.team)) || null;
-    }, [dashboardData]);
+        return (dashboardRows || []).find((row) => isOverallTeam(row.team)) || null;
+    }, [dashboardRows]);
 
-    const teamColumns = useMemo<DataColumn<ForecastDashboardResponse['data'][0]>[]>(() => [
-        {
-            id: 'team',
-            label: 'TEAM',
-            minWidth: 150,
-            align: 'center',
-            disableSort: true,
-            render: (row) => (
-                <Typography variant="body2" sx={{ fontWeight: row.team === 'OVERALL' ? 700 : 500 }}>
-                    {row.team}
-                </Typography>
-            ),
-            accessor: (row) => row.team,
-        },
-        {
-            id: 'reconciledCheckCountPct',
-            label: 'RECONCILED CHECK %',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.reconciledCheckCountPct) ? overallDashboardRow?.reconciledCheckCountPct : row.reconciledCheckCountPct;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{formatPercentCell(resolved)}</Typography>;
+    const teamColumns = useMemo<DataColumn<ForecastDashboardRow>[]>(() => {
+        type ValueField = keyof Omit<ForecastDashboardRow, 'team'>;
+
+        const makeValueColumn = (
+            id: string,
+            label: string,
+            field: ValueField,
+            formatValue: (value: unknown) => string,
+            mergeAcrossTeams: boolean,
+        ): DataColumn<ForecastDashboardRow> => {
+            const getDisplayValue = createForecastCellValueGetter(
+                field,
+                overallDashboardRow,
+                formatValue,
+            );
+
+            return {
+                id,
+                label,
+                align: 'center',
+                disableSort: true,
+                accessor: (row) => row[field] as string | number,
+                ...(mergeAcrossTeams ? { getCellProps: createSharedColumnCellProps() } : {}),
+                render: (row) => (
+                    <Typography
+                        variant="body2"
+                        sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}
+                    >
+                        {getDisplayValue(row)}
+                    </Typography>
+                ),
+            };
+        };
+
+        return [
+            {
+                id: 'team',
+                label: 'TEAM',
+                minWidth: 150,
+                align: 'center',
+                disableSort: true,
+                render: (row) => (
+                    <Typography
+                        variant="body2"
+                        sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}
+                    >
+                        {row.team}
+                    </Typography>
+                ),
+                accessor: (row) => row.team,
             },
-            accessor: (row) => row.reconciledCheckCountPct
-        },
-        {
-            id: 'unreconciledCheckCountPct',
-            label: 'UNRECONCILED CHECK %',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.unreconciledCheckCountPct) ? overallDashboardRow?.unreconciledCheckCountPct : row.unreconciledCheckCountPct;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{formatPercentCell(resolved)}</Typography>;
-            },
-            accessor: (row) => row.unreconciledCheckCountPct
-        },
-        {
-            id: 'checkCountPctByTeam',
-            label: 'CHECK % BY TEAM',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.checkCountPctByTeam) ? overallDashboardRow?.checkCountPctByTeam : row.checkCountPctByTeam;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{formatPercentCell(resolved)}</Typography>;
-            },
-            accessor: (row) => row.checkCountPctByTeam
-        },
-        {
-            id: 'reconciledCheckCount',
-            label: 'RECONCILED COUNT',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.reconciledCheckCount) ? overallDashboardRow?.reconciledCheckCount : row.reconciledCheckCount;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{isNullLike(resolved) ? '—' : String(resolved)}</Typography>;
-            },
-            accessor: (row) => row.reconciledCheckCount
-        },
-        {
-            id: 'unreconciledCheckCount',
-            label: 'UNRECONCILED COUNT',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.unreconciledCheckCount) ? overallDashboardRow?.unreconciledCheckCount : row.unreconciledCheckCount;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{isNullLike(resolved) ? '—' : String(resolved)}</Typography>;
-            },
-            accessor: (row) => row.unreconciledCheckCount
-        },
-        {
-            id: 'reconciledAmountPct',
-            label: 'RECONCILED AMT %',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.reconciledAmountPct) ? overallDashboardRow?.reconciledAmountPct : row.reconciledAmountPct;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{formatPercentCell(resolved)}</Typography>;
-            },
-            accessor: (row) => row.reconciledAmountPct
-        },
-        {
-            id: 'unreconciledAmountPct',
-            label: 'UNRECONCILED AMT %',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.unreconciledAmountPct) ? overallDashboardRow?.unreconciledAmountPct : row.unreconciledAmountPct;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{formatPercentCell(resolved)}</Typography>;
-            },
-            accessor: (row) => row.unreconciledAmountPct
-        },
-        {
-            id: 'amountPctByTeam',
-            label: 'AMT % BY TEAM',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.amountPctByTeam) ? overallDashboardRow?.amountPctByTeam : row.amountPctByTeam;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{formatPercentCell(resolved)}</Typography>;
-            },
-            accessor: (row) => row.amountPctByTeam
-        },
-        {
-            id: 'totalAmountPosted',
-            label: 'TOTAL POSTED',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.totalAmountPosted) ? overallDashboardRow?.totalAmountPosted : row.totalAmountPosted;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{isNullLike(resolved) ? '—' : formatCurrency(Number(resolved))}</Typography>;
-            },
-            accessor: (row) => row.totalAmountPosted
-        },
-        {
-            id: 'totalAmountNotPosted',
-            label: 'TOTAL NOT POSTED',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.totalAmountNotPosted) ? overallDashboardRow?.totalAmountNotPosted : row.totalAmountNotPosted;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{isNullLike(resolved) ? '—' : formatCurrency(Number(resolved))}</Typography>;
-            },
-            accessor: (row) => row.totalAmountNotPosted
-        },
-        {
-            id: 'avgDaysToReconcile',
-            label: 'AVG DAYS',
-            align: 'center',
-            disableSort: true,
-            render: (row) => {
-                const resolved = isNullLike(row.avgDaysToReconcile) ? overallDashboardRow?.avgDaysToReconcile : row.avgDaysToReconcile;
-                return <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>{isNullLike(resolved) ? 'N/A' : String(resolved)}</Typography>;
-            },
-            accessor: (row) => row.avgDaysToReconcile ?? ''
-        },
-    ], [overallDashboardRow]);
+            makeValueColumn('reconciledCheckCountPct', 'RECONCILED CHECK %', 'reconciledCheckCountPct', percentFieldFormat, true),
+            makeValueColumn('unreconciledCheckCountPct', 'UNRECONCILED CHECK %', 'unreconciledCheckCountPct', percentFieldFormat, true),
+            makeValueColumn('checkCountPctByTeam', 'CHECK % BY TEAM', 'checkCountPctByTeam', percentFieldFormat, false),
+            makeValueColumn('reconciledCheckCount', 'RECONCILED COUNT', 'reconciledCheckCount', countFieldFormat, false),
+            makeValueColumn('unreconciledCheckCount', 'UNRECONCILED COUNT', 'unreconciledCheckCount', countFieldFormat, true),
+            makeValueColumn('reconciledAmountPct', 'RECONCILED AMT %', 'reconciledAmountPct', percentFieldFormat, true),
+            makeValueColumn('unreconciledAmountPct', 'UNRECONCILED AMT %', 'unreconciledAmountPct', percentFieldFormat, true),
+            makeValueColumn('amountPctByTeam', 'AMT % BY TEAM', 'amountPctByTeam', percentFieldFormat, false),
+            makeValueColumn('totalAmountPosted', 'TOTAL POSTED', 'totalAmountPosted', currencyFieldFormat, false),
+            makeValueColumn('totalAmountNotPosted', 'TOTAL NOT POSTED', 'totalAmountNotPosted', currencyFieldFormat, true),
+            makeValueColumn('avgDaysToReconcile', 'AVG DAYS', 'avgDaysToReconcile', avgDaysFieldFormat, false),
+        ];
+    }, [overallDashboardRow]);
 
     const forecastTrendsContent = useMemo(() => (
         <>
@@ -281,17 +202,19 @@ const TrendsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             {!isMindpath && (
                 <DataTable
                     columns={teamColumns}
-                    data={dashboardData || []}
+                    data={dashboardRows || []}
                     rowKey={(r) => r.team}
                     paginated={false}
                     searchable={false}
                     dictionaryId="forecast-trends"
                     download={false}
                     loading={isFetching}
+                    showColumnDividers
+                    tableTitle={dashboardTableTitle || 'KPI Matrix(DOD)'}
                 />
             )}
         </>
-    ), [reconPerformance, forecastSummary, dashboardData, handleRangeChange, theme, teamColumns, isMindpath, globalFilters.rangeLabel, isFetching, globalFilters.fromDate]);
+    ), [reconPerformance, forecastSummary, dashboardRows, dashboardTableTitle, handleRangeChange, theme, teamColumns, isMindpath, globalFilters.rangeLabel, isFetching, globalFilters.fromDate]);
 
     const payerColumns = useMemo<DataColumn<PayerPerformanceRecord>[]>(() => [
         {

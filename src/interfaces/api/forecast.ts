@@ -18,6 +18,7 @@ export interface ReconciliationPerformanceResponse {
 }
 
 export interface ForecastDashboardResponse {
+    title?: string;
     data: {
         team: string;
         reconciledCheckCountPct: string;

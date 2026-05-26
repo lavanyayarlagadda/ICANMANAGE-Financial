@@ -52,6 +52,8 @@ interface DataTableProps<T> {
   getRowStyle?: (row: T) => React.CSSProperties;
   dense?: boolean;
   loading?: boolean;
+  showColumnDividers?: boolean;
+  tableTitle?: string;
 }
 
 function DataTable<T>({
@@ -72,6 +74,8 @@ function DataTable<T>({
   dense = false,
   loading = false,
   additionalFilterCount = 0,
+  showColumnDividers = false,
+  tableTitle,
   ...props
 }: DataTableProps<T>) {
   const hasAccessor = (column: DataColumn<T>): column is AccessorColumn<T> => !!column.accessor;
@@ -194,6 +198,7 @@ function DataTable<T>({
         handleCSVExport={handleCSVExport}
         handlePDFExport={handlePDFExport}
         customFilterContent={props.customFilterContent}
+        tableTitle={tableTitle}
       />
 
       {loading ? (
@@ -236,6 +241,7 @@ function DataTable<T>({
           dense={dense}
           disableHover={disableHover}
           getRowStyle={getRowStyle}
+          showColumnDividers={showColumnDividers}
         />
       )}
 
