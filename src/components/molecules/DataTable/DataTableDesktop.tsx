@@ -43,6 +43,7 @@ interface DataTableDesktopProps<T> {
   disableHover?: boolean;
   getRowStyle?: (row: T) => React.CSSProperties;
   dense?: boolean;
+  showColumnDividers?: boolean;
 }
 
 export function DataTableDesktop<T>({
@@ -67,8 +68,14 @@ export function DataTableDesktop<T>({
   disableHover = false,
   getRowStyle,
   dense = false,
+  showColumnDividers = false,
 }: DataTableDesktopProps<T>) {
   const theme = useTheme();
+
+  const columnDividerSx = (colIndex: number) =>
+    showColumnDividers && colIndex > 0
+      ? { borderLeft: `1px dotted ${theme.palette.divider}` }
+      : undefined;
 
   return (
     <ScrollableTableContainer>
@@ -93,11 +100,11 @@ export function DataTableDesktop<T>({
                 />
               </TableCell>
             )}
-            {columns.map((col) => (
+            {columns.map((col, colIndex) => (
               <HeaderTableCell
                 key={col.id}
                 align={col.align || 'center'}
-                sx={{ minWidth: col.minWidth, whiteSpace: 'nowrap' }}
+                sx={{ minWidth: col.minWidth, whiteSpace: 'nowrap', ...columnDividerSx(colIndex) }}
                 sortDirection={sortCol === col.id ? sortDir : false}
               >
                 {isSortable(col) ? (
@@ -181,7 +188,7 @@ export function DataTableDesktop<T>({
                         />
                       </TableCell>
                     )}
-                    {columns.map((col) => {
+                    {columns.map((col, colIndex) => {
                       const rowIndex = paginatedData.indexOf(row);
                       const cellMeta = col.getCellProps?.(row, rowIndex, paginatedData);
                       if (cellMeta?.skip) return null;
@@ -191,7 +198,12 @@ export function DataTableDesktop<T>({
                           align={col.align || 'center'}
                           rowSpan={cellMeta?.rowSpan}
                           colSpan={cellMeta?.colSpan}
-                          sx={cellMeta?.rowSpan && cellMeta.rowSpan > 1 ? { verticalAlign: 'middle' } : undefined}
+                          sx={{
+                            ...columnDividerSx(colIndex),
+                            ...(cellMeta?.rowSpan && cellMeta.rowSpan > 1
+                              ? { verticalAlign: 'middle' }
+                              : undefined),
+                          }}
                         >
                           {col.render(row)}
                         </TableCell>

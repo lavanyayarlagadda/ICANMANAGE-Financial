@@ -54,7 +54,7 @@ export const useDepositReconciliation = ({
     const trailingWindowMonths = parseTrailingWindowMonths(trailingWindow);
     const forecastMonths =
       forecastWindow === "6m" ? 6 : forecastWindow === "3m" ? 3 : 0;
-    const toDateObj = globalFilters.toDate ? new Date(globalFilters.toDate) : new Date();
+  const toDateObj = globalFilters.toDate ? new Date(globalFilters.toDate) : new Date();
     const fromDateObj = subMonths(toDateObj, Math.max(0, trailingWindowMonths - 1));
     return {
       fromDate: format(startOfMonth(fromDateObj), "yyyy-MM-dd"),

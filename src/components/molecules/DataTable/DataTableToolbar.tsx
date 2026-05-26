@@ -67,6 +67,7 @@ interface DataTableToolbarProps<T> {
   onDownload?: () => void;
   handleCSVExport: () => void;
   handlePDFExport: () => void;
+  tableTitle?: string;
 }
 
 export function DataTableToolbar<T>({
@@ -96,6 +97,7 @@ export function DataTableToolbar<T>({
   onDownload,
   handleCSVExport,
   handlePDFExport,
+  tableTitle,
 }: DataTableToolbarProps<T>) {
   const [downloadAnchor, setDownloadAnchor] = React.useState<null | HTMLElement>(null);
 
@@ -123,9 +125,15 @@ export function DataTableToolbar<T>({
 
       <ToolbarRow isMobile={isMobile}>
         <ToolbarLeft>
-          <RecordsText variant="caption">
-            {totalCount ?? sortedData.length} record{(totalCount ?? sortedData.length) === 1 ? '' : 's'}
-          </RecordsText>
+          {tableTitle ? (
+            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+              {tableTitle}
+            </Typography>
+          ) : (
+            <RecordsText variant="caption">
+              {totalCount ?? sortedData.length} record{(totalCount ?? sortedData.length) === 1 ? '' : 's'}
+            </RecordsText>
+          )}
           {activeFilterCount > 0 && (
             <Chip
               label={`${activeFilterCount} Active Filter${activeFilterCount > 1 ? 's' : ''}`}
