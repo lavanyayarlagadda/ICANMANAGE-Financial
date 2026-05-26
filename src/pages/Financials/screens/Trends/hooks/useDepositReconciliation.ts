@@ -1,5 +1,5 @@
 import React from "react";
-import { format, subMonths } from "date-fns";
+import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
 import {
@@ -57,8 +57,8 @@ export const useDepositReconciliation = ({
   const toDateObj = globalFilters.toDate ? new Date(globalFilters.toDate) : new Date();
     const fromDateObj = subMonths(toDateObj, Math.max(0, trailingWindowMonths - 1));
     return {
-      fromDate: format(fromDateObj, "yyyy-MM-dd"),
-      toDate: format(toDateObj, "yyyy-MM-dd"),
+      fromDate: format(startOfMonth(fromDateObj), "yyyy-MM-dd"),
+      toDate: format(endOfMonth(toDateObj), "yyyy-MM-dd"),
       trailingWindowMonths,
       forecastMonths,
       compare: compareMode.toUpperCase(),
