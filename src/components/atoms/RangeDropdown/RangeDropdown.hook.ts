@@ -30,16 +30,16 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
     if (value !== 'Custom' && !value.includes(' to ')) {
       const dates = calculateDatesFromLabel(value);
       if (dates) {
-        setFromDate(new Date(dates.from));
-        setToDate(new Date(dates.to));
+        setFromDate(prev => { const n = new Date(dates.from); return prev?.getTime() === n.getTime() ? prev : n; });
+        setToDate(prev => { const n = new Date(dates.to); return prev?.getTime() === n.getTime() ? prev : n; });
       }
     } else if (value.includes(' to ')) {
         const [from, to] = value.split(' to ');
         const fDate = new Date(from);
         const tDate = new Date(to);
-        setFromDate(fDate);
-        setToDate(tDate);
-        setCustomRange({ from: fDate, to: tDate });
+        setFromDate(prev => prev?.getTime() === fDate.getTime() ? prev : fDate);
+        setToDate(prev => prev?.getTime() === tDate.getTime() ? prev : tDate);
+        setCustomRange(prev => (prev.from?.getTime() === fDate.getTime() && prev.to?.getTime() === tDate.getTime()) ? prev : { from: fDate, to: tDate });
         setInternalVal('Custom');
     } else {
       // For shared "Custom" mode, prefer globally selected date range
@@ -48,14 +48,14 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
         const globalFrom = new Date(globalFilters.fromDate);
         const globalTo = new Date(globalFilters.toDate);
         if (!Number.isNaN(globalFrom.getTime()) && !Number.isNaN(globalTo.getTime())) {
-          setFromDate(globalFrom);
-          setToDate(globalTo);
-          setCustomRange({ from: globalFrom, to: globalTo });
+          setFromDate(prev => prev?.getTime() === globalFrom.getTime() ? prev : globalFrom);
+          setToDate(prev => prev?.getTime() === globalTo.getTime() ? prev : globalTo);
+          setCustomRange(prev => (prev.from?.getTime() === globalFrom.getTime() && prev.to?.getTime() === globalTo.getTime()) ? prev : { from: globalFrom, to: globalTo });
           return;
         }
       }
-      setFromDate(customRange.from);
-      setToDate(customRange.to);
+      setFromDate(prev => prev?.getTime() === customRange.from?.getTime() ? prev : customRange.from);
+      setToDate(prev => prev?.getTime() === customRange.to?.getTime() ? prev : customRange.to);
     }
   }, [value, globalFilters.fromDate, globalFilters.toDate, globalFilters.rangeLabel, customRange.from, customRange.to]);
 

@@ -3,6 +3,7 @@ import { Box, Typography, IconButton, Chip, Grid, Button, TextField, InputAdornm
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import SearchIcon from '@mui/icons-material/Search';
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PlbDetailRecord, AssociatedEraFile } from '@/interfaces/api/transactions';
 import DataTable from '@/components/molecules/DataTable/DataTable';
@@ -15,24 +16,40 @@ import { useFbRecoupScreen, useFbRecoupTable } from './FbRecoupScreen.hook';
 import * as styles from './FbRecoupScreen.styles';
 import { useTheme } from '@mui/material/styles';
 
-const AssociatedEraFilesSection: React.FC<{ files: AssociatedEraFile[]; isCareHospice: boolean }> = ({ files, isCareHospice }) => (
-    <Box sx={{ border: `1px solid ${themeConfig.colors.divider}`, borderRadius: '4px', overflowX: 'auto', m: 1.5 }}>
-        <Box sx={{ ...styles.offsetGridStyles, background: themeConfig.colors.surfaceAlt, borderBottom: `1px solid ${themeConfig.colors.divider}` }}>
-            <Typography fontSize={11} fontWeight={700} color="text.secondary">TRANSACTION NO</Typography>
-            <Typography fontSize={11} fontWeight={700} color="text.secondary">{isCareHospice ? 'PTAN' : 'NPI'}</Typography>
-            <Typography fontSize={11} fontWeight={700} color="text.secondary">REMIT DATE</Typography>
-            <Typography fontSize={11} fontWeight={700} color="text.secondary" textAlign="right">AMOUNT</Typography>
-        </Box>
-        {files.map((file, idx) => (
-            <Box key={idx} sx={{ ...styles.offsetGridStyles, borderBottom: idx === files.length - 1 ? 'none' : `1px solid ${themeConfig.colors.divider}`, alignItems: 'center' }}>
-                <Typography fontSize={13} color="primary" sx={{ fontWeight: 600 }}>{file.transactionNo}</Typography>
-                <Typography fontSize={13} sx={{ fontWeight: 500 }}>{file.npi}</Typography>
-                <Typography fontSize={13} sx={{ fontWeight: 500 }}>{formatDate(file.remitDate)}</Typography>
-                <Typography fontSize={13} textAlign="right" color={file.amount < 0 ? 'error.main' : 'text.primary'} sx={{ fontWeight: 700 }}>
-                    {formatCurrency(file.amount)}
-                </Typography>
+const AssociatedEraFilesSection: React.FC<{ files: AssociatedEraFile[]; isCareHospice: boolean }> = ({ files }) => (
+    <Box sx={{ width: '75%'}}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'text.primary', textAlign: 'left' }}>
+            Associated ERA Files
+        </Typography>
+        <Box sx={{ 
+            border: `1px solid ${themeConfig.colors.divider}`, 
+            borderRadius: '4px', 
+            maxHeight: 250, 
+            overflowY: 'auto',
+            overflowX: 'hidden'
+        }}>
+            <Box sx={{ ...styles.offsetGridStyles, background: '#e4f0fa', borderBottom: `1px solid ${themeConfig.colors.divider}`, position: 'sticky', top: 0, zIndex: 1 }}>
+                <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">Transaction No</Typography>
+                <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">NPI</Typography>
+                <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">Remit Date</Typography>
+                <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">Amount</Typography>
             </Box>
-        ))}
+            {files.map((file, idx) => (
+                <Box key={idx} sx={{ ...styles.offsetGridStyles, borderBottom: idx === files.length - 1 ? 'none' : `1px solid ${themeConfig.colors.divider}`, alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Typography fontSize={13} color="primary" sx={{ fontWeight: 600, display: 'flex', alignItems: 'center' }}>
+                            <InsertDriveFileOutlinedIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                            {file.transactionNo}
+                        </Typography>
+                    </Box>
+                    <Typography fontSize={13} sx={{ fontWeight: 500 }} textAlign="center">{file.npi}</Typography>
+                    <Typography fontSize={13} sx={{ fontWeight: 500 }} textAlign="center">{formatDate(file.remitDate)}</Typography>
+                    <Typography fontSize={13} textAlign="center" color="text.primary" sx={{ fontWeight: 500 }}>
+                        {formatCurrency(file.amount)}
+                    </Typography>
+                </Box>
+            ))}
+        </Box>
     </Box>
 );
 
@@ -63,6 +80,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         applyFilters,
         onSearch,
         searchTerm,
+        statusOptions,
     } = useFbRecoupScreen({ skip });
 
     const { expandedRows, toggleRow } = useFbRecoupTable();
@@ -176,9 +194,10 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             label: 'STATUS',
             align: 'center',
             accessor: (row) => row.status,
+            filterOptions: statusOptions,
             render: (row) => <StatusBadge status={row.status} />,
         },
-    ], [expandedRows, toggleRow, payerOptions, isCareHospice, brandOrStateOptions]);
+    ], [expandedRows, toggleRow, payerOptions, isCareHospice, brandOrStateOptions, statusOptions]);
 
     return (
         <Box>
@@ -278,7 +297,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                                     <InputAdornment position="end" sx={{ m: 0, p: 0 }}>
                                         <IconButton 
                                             size="small" 
-                                            onClick={applyFilters} 
+                                            onClick={() => applyFilters()} 
                                             sx={{ p: '4px' }}
                                         >
                                             <SearchIcon fontSize="small" color="primary" />

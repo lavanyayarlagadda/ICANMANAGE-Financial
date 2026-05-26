@@ -14,7 +14,7 @@ export const offsetChipStyles: SxProps<Theme> = {
 export const offsetGridStyles: SxProps<Theme> = {
   display: "grid",
   gridTemplateColumns: "1.5fr 1fr 1.2fr 1fr",
-  minWidth: 600,
+  minWidth: "100%",
   px: 2,
   py: 1,
 };

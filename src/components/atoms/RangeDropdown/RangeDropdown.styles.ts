@@ -65,8 +65,8 @@ export const getDatePickerSx = (): SxProps<Theme> => ({
   flex: 'unset',
 });
 
-export const slotProps = (isMobile: boolean) => ({
-  textField: { size: 'small' as const, sx: getDatePickerSx(isMobile) },
+export const slotProps = () => ({
+  textField: { size: 'small' as const, sx: getDatePickerSx() },
   desktopPaper: {
     sx: {
       '& .MuiPickersLayout-root': {

@@ -48,8 +48,8 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
         </Select>
       </Box>
 
-      <Box sx={styles.datePickersContainerStyles(isMobile)}>
-        <Box sx={styles.datePickerItemStyles(isMobile)}>
+      <Box sx={styles.datePickersContainerStyles()}>
+        <Box sx={styles.datePickerItemStyles()}>
           <Typography variant="caption" color="text.secondary" sx={styles.dateLabelStyles}>FROM</Typography>
           <DatePicker
             value={fromDate}
@@ -63,7 +63,7 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
             }}
           />
         </Box>
-        <Box sx={styles.datePickerItemStyles(isMobile)}>
+        <Box sx={styles.datePickerItemStyles()}>
           <Typography variant="caption" color="text.secondary" sx={styles.dateLabelStyles}>TO</Typography>
           <DatePicker
             value={toDate}
@@ -83,6 +83,7 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
         autoHideDuration={4000}
         onClose={() => setErrorOpen(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{ zIndex: (theme) => Math.max(theme.zIndex.snackbar, 9999), mt: '64px' }}
       >
         <Alert onClose={() => setErrorOpen(false)} severity="error" variant="filled" sx={{ width: '100%' }}>
           From Date cannot be after To Date

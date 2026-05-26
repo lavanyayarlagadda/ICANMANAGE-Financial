@@ -47,13 +47,14 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         ptanNumbers: [] as string[],
         transactionNumber: '',
         brands: [] as string[],
-        status: 'Active' as 'Active' | 'Reconciled',
+        status: '',
     });
 
     const [searchTerm, setSearchTerm] = useState('');
     const [filterPayor, setFilterPayor] = useState('All');
     const [filterNpiPtan, setFilterNpiPtan] = useState('');
     const [filterStateBrand, setFilterStateBrand] = useState('All');
+    const [filterStatus, setFilterStatus] = useState('All');
 
     const handleSearch = useCallback(() => {
         setQueryParams(prev => ({
@@ -62,9 +63,10 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
             payers: filterPayor === 'All' || filterPayor === '' ? [] : [filterPayor],
             ptanNumbers: filterNpiPtan ? [filterNpiPtan] : [],
             brands: filterStateBrand === 'All' || filterStateBrand === '' ? [] : [filterStateBrand],
+            status: filterStatus === 'All' || filterStatus === '' ? '' : filterStatus,
             page: 0
         }));
-    }, [searchTerm, filterPayor, filterNpiPtan, filterStateBrand]);
+    }, [searchTerm, filterPayor, filterNpiPtan, filterStateBrand, filterStatus]);
 
     const handleFilterPayorChange = useCallback((value: string) => {
         setFilterPayor(value);
@@ -89,12 +91,14 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         setFilterPayor('All');
         setFilterNpiPtan('');
         setFilterStateBrand('All');
+        setFilterStatus('All');
         setQueryParams(prev => ({
             ...prev,
             transactionNumber: '',
             payers: [],
             ptanNumbers: [],
             brands: [],
+            status: '',
             page: 0
         }));
     }, []);
@@ -122,12 +126,14 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         setFilterPayor('All');
         setFilterNpiPtan('');
         setFilterStateBrand('All');
+        setFilterStatus('All');
         setQueryParams(prev => ({
             ...prev,
             transactionNumber: '',
             payers: [],
             ptanNumbers: [],
             brands: [],
+            status: '',
             page: 0
         }));
     }, [selectedTenantId, location.pathname]);
@@ -153,6 +159,7 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const { data: filterData, isError: isFilterError, isFetching: isFetchingFilter } = useGetAllTransactionsFiltersQuery(undefined, { skip });
     const payerOptions = useMemo(() => filterData?.data?.payers?.map(p => ({ label: p.payerName, value: String(p.payerId) })) || [], [filterData]);
+    const statusOptions = useMemo(() => ['Active', 'Reconciled'], []);
 
     const { data: userBrandsData, isError: isBrandsError, isFetching: isFetchingBrands } = useGetUserMappedBrandsQuery({
         icanManageId,
@@ -203,7 +210,7 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
     const totalElements = useMemo(() => {
         const rawContent = noticeData?.data ?? [];
-        return rawContent[0]?.actionRequired ?? 0;
+        return rawContent[0]?.totalCount ?? 0;
     }, [noticeData]);
 
     const stats = useMemo(() => {
@@ -247,6 +254,7 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
     
     let newPayor = filterPayor;
     let newStateBrand = filterStateBrand;
+    let newStatus = filterStatus;
 
     // Update local filter states based on column filters
     if (filters.payor !== undefined) {
@@ -257,16 +265,24 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
       newStateBrand = filters.state || 'All';
       setFilterStateBrand(newStateBrand);
     }
+    if (filters.status !== undefined) {
+      newStatus = filters.status || 'All';
+      setFilterStatus(newStatus);
+    }
+
     // Update queryParams for server-side filtering
     const payers = newPayor && newPayor !== 'All' && newPayor !== '' ? [newPayor] : [];
     const brands = newStateBrand && newStateBrand !== 'All' && newStateBrand !== '' ? [newStateBrand] : [];
+    const status = newStatus && newStatus !== 'All' && newStatus !== '' ? newStatus : '';
+
     setQueryParams(prev => ({
       ...prev,
       payers,
       brands,
+      status,
       page: 0,
     }));
-  }, [clearFilters, filterPayor, filterStateBrand]);
+  }, [clearFilters, filterPayor, filterStateBrand, filterStatus]);
 
     const exportCount = useRef(actionTriggers.export);
     const printCount = useRef(actionTriggers.print);
@@ -354,6 +370,7 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         onRowsPerPageChange,
         handleFilterChange,
         payerOptions,
+        statusOptions,
         stats,
         isFetching: isAnyFetching,
         isError: isAnyError,
