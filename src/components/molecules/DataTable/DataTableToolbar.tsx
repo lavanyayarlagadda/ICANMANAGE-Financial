@@ -149,7 +149,7 @@ export function DataTableToolbar<T>({
           {customToolbarContent}
 
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
-            {filterableColumns.length > 0 && (
+            {(filterableColumns.length > 0 || !!customFilterContent) && (
               <FilterButton
                 size="small"
                 onClick={() => setShowFilters(!showFilters)}

@@ -85,7 +85,7 @@ export const useFinancialsPage = () => {
     if (match || currentPath === '/financials') return null;
 
     const isKnownRoute = Object.values(NAV_CONFIG).some(cfg =>
-      cfg.path.toLowerCase().replace(/\/$/, '').endsWith(pathPart)
+      cfg.path.toLowerCase().replace(/\/$/, '').includes(pathPart)
     );
     if (!isKnownRoute) return null;
 
@@ -115,6 +115,11 @@ export const useFinancialsPage = () => {
       // Find the best match in our path map.
       // Use exact matching first, then parent/child prefix matching.
       let match = pathMap[currentPath.split('/financials/')[1] || ''];
+
+      if (hiddenRouteRedirectPath) {
+        navigate(hiddenRouteRedirectPath, { replace: true });
+        return;
+      }
 
       if (!match) {
         const pathPart = currentPath.split('/financials/')[1] || '';
@@ -155,8 +160,6 @@ export const useFinancialsPage = () => {
         if (firstAvailablePath) {
           navigate(firstAvailablePath, { replace: true });
         }
-      } else if (hiddenRouteRedirectPath) {
-        navigate(hiddenRouteRedirectPath, { replace: true });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -228,7 +231,7 @@ export const useFinancialsPage = () => {
       // If it's a known configuration path in NAV_CONFIG but missing from our pathMap, it's hidden.
       // We find any config that starts with /financials/ and matches our path
       const isKnownRoute = Object.values(NAV_CONFIG).some(cfg =>
-        cfg.path.toLowerCase().replace(/\/$/, '').endsWith(pathPart)
+        cfg.path.toLowerCase().replace(/\/$/, '').includes(pathPart)
       );
 
       if (isKnownRoute) return true;

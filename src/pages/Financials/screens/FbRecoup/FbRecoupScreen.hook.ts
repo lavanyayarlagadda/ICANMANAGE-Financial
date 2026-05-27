@@ -151,7 +151,7 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
         brands: queryParams.brands,
         status: queryParams.status,
         icanManageId,
-        offset: queryParams.page * queryParams.size,
+        offset: queryParams.page ,
         limit: queryParams.size,
         sortColumn: queryParams.sortField === 'date' ? 'chkdate' : queryParams.sortField,
         sortDir: queryParams.sortOrder.toUpperCase() as 'ASC' | 'DESC'

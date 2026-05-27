@@ -73,7 +73,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     handleSearchFilterChange,
     handleApplySearch,
     handleClearSearch,
-    statusOptions,
+    // statusOptions,
     globalFilters,
     isFetching,
   } = usePipScreen({ skip });
@@ -103,8 +103,8 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "center", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
     { id: "payer", label: "PAYER", align: "center", accessor: (row) => row.payer ?? '-', render: (row) => row.payer ?? '-' },
     { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "center", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
-    { id: "status", label: "STATUS", align: "center", accessor: (row) => row.status, filterOptions: statusOptions, render: (row) => <StatusBadge status={row.status} /> },
-  ], [expandedRows, loadingDetailsPtans, toggleRow, getRowId, statusOptions]);
+    { id: "status", label: "STATUS", align: "center", accessor: (row) => row.status,  render: (row) => <StatusBadge status={row.status} /> },
+  ], [expandedRows, loadingDetailsPtans, toggleRow, getRowId]);
 
   const pipFilterPanel = useMemo(() => (
     <>

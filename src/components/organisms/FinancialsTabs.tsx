@@ -1,49 +1,12 @@
-
 import React, { useEffect } from 'react';
-import { Box, Typography, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Typography, useTheme, useMediaQuery, Select, MenuItem, SelectChangeEvent, FormControl } from '@mui/material';
 import Button from '@/components/atoms/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
-import { Select, MenuItem, SelectChangeEvent, FormControl } from '@mui/material';
-
-const mainTabs = [
-  { id: 0, label: 'Transactions', path: '/financials/payments' },
-  // { id: 1, label: 'Bank Deposits', path: '/financials/bank-deposits' },
-  { id: 2, label: 'Statements', path: '/financials/statements/pip' },
-  { id: 3, label: 'Variance Analysis', path: '/financials/variance-analysis' },
-  { id: 4, label: 'Trends & Forecast', path: '/financials/trends-forecast' },
-  // { id: 5, label: 'Calendar', path: '/financials/calendar' },
-];
-
-const transactionSubTabs = [
-  // { id: 0, label: 'All Transactions', path: '/financials/all-transactions' },
-  { id: 1, label: 'Payments', path: '/financials/payments' },
-  // { id: 2, label: 'Recoupments', path: '/financials/recoupments' },
-  // { id: 3, label: 'Adjustments', path: '/financials/other-adjustments' },
-];
-
-const statementsSubTabs = [
-  { id: 0, label: 'PIP Statements', path: '/financials/statements/pip' },
-  // { id: 1, label: 'Forward Balance', path: '/financials/statements/forward-balance' },
-  // { id: 2, label: 'Suspense Accounts', path: '/financials/statements/suspense-accounts' },
-];
-
-const varianceSubTabs = [
-  { id: 0, label: 'Fee Schedule Variance', path: '/financials/variance-analysis/fee-schedule' },
-  { id: 1, label: 'Payment Variance', path: '/financials/variance-analysis/payment' },
-];
-
-const trendsSubTabs = [
-  { id: 0, label: 'Forecast Trends', path: '/financials/trends-forecast/forecast' },
-  { id: 1, label: 'Executive Summary', path: '/financials/trends-forecast/summary' },
-  // { id: 2, label: 'Payer Performance', path: '/financials/trends-forecast/payer-performance' },
-];
-
-
-
+import { mainTabs, transactionSubTabs, statementsSubTabs, varianceSubTabs, trendsSubTabs } from './FinancialsTabs.config';
 
 interface FinancialsTabsProps {
   onPrint?: () => void;
@@ -80,13 +43,10 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   const shouldShowReload = showReload ?? canShowActions;
   const shouldShowExport = showExportWizard ?? canShowActions;
 
-
   useEffect(() => {
-    // Determine active main tab based on path
     const path = location.pathname;
     if (path.includes('/all-transactions') || path.includes('/payments') || path.includes('/recoupments') || path.includes('/other-adjustments') || path.includes('/pip')) {
       dispatch(setActiveTab(0));
-
       const subIndex = transactionSubTabs.findIndex(st => path === st.path);
       if (subIndex !== -1) {
         dispatch(setActiveSubTab(subIndex));
@@ -108,10 +68,6 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
     } else if (path.includes('/calendar')) {
       dispatch(setActiveTab(5));
     }
-
-
-
-    // Add logic for others if needed
   }, [location.pathname, dispatch, isMindPath]);
 
   const handleMainTabChange = (index: number, path: string) => {
@@ -129,14 +85,11 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   };
 
   const hasSubTabs = (activeTab === 0) || (activeTab === 2) || (activeTab === 3) || (activeTab === 4);
-
   const hasActions = shouldShowPrint || shouldShowReload || shouldShowExport;
   const showSubTabsRow = hasSubTabs || hasActions;
 
   return (
     <Box sx={{ mb: 1 }}>
-
-      {/* Title and Main Tabs Row */}
       <Box sx={{
         px: 2,
         py: 1.5,
@@ -171,13 +124,11 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
               >
                 {mainTabs
                   .filter(tab => !(tab.id === 2 && isMindPath))
-                  .map((tab) => {
-                    return (
-                      <MenuItem key={tab.id} value={tab.id} sx={{ fontWeight: 500, fontSize: '14px' }}>
-                        {tab.label}
-                      </MenuItem>
-                    );
-                  })}
+                  .map((tab) => (
+                    <MenuItem key={tab.id} value={tab.id} sx={{ fontWeight: 500, fontSize: '14px' }}>
+                      {tab.label}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           ) : (
@@ -219,7 +170,6 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
         </Box>
       </Box>
 
-      {/* Sub-tabs and Actions Row */}
       {showSubTabsRow && (
         <Box sx={{
           px: 2,
@@ -348,7 +298,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
           <Box sx={{
             display: 'flex',
             gap: 1.5,
-            flexDirection: isMobile ? 'row' : 'row',
+            flexDirection: 'row',
             flexWrap: 'wrap',
             justifyContent: isMobile ? 'flex-start' : 'flex-end'
           }}>
@@ -410,7 +360,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                 onClick={onExportWizard}
                 startIcon={null}
                 sx={{
-                  bgcolor: '#d97706', // Orange color from image
+                  bgcolor: '#d97706',
                   color: '#fff',
                   borderRadius: '6px',
                   textTransform: 'none',
