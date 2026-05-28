@@ -1,5 +1,13 @@
 import { styled } from '@mui/material/styles';
-import { Box, Card, Typography, TextField, Button, TypographyProps, ButtonProps } from '@mui/material';
+import {
+  Box,
+  Card,
+  Typography,
+  TextField,
+  Button,
+  TypographyProps,
+  ButtonProps,
+} from '@mui/material';
 
 export const LoginBackground = styled(Box)(({ theme }) => ({
   minHeight: '100vh',

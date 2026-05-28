@@ -7,7 +7,7 @@ import type {
   SectionRow,
   TrendTableData,
   GenericRecord,
-} from "./depositReconTypes";
+} from './depositReconTypes';
 import {
   toRecord,
   toArray,
@@ -23,8 +23,8 @@ import {
   calculateMomFromSeries,
   toDelta,
   resolveTrend,
-} from "./depositReconUtils";
-import { formatPercentValue } from "@/utils/formatters";
+} from './depositReconUtils';
+import { formatPercentValue } from '@/utils/formatters';
 
 export const normalizeAgingRows = (buckets: unknown): AgingRow[] => {
   if (!Array.isArray(buckets)) return [];
@@ -41,34 +41,28 @@ export const normalizeAgingRows = (buckets: unknown): AgingRow[] => {
         deposits: toDeposits(row.deposits),
         amount: toCurrency(row.amount),
         share: toPercent(row.percentOfTotal ?? row.share),
-        riskLevel: toText(row.riskLevel || ""),
+        riskLevel: toText(row.riskLevel || ''),
       };
     })
     .filter((v): v is AgingRow => v !== null);
 };
 
-export const normalizeAgingSummary = (
-  source: GenericRecord,
-): AgingSummary | null => {
-  const hasTotalAmount =
-    source.totalAmount !== undefined && source.totalAmount !== null;
-  const hasTotalDeposits =
-    source.totalDeposits !== undefined && source.totalDeposits !== null;
+export const normalizeAgingSummary = (source: GenericRecord): AgingSummary | null => {
+  const hasTotalAmount = source.totalAmount !== undefined && source.totalAmount !== null;
+  const hasTotalDeposits = source.totalDeposits !== undefined && source.totalDeposits !== null;
   const hasPercentOver30 =
     source.percentOver30Days !== undefined && source.percentOver30Days !== null;
 
   if (!hasTotalAmount && !hasTotalDeposits && !hasPercentOver30) return null;
 
   return {
-    headlineValue: hasTotalAmount ? toCurrency(source.totalAmount) : "—",
+    headlineValue: hasTotalAmount ? toCurrency(source.totalAmount) : '—',
     headlineMeta:
       hasTotalDeposits || hasPercentOver30
-        ? `across ${hasTotalDeposits ? toDeposits(source.totalDeposits) : "0"} deposits • ${
-            hasPercentOver30
-              ? toPercent(source.percentOver30Days).replace("%", "")
-              : "—"
+        ? `across ${hasTotalDeposits ? toDeposits(source.totalDeposits) : '0'} deposits • ${
+            hasPercentOver30 ? toPercent(source.percentOver30Days).replace('%', '') : '—'
           }% > 30 days`
-        : "",
+        : '',
   };
 };
 
@@ -83,37 +77,23 @@ export const normalizeHeroCards = (cards: unknown): HeroCard[] => {
       if (!title) return null;
 
       const rawDelta =
-        card.delta ??
-        card.percentChange ??
-        card.percentageChange ??
-        card.momChangePercent;
+        card.delta ?? card.percentChange ?? card.percentageChange ?? card.momChangePercent;
       const rawDirection =
-        card.deltaTrend ??
-        card.changeDirection ??
-        card.direction ??
-        card.momDirection;
+        card.deltaTrend ?? card.changeDirection ?? card.direction ?? card.momDirection;
 
       const delta =
-        rawDelta !== undefined &&
-        rawDelta !== null &&
-        String(rawDelta).trim() !== ""
-          ? String(rawDelta).includes("%") ||
-            String(rawDelta).includes("▲") ||
-            String(rawDelta).includes("▼")
+        rawDelta !== undefined && rawDelta !== null && String(rawDelta).trim() !== ''
+          ? String(rawDelta).includes('%') ||
+            String(rawDelta).includes('▲') ||
+            String(rawDelta).includes('▼')
             ? toText(rawDelta)
             : toDelta(rawDelta, rawDirection)
-          : "—";
+          : '—';
 
       const sparkline = parseTimeSeriesData(card.sparkline);
 
       return {
-        id: toText(
-          card.id ||
-            card.code ||
-            card.cardId ||
-            card.metricKey ||
-            `${title}-${index}`,
-        ),
+        id: toText(card.id || card.code || card.cardId || card.metricKey || `${title}-${index}`),
         title,
         value: toText(
           card.displayValue ??
@@ -121,11 +101,11 @@ export const normalizeHeroCards = (cards: unknown): HeroCard[] => {
             card.metricValue ??
             card.amount ??
             card.amountValue ??
-            "",
+            '',
         ),
         delta,
         deltaTrend: resolveTrend(rawDirection, delta),
-        subLabel: toText(card.subLabel || card.subtitle || card.meta || ""),
+        subLabel: toText(card.subLabel || card.subtitle || card.meta || ''),
         sparkline,
       };
     })
@@ -133,7 +113,7 @@ export const normalizeHeroCards = (cards: unknown): HeroCard[] => {
 };
 
 export const normalizeTrendColumns = (source: GenericRecord): TrendColumn[] => {
-  const cols = pickArray<unknown>(source, ["columns"]);
+  const cols = pickArray<unknown>(source, ['columns']);
   return cols
     .map((item): TrendColumn | null => {
       const col = toRecord(item);
@@ -142,16 +122,13 @@ export const normalizeTrendColumns = (source: GenericRecord): TrendColumn[] => {
       if (!label) return null;
       return {
         label,
-        kind: toText(col.kind || "ACTUAL").toUpperCase(),
+        kind: toText(col.kind || 'ACTUAL').toUpperCase(),
       };
     })
     .filter((v): v is TrendColumn => v !== null);
 };
 
-export const deriveColumnsFromRows = (
-  rows: unknown,
-  columns: TrendColumn[],
-): TrendColumn[] => {
+export const deriveColumnsFromRows = (rows: unknown, columns: TrendColumn[]): TrendColumn[] => {
   if (columns.length > 0) return columns;
   if (!Array.isArray(rows) || rows.length === 0) return [];
 
@@ -161,7 +138,7 @@ export const deriveColumnsFromRows = (
     if (amountsByColumn) {
       return Object.keys(amountsByColumn).map((label) => ({
         label,
-        kind: "ACTUAL",
+        kind: 'ACTUAL',
       }));
     }
   }
@@ -182,22 +159,19 @@ export const normalizeTrendRow = (
 
   const sparkline = parseTimeSeriesData(row.sparkline);
 
-  const rowType = String(row.rowType || "").toUpperCase();
+  const rowType = String(row.rowType || '').toUpperCase();
   const amounts =
     columns.length > 0
       ? columns.map((col) => formatColumnAmount(amountsByColumn[col.label]))
-      : Object.keys(amountsByColumn).map((key) =>
-          formatColumnAmount(amountsByColumn[key]),
-        );
+      : Object.keys(amountsByColumn).map((key) => formatColumnAmount(amountsByColumn[key]));
 
   const calculatedMom = calculateMomFromColumns(amountsByColumn, columns);
-  const hasApiMom =
-    row.momChangePercent !== undefined && row.momChangePercent !== null;
+  const hasApiMom = row.momChangePercent !== undefined && row.momChangePercent !== null;
   const momDelta = hasApiMom
     ? toDelta(row.momChangePercent, row.momDirection)
     : calculatedMom
       ? toDelta(calculatedMom.percent, calculatedMom.direction)
-      : "—";
+      : '—';
 
   return {
     id: rowId,
@@ -205,16 +179,12 @@ export const normalizeTrendRow = (
     momDelta,
     amounts,
     sparkline,
-    isSubtotal: rowType === "SUBTOTAL",
-    isTotal:
-      rowType === "TOTAL" || rowType === "SUBTOTAL" || Boolean(row.isTotal),
+    isSubtotal: rowType === 'SUBTOTAL',
+    isTotal: rowType === 'TOTAL' || rowType === 'SUBTOTAL' || Boolean(row.isTotal),
   };
 };
 
-export const normalizeTrendRows = (
-  rows: unknown,
-  columns: TrendColumn[],
-): SectionRow[] => {
+export const normalizeTrendRows = (rows: unknown, columns: TrendColumn[]): SectionRow[] => {
   if (!Array.isArray(rows)) return [];
   return rows
     .map((r, index) => normalizeTrendRow(r, columns, `row-${index}`))
@@ -226,11 +196,8 @@ export const normalizeFlatTrendTable = (
   forecastWindow: string,
 ): TrendTableData => {
   const apiColumns = normalizeTrendColumns(source);
-  const rawRows = pickArray<unknown>(source, ["rows", "data", "tableRows"]);
-  const columns = ensureForecastColumns(
-    deriveColumnsFromRows(rawRows, apiColumns),
-    forecastWindow,
-  );
+  const rawRows = pickArray<unknown>(source, ['rows', 'data', 'tableRows']);
+  const columns = ensureForecastColumns(deriveColumnsFromRows(rawRows, apiColumns), forecastWindow);
   return {
     columns,
     rows: normalizeTrendRows(rawRows, columns),
@@ -265,26 +232,18 @@ export const normalizeGroupedTrendTable = (
         result.push({
           id: `group-${rowIndex++}`,
           name: groupName,
-          momDelta: "",
-          amounts: columns.map(() => ""),
+          momDelta: '',
+          amounts: columns.map(() => ''),
           isGroupHeader: true,
         });
       }
 
       for (const groupRow of toArray<unknown>(group.rows)) {
-        const normalized = normalizeTrendRow(
-          groupRow,
-          columns,
-          `row-${rowIndex++}`,
-        );
+        const normalized = normalizeTrendRow(groupRow, columns, `row-${rowIndex++}`);
         if (normalized) result.push(normalized);
       }
 
-      const subtotal = normalizeTrendRow(
-        group.subtotal,
-        columns,
-        `subtotal-${rowIndex++}`,
-      );
+      const subtotal = normalizeTrendRow(group.subtotal, columns, `subtotal-${rowIndex++}`);
       if (subtotal) {
         result.push({
           ...subtotal,
@@ -294,11 +253,7 @@ export const normalizeGroupedTrendTable = (
       }
     }
 
-    const totalRow = normalizeTrendRow(
-      source.totalRow,
-      columns,
-      `total-${rowIndex}`,
-    );
+    const totalRow = normalizeTrendRow(source.totalRow, columns, `total-${rowIndex}`);
     if (totalRow) {
       result.push({
         ...totalRow,
@@ -328,28 +283,21 @@ export const normalizeTopPayerRows = (rows: unknown): PayerRow[] => {
           : toText(row.total);
 
       const percent =
-        typeof row.percentOfTotal === "number"
-          ? row.percentOfTotal
-          : Number(row.percentOfTotal);
+        typeof row.percentOfTotal === 'number' ? row.percentOfTotal : Number(row.percentOfTotal);
       const share = Number.isFinite(percent)
         ? `${formatPercentValue(percent)}%`
         : toText(row.share);
 
       const matchRateNum =
-        typeof row.matchRate === "number"
-          ? row.matchRate
-          : Number(row.matchRate);
+        typeof row.matchRate === 'number' ? row.matchRate : Number(row.matchRate);
       const matchRate = Number.isFinite(matchRateNum)
         ? `${formatPercentValue(matchRateNum)}%`
         : toText(row.matchRate);
 
       const sixMonthTrend = parseTimeSeriesData(row.sixMonthTrend);
 
-      const calculatedMom = sixMonthTrend
-        ? calculateMomFromSeries(sixMonthTrend)
-        : null;
-      const hasApiMom =
-        row.momChangePercent !== undefined && row.momChangePercent !== null;
+      const calculatedMom = sixMonthTrend ? calculateMomFromSeries(sixMonthTrend) : null;
+      const hasApiMom = row.momChangePercent !== undefined && row.momChangePercent !== null;
       const momDelta = hasApiMom
         ? toDelta(row.momChangePercent, row.momDirection)
         : calculatedMom

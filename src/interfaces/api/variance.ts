@@ -1,29 +1,34 @@
-import { FeeScheduleVariance, PaymentVariance, FeeScheduleVarianceSummary, PaymentVarianceSummary } from '../financials';
+import {
+  FeeScheduleVariance,
+  PaymentVariance,
+  FeeScheduleVarianceSummary,
+  PaymentVarianceSummary,
+} from '../financials';
 
 export interface FeeScheduleVarianceDetailsResponse {
-    data: {
-        content: FeeScheduleVariance[];
-        totalElements: number;
-        totalPages: number;
-        size: number;
-        number: number;
-    }
+  data: {
+    content: FeeScheduleVariance[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  };
 }
 
 export interface PaymentVarianceDetailsResponse {
-    data: {
-        content: PaymentVariance[];
-        totalElements: number;
-        totalPages: number;
-        size: number;
-        number: number;
-    }
+  data: {
+    content: PaymentVariance[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
+  };
 }
 
 export interface FeeScheduleVarianceSummaryResponse {
-    data: FeeScheduleVarianceSummary;
+  data: FeeScheduleVarianceSummary;
 }
 
 export interface PaymentVarianceSummaryResponse {
-    data: PaymentVarianceSummary;
+  data: PaymentVarianceSummary;
 }

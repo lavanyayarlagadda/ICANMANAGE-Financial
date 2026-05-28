@@ -1,12 +1,12 @@
 import { useMemo, useEffect } from 'react';
 import { useAppDispatch } from '@/store';
 import { setIsGlobalFetching } from '@/store/slices/uiSlice';
-import { 
-    useSearchBankDepositsBodyQuery, 
-    useGetBankDepositWidgetsQuery, 
-    useGetMappedHeadersDataQuery, 
-    useGetUserMappedBrandsQuery, 
-    useGetAllTransactionsFiltersQuery 
+import {
+  useSearchBankDepositsBodyQuery,
+  useGetBankDepositWidgetsQuery,
+  useGetMappedHeadersDataQuery,
+  useGetUserMappedBrandsQuery,
+  useGetAllTransactionsFiltersQuery,
 } from '@/store/api/financialsApi';
 import { skipToken } from '@reduxjs/toolkit/query/react';
 import { calculateBankDepositSummary } from '@/utils/calculations';
@@ -14,194 +14,240 @@ import { SORT_ORDER, DEFAULT_CLIENT_NAME } from '@/constants/common';
 import { BankDepositItem } from '@/interfaces/financials';
 
 interface DataParams {
-    skip?: boolean;
-    userId: string;
-    isCognitiveUser: boolean | undefined;
-    selectedTenantId: string | null;
-    selectedTenant: { displayName?: string } | undefined;
-    selectedEntityId: string;
-    queryParams: {
-        fromDate: string;
-        toDate: string;
-        transactionNo: string;
-        page: number;
-        size: number;
-        sortField: string;
-        sortOrder: 'asc' | 'desc';
-    };
-    filters: {
-        payerList: string[];
-        stateList: string[];
-        transactionsList: string[];
-        accountList: string[];
-        batchOwnerIds: string[];
-        status: string | null;
-    };
+  skip?: boolean;
+  userId: string;
+  isCognitiveUser: boolean | undefined;
+  selectedTenantId: string | null;
+  selectedTenant: { displayName?: string } | undefined;
+  selectedEntityId: string;
+  queryParams: {
+    fromDate: string;
+    toDate: string;
+    transactionNo: string;
+    page: number;
+    size: number;
+    sortField: string;
+    sortOrder: 'asc' | 'desc';
+  };
+  filters: {
+    payerList: string[];
+    stateList: string[];
+    transactionsList: string[];
+    accountList: string[];
+    batchOwnerIds: string[];
+    status: string | null;
+  };
 }
 
 export const useBankDepositData = ({
-    skip = false,
-    userId,
-    isCognitiveUser,
-    selectedTenantId,
-    selectedTenant,
-    selectedEntityId,
-    queryParams,
-    filters
+  skip = false,
+  userId,
+  isCognitiveUser,
+  selectedTenantId,
+  selectedTenant,
+  selectedEntityId,
+  queryParams,
+  filters,
 }: DataParams) => {
-    const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch();
 
-    // Sequential Fetching: Base conditions
-    const isBaseReady = !skip && !!userId;
-    const isTenantReady = !isCognitiveUser || !!selectedTenantId;
+  // Sequential Fetching: Base conditions
+  const isBaseReady = !skip && !!userId;
+  const isTenantReady = !isCognitiveUser || !!selectedTenantId;
 
-    const {
-        data: tabsResponse,
-        isFetching: isTabsFetching,
-        isError: isTabsError,
-        isSuccess: isTabsSuccess
-    } = useGetUserMappedBrandsQuery(
-        !isBaseReady ? skipToken : {
-            icanManageId: userId,
-            facilityMasterId: 0
-        }
-    );
+  const {
+    data: tabsResponse,
+    isFetching: isTabsFetching,
+    isError: isTabsError,
+    isSuccess: isTabsSuccess,
+  } = useGetUserMappedBrandsQuery(
+    !isBaseReady
+      ? skipToken
+      : {
+          icanManageId: userId,
+          facilityMasterId: 0,
+        },
+  );
 
-    const entities = useMemo(() => {
-        const dynamicEntries = tabsResponse?.data?.map(t => ({
-            id: String(t.fkHospitalMasterId),
-            name: t.hospitalAbbr
-        })) || [];
-        return [{ id: 'all', name: 'All' }, ...dynamicEntries];
-    }, [tabsResponse]);
+  const entities = useMemo(() => {
+    const dynamicEntries =
+      tabsResponse?.data?.map((t) => ({
+        id: String(t.fkHospitalMasterId),
+        name: t.hospitalAbbr,
+      })) || [];
+    return [{ id: 'all', name: 'All' }, ...dynamicEntries];
+  }, [tabsResponse]);
 
-    const shouldFetchDependent = isBaseReady && isTenantReady && (isTabsSuccess || (!!tabsResponse && !isTabsFetching));
+  const shouldFetchDependent =
+    isBaseReady && isTenantReady && (isTabsSuccess || (!!tabsResponse && !isTabsFetching));
 
-    const { data: widgetData, isFetching: isWidgetsFetching, isError: isWidgetsError } = useGetBankDepositWidgetsQuery(
-        !shouldFetchDependent ? skipToken : {
-            startDate: queryParams.fromDate,
-            endDate: queryParams.toDate,
-            icanManageId: userId,
-            stateId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
-            clientName: selectedTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME
-        }
-    );
+  const {
+    data: widgetData,
+    isFetching: isWidgetsFetching,
+    isError: isWidgetsError,
+  } = useGetBankDepositWidgetsQuery(
+    !shouldFetchDependent
+      ? skipToken
+      : {
+          startDate: queryParams.fromDate,
+          endDate: queryParams.toDate,
+          icanManageId: userId,
+          stateId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
+          clientName: selectedTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME,
+        },
+  );
 
-    const { data: headersResponse, isFetching: isHeadersFetching, isError: isHeadersError, isSuccess: isHeadersSuccess } = useGetMappedHeadersDataQuery(
-        !shouldFetchDependent ? skipToken : {
-            hospitalId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
-            pageName: 'Bank Deposits'
-        }
-    );
+  const {
+    data: headersResponse,
+    isFetching: isHeadersFetching,
+    isError: isHeadersError,
+    isSuccess: isHeadersSuccess,
+  } = useGetMappedHeadersDataQuery(
+    !shouldFetchDependent
+      ? skipToken
+      : {
+          hospitalId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
+          pageName: 'Bank Deposits',
+        },
+  );
 
-    const { data: filterData, isError: isFilterError } = useGetAllTransactionsFiltersQuery(undefined, { skip: !isBaseReady });
+  const { data: filterData, isError: isFilterError } = useGetAllTransactionsFiltersQuery(
+    undefined,
+    { skip: !isBaseReady },
+  );
 
-    const payerOptions = useMemo(() => filterData?.data?.payers?.map(p => ({
+  const payerOptions = useMemo(
+    () =>
+      filterData?.data?.payers?.map((p) => ({
         label: p.payerName,
-        value: String(p.payerId)
-    })) ?? [], [filterData]);
+        value: String(p.payerId),
+      })) ?? [],
+    [filterData],
+  );
 
-    const statusOptions = useMemo(() => {
-        const base = filterData?.data?.transactionStatusTypes ?? [];
-        return [...base];
-    }, [filterData]);
+  const statusOptions = useMemo(() => {
+    const base = filterData?.data?.transactionStatusTypes ?? [];
+    return [...base];
+  }, [filterData]);
 
-    const dynamicColumns = useMemo(() => headersResponse?.data || [], [headersResponse]);
+  const dynamicColumns = useMemo(() => headersResponse?.data || [], [headersResponse]);
 
-    const { data, isFetching, isError, refetch } = useSearchBankDepositsBodyQuery(
-        !shouldFetchDependent ? skipToken : {
-            startDate: queryParams.fromDate || '',
-            endDate: queryParams.toDate || '',
-            payerList: filters.payerList || [],
-            stateList: filters.stateList || [],
-            transactionNo: queryParams.transactionNo || '',
-            transactionsList: filters.transactionsList || [],
-            accountList: filters.accountList || [],
-            stateId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
-            batchOwnerIds: filters.batchOwnerIds || [],
-            icanManageId: userId || 0,
-            pageNumber: queryParams.page + 1,
-            pageSize: queryParams.size,
-            sort: queryParams.sortField === 'date' ? 'bai_received_date' : queryParams.sortField || 'transactionNo',
-            desc: queryParams.sortOrder === SORT_ORDER.DESC,
-            clientName: selectedTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME,
-            statusList: filters.status ? [filters.status] : []
-        }
+  const { data, isFetching, isError, refetch } = useSearchBankDepositsBodyQuery(
+    !shouldFetchDependent
+      ? skipToken
+      : {
+          startDate: queryParams.fromDate || '',
+          endDate: queryParams.toDate || '',
+          payerList: filters.payerList || [],
+          stateList: filters.stateList || [],
+          transactionNo: queryParams.transactionNo || '',
+          transactionsList: filters.transactionsList || [],
+          accountList: filters.accountList || [],
+          stateId: selectedEntityId === 'all' ? 0 : Number(selectedEntityId),
+          batchOwnerIds: filters.batchOwnerIds || [],
+          icanManageId: userId || 0,
+          pageNumber: queryParams.page + 1,
+          pageSize: queryParams.size,
+          sort:
+            queryParams.sortField === 'date'
+              ? 'bai_received_date'
+              : queryParams.sortField || 'transactionNo',
+          desc: queryParams.sortOrder === SORT_ORDER.DESC,
+          clientName: selectedTenant?.displayName?.toLowerCase() || DEFAULT_CLIENT_NAME,
+          statusList: filters.status ? [filters.status] : [],
+        },
+  );
+
+  const isAnyError = isError || isTabsError || isWidgetsError || isHeadersError || isFilterError;
+
+  useEffect(() => {
+    if (skip || isAnyError) {
+      dispatch(setIsGlobalFetching(false));
+      return;
+    }
+    dispatch(
+      setIsGlobalFetching(isFetching || isWidgetsFetching || isHeadersFetching || isTabsFetching),
     );
-
-    const isAnyError = isError || isTabsError || isWidgetsError || isHeadersError || isFilterError;
-
-    useEffect(() => {
-        if (skip || isAnyError) {
-            dispatch(setIsGlobalFetching(false));
-            return;
-        }
-        dispatch(setIsGlobalFetching(isFetching || isWidgetsFetching || isHeadersFetching || isTabsFetching));
-        return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isFetching, isWidgetsFetching, isHeadersFetching, isTabsFetching, isAnyError, skip, dispatch]);
-
-    const bankDeposits: BankDepositItem[] = useMemo(() => {
-        if (Array.isArray(data)) return data as BankDepositItem[];
-        const responseData = data as unknown as Record<string, unknown> | null;
-        if (responseData && typeof responseData === 'object') {
-            if (Array.isArray(responseData.data)) {
-                return responseData.data as BankDepositItem[];
-            }
-            const nestedData = responseData.data as Record<string, unknown> | undefined;
-            if (nestedData && Array.isArray(nestedData.content)) {
-                return nestedData.content as BankDepositItem[];
-            }
-            if (Array.isArray(responseData.content)) {
-                return responseData.content as BankDepositItem[];
-            }
-        }
-        return [];
-    }, [data]);
-
-    const totalElements = useMemo(() => {
-        const list = bankDeposits;
-        if (!list || list.length === 0) return 0;
-        return list[0]?.totalRows || list.length;
-    }, [bankDeposits]);
-
-    const filteredDeposits = useMemo(() => {
-        if (selectedEntityId === 'all') {
-            return [{
-                id: 'all',
-                name: 'All Entities',
-                items: bankDeposits,
-                totalItems: totalElements
-            }];
-        }
-
-        const foundEntity = entities.find(e => e.id === selectedEntityId);
-        const entityLabel = foundEntity?.name || 'Selected Entity';
-
-        return [{
-            id: selectedEntityId,
-            name: entityLabel,
-            items: bankDeposits,
-            totalItems: totalElements
-        }];
-    }, [bankDeposits, selectedEntityId, entities, totalElements]);
-
-    const summaryStats = useMemo(() => 
-        calculateBankDepositSummary(filteredDeposits, widgetData?.data),
-    [filteredDeposits, widgetData]);
-
-    return {
-        bankDeposits,
-        filteredDeposits,
-        totalElements,
-        summaryStats,
-        summaryData: widgetData?.data,
-        payerOptions,
-        statusOptions,
-        dynamicColumns,
-        entities,
-        isFetching: isFetching || isWidgetsFetching || isHeadersFetching || isTabsFetching,
-        isError: isAnyError,
-        isHeadersSuccess,
-        refetch
+    return () => {
+      dispatch(setIsGlobalFetching(false));
     };
+  }, [
+    isFetching,
+    isWidgetsFetching,
+    isHeadersFetching,
+    isTabsFetching,
+    isAnyError,
+    skip,
+    dispatch,
+  ]);
+
+  const bankDeposits: BankDepositItem[] = useMemo(() => {
+    if (Array.isArray(data)) return data as BankDepositItem[];
+    const responseData = data as unknown as Record<string, unknown> | null;
+    if (responseData && typeof responseData === 'object') {
+      if (Array.isArray(responseData.data)) {
+        return responseData.data as BankDepositItem[];
+      }
+      const nestedData = responseData.data as Record<string, unknown> | undefined;
+      if (nestedData && Array.isArray(nestedData.content)) {
+        return nestedData.content as BankDepositItem[];
+      }
+      if (Array.isArray(responseData.content)) {
+        return responseData.content as BankDepositItem[];
+      }
+    }
+    return [];
+  }, [data]);
+
+  const totalElements = useMemo(() => {
+    const list = bankDeposits;
+    if (!list || list.length === 0) return 0;
+    return list[0]?.totalRows || list.length;
+  }, [bankDeposits]);
+
+  const filteredDeposits = useMemo(() => {
+    if (selectedEntityId === 'all') {
+      return [
+        {
+          id: 'all',
+          name: 'All Entities',
+          items: bankDeposits,
+          totalItems: totalElements,
+        },
+      ];
+    }
+
+    const foundEntity = entities.find((e) => e.id === selectedEntityId);
+    const entityLabel = foundEntity?.name || 'Selected Entity';
+
+    return [
+      {
+        id: selectedEntityId,
+        name: entityLabel,
+        items: bankDeposits,
+        totalItems: totalElements,
+      },
+    ];
+  }, [bankDeposits, selectedEntityId, entities, totalElements]);
+
+  const summaryStats = useMemo(
+    () => calculateBankDepositSummary(filteredDeposits, widgetData?.data),
+    [filteredDeposits, widgetData],
+  );
+
+  return {
+    bankDeposits,
+    filteredDeposits,
+    totalElements,
+    summaryStats,
+    summaryData: widgetData?.data,
+    payerOptions,
+    statusOptions,
+    dynamicColumns,
+    entities,
+    isFetching: isFetching || isWidgetsFetching || isHeadersFetching || isTabsFetching,
+    isError: isAnyError,
+    isHeadersSuccess,
+    refetch,
+  };
 };

@@ -1,4 +1,4 @@
 export const BRANDS = {
-    MINDPATH: 'mindpath',
-    ICAN: 'ican',
+  MINDPATH: 'mindpath',
+  ICAN: 'ican',
 } as const;

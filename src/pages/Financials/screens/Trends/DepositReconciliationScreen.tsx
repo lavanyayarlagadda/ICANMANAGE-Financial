@@ -1,13 +1,6 @@
-import React from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  Divider,
-  Typography,
-  useTheme,
-} from "@mui/material";
-import summaryContract from "@/data/depositReconciliationExecutiveSummary.json";
+import React from 'react';
+import { Box, Card, CardContent, Divider, Typography, useTheme } from '@mui/material';
+import summaryContract from '@/data/depositReconciliationExecutiveSummary.json';
 
 import {
   unwrapResponse,
@@ -25,19 +18,17 @@ import {
   type AgingRow,
   type SectionRow,
   type PayerRow,
-} from "./helpers/depositReconciliationHelpers";
+} from './helpers/depositReconciliationHelpers';
 
-import { useDepositReconciliation } from "./hooks/useDepositReconciliation";
+import { useDepositReconciliation } from './hooks/useDepositReconciliation';
 
-import { DepositReconciliationHeader } from "./sections/DepositReconciliationHeader";
-import { DepositReconciliationHeroCards } from "./sections/DepositReconciliationHeroCards";
-import { DepositReconciliationAging } from "./sections/DepositReconciliationAging";
-import { SectionTable } from "./sections/SectionTable";
-import { DepositReconciliationTopPayers } from "./sections/DepositReconciliationTopPayers";
+import { DepositReconciliationHeader } from './sections/DepositReconciliationHeader';
+import { DepositReconciliationHeroCards } from './sections/DepositReconciliationHeroCards';
+import { DepositReconciliationAging } from './sections/DepositReconciliationAging';
+import { SectionTable } from './sections/SectionTable';
+import { DepositReconciliationTopPayers } from './sections/DepositReconciliationTopPayers';
 
-const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
-  skip = false,
-}) => {
+const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   const theme = useTheme();
   const contract = summaryContract;
 
@@ -70,46 +61,26 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
     updatedAt: executiveData.lastUpdated,
   };
 
-  const monthAtGlanceTitle = "📌 This month at a glance";
-  
-  let insights = pickArray<string>(executiveData, ["atAGlanceInsights"]);
+  const monthAtGlanceTitle = '📌 This month at a glance';
+
+  let insights = pickArray<string>(executiveData, ['atAGlanceInsights']);
   if (insights.length === 0) {
-    const mag = pickRecord(executiveData, ["monthAtGlance", "insightsSummary"]);
-    insights = pickArray<string>(mag, ["insights", "points"]);
+    const mag = pickRecord(executiveData, ['monthAtGlance', 'insightsSummary']);
+    insights = pickArray<string>(mag, ['insights', 'points']);
   }
 
-  const heroCardsFromApi = pickArray<unknown>(executiveData, [
-    "kpiCards",
-    "heroCards",
-    "cards",
-  ]);
+  const heroCardsFromApi = pickArray<unknown>(executiveData, ['kpiCards', 'heroCards', 'cards']);
   const heroCards = normalizeHeroCards(heroCardsFromApi);
 
-  const agingBucketsFromApi = pickArray<unknown>(agingData, [
-    "buckets",
-    "agingBuckets",
-  ]);
+  const agingBucketsFromApi = pickArray<unknown>(agingData, ['buckets', 'agingBuckets']);
   const agingRows = normalizeAgingRows(agingBucketsFromApi);
   const agingSummary = normalizeAgingSummary(agingData);
 
-  const adjustedCashTable = normalizeFlatTrendTable(
-    adjustedCashData,
-    forecastWindow,
-  );
-  const postedTable = normalizeGroupedTrendTable(
-    reconciledData,
-    forecastWindow,
-  );
-  const notPostedTable = normalizeGroupedTrendTable(
-    unreconciledData,
-    forecastWindow,
-  );
+  const adjustedCashTable = normalizeFlatTrendTable(adjustedCashData, forecastWindow);
+  const postedTable = normalizeGroupedTrendTable(reconciledData, forecastWindow);
+  const notPostedTable = normalizeGroupedTrendTable(unreconciledData, forecastWindow);
 
-  const topPayersFromApi = pickArray<unknown>(topPayersData, [
-    "rows",
-    "topPayers",
-    "data",
-  ]);
+  const topPayersFromApi = pickArray<unknown>(topPayersData, ['rows', 'topPayers', 'data']);
   const topPayers = normalizeTopPayerRows(topPayersFromApi);
 
   const safeInsights = ensureArray<string>(insights);
@@ -117,9 +88,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
     const id = toText(card.id).toLowerCase();
     const title = toText(card.title).toLowerCase();
     return (
-      id !== "dso-days-in-ar" &&
-      title !== "dso — days in a/r" &&
-      title !== "dso - days in a/r"
+      id !== 'dso-days-in-ar' && title !== 'dso — days in a/r' && title !== 'dso - days in a/r'
     );
   });
   const safeAgingRows = ensureArray<AgingRow>(agingRows);
@@ -132,9 +101,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
   const safeTopPayers = ensureArray<PayerRow>(topPayers);
 
   return (
-    <Box
-      sx={{ px: 2, pb: 3, pt: 1, minWidth: 0, width: "100%", maxWidth: "100%" }}
-    >
+    <Box sx={{ px: 2, pb: 3, pt: 1, minWidth: 0, width: '100%', maxWidth: '100%' }}>
       <DepositReconciliationHeader
         title={screenMeta.title}
         subtitle={screenMeta.subtitle}
@@ -148,9 +115,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
         controls={contract.controls}
       />
       {safeInsights.length > 0 && (
-        <Card
-          sx={{ mb: 2, borderLeft: `4px solid ${theme.palette.error.main}` }}
-        >
+        <Card sx={{ mb: 2, borderLeft: `4px solid ${theme.palette.error.main}` }}>
           <CardContent>
             <Typography
               variant="subtitle1"
@@ -167,67 +132,59 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({
         </Card>
       )}
       <DepositReconciliationHeroCards heroCards={safeHeroCards} />
-
       <DepositReconciliationAging
         agingData={agingData}
         agingSummary={agingSummary}
         agingRows={safeAgingRows}
       />
-
       <SectionTable
-        title={String(adjustedCashData.title || "")}
-        description={String(adjustedCashData.description || "")}
+        title={String(adjustedCashData.title || '')}
+        description={String(adjustedCashData.description || '')}
         columns={safeAdjustedCashColumns}
         rows={safeAdjustedCashRows}
         compareMode={compareMode}
       />
       <SectionTable
-        title={String(reconciledData.title || "")}
-        description={String(reconciledData.description || "")}
+        title={String(reconciledData.title || '')}
+        description={String(reconciledData.description || '')}
         columns={safePostedColumns}
         rows={safePostedRows}
         compareMode={compareMode}
       />
       <SectionTable
-        title={String(unreconciledData.title || "")}
-        description={String(unreconciledData.description || "")}
+        title={String(unreconciledData.title || '')}
+        description={String(unreconciledData.description || '')}
         columns={safeNotPostedColumns}
         rows={safeNotPostedRows}
         compareMode={compareMode}
       />
-
       <DepositReconciliationTopPayers
         topPayersData={topPayersData}
         topPayers={safeTopPayers}
         compareMode={compareMode}
       />
-
       <Card sx={{ borderLeft: `4px solid ${theme.palette.error.main}` }}>
         <CardContent>
-          <Typography
-            variant="subtitle1"
-            sx={{ fontWeight: 700, color: theme.palette.error.main }}
-          >
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: theme.palette.error.main }}>
             {contract.readGuide.title}
           </Typography>
           <Divider sx={{ my: 1 }} />
           <Box component="ul" sx={{ m: 0, pl: 2 }}>
-            {ensureArray<string>(contract.readGuide.points).map(
-              (point, idx) => (
-                <Typography
-                  component="li"
-                  variant="body2"
-                  key={idx}
-                  sx={{ mb: 0.5 }}
-                  dangerouslySetInnerHTML={{
-                    __html: point.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                  }}
-                />
-              ),
-            )}
+            {ensureArray<string>(contract.readGuide.points).map((point, idx) => (
+              <Typography
+                component="li"
+                variant="body2"
+                key={idx}
+                sx={{ mb: 0.5 }}
+                dangerouslySetInnerHTML={{
+                  __html: point.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'),
+                }}
+              />
+            ))}
           </Box>
         </CardContent>
-      </Card>    </Box>
+      </Card>{' '}
+    </Box>
   );
 };
 

@@ -10,7 +10,7 @@ import {
   Divider,
   TextField,
   MenuItem,
-  Button
+  Button,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -36,24 +36,28 @@ const AssignUserDialog: React.FC<AssignUserDialogProps> = ({ open, onClose, txNo
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="xs"
-      fullWidth
-      PaperComponent={GlassDialog}
-    >
-      <DialogTitle sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth PaperComponent={GlassDialog}>
+      <DialogTitle
+        sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <PersonAddIcon sx={{ color: 'primary.main' }} />
-          <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Assign Transaction</Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+            Assign Transaction
+          </Typography>
         </Box>
-        <IconButton size="small" onClick={onClose}><CloseIcon /></IconButton>
+        <IconButton size="small" onClick={onClose}>
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
       <Divider />
       <DialogContent sx={{ py: 3 }}>
         <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary', fontWeight: 600 }}>
-          Assign Transaction <Box component="span" sx={{ color: 'primary.main', fontWeight: 800 }}>{txNo}</Box> to a staff member.
+          Assign Transaction{' '}
+          <Box component="span" sx={{ color: 'primary.main', fontWeight: 800 }}>
+            {txNo}
+          </Box>{' '}
+          to a staff member.
         </Typography>
         <TextField
           select
@@ -71,7 +75,9 @@ const AssignUserDialog: React.FC<AssignUserDialogProps> = ({ open, onClose, txNo
         </TextField>
       </DialogContent>
       <DialogActions sx={{ p: 2, pt: 0 }}>
-        <Button onClick={onClose} sx={{ textTransform: 'none', fontWeight: 700 }}>Cancel</Button>
+        <Button onClick={onClose} sx={{ textTransform: 'none', fontWeight: 700 }}>
+          Cancel
+        </Button>
         <Button
           variant="contained"
           onClick={handleAssign}

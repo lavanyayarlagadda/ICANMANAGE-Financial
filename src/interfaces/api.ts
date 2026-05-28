@@ -5,7 +5,7 @@ export * from './api/bankDeposits';
 export * from './api/statements';
 export * from './api/forecast';
 export * from './api/transactions';
-export * from './api/depositRecon'
+export * from './api/depositRecon';
 
 import {
   PaymentTransaction,
@@ -24,7 +24,7 @@ import {
   AllTransaction,
   ForwardBalanceNotice,
   BankDepositItem,
-  OffsetEvent
+  OffsetEvent,
 } from './financials';
 
 export type {
@@ -44,7 +44,7 @@ export type {
   AllTransaction,
   ForwardBalanceNotice,
   BankDepositItem,
-  OffsetEvent
+  OffsetEvent,
 };
 
 export type RawRemittanceClaimsResponse =
@@ -69,7 +69,7 @@ export interface ServiceLineSearchResponse {
     totalPages: number;
     size: number;
     number: number;
-  }
+  };
 }
 
 // Reusing PipSearchRequest for simple table searches (imported from statements)

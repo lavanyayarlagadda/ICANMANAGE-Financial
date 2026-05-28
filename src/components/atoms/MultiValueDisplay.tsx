@@ -1,5 +1,18 @@
 import React from 'react';
-import { Box, Chip, Tooltip, Stack, Typography, Popover, TextField, InputAdornment, List, ListItem, ListItemText,  IconButton } from '@mui/material';
+import {
+  Box,
+  Chip,
+  Tooltip,
+  Stack,
+  Typography,
+  Popover,
+  TextField,
+  InputAdornment,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+} from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -12,15 +25,28 @@ interface MultiValueDisplayProps {
 const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
   value,
   displayCount = 2,
-  maxWidth = 140
+  maxWidth = 140,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLDivElement | null>(null);
   const [searchQuery, setSearchQuery] = React.useState('');
 
-  if (!value) return <Typography variant="body2" color="text.secondary">-</Typography>;
+  if (!value)
+    return (
+      <Typography variant="body2" color="text.secondary">
+        -
+      </Typography>
+    );
 
-  const items = value.split(',').map(s => s.trim()).filter(Boolean);
-  if (items.length === 0) return <Typography variant="body2" color="text.secondary">-</Typography>;
+  const items = value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (items.length === 0)
+    return (
+      <Typography variant="body2" color="text.secondary">
+        -
+      </Typography>
+    );
 
   const hasMore = items.length > displayCount;
   const displayItems = items.slice(0, displayCount);
@@ -42,8 +68,8 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
     navigator.clipboard.writeText(text);
   };
 
-  const filteredItems = items.filter(item =>
-    item.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredItems = items.filter((item) =>
+    item.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const open = Boolean(anchorEl);
@@ -70,8 +96,8 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
                 '& .MuiChip-label': {
                   px: 1,
                   overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }
+                  textOverflow: 'ellipsis',
+                },
               }}
             />
           </Tooltip>
@@ -89,8 +115,8 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
                   fontWeight: 600,
                   color: 'primary.main',
                   bgcolor: '#eff6ff',
-                  border: theme => `1px solid ${theme.palette.primary.light}`,
-                  '&:hover': { bgcolor: '#dbeafe' }
+                  border: (theme) => `1px solid ${theme.palette.primary.light}`,
+                  '&:hover': { bgcolor: '#dbeafe' },
                 }}
               />
             </Tooltip>
@@ -120,12 +146,17 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
             boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
             overflow: 'hidden',
             display: 'flex',
-            flexDirection: 'column'
-          }
+            flexDirection: 'column',
+          },
         }}
       >
-        <Box sx={{ p: 1.5, bgcolor: 'primary.50', borderBottom: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'primary.main', fontSize: 13 }}>
+        <Box
+          sx={{ p: 1.5, bgcolor: 'primary.50', borderBottom: '1px solid', borderColor: 'divider' }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: 700, mb: 1, color: 'primary.main', fontSize: 13 }}
+          >
             Items ({items.length})
           </Typography>
           <TextField
@@ -140,7 +171,7 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
                   <SearchIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                 </InputAdornment>
               ),
-              sx: { height: 32, fontSize: 13, bgcolor: '#fff' }
+              sx: { height: 32, fontSize: 13, bgcolor: '#fff' },
             }}
           />
         </Box>
@@ -164,14 +195,16 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
                 primary={item}
                 primaryTypographyProps={{
                   variant: 'body2',
-                  sx: { fontSize: 13, fontWeight: 500, fontFamily: 'monospace', py: 0.5, px: 1 }
+                  sx: { fontSize: 13, fontWeight: 500, fontFamily: 'monospace', py: 0.5, px: 1 },
                 }}
               />
             </ListItem>
           ))}
           {filteredItems.length === 0 && (
             <Box sx={{ p: 3, textAlign: 'center' }}>
-              <Typography variant="caption" color="text.secondary">No items match your search</Typography>
+              <Typography variant="caption" color="text.secondary">
+                No items match your search
+              </Typography>
             </Box>
           )}
         </List>

@@ -30,8 +30,8 @@ export interface PaymentTransaction {
   amount?: number;
   openBalance?: number | null;
   status?: TransactionStatus;
-  adjustmentId?:string;
-  recoupmentId?:string;
+  adjustmentId?: string;
+  recoupmentId?: string;
 }
 
 export interface ClaimAllocation {
@@ -115,7 +115,6 @@ export interface VarianceRecord {
   adjustmentCodes: string;
 }
 
-
 export interface KpiCard {
   label: string;
   value: string;
@@ -137,8 +136,6 @@ export interface TeamPerformance {
   totalAmountNotPosted: number;
   avgDaysToReconcile: number;
 }
-
-
 
 export interface PayerPerformanceRecord {
   id: string;
@@ -162,14 +159,13 @@ export interface TrendsData {
   payerPerformance: PayerPerformanceRecord[];
 }
 
-
 export interface RecoupmentRecord {
   id: string;
   recoupmentId: string;
   payer: string;
   claimId: string;
   claimPatient: string;
-  patientName:string;
+  patientName: string;
   originalPaymentAmount: number;
   recoupmentAmount: number;
   recoupmentDate: string;
@@ -203,7 +199,7 @@ export interface AllTransaction {
   openBalance: number | null;
   status: TransactionStatus;
   transactionNo?: string;
-  transactionType?:string;
+  transactionType?: string;
 }
 
 export interface CollectionAccount {

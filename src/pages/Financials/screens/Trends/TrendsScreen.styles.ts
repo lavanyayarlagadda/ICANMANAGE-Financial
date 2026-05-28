@@ -48,9 +48,11 @@ export const RichCard = styled(Card)(({ theme }) => ({
   boxShadow: 'none',
 }));
 
-export const RiskCardStyled = styled(Card)<{ severity: 'error' | 'warning' }>(({ theme, severity }) => ({
-  height: '100%',
-  backgroundColor: theme.palette.background.default,
-  borderLeft: `4px solid ${severity === 'error' ? theme.palette.error.main : theme.palette.warning.main}`,
-  boxShadow: 'none',
-}));
+export const RiskCardStyled = styled(Card)<{ severity: 'error' | 'warning' }>(
+  ({ theme, severity }) => ({
+    height: '100%',
+    backgroundColor: theme.palette.background.default,
+    borderLeft: `4px solid ${severity === 'error' ? theme.palette.error.main : theme.palette.warning.main}`,
+    boxShadow: 'none',
+  }),
+);

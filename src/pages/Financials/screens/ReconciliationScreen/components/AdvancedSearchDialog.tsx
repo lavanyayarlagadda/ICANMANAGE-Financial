@@ -10,7 +10,7 @@ import {
   Grid,
   TextField,
   MenuItem,
-  Button
+  Button,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { FilterState, ReconciliationStatus } from '../ReconciliationScreen.hook';
@@ -30,7 +30,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
   view,
   searchFilters,
   setSearchFilters,
-  onSearch
+  onSearch,
 }) => {
   return (
     <Dialog
@@ -42,13 +42,19 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
         sx: {
           bgcolor: 'background.paper',
           color: 'text.primary',
-          borderRadius: 2
-        }
+          borderRadius: 2,
+        },
       }}
     >
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>Advanced Filters</Typography>
-        <IconButton onClick={onClose} sx={{ color: 'text.secondary' }}><CloseIcon /></IconButton>
+      <DialogTitle
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}
+      >
+        <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+          Advanced Filters
+        </Typography>
+        <IconButton onClick={onClose} sx={{ color: 'text.secondary' }}>
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
       <Divider sx={{ borderColor: 'divider' }} />
       <DialogContent sx={{ py: 3 }}>
@@ -81,7 +87,9 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>Payor</Typography>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
+              Payor
+            </Typography>
             <TextField
               select
               fullWidth
@@ -95,7 +103,9 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
             </TextField>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>State</Typography>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
+              State
+            </Typography>
             <TextField
               select
               fullWidth
@@ -110,30 +120,52 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
 
           {/* Row 2 */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>Transaction NO.</Typography>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
+              Transaction NO.
+            </Typography>
             <TextField
               placeholder="Transaction NO."
               fullWidth
               size="small"
               value={searchFilters.transactionNo}
-              onChange={(e) => setSearchFilters({ ...searchFilters, transactionNo: e.target.value })}
+              onChange={(e) =>
+                setSearchFilters({ ...searchFilters, transactionNo: e.target.value })
+              }
               sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>Transaction Type</Typography>
-            <TextField select fullWidth size="small" defaultValue="All" sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
+              Transaction Type
+            </Typography>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              defaultValue="All"
+              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
+            >
               <MenuItem value="All">Select Transaction Type</MenuItem>
             </TextField>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>Account</Typography>
-            <TextField select fullWidth size="small" defaultValue="All" sx={{ bgcolor: 'background.paper', borderRadius: 1 }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
+              Account
+            </Typography>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              defaultValue="All"
+              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
+            >
               <MenuItem value="All">Select Account</MenuItem>
             </TextField>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>Batch Owner</Typography>
+            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
+              Batch Owner
+            </Typography>
             <TextField
               select
               fullWidth
@@ -148,7 +180,9 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
           {/* Status (Hide for Reconciled) */}
           {view !== 'reconciled' && (
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>Status</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
+                Status
+              </Typography>
               <TextField
                 select
                 fullWidth
@@ -176,7 +210,15 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
         </Button>
         <Button
           variant="contained"
-          onClick={() => setSearchFilters({ payor: 'All', status: 'All', fromDate: '2025-06-01', toDate: '2025-06-30', transactionNo: '' })}
+          onClick={() =>
+            setSearchFilters({
+              payor: 'All',
+              status: 'All',
+              fromDate: '2025-06-01',
+              toDate: '2025-06-30',
+              transactionNo: '',
+            })
+          }
           sx={{ textTransform: 'lowercase', px: 4, py: 1, bgcolor: 'primary.main' }}
         >
           clear

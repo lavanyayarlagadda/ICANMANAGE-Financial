@@ -121,15 +121,23 @@ export const userApi = baseApi.injectEndpoints({
       },
       providesTags: ['Auth', 'UserPermissions'],
     }),
-    getUserMenuConfig: builder.query<EffectiveMenuResponse, { userId: string; effectiveRole?: string }>({
+    getUserMenuConfig: builder.query<
+      EffectiveMenuResponse,
+      { userId: string; effectiveRole?: string }
+    >({
       query: ({ userId, effectiveRole = 'admin' }) => ({
         url: `/admin/users/${userId}/menu-config`,
         params: { effectiveRole },
       }),
       transformResponse: (response: { data: EffectiveMenuResponse } | EffectiveMenuResponse) => {
-        return 'data' in response && response.data ? (response.data as EffectiveMenuResponse) : (response as EffectiveMenuResponse);
+        return 'data' in response && response.data
+          ? (response.data as EffectiveMenuResponse)
+          : (response as EffectiveMenuResponse);
       },
-      providesTags: (result, error, { userId }) => [{ type: 'Auth', id: `MENU_${userId}` }, 'UserPermissions'],
+      providesTags: (result, error, { userId }) => [
+        { type: 'Auth', id: `MENU_${userId}` },
+        'UserPermissions',
+      ],
     }),
     updateUserMenuConfig: builder.mutation<void, UpdateMenuConfigRequest>({
       query: ({ userId, ...body }) => ({
@@ -137,7 +145,10 @@ export const userApi = baseApi.injectEndpoints({
         method: 'PUT',
         body,
       }),
-      invalidatesTags: (result, error, { userId }) => [{ type: 'Auth', id: `MENU_${userId}` }, 'UserPermissions'],
+      invalidatesTags: (result, error, { userId }) => [
+        { type: 'Auth', id: `MENU_${userId}` },
+        'UserPermissions',
+      ],
     }),
     updateMePreferences: builder.mutation<void, UpdatePreferencesRequest>({
       query: (body) => ({

@@ -45,5 +45,11 @@ const tenantSlice = createSlice({
   },
 });
 
-export const { setTenants, setSelectedTenantId, clearSelectedTenant, setTenantLoading, setTenantError } = tenantSlice.actions;
+export const {
+  setTenants,
+  setSelectedTenantId,
+  clearSelectedTenant,
+  setTenantLoading,
+  setTenantError,
+} = tenantSlice.actions;
 export default tenantSlice.reducer;

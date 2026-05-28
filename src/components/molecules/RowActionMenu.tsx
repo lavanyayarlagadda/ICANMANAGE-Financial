@@ -22,7 +22,12 @@ interface RowActionMenuProps {
   extraActions?: ActionMenuItem[];
 }
 
-const RowActionMenu: React.FC<RowActionMenuProps> = ({ onView, onEdit, onDelete, extraActions }) => {
+const RowActionMenu: React.FC<RowActionMenuProps> = ({
+  onView,
+  onEdit,
+  onDelete,
+  extraActions,
+}) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -54,13 +59,17 @@ const RowActionMenu: React.FC<RowActionMenuProps> = ({ onView, onEdit, onDelete,
         slotProps={{ paper: { sx: { minWidth: 160, boxShadow: '0 4px 20px rgba(0,0,0,0.12)' } } }}
       >
         <MenuItem onClick={() => handleAction(onView)}>
-          <ListItemIcon><VisibilityIcon fontSize="small" /></ListItemIcon>
+          <ListItemIcon>
+            <VisibilityIcon fontSize="small" />
+          </ListItemIcon>
           <ListItemText>View Details</ListItemText>
         </MenuItem>
-        
+
         {onEdit && (
           <MenuItem onClick={() => handleAction(onEdit)}>
-            <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
             <ListItemText>Edit</ListItemText>
           </MenuItem>
         )}
@@ -74,7 +83,9 @@ const RowActionMenu: React.FC<RowActionMenuProps> = ({ onView, onEdit, onDelete,
 
         {onDelete && (
           <MenuItem onClick={() => handleAction(onDelete)} sx={{ color: 'error.main' }}>
-            <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" color="error" />
+            </ListItemIcon>
             <ListItemText>Delete</ListItemText>
           </MenuItem>
         )}

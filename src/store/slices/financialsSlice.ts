@@ -28,7 +28,6 @@ import {
   mockForwardBalanceNotices,
 } from '@/constants/mockData';
 
-
 interface FinancialsState {
   payments: PaymentTransaction[];
   pipRecords: PipRecord[];
@@ -136,12 +135,15 @@ const financialsSlice = createSlice({
       state.collections = state.collections.filter((c) => c.id !== action.payload);
     },
     deleteBankDeposit: (state, action: PayloadAction<{ entityId: string; itemId: string }>) => {
-      const entity = state.bankDeposits.find(e => e.id === action.payload.entityId);
+      const entity = state.bankDeposits.find((e) => e.id === action.payload.entityId);
       if (entity) {
-        entity.items = entity.items.filter(i => i.id !== action.payload.itemId);
+        entity.items = entity.items.filter((i) => i.id !== action.payload.itemId);
       }
     },
-    setGlobalFilters: (state, action: PayloadAction<{ fromDate: string; toDate: string; rangeLabel: string }>) => {
+    setGlobalFilters: (
+      state,
+      action: PayloadAction<{ fromDate: string; toDate: string; rangeLabel: string }>,
+    ) => {
       state.globalFilters = action.payload;
     },
     resetGlobalFilters: (state) => {
@@ -183,5 +185,3 @@ export const {
   resetRemittanceViewState,
 } = financialsSlice.actions;
 export default financialsSlice.reducer;
-
-

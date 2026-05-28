@@ -12,9 +12,14 @@ interface StatusBadgeProps {
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'small' }) => {
   const colors = useMemo(() => {
     const key = getStatusKey(status);
-    return statusColorMap[key] || { bg: themeConfig.colors.slate[100], text: themeConfig.colors.slate[500] };
+    return (
+      statusColorMap[key] || {
+        bg: themeConfig.colors.slate[100],
+        text: themeConfig.colors.slate[500],
+      }
+    );
   }, [status]);
-        if (!status) return null;
+  if (!status) return null;
 
   return (
     <Chip

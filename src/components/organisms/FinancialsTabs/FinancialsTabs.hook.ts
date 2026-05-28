@@ -26,11 +26,14 @@ export const useFinancialsTabs = ({
   const { userDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
 
-  const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
+  const menus = useMemo(
+    () => (userDetails?.menus || authUser?.menus || []) as MenuItem[],
+    [userDetails, authUser],
+  );
 
   const { financialsTabs } = useMemo(
     () => getNavigationStructure(menus, accessibleModules, selectedTenantId),
-    [menus, accessibleModules, selectedTenantId]
+    [menus, accessibleModules, selectedTenantId],
   );
 
   // const isMindPath = useMemo(
@@ -40,35 +43,43 @@ export const useFinancialsTabs = ({
   //   [authUser, selectedTenantId]
   // );
 
-  const handleMainTabChange = useCallback((index: number, path: string) => {
-    if (activeTab !== index) {
-      dispatch(setActiveTab(index));
-      dispatch(setActiveSubTab(0));
-    }
+  const handleMainTabChange = useCallback(
+    (index: number, path: string) => {
+      if (activeTab !== index) {
+        dispatch(setActiveTab(index));
+        dispatch(setActiveSubTab(0));
+      }
 
-    // Automatically navigate to the first sub-tab if it exists
-    const targetTab = financialsTabs.find(t => t.id === index);
-    const targetPath = targetTab && targetTab.subTabs && targetTab.subTabs.length > 0
-      ? targetTab.subTabs[0].path
-      : path;
+      // Automatically navigate to the first sub-tab if it exists
+      const targetTab = financialsTabs.find((t) => t.id === index);
+      const targetPath =
+        targetTab && targetTab.subTabs && targetTab.subTabs.length > 0
+          ? targetTab.subTabs[0].path
+          : path;
 
-    navigate(targetPath);
-  }, [dispatch, navigate, activeTab, financialsTabs]);
+      navigate(targetPath);
+    },
+    [dispatch, navigate, activeTab, financialsTabs],
+  );
 
-  const handleSubTabChange = useCallback((index: number, path: string) => {
-    if (activeSubTab !== index) dispatch(setActiveSubTab(index));
-    navigate(path);
-  }, [dispatch, navigate, activeSubTab]);
+  const handleSubTabChange = useCallback(
+    (index: number, path: string) => {
+      if (activeSubTab !== index) dispatch(setActiveSubTab(index));
+      navigate(path);
+    },
+    [dispatch, navigate, activeSubTab],
+  );
 
-  const currentMainTab = financialsTabs.find(t => t.id === activeTab);
+  const currentMainTab = financialsTabs.find((t) => t.id === activeTab);
   const currentSubTabs = currentMainTab?.subTabs || [];
 
-  const currentSubTab = currentSubTabs.find(st => st.id === activeSubTab);
+  const currentSubTab = currentSubTabs.find((st) => st.id === activeSubTab);
   const isDepositRecon = currentSubTab?.label === 'Deposit Reconciliation';
-    const isExecutiveSummary = currentMainTab?.label === 'Trends & Forecast';
+  const isExecutiveSummary = currentMainTab?.label === 'Trends & Forecast';
   const isBankDeposits = currentMainTab?.label === 'Bank Deposits';
   const canShowActions = financialsTabs.length > 0 && !isRestricted && activeTab !== -1;
-  const shouldShowPrint = showPrint ?? (canShowActions && (!isExecutiveSummary || isDepositRecon) && !isBankDeposits);
+  const shouldShowPrint =
+    showPrint ?? (canShowActions && (!isExecutiveSummary || isDepositRecon) && !isBankDeposits);
   const shouldShowReload = showReload ?? canShowActions;
   const shouldShowExport = showExportWizard ?? (canShowActions && !isExecutiveSummary);
 

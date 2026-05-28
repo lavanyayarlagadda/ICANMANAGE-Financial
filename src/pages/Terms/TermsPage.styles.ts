@@ -48,7 +48,7 @@ export const SectionTitle = styled(Typography)<TypographyProps>(({ theme }) => (
     height: 3,
     backgroundColor: theme.palette.primary.main,
     borderRadius: 2,
-  }
+  },
 }));
 
 export const SectionText = styled(Typography)<TypographyProps>(({ theme }) => ({

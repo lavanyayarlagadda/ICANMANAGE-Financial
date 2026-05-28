@@ -170,7 +170,7 @@ export const colors = {
     white: 'rgba(255, 255, 255, 0.7)',
     black: 'rgba(0, 0, 0, 0.1)',
   },
-  
+
   // Specific brand/legacy colors
   amberDark: '#b45309',
 

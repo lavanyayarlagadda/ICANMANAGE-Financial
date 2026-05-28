@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Divider,
-  useTheme,
-} from '@mui/material';
+import { Card, CardContent, Typography, Box, Divider, useTheme } from '@mui/material';
 import { TeamPerformance } from '@/interfaces/financials';
 import { formatPercent, formatCurrency } from '@/utils/formatters';
 import * as styles from './TeamPerformanceCard.styles';
@@ -26,10 +19,7 @@ const MetricRow: React.FC<{ label: string; value: string; highlight?: boolean }>
       <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
-      <Typography
-        variant="body2"
-        sx={styles.metricValueStyles(!!highlight, theme)}
-      >
+      <Typography variant="body2" sx={styles.metricValueStyles(!!highlight, theme)}>
         {value}
       </Typography>
     </Box>
@@ -50,7 +40,11 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ team }) => {
           Volume Metrics
         </Typography>
         <Box sx={styles.metricsBoxStyles}>
-          <MetricRow label="Recon Check %" value={formatPercent(team.reconCheckPercent)} highlight />
+          <MetricRow
+            label="Recon Check %"
+            value={formatPercent(team.reconCheckPercent)}
+            highlight
+          />
           <MetricRow label="Unrecon Check %" value={formatPercent(team.unreconCheckPercent)} />
           <MetricRow label="Recon Check Count" value={String(team.reconCheckCount)} />
           <MetricRow label="Unrecon Check Count" value={String(team.unreconCheckCount)} />
@@ -62,7 +56,11 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ team }) => {
           Financial Metrics
         </Typography>
         <Box sx={styles.metricsBoxStyles}>
-          <MetricRow label="Recon Amount %" value={formatPercent(team.reconAmountPercent)} highlight />
+          <MetricRow
+            label="Recon Amount %"
+            value={formatPercent(team.reconAmountPercent)}
+            highlight
+          />
           <MetricRow label="Unrecon Amount %" value={formatPercent(team.unreconAmountPercent)} />
           <MetricRow label="Total Posted" value={formatCurrency(team.totalAmountPosted)} />
           <MetricRow label="Not Posted" value={formatCurrency(team.totalAmountNotPosted)} />
@@ -74,7 +72,11 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ team }) => {
           Efficiency
         </Typography>
         <Box sx={{ mt: 1 }}>
-          <MetricRow label="Avg. Days to Reconcile" value={`${team.avgDaysToReconcile} days`} highlight />
+          <MetricRow
+            label="Avg. Days to Reconcile"
+            value={`${team.avgDaysToReconcile} days`}
+            highlight
+          />
         </Box>
       </CardContent>
     </Card>
@@ -82,4 +84,3 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ team }) => {
 };
 
 export default TeamPerformanceCard;
-

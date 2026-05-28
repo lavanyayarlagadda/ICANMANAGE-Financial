@@ -12,124 +12,154 @@ import { ScreenWrapper, ToolbarWrapper, SearchField } from './PaymentsScreen.sty
 import { usePaymentsScreen } from './PaymentsScreen.hook';
 
 const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-    const {
-        payments,
-        totalElements,
-        queryParams,
-        globalFilters,
-        handleDrillDown,
-        handleRangeChange,
-        handleFilterChange,
-        handleSortChange,
-        onPageChange,
-        onRowsPerPageChange,
-        statusOptions,
-        statusOptionsLoading,
-        statusOptionsError,
-        payerOptions,
-        searchTerm,
-        setSearchTerm,
-        onSearch,
-        isFetching,
-        // isError,
-    } = usePaymentsScreen({ skip });
+  const {
+    payments,
+    totalElements,
+    queryParams,
+    globalFilters,
+    handleDrillDown,
+    handleRangeChange,
+    handleFilterChange,
+    handleSortChange,
+    onPageChange,
+    onRowsPerPageChange,
+    statusOptions,
+    statusOptionsLoading,
+    statusOptionsError,
+    payerOptions,
+    searchTerm,
+    setSearchTerm,
+    onSearch,
+    isFetching,
+    // isError,
+  } = usePaymentsScreen({ skip });
 
-    const theme = useTheme();
+  const theme = useTheme();
 
-    const columns = useMemo<DataColumn<PaymentTransaction>[]>(() => [
-        {
-            id: 'actions',
-            label: 'ACTIONS',
-            minWidth: 60,
-            render: (r) => (
-                <RowActionMenu
-                    onView={() => handleDrillDown(r)}
-                />
-            ),
-        },
-        { id: 'effectiveDate', label: 'EFFECTIVE DATE', minWidth: 120, accessor: (r) => r.effectiveDate ?? '', render: (r) => formatDate(r.effectiveDate) },
-        { id: 'type', label: 'TYPE', minWidth: 90, accessor: (r) => r.type ?? '', render: (r) => r.type },
-        // { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
-        {
-            id: 'transactionNo',
-            label: 'TRANSACTION NUMBER',
-            minWidth: 220,
-            align: 'center',
-            accessor: (r) => r.transactionNo ?? '',
-            render: (r) => (
-                <Typography
-                    variant="body2"
-                >
-                    {r.transactionNo}
-                </Typography>
-            ),
-        },
-        { id: 'payer', label: 'PAYER', minWidth: 180, accessor: (r) => r.payer ?? '', filterOptions: payerOptions, render: (r) => r.payer },
-        { id: 'amount', label: 'AMOUNT', minWidth: 110, align: 'center', accessor: (r) => r.amount ?? null, render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount)}</Box> },
-        {
-            id: 'status', label: 'STATUS', minWidth: 120, accessor: (r) => r.status ?? '', filterOptions: statusOptions,
-            isFilterLoading: statusOptionsLoading,
-            filterError: statusOptionsError,
-            render: (r) => <StatusBadge status={r.status} />
-        },
-    ], [handleDrillDown, statusOptions, statusOptionsLoading, statusOptionsError, payerOptions]);
+  const columns = useMemo<DataColumn<PaymentTransaction>[]>(
+    () => [
+      {
+        id: 'actions',
+        label: 'ACTIONS',
+        minWidth: 60,
+        render: (r) => <RowActionMenu onView={() => handleDrillDown(r)} />,
+      },
+      {
+        id: 'effectiveDate',
+        label: 'EFFECTIVE DATE',
+        minWidth: 120,
+        accessor: (r) => r.effectiveDate ?? '',
+        render: (r) => formatDate(r.effectiveDate),
+      },
+      {
+        id: 'type',
+        label: 'TYPE',
+        minWidth: 90,
+        accessor: (r) => r.type ?? '',
+        render: (r) => r.type,
+      },
+      // { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
+      {
+        id: 'transactionNo',
+        label: 'TRANSACTION NUMBER',
+        minWidth: 220,
+        align: 'center',
+        accessor: (r) => r.transactionNo ?? '',
+        render: (r) => <Typography variant="body2">{r.transactionNo}</Typography>,
+      },
+      {
+        id: 'payer',
+        label: 'PAYER',
+        minWidth: 180,
+        accessor: (r) => r.payer ?? '',
+        filterOptions: payerOptions,
+        render: (r) => r.payer,
+      },
+      {
+        id: 'amount',
+        label: 'AMOUNT',
+        minWidth: 110,
+        align: 'center',
+        accessor: (r) => r.amount ?? null,
+        render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount)}</Box>,
+      },
+      {
+        id: 'status',
+        label: 'STATUS',
+        minWidth: 120,
+        accessor: (r) => r.status ?? '',
+        filterOptions: statusOptions,
+        isFilterLoading: statusOptionsLoading,
+        filterError: statusOptionsError,
+        render: (r) => <StatusBadge status={r.status} />,
+      },
+    ],
+    [handleDrillDown, statusOptions, statusOptionsLoading, statusOptionsError, payerOptions],
+  );
 
-    return (
-        <ScreenWrapper>
-            {/* {isError && (
+  return (
+    <ScreenWrapper>
+      {/* {isError && (
                 <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
                     Failed to load Payments transaction details. Please try reloading or contact support.
                 </Alert>
             )} */}
-            <ToolbarWrapper>
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                    <SearchField
-                        size="small"
-                        placeholder="Search by Transaction #"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
-                                </InputAdornment>
-                            ),
-                        }}
-                    />
-                    <Button
-                        variant="contained"
-                        size="small"
-                        onClick={() => onSearch(searchTerm)}
-                        sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
-                    >
-                        Search
-                    </Button>
-                </Box>
-            </ToolbarWrapper>
-            <DataTable
-                columns={columns}
-                data={payments || []}
-                rowKey={(r) => r.id ?? ''}
-                exportTitle="Payments"
-                customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}
-                dictionaryId="payments"
-                serverSide
-                totalElements={totalElements}
-                page={queryParams.page}
-                rowsPerPage={queryParams.size}
-                sortCol={queryParams.sortField}
-                sortDir={queryParams.sortOrder}
-                onPageChange={onPageChange}
-                onRowsPerPageChange={onRowsPerPageChange}
-                onSortChange={handleSortChange}
-                onFilterChange={handleFilterChange}
-                download={false}
-                loading={isFetching}
-            />
-        </ScreenWrapper>
-    );
+      <ToolbarWrapper>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <SearchField
+            size="small"
+            placeholder="Search by Transaction #"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && onSearch(searchTerm)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => onSearch(searchTerm)}
+            sx={{
+              height: '36px',
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 2,
+            }}
+          >
+            Search
+          </Button>
+        </Box>
+      </ToolbarWrapper>
+      <DataTable
+        columns={columns}
+        data={payments || []}
+        rowKey={(r) => r.id ?? ''}
+        exportTitle="Payments"
+        customToolbarContent={
+          <RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />
+        }
+        dictionaryId="payments"
+        serverSide
+        totalElements={totalElements}
+        page={queryParams.page}
+        rowsPerPage={queryParams.size}
+        sortCol={queryParams.sortField}
+        sortDir={queryParams.sortOrder}
+        onPageChange={onPageChange}
+        onRowsPerPageChange={onRowsPerPageChange}
+        onSortChange={handleSortChange}
+        onFilterChange={handleFilterChange}
+        download={false}
+        loading={isFetching}
+      />
+    </ScreenWrapper>
+  );
 };
 
 export default PaymentsScreen;
-

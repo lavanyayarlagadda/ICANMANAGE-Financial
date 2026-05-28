@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  Box,
-  CircularProgress,
-  Theme,
-} from '@mui/material';
+import { Box, CircularProgress, Theme } from '@mui/material';
 import { useAppSelector } from '@/store';
-import { useReconciliation, ReconciliationStatus, ReconciliationRow } from './ReconciliationScreen.hook';
+import {
+  useReconciliation,
+  ReconciliationStatus,
+  ReconciliationRow,
+} from './ReconciliationScreen.hook';
 import { useReconciliationColumns } from './ReconciliationScreen.columns';
 
 // Sub Components
@@ -25,7 +25,7 @@ import { InputAdornment, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
 const ReconciliationScreen: React.FC = () => {
-  const { activeSubTab, actionTriggers } = useAppSelector(s => s.ui);
+  const { activeSubTab, actionTriggers } = useAppSelector((s) => s.ui);
 
   const reconciliation = useReconciliation();
   const {
@@ -114,13 +114,19 @@ const ReconciliationScreen: React.FC = () => {
     setEftDialogOpen,
   });
 
-  const handleSearchWrapper = useCallback((txNo: string) => {
-    handleGlobalTransactionSearch(txNo);
-  }, [handleGlobalTransactionSearch]);
+  const handleSearchWrapper = useCallback(
+    (txNo: string) => {
+      handleGlobalTransactionSearch(txNo);
+    },
+    [handleGlobalTransactionSearch],
+  );
 
-  const handleSetTransactionNo = useCallback((val: string) => {
-    setSearchFilters(prev => ({ ...prev, transactionNo: val }));
-  }, [setSearchFilters]);
+  const handleSetTransactionNo = useCallback(
+    (val: string) => {
+      setSearchFilters((prev) => ({ ...prev, transactionNo: val }));
+    },
+    [setSearchFilters],
+  );
 
   return (
     <Box sx={{ p: 3, pt: 1 }}>
@@ -135,7 +141,9 @@ const ReconciliationScreen: React.FC = () => {
       </Box>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}><CircularProgress /></Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
+          <CircularProgress />
+        </Box>
       ) : (
         <DataTable
           columns={columns}
@@ -162,10 +170,13 @@ const ReconciliationScreen: React.FC = () => {
               color: row.isEdited ? 'success.main' : 'inherit',
             },
             '&:hover': {
-              background: (t: Theme) => row.isEdited ? t.palette.grey[100] + ' !important' : t.palette.grey[50] + ' !important'
-            }
+              background: (t: Theme) =>
+                row.isEdited
+                  ? t.palette.grey[100] + ' !important'
+                  : t.palette.grey[50] + ' !important',
+            },
           })}
-          customToolbarContent={(
+          customToolbarContent={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'nowrap' }}>
               {view !== 'reconciled' && (
                 <>
@@ -178,15 +189,17 @@ const ReconciliationScreen: React.FC = () => {
                     placeholder="Search Tx No"
                     value={searchFilters.transactionNo || ''}
                     onChange={(e) => handleSetTransactionNo(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearchWrapper(searchFilters.transactionNo || '')}
+                    onKeyDown={(e) =>
+                      e.key === 'Enter' && handleSearchWrapper(searchFilters.transactionNo || '')
+                    }
                     sx={{
                       width: '160px',
                       '& .MuiOutlinedInput-root': {
                         height: '32px',
                         borderRadius: '6px',
                         bgcolor: 'background.paper',
-                        fontSize: '12px'
-                      }
+                        fontSize: '12px',
+                      },
                     }}
                     InputProps={{
                       startAdornment: (
@@ -199,7 +212,7 @@ const ReconciliationScreen: React.FC = () => {
                 </>
               )}
             </Box>
-          )}
+          }
         />
       )}
 
@@ -226,15 +239,14 @@ const ReconciliationScreen: React.FC = () => {
         onClose={() => setPdfPreviewOpen(false)}
         txNo={selectedTxNo}
       />
-      <BaiDataDialog
-        open={baiDataOpen}
-        onClose={() => setBaiDataOpen(false)}
-        txNo={selectedTxNo}
-      />
+      <BaiDataDialog open={baiDataOpen} onClose={() => setBaiDataOpen(false)} txNo={selectedTxNo} />
       <SubmitConfirmDialog
         open={submitConfirmOpen}
         onClose={() => setSubmitConfirmOpen(false)}
-        onConfirm={() => { setSubmitConfirmOpen(false); alert('File uploaded successfully!'); }}
+        onConfirm={() => {
+          setSubmitConfirmOpen(false);
+          alert('File uploaded successfully!');
+        }}
       />
       <AdvancedSearchDialog
         open={advancedSearchOpen}

@@ -22,7 +22,7 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     complexStatus: ['Remit missing', 'Post < Deposit', 'Age-276'],
     location: 'AZ',
     isEdited: true,
-    comment: 'Check amount not matching'
+    comment: 'Check amount not matching',
   },
   {
     id: '2',
@@ -44,7 +44,7 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     status: 'Unreconciled',
     complexStatus: ['Remit missing', 'Post < Deposit', 'Age-276'],
     location: 'CA',
-    isEdited: false
+    isEdited: false,
   },
   {
     id: '3',
@@ -66,7 +66,7 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     status: 'Reconciled',
     complexStatus: ['Match', 'Age-30'],
     location: 'FL',
-    reconcileDate: '04/04/2026'
+    reconcileDate: '04/04/2026',
   },
   {
     id: '4',
@@ -76,19 +76,19 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     accountName: 'ST JOSEPH HEALTH',
     payor: 'AETNA HEALTH',
     depositDate: '04/04/2026',
-    bankDeposit: 1540.50,
-    remittance: 1540.50,
-    amd: 1540.50,
+    bankDeposit: 1540.5,
+    remittance: 1540.5,
+    amd: 1540.5,
     nextGenCore: 0,
     nextGenPcsd: 0,
     legacy: 0,
-    gl: 1540.50,
+    gl: 1540.5,
     unapplied: 0,
     variance: 0,
     status: 'Reconciled',
     complexStatus: ['Match'],
     location: 'TX',
-    reconcileDate: '04/05/2026'
+    reconcileDate: '04/05/2026',
   },
   {
     id: '5',
@@ -98,18 +98,18 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     accountName: 'BAPTIST HEALTH',
     payor: 'BLUE CROSS BLUE SHIELD',
     depositDate: '04/03/2026',
-    bankDeposit: 2100.00,
-    remittance: 2000.00,
+    bankDeposit: 2100.0,
+    remittance: 2000.0,
     amd: 0,
-    nextGenCore: 2000.00,
+    nextGenCore: 2000.0,
     nextGenPcsd: 0,
     legacy: 0,
     gl: 0,
-    unapplied: 100.00,
-    variance: -100.00,
+    unapplied: 100.0,
+    variance: -100.0,
     status: 'Unreconciled',
     complexStatus: ['Post < Deposit', 'Unapplied exists'],
-    location: 'NC'
+    location: 'NC',
   },
   {
     id: '6',
@@ -131,7 +131,7 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     status: 'Reconciled',
     complexStatus: ['Match'],
     location: 'MN',
-    reconcileDate: '04/03/2026'
+    reconcileDate: '04/03/2026',
   },
   {
     id: '7',
@@ -141,7 +141,7 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     accountName: 'CLEVELAND CLINIC',
     payor: 'MEDICARE OHIO',
     depositDate: '04/02/2026',
-    bankDeposit: 12500.00,
+    bankDeposit: 12500.0,
     remittance: 0,
     amd: 0,
     nextGenCore: 0,
@@ -149,10 +149,10 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     legacy: 0,
     gl: 0,
     unapplied: 0,
-    variance: -12500.00,
+    variance: -12500.0,
     status: 'Unreconciled',
     complexStatus: ['Missing Remit', 'Age-60'],
-    location: 'OH'
+    location: 'OH',
   },
   {
     id: '8',
@@ -174,7 +174,7 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     status: 'Reconciled',
     complexStatus: ['Match'],
     location: 'NC',
-    reconcileDate: '04/03/2026'
+    reconcileDate: '04/03/2026',
   },
   {
     id: '9',
@@ -184,10 +184,10 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     accountName: 'MUSC HEALTH',
     payor: 'HUMANA',
     depositDate: '04/01/2026',
-    bankDeposit: 890.00,
-    remittance: 890.00,
+    bankDeposit: 890.0,
+    remittance: 890.0,
     amd: 0,
-    nextGenCore: 890.00,
+    nextGenCore: 890.0,
     nextGenPcsd: 0,
     legacy: 0,
     gl: 0,
@@ -196,7 +196,7 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     status: 'Reconciled',
     complexStatus: ['Match'],
     location: 'SC',
-    reconcileDate: '04/01/2026'
+    reconcileDate: '04/01/2026',
   },
   {
     id: '10',
@@ -206,7 +206,7 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     accountName: 'MDL MD PC Deposits',
     payor: 'KAISER PERMANENTE',
     depositDate: '04/01/2026',
-    bankDeposit: 230.40,
+    bankDeposit: 230.4,
     remittance: 0,
     amd: 0,
     nextGenCore: 0,
@@ -214,9 +214,9 @@ export const RECONCILIATION_DUMMY_DATA: ReconciliationRow[] = [
     legacy: 0,
     gl: 0,
     unapplied: 0,
-    variance: -230.40,
+    variance: -230.4,
     status: 'Unreconciled',
     complexStatus: ['Missing Remit', 'Age-90'],
-    location: 'CA'
-  }
+    location: 'CA',
+  },
 ];

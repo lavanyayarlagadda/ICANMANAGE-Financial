@@ -20,11 +20,19 @@ interface AddNewDialogProps {
   activeTab: number;
 }
 
-const tabTypeMap: Record<number, { title: string; fields: { name: string; label: string; type?: string; options?: string[] }[] }> = {
+const tabTypeMap: Record<
+  number,
+  { title: string; fields: { name: string; label: string; type?: string; options?: string[] }[] }
+> = {
   0: {
     title: 'Transaction',
     fields: [
-      { name: 'type', label: 'Transaction Type', type: 'select', options: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT'] },
+      {
+        name: 'type',
+        label: 'Transaction Type',
+        type: 'select',
+        options: ['PAYMENT', 'RECOUPMENT', 'FORWARD_BALANCE', 'ADJUSTMENT'],
+      },
       { name: 'effectiveDate', label: 'Effective Date', type: 'date' },
       { name: 'description', label: 'Description' },
       { name: 'sourceProvider', label: 'Source / Provider' },
@@ -38,7 +46,12 @@ const tabTypeMap: Record<number, { title: string; fields: { name: string; label:
       { name: 'description', label: 'Description' },
       { name: 'sourceProvider', label: 'Source / Provider' },
       { name: 'amount', label: 'Amount', type: 'number' },
-      { name: 'status', label: 'Status', type: 'select', options: ['Posted', 'Completed', 'Reconciled', 'Needs Review'] },
+      {
+        name: 'status',
+        label: 'Status',
+        type: 'select',
+        options: ['Posted', 'Completed', 'Reconciled', 'Needs Review'],
+      },
     ],
   },
   2: {
@@ -75,7 +88,21 @@ const tabTypeMap: Record<number, { title: string; fields: { name: string; label:
     title: 'Adjustment',
     fields: [
       { name: 'effectiveDate', label: 'Effective Date', type: 'date' },
-      { name: 'type', label: 'Adjustment Type', type: 'select', options: ['WRITE-OFF', 'CREDIT', 'INTEREST', 'CONTRACTUAL', 'REFUND', 'TRANSFER', 'RECLASSIFICATION', 'CHARITY'] },
+      {
+        name: 'type',
+        label: 'Adjustment Type',
+        type: 'select',
+        options: [
+          'WRITE-OFF',
+          'CREDIT',
+          'INTEREST',
+          'CONTRACTUAL',
+          'REFUND',
+          'TRANSFER',
+          'RECLASSIFICATION',
+          'CHARITY',
+        ],
+      },
       { name: 'description', label: 'Description' },
       { name: 'sourceProvider', label: 'Source / Provider' },
       { name: 'amount', label: 'Amount', type: 'number' },
@@ -93,9 +120,15 @@ const AddNewDialog: React.FC<AddNewDialogProps> = ({ open, onClose, activeTab })
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>Add New {config.title}</Typography>
-        <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
+      <DialogTitle
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          Add New {config.title}
+        </Typography>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
       <Divider />
       <DialogContent sx={{ pt: 2 }}>
@@ -111,7 +144,9 @@ const AddNewDialog: React.FC<AddNewDialogProps> = ({ open, onClose, activeTab })
                 defaultValue=""
               >
                 {field.options?.map((opt) => (
-                  <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+                  <MenuItem key={opt} value={opt}>
+                    {opt}
+                  </MenuItem>
                 ))}
               </TextField>
             ) : (
@@ -123,13 +158,17 @@ const AddNewDialog: React.FC<AddNewDialogProps> = ({ open, onClose, activeTab })
                 fullWidth
                 InputLabelProps={field.type === 'date' ? { shrink: true } : undefined}
               />
-            )
+            ),
           )}
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} variant="outlined" size="small">Cancel</Button>
-        <Button onClick={handleSave} variant="contained" size="small">Add {config.title}</Button>
+        <Button onClick={onClose} variant="outlined" size="small">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} variant="contained" size="small">
+          Add {config.title}
+        </Button>
       </DialogActions>
     </Dialog>
   );

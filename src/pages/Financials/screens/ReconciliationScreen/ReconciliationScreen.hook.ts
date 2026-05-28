@@ -72,15 +72,12 @@ export const useReconciliation = () => {
     transactionNo: '',
   });
 
-
-
   // Sync with global filters if they change elsewhere
   useEffect(() => {
-
-    setSearchFilters(prev => ({
+    setSearchFilters((prev) => ({
       ...prev,
       fromDate: globalFilters.fromDate,
-      toDate: globalFilters.toDate
+      toDate: globalFilters.toDate,
     }));
   }, [globalFilters.fromDate, globalFilters.toDate]);
 
@@ -88,7 +85,7 @@ export const useReconciliation = () => {
   const [appliedFilters, setAppliedFilters] = useState<FilterState>({
     ...searchFilters,
     fromDate: globalFilters.fromDate,
-    toDate: globalFilters.toDate
+    toDate: globalFilters.toDate,
   });
 
   // Mock Row Data
@@ -98,23 +95,65 @@ export const useReconciliation = () => {
   useEffect(() => {
     const fetchHeaders = async () => {
       // setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       const newHeaders: HeaderConfig[] = [
         { id: 'actions', label: 'Actions', align: 'left', isAction: true },
         { id: 'transactionNo', label: 'Transaction Number', align: 'left', isLink: true },
-        { id: 'location', label: 'Loc/State', align: 'left', filterOptions: ['AZ', 'CA', 'FL', 'MN', 'NC', 'OH', 'SC', 'TX'] },
-        { id: 'transactionType', label: 'Type', align: 'left', filterOptions: ['PAYMENT', 'ADJUSTMENT'] },
-        { id: 'batchOwner', label: 'Batch Owner', align: 'left', filterOptions: ['ICAN', 'ADMIN', 'SYSTEM'] },
-        { id: 'accountName', label: 'Account Name', align: 'left', filterOptions: ['Operating', 'Trust', 'Reserve'] },
-        { id: 'payor', label: 'Payor', align: 'left', filterOptions: ['UnitedHealthcare', 'Aetna', 'Cigna', 'Medicare'] },
-        { id: 'complexStatus', label: 'Aging', align: 'left', filterOptions: ['0-30', '31-60', '61-90', '>90'] },
+        {
+          id: 'location',
+          label: 'Loc/State',
+          align: 'left',
+          filterOptions: ['AZ', 'CA', 'FL', 'MN', 'NC', 'OH', 'SC', 'TX'],
+        },
+        {
+          id: 'transactionType',
+          label: 'Type',
+          align: 'left',
+          filterOptions: ['PAYMENT', 'ADJUSTMENT'],
+        },
+        {
+          id: 'batchOwner',
+          label: 'Batch Owner',
+          align: 'left',
+          filterOptions: ['ICAN', 'ADMIN', 'SYSTEM'],
+        },
+        {
+          id: 'accountName',
+          label: 'Account Name',
+          align: 'left',
+          filterOptions: ['Operating', 'Trust', 'Reserve'],
+        },
+        {
+          id: 'payor',
+          label: 'Payor',
+          align: 'left',
+          filterOptions: ['UnitedHealthcare', 'Aetna', 'Cigna', 'Medicare'],
+        },
+        {
+          id: 'complexStatus',
+          label: 'Aging',
+          align: 'left',
+          filterOptions: ['0-30', '31-60', '61-90', '>90'],
+        },
         { id: 'depositDate', label: 'Deposit Date', align: 'left' },
         { id: 'bankDeposit', label: 'Bank Deposit', align: 'right', isCurrency: true },
-        { id: 'remittance', label: 'Remittance', align: 'right', isCurrency: true, highlightOnZero: true },
+        {
+          id: 'remittance',
+          label: 'Remittance',
+          align: 'right',
+          isCurrency: true,
+          highlightOnZero: true,
+        },
         { id: 'amd', label: 'AMD', align: 'right', isCurrency: true },
         { id: 'nextGenCore', label: 'NextGen Core', align: 'right', isCurrency: true },
-        { id: 'nextGenPcsd', label: 'NextGen PCSD', align: 'right', isCurrency: true, highlightOnZero: true },
+        {
+          id: 'nextGenPcsd',
+          label: 'NextGen PCSD',
+          align: 'right',
+          isCurrency: true,
+          highlightOnZero: true,
+        },
         { id: 'legacy', label: 'Legacy', align: 'right', isCurrency: true },
         { id: 'gl', label: 'GL', align: 'right', isCurrency: true },
         { id: 'unapplied', label: 'Unapplied', align: 'right', isCurrency: true },
@@ -126,7 +165,12 @@ export const useReconciliation = () => {
 
       if (view === 'unreconciled') {
         newHeaders.push({ id: 'variance', label: 'Variance', align: 'right', isCurrency: true });
-        newHeaders.push({ id: 'status', label: 'Status', align: 'left', filterOptions: ['Done', 'Pending', 'In Progress'] });
+        newHeaders.push({
+          id: 'status',
+          label: 'Status',
+          align: 'left',
+          filterOptions: ['Done', 'Pending', 'In Progress'],
+        });
       }
 
       setHeaders(newHeaders);
@@ -136,27 +180,32 @@ export const useReconciliation = () => {
     fetchHeaders();
   }, [view]);
 
-  const handleRangeChange = useCallback((range: string) => {
-    if (range.includes(' to ')) {
-      const [from, to] = range.split(' to ');
+  const handleRangeChange = useCallback(
+    (range: string) => {
+      if (range.includes(' to ')) {
+        const [from, to] = range.split(' to ');
 
-      dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
-    } else {
-      const dates = calculateDatesFromLabel(range);
-      if (dates) {
-
-        dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+        dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+      } else {
+        const dates = calculateDatesFromLabel(range);
+        if (dates) {
+          dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+        }
       }
-    }
-  }, [dispatch]);
+    },
+    [dispatch],
+  );
 
   const filteredData = useMemo(() => {
-    return mockRows.filter(row => {
-      const statusMatch = view === 'my-queue' ? (row.batchOwner === 'ICAN') : row.status.toLowerCase() === view;
+    return mockRows.filter((row) => {
+      const statusMatch =
+        view === 'my-queue' ? row.batchOwner === 'ICAN' : row.status.toLowerCase() === view;
       const locationMatch = activeLocation === 'All' || row.location === activeLocation;
-      const searchMatch = !appliedFilters.transactionNo || row.transactionNo.toLowerCase().includes(appliedFilters.transactionNo.toLowerCase());
+      const searchMatch =
+        !appliedFilters.transactionNo ||
+        row.transactionNo.toLowerCase().includes(appliedFilters.transactionNo.toLowerCase());
       const payorMatch = appliedFilters.payor === 'All' || row.payor.includes(appliedFilters.payor);
-      const ageMatch = !activeAge || row.complexStatus.some(s => s.includes(activeAge));
+      const ageMatch = !activeAge || row.complexStatus.some((s) => s.includes(activeAge));
 
       // Date matching (if applicable)
       const rowDate = new Date(row.depositDate);
@@ -172,9 +221,15 @@ export const useReconciliation = () => {
     return {
       bankDeposit: filteredData.reduce((sum, r) => sum + r.bankDeposit, 0),
       remittance: filteredData.reduce((sum, r) => sum + r.remittance, 0),
-      cashPosting: filteredData.reduce((sum, r) => sum + (r.nextGenCore + r.nextGenPcsd + r.legacy), 0),
+      cashPosting: filteredData.reduce(
+        (sum, r) => sum + (r.nextGenCore + r.nextGenPcsd + r.legacy),
+        0,
+      ),
       payVariance: filteredData.reduce((sum, r) => sum + r.variance, 0),
-      postVariance: filteredData.reduce((sum, r) => sum + Math.abs(r.bankDeposit - (r.nextGenCore + r.nextGenPcsd)), 0),
+      postVariance: filteredData.reduce(
+        (sum, r) => sum + Math.abs(r.bankDeposit - (r.nextGenCore + r.nextGenPcsd)),
+        0,
+      ),
       reconciliationRate: 98.4,
     };
   }, [filteredData]);
@@ -189,31 +244,37 @@ export const useReconciliation = () => {
       setAppliedFilters({
         ...searchFilters,
         fromDate: globalFilters.fromDate,
-        toDate: globalFilters.toDate
+        toDate: globalFilters.toDate,
       });
       setLoading(false);
     }, 200);
   }, [searchFilters, globalFilters.fromDate, globalFilters.toDate]);
 
-  const handleGlobalTransactionSearch = useCallback((txNo: string) => {
-    setLoading(true);
-    setTimeout(() => {
-      // Find the record in ALL data
-      const record = mockRows.find(r => r.transactionNo.toLowerCase().includes(txNo.toLowerCase()));
-      if (record) {
-        // Determine which tab it belongs to
-        let targetView: ReconciliationStatus = record.status.toLowerCase() as ReconciliationStatus;
-        if (record.batchOwner === 'ICAN') targetView = 'my-queue';
+  const handleGlobalTransactionSearch = useCallback(
+    (txNo: string) => {
+      setLoading(true);
+      setTimeout(() => {
+        // Find the record in ALL data
+        const record = mockRows.find((r) =>
+          r.transactionNo.toLowerCase().includes(txNo.toLowerCase()),
+        );
+        if (record) {
+          // Determine which tab it belongs to
+          let targetView: ReconciliationStatus =
+            record.status.toLowerCase() as ReconciliationStatus;
+          if (record.batchOwner === 'ICAN') targetView = 'my-queue';
 
-        setView(targetView);
-        setSearchFilters(prev => ({ ...prev, transactionNo: txNo }));
-        setAppliedFilters({ ...searchFilters, transactionNo: txNo });
-      } else {
-        alert('Transaction not found across any tabs.');
-      }
-      setLoading(false);
-    }, 300);
-  }, [mockRows, searchFilters]);
+          setView(targetView);
+          setSearchFilters((prev) => ({ ...prev, transactionNo: txNo }));
+          setAppliedFilters({ ...searchFilters, transactionNo: txNo });
+        } else {
+          alert('Transaction not found across any tabs.');
+        }
+        setLoading(false);
+      }, 300);
+    },
+    [mockRows, searchFilters],
+  );
 
   return {
     view,

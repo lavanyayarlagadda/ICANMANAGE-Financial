@@ -71,21 +71,21 @@ class ErrorBoundary extends Component<Props, State> {
                 Oops! Something went wrong
               </Typography>
               <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 500 }}>
-                We encountered an unexpected error. This has been logged, and we are working to fix it.
-                Please try refreshing the page or returning to the dashboard.
+                We encountered an unexpected error. This has been logged, and we are working to fix
+                it. Please try refreshing the page or returning to the dashboard.
               </Typography>
-              
+
               {process.env.NODE_ENV === 'development' && this.state.error && (
-                <Box 
-                  sx={{ 
-                    mt: 2, 
-                    mb: 4, 
-                    p: 2, 
-                    bgcolor: 'grey.100', 
-                    borderRadius: 1, 
+                <Box
+                  sx={{
+                    mt: 2,
+                    mb: 4,
+                    p: 2,
+                    bgcolor: 'grey.100',
+                    borderRadius: 1,
                     textAlign: 'left',
                     width: '100%',
-                    overflowX: 'auto'
+                    overflowX: 'auto',
                   }}
                 >
                   <Typography variant="caption" component="pre" sx={{ color: 'error.dark' }}>
@@ -103,11 +103,7 @@ class ErrorBoundary extends Component<Props, State> {
                 >
                   Reload Page
                 </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  onClick={this.handleReset}
-                >
+                <Button variant="outlined" size="large" onClick={this.handleReset}>
                   Go to Dashboard
                 </Button>
               </Box>

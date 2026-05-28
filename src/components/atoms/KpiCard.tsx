@@ -10,15 +10,21 @@ interface KpiCardProps {
   icon?: React.ReactNode;
 }
 
-const KpiCard: React.FC<KpiCardProps> = ({ label, value, change, changeType = 'neutral', icon }) => {
+const KpiCard: React.FC<KpiCardProps> = ({
+  label,
+  value,
+  change,
+  changeType = 'neutral',
+  icon,
+}) => {
   const theme = useTheme();
 
   const changeColor =
     changeType === 'positive'
       ? theme.palette.success.main
       : changeType === 'negative'
-      ? theme.palette.error.main
-      : theme.palette.text.secondary;
+        ? theme.palette.error.main
+        : theme.palette.text.secondary;
 
   return (
     <Card
@@ -31,15 +37,22 @@ const KpiCard: React.FC<KpiCardProps> = ({ label, value, change, changeType = 'n
       }}
     >
       <CardContent sx={{ p: { xs: 2, md: 3 }, '&:last-child': { pb: { xs: 2, md: 3 } } }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}
+        >
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}
+          >
             {label}
           </Typography>
-          {icon && (
-            <Box sx={{ color: theme.palette.primary.main, opacity: 0.7 }}>{icon}</Box>
-          )}
+          {icon && <Box sx={{ color: theme.palette.primary.main, opacity: 0.7 }}>{icon}</Box>}
         </Box>
-        <Typography variant="h4" sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 0.5 }}>
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: 700, color: theme.palette.text.primary, mb: 0.5 }}
+        >
           {value}
         </Typography>
         {change && (

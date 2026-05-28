@@ -7,14 +7,16 @@ import { showSnackbar } from '../slices/uiSlice';
  */
 export const rtkQueryErrorLogger: Middleware = (api) => (next) => (action) => {
   if (isRejectedWithValue(action)) {
-    const errorData = action.payload as { data?: { message?: string; error?: string }; status?: string | number } | undefined;
-    
+    const errorData = action.payload as
+      | { data?: { message?: string; error?: string }; status?: string | number }
+      | undefined;
+
     // Extract meaningful error message from API response
     // Handing both fetchBaseQuery format and generic formats
-    const errorMessage = 
-      errorData?.data?.message || 
-      errorData?.data?.error || 
-      errorData?.status || 
+    const errorMessage =
+      errorData?.data?.message ||
+      errorData?.data?.error ||
+      errorData?.status ||
       'An unexpected error occurred while communicating with the server.';
 
     // Dispatch the snackbar action
@@ -22,7 +24,7 @@ export const rtkQueryErrorLogger: Middleware = (api) => (next) => (action) => {
       showSnackbar({
         message: `API Error: ${errorMessage}`,
         severity: 'error',
-      })
+      }),
     );
   }
 

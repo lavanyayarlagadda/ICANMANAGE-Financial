@@ -14,24 +14,32 @@ import {
   BackText,
   RestrictedContainer,
   RestrictedTitle,
-  RestrictedBody
+  RestrictedBody,
 } from './FinancialsPage.styles';
 import { useFinancialsPage } from './FinancialsPage.hook';
 import { closeViewDialog, closeEditDialog, closeConfirmDelete } from '@/store/slices/uiSlice';
 
-const AllTransactionsScreen = lazy(() => import('@/pages/Financials/screens/AllTransactions/AllTransactionsScreen'));
-const RemittanceDetailScreen = lazy(() => import('@/pages/Financials/screens/RemittanceDetail/RemittanceDetailScreen'));
-const CollectionsScreen = lazy(() => import('@/pages/Financials/screens/Collections/CollectionsScreen'));
+const AllTransactionsScreen = lazy(
+  () => import('@/pages/Financials/screens/AllTransactions/AllTransactionsScreen'),
+);
+const RemittanceDetailScreen = lazy(
+  () => import('@/pages/Financials/screens/RemittanceDetail/RemittanceDetailScreen'),
+);
+const CollectionsScreen = lazy(
+  () => import('@/pages/Financials/screens/Collections/CollectionsScreen'),
+);
 
 const TabLoadingFallback = () => (
-  <Box sx={{
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    py: 12,
-    gap: 2
-  }}>
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      py: 12,
+      gap: 2,
+    }}
+  >
     <CircularProgress size={32} thickness={4} sx={{ color: 'text.secondary' }} />
     <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
       Preparing module view...
@@ -68,11 +76,11 @@ const FinancialsPage: React.FC = () => {
   } = useFinancialsPage();
 
   const tabContent = useMemo(() => {
-    const mainTab = financialsTabs.find(t => t.id === activeTab);
+    const mainTab = financialsTabs.find((t) => t.id === activeTab);
     if (!mainTab) return <AllTransactionsScreen skip={false} />;
 
     if (mainTab.subTabs && mainTab.subTabs.length > 0) {
-      const subTab = mainTab.subTabs.find(st => st.id === activeSubTab) || mainTab.subTabs[0];
+      const subTab = mainTab.subTabs.find((st) => st.id === activeSubTab) || mainTab.subTabs[0];
       const Component = subTab.component;
       if (Component) return <Component skip={false} />;
 
@@ -100,7 +108,11 @@ const FinancialsPage: React.FC = () => {
       return (
         <Box>
           <BackButtonWrapper>
-            <IconButton onClick={handleBackToPayments} size="small" sx={{ border: `1px solid ${theme.palette.divider}` }}>
+            <IconButton
+              onClick={handleBackToPayments}
+              size="small"
+              sx={{ border: `1px solid ${theme.palette.divider}` }}
+            >
               <ArrowBackIcon fontSize="small" />
             </IconButton>
             <BackText>Back</BackText>
@@ -123,41 +135,53 @@ const FinancialsPage: React.FC = () => {
 
         {isRestricted && !isRedirectingFromHiddenRoute ? (
           <RestrictedContainer>
-            <Box sx={{
-              width: 100,
-              height: 100,
-              borderRadius: '50%',
-              bgcolor: 'grey.100',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mb: 4
-            }}>
+            <Box
+              sx={{
+                width: 100,
+                height: 100,
+                borderRadius: '50%',
+                bgcolor: 'grey.100',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 4,
+              }}
+            >
               <SecurityIcon sx={{ fontSize: 48, color: theme.palette.primary.main }} />
             </Box>
-            <RestrictedTitle variant="h5">
-              Access Restricted
-            </RestrictedTitle>
+            <RestrictedTitle variant="h5">Access Restricted</RestrictedTitle>
             <RestrictedBody variant="body1">
-              You don't have the necessary permissions to view this module.
-              Please contact your administrator to request access to this specific financial data.
+              You don't have the necessary permissions to view this module. Please contact your
+              administrator to request access to this specific financial data.
             </RestrictedBody>
           </RestrictedContainer>
         ) : (
-          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, px: 2, pt: 1 }}>
+          <Box
+            sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, px: 2, pt: 1 }}
+          >
             {tabContent}
           </Box>
         )}
       </>
     );
-  }, [activePage, showRemittanceDetail, theme, handleBackToPayments, handlePrint, handleReload, handleExport, tabContent, isRestricted, isLoadingUserDetails, isRedirectingFromHiddenRoute]);
+  }, [
+    activePage,
+    showRemittanceDetail,
+    theme,
+    handleBackToPayments,
+    handlePrint,
+    handleReload,
+    handleExport,
+    tabContent,
+    isRestricted,
+    isLoadingUserDetails,
+    isRedirectingFromHiddenRoute,
+  ]);
 
   return (
     <DashboardLayout>
       <PageWrapper>
-        <Suspense fallback={<TabLoadingFallback />}>
-          {mainContent}
-        </Suspense>
+        <Suspense fallback={<TabLoadingFallback />}>{mainContent}</Suspense>
 
         <ViewDialog
           open={viewDialogOpen}
@@ -192,4 +216,3 @@ const FinancialsPage: React.FC = () => {
 };
 
 export default FinancialsPage;
-

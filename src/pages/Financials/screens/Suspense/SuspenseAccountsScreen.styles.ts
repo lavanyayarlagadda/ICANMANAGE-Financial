@@ -13,7 +13,7 @@ export const accountChipStyles = (config?: AccountChipConfig): SxProps<Theme> =>
   fontWeight: 600,
   fontSize: '11px',
   width: 'fit-content',
-  height: 24
+  height: 24,
 });
 
 export const tableGridStyles = (cols: string): SxProps<Theme> => ({
@@ -28,7 +28,7 @@ export const headerTypographyStyles = (isRight: boolean): SxProps<Theme> => ({
   fontWeight: 700,
   fontSize: '11px',
   color: themeConfig.colors.text.secondary,
-  textAlign: isRight ? 'right' : 'left'
+  textAlign: isRight ? 'right' : 'left',
 });
 
 export const toggleButtonGroupStyles: SxProps<Theme> = {
@@ -46,9 +46,9 @@ export const toggleButtonGroupStyles: SxProps<Theme> = {
       bgcolor: themeConfig.colors.tabActive,
       color: themeConfig.colors.surface,
       border: 'none',
-      '&:hover': { bgcolor: themeConfig.colors.primaryDark }
-    }
-  }
+      '&:hover': { bgcolor: themeConfig.colors.primaryDark },
+    },
+  },
 };
 
 export const ToolbarWrapper = styled(Box)(({ theme }) => ({
@@ -75,6 +75,6 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
   '& .MuiOutlinedInput-root': {
     height: 36,
-    fontSize: '13px'
-  }
+    fontSize: '13px',
+  },
 }));

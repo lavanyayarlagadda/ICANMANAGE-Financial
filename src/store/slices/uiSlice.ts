@@ -108,7 +108,13 @@ const uiSlice = createSlice({
       state.confirmDeleteId = null;
       state.confirmDeleteType = '';
     },
-    showSnackbar: (state, action: PayloadAction<{ message: string; severity?: 'success' | 'error' | 'info' | 'warning' }>) => {
+    showSnackbar: (
+      state,
+      action: PayloadAction<{
+        message: string;
+        severity?: 'success' | 'error' | 'info' | 'warning';
+      }>,
+    ) => {
       state.snackbarOpen = true;
       state.snackbarMessage = action.payload.message;
       state.snackbarSeverity = action.payload.severity || 'success';

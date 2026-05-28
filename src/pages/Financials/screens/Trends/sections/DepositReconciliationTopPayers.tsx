@@ -1,11 +1,7 @@
-import React from "react";
-import { Box, Card, CardContent, Typography, useTheme } from "@mui/material";
-import { Sparkline } from "./Sparkline";
-import {
-  deltaColor,
-  toText,
-  type PayerRow,
-} from "../helpers/depositReconciliationHelpers";
+import React from 'react';
+import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
+import { Sparkline } from './Sparkline';
+import { deltaColor, toText, type PayerRow } from '../helpers/depositReconciliationHelpers';
 
 interface DepositReconciliationTopPayersProps {
   topPayersData: {
@@ -16,46 +12,50 @@ interface DepositReconciliationTopPayersProps {
   compareMode?: string;
 }
 
-export const DepositReconciliationTopPayers: React.FC<
-  DepositReconciliationTopPayersProps
-> = ({ topPayersData, topPayers, compareMode }) => {
+export const DepositReconciliationTopPayers: React.FC<DepositReconciliationTopPayersProps> = ({
+  topPayersData,
+  topPayers,
+  compareMode,
+}) => {
   const theme = useTheme();
 
   return (
     <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
       <CardContent>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          {String(topPayersData.title || "")}
+          {String(topPayersData.title || '')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {String(topPayersData.description || "")}
+          {String(topPayersData.description || '')}
         </Typography>
-        <Box sx={{ 
-          overflowX: "auto",
-          maxWidth: "100%",
-          "&::-webkit-scrollbar": { height: '8px' },
-          "&::-webkit-scrollbar-track": { background: "transparent" },
-          "&::-webkit-scrollbar-thumb": { 
-            background: theme.palette.grey[300], 
-            borderRadius: '10px', 
-            "&:hover": { background: theme.palette.grey[400] } 
-          },
-          scrollbarWidth: 'thin',
-          scrollbarColor: `${theme.palette.grey[300]} transparent`,
-        }}>
+        <Box
+          sx={{
+            overflowX: 'auto',
+            maxWidth: '100%',
+            '&::-webkit-scrollbar': { height: '8px' },
+            '&::-webkit-scrollbar-track': { background: 'transparent' },
+            '&::-webkit-scrollbar-thumb': {
+              background: theme.palette.grey[300],
+              borderRadius: '10px',
+              '&:hover': { background: theme.palette.grey[400] },
+            },
+            scrollbarWidth: 'thin',
+            scrollbarColor: `${theme.palette.grey[300]} transparent`,
+          }}
+        >
           <Box
             component="table"
-            sx={{ width: "100%", borderCollapse: "collapse", minWidth: "max-content" }}
+            sx={{ width: '100%', borderCollapse: 'collapse', minWidth: 'max-content' }}
           >
             <Box component="thead">
               <Box component="tr">
                 {[
-                  "Payer",
-                  "Total $",
-                  "% of Total",
-                  "Match Rate",
-                  compareMode?.toUpperCase() === "YOY" ? "Δ YoY" : "Δ MoM",
-                  "6-months Trend",
+                  'Payer',
+                  'Total $',
+                  '% of Total',
+                  'Match Rate',
+                  compareMode?.toUpperCase() === 'YOY' ? 'Δ YoY' : 'Δ MoM',
+                  '6-months Trend',
                 ].map((label) => (
                   <Box
                     component="th"
@@ -63,14 +63,11 @@ export const DepositReconciliationTopPayers: React.FC<
                     sx={{
                       py: 1,
                       px: 1,
-                      textAlign:
-                        label === "Payer" || label === "6-months Trend"
-                          ? "left"
-                          : "right",
+                      textAlign: label === 'Payer' || label === '6-months Trend' ? 'left' : 'right',
                       color: theme.palette.text.secondary,
                       borderBottom: `1px solid ${theme.palette.divider}`,
                       fontSize: 12,
-                      whiteSpace: "nowrap",
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {label}
@@ -87,7 +84,7 @@ export const DepositReconciliationTopPayers: React.FC<
                       py: 1,
                       px: 1,
                       borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: "nowrap",
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {row.payer}
@@ -97,9 +94,9 @@ export const DepositReconciliationTopPayers: React.FC<
                     sx={{
                       py: 1,
                       px: 1,
-                      textAlign: "right",
+                      textAlign: 'right',
                       borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: "nowrap",
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {row.total}
@@ -109,9 +106,9 @@ export const DepositReconciliationTopPayers: React.FC<
                     sx={{
                       py: 1,
                       px: 1,
-                      textAlign: "right",
+                      textAlign: 'right',
                       borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: "nowrap",
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {row.share}
@@ -121,9 +118,9 @@ export const DepositReconciliationTopPayers: React.FC<
                     sx={{
                       py: 1,
                       px: 1,
-                      textAlign: "right",
+                      textAlign: 'right',
                       borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: "nowrap",
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {row.matchRate}
@@ -133,7 +130,7 @@ export const DepositReconciliationTopPayers: React.FC<
                     sx={{
                       py: 1,
                       px: 1,
-                      textAlign: "right",
+                      textAlign: 'right',
                       borderBottom: `1px solid ${theme.palette.divider}`,
                       color: deltaColor(
                         row.momDelta,
@@ -142,7 +139,7 @@ export const DepositReconciliationTopPayers: React.FC<
                         theme.palette.text.secondary,
                       ),
                       fontWeight: 700,
-                      whiteSpace: "nowrap",
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {toText(row.momDelta)}
@@ -153,7 +150,7 @@ export const DepositReconciliationTopPayers: React.FC<
                       py: 1,
                       px: 1,
                       borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: "nowrap",
+                      whiteSpace: 'nowrap',
                     }}
                   >
                     {row.sixMonthTrend && row.sixMonthTrend.length > 1 ? (

@@ -2,29 +2,29 @@ import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { useLocation } from 'react-router-dom';
 import {
-    setIsReloading,
-    setIsGlobalFetching,
-    setIsDrillingDown as setGlobalDrillingDown,
-    setActiveExportType
+  setIsReloading,
+  setIsGlobalFetching,
+  setIsDrillingDown as setGlobalDrillingDown,
+  setActiveExportType,
 } from '@/store/slices/uiSlice';
 import {
-    setShowRemittanceDetail,
-    setSelectedPaymentId,
-    setRemittanceDetail,
-    setRemittanceClaims,
-    setSelectedClaimIndex,
-    setGlobalFilters
+  setShowRemittanceDetail,
+  setSelectedPaymentId,
+  setRemittanceDetail,
+  setRemittanceClaims,
+  setSelectedClaimIndex,
+  setGlobalFilters,
 } from '@/store/slices/financialsSlice';
 import {
-    useSearchFeeScheduleVarianceQuery,
-    useGetFeeScheduleVarianceSummaryQuery,
-    useSearchPaymentVarianceQuery,
-    useGetPaymentVarianceSummaryQuery,
-    useLazyGetRemittanceClaimsQuery,
-    useLazySearchServiceLinesQuery,
-    useLazyExportFeeScheduleVarianceQuery,
-    useLazyExportPaymentVarianceQuery,
-    useGetAllTransactionsFiltersQuery
+  useSearchFeeScheduleVarianceQuery,
+  useGetFeeScheduleVarianceSummaryQuery,
+  useSearchPaymentVarianceQuery,
+  useGetPaymentVarianceSummaryQuery,
+  useLazyGetRemittanceClaimsQuery,
+  useLazySearchServiceLinesQuery,
+  useLazyExportFeeScheduleVarianceQuery,
+  useLazyExportPaymentVarianceQuery,
+  useGetAllTransactionsFiltersQuery,
 } from '@/store/api/financialsApi';
 import { calculateDatesFromLabel } from '@/utils/dateUtils';
 import { formatDateForFilename } from '@/utils/formatters';
@@ -35,298 +35,373 @@ import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/common';
 
 export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => {
-    const dispatch = useAppDispatch();
-    const location = useLocation();
-    const { activeSubTab, actionTriggers, globalFilters, selectedTenantId } = useAppSelector((s) => ({
-        activeSubTab: s.ui.activeSubTab,
-        actionTriggers: s.ui.actionTriggers,
-        globalFilters: s.financials.globalFilters,
-        selectedTenantId: s.tenant.selectedTenantId
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+  const { activeSubTab, actionTriggers, globalFilters, selectedTenantId } = useAppSelector((s) => ({
+    activeSubTab: s.ui.activeSubTab,
+    actionTriggers: s.ui.actionTriggers,
+    globalFilters: s.financials.globalFilters,
+    selectedTenantId: s.tenant.selectedTenantId,
+  }));
+
+  const [queryParams, setQueryParams] = useState<TableQueryParams>({
+    page: 0,
+    size: DEFAULT_PAGE_SIZE,
+    sortField: 'paymentDate',
+    sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
+    fromDate: globalFilters.fromDate,
+    toDate: globalFilters.toDate,
+    payerName: null as string | null,
+    transactionNo: '' as string | null,
+  });
+
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = useCallback((term: string) => {
+    setSearchTerm(term);
+    setQueryParams((prev) => ({ ...prev, transactionNo: term, page: 0 }));
+  }, []);
+
+  // Handle auto-reset when search is cleared
+  useEffect(() => {
+    if (searchTerm === '' && queryParams.transactionNo !== '') {
+      setQueryParams((prev) => ({ ...prev, transactionNo: '', page: 0 }));
+    }
+  }, [searchTerm, queryParams.transactionNo]);
+
+  // Sync local queryParams with global filters
+  useEffect(() => {
+    setQueryParams((prev) => ({
+      ...prev,
+      fromDate: globalFilters.fromDate,
+      toDate: globalFilters.toDate,
+      page: 0,
     }));
+  }, [globalFilters.fromDate, globalFilters.toDate]);
 
-    const [queryParams, setQueryParams] = useState<TableQueryParams>({
-        page: 0,
-        size: DEFAULT_PAGE_SIZE,
-        sortField: 'paymentDate',
-        sortOrder: SORT_ORDER.DESC as 'asc' | 'desc',
-        fromDate: globalFilters.fromDate,
-        toDate: globalFilters.toDate,
-        payerName: null as string | null,
-        transactionNo: '' as string | null,
-    });
+  // Reset search term and filters when tenant, subtab, or tab/route changes
+  useEffect(() => {
+    setSearchTerm('');
+    setQueryParams((prev) => ({
+      ...prev,
+      payerName: null,
+      transactionNo: '',
+      page: 0,
+    }));
+  }, [selectedTenantId, activeSubTab, location.pathname]);
 
-    const [searchTerm, setSearchTerm] = useState('');
+  const [drillDownParams, setDrillDownParams] = useState({
+    page: 0,
+    size: DEFAULT_PAGE_SIZE,
+    sortField: 'paymentDate',
+    sortOrder: SORT_ORDER.DESC,
+  });
 
-    const handleSearch = useCallback((term: string) => {
-        setSearchTerm(term);
-        setQueryParams(prev => ({ ...prev, transactionNo: term, page: 0 }));
-    }, []);
+  const reloadCount = useRef(actionTriggers.reload);
 
-    // Handle auto-reset when search is cleared
-    useEffect(() => {
-        if (searchTerm === '' && queryParams.transactionNo !== '') {
-            setQueryParams(prev => ({ ...prev, transactionNo: '', page: 0 }));
-        }
-    }, [searchTerm, queryParams.transactionNo]);
+  const {
+    data: feeData,
+    isFetching: feeFetching,
+    isError: feeError,
+    refetch: refetchFee,
+  } = useSearchFeeScheduleVarianceQuery(
+    {
+      page: queryParams.page + 1,
+      size: queryParams.size,
+      sort: queryParams.sortField,
+      desc: queryParams.sortOrder === SORT_ORDER.DESC,
+      fromDate: queryParams.fromDate,
+      toDate: queryParams.toDate,
+      payerName: queryParams.payerName,
+      transactionNo: queryParams.transactionNo,
+    },
+    { skip: skip || activeSubTab !== 0 },
+  );
 
-    // Sync local queryParams with global filters
-    useEffect(() => {
-        setQueryParams(prev => ({
-            ...prev,
-            fromDate: globalFilters.fromDate,
-            toDate: globalFilters.toDate,
-            page: 0
-        }));
-    }, [globalFilters.fromDate, globalFilters.toDate]);
+  const {
+    data: feeSummaryData,
+    refetch: refetchFeeSummary,
+    isFetching: feeSummaryFetching,
+    isError: feeSummaryError,
+  } = useGetFeeScheduleVarianceSummaryQuery(
+    {
+      fromDate: queryParams.fromDate,
+      toDate: queryParams.toDate,
+    },
+    { skip: skip || activeSubTab !== 0 },
+  );
 
-    // Reset search term and filters when tenant, subtab, or tab/route changes
-    useEffect(() => {
-        setSearchTerm('');
-        setQueryParams(prev => ({
-            ...prev,
-            payerName: null,
-            transactionNo: '',
-            page: 0
-        }));
-    }, [selectedTenantId, activeSubTab, location.pathname]);
+  const {
+    data: paymentData,
+    isFetching: paymentFetching,
+    isError: paymentError,
+    refetch: refetchPayment,
+  } = useSearchPaymentVarianceQuery(
+    {
+      page: queryParams.page + 1,
+      size: queryParams.size,
+      sort: queryParams.sortField,
+      desc: queryParams.sortOrder === SORT_ORDER.DESC,
+      fromDate: queryParams.fromDate,
+      toDate: queryParams.toDate,
+      payerName: queryParams.payerName,
+      transactionNo: queryParams.transactionNo,
+    },
+    { skip: skip || activeSubTab !== 1 },
+  );
 
-    const [drillDownParams, setDrillDownParams] = useState({
-        page: 0,
-        size: DEFAULT_PAGE_SIZE,
-        sortField: 'paymentDate',
-        sortOrder: SORT_ORDER.DESC,
-    });
-
-    const reloadCount = useRef(actionTriggers.reload);
-
-    const { data: feeData, isFetching: feeFetching, isError: feeError, refetch: refetchFee } = useSearchFeeScheduleVarianceQuery({
-        page: queryParams.page + 1,
-        size: queryParams.size,
-        sort: queryParams.sortField,
-        desc: queryParams.sortOrder === SORT_ORDER.DESC,
-        fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate,
-        payerName: queryParams.payerName,
-        transactionNo: queryParams.transactionNo
-    }, { skip: skip || activeSubTab !== 0 });
-
-    const { data: feeSummaryData, refetch: refetchFeeSummary, isFetching: feeSummaryFetching, isError: feeSummaryError } = useGetFeeScheduleVarianceSummaryQuery({
-        fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
-    }, { skip: skip || activeSubTab !== 0 });
-
-    const { data: paymentData, isFetching: paymentFetching, isError: paymentError, refetch: refetchPayment } = useSearchPaymentVarianceQuery({
-        page: queryParams.page + 1,
-        size: queryParams.size,
-        sort: queryParams.sortField,
-        desc: queryParams.sortOrder === SORT_ORDER.DESC,
-        fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate,
-        payerName: queryParams.payerName,
-        transactionNo: queryParams.transactionNo
-    }, { skip: skip || activeSubTab !== 1 });
-
-    const { data: paymentSummaryData, refetch: refetchPaymentSummary, isFetching: paymentSummaryFetching, isError: paymentSummaryError } = useGetPaymentVarianceSummaryQuery({
-        fromDate: queryParams.fromDate,
-        toDate: queryParams.toDate
-    }, { skip: skip || activeSubTab !== 1 });
-    const exportCount = useRef(actionTriggers.export);
-    const printCount = useRef(actionTriggers.print);
-    const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
-    const [triggerExportFee] = useLazyExportFeeScheduleVarianceQuery();
-    const [triggerExportPayment] = useLazyExportPaymentVarianceQuery();
-    const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
-    const { data: filterData, isFetching: filterFetching, isError: filterError } = useGetAllTransactionsFiltersQuery(undefined, { skip });
-    const payerOptions = useMemo(() =>
-        filterData?.data?.payers?.map(p => ({ label: p.payerName, value: p.payerName })) ?? [],
-        [filterData]);
-    useEffect(() => {
-        if (actionTriggers.reload > reloadCount.current) {
-            const doReload = async () => {
-                try {
-                    dispatch(setIsReloading(true));
-                    if (activeSubTab === 0) {
-                        await Promise.all([refetchFee(), refetchFeeSummary()]);
-                    } else {
-                        await Promise.all([refetchPayment(), refetchPaymentSummary()]);
-                    }
-                } finally {
-                    dispatch(setIsReloading(false));
-                }
-            };
-            doReload();
-            reloadCount.current = actionTriggers.reload;
-        }
-    }, [actionTriggers.reload, activeSubTab, refetchFee, refetchFeeSummary, refetchPayment, refetchPaymentSummary, dispatch]);
-
-    const handleDrillDown = useCallback(async (row: FeeScheduleVariance | PaymentVariance) => {
+  const {
+    data: paymentSummaryData,
+    refetch: refetchPaymentSummary,
+    isFetching: paymentSummaryFetching,
+    isError: paymentSummaryError,
+  } = useGetPaymentVarianceSummaryQuery(
+    {
+      fromDate: queryParams.fromDate,
+      toDate: queryParams.toDate,
+    },
+    { skip: skip || activeSubTab !== 1 },
+  );
+  const exportCount = useRef(actionTriggers.export);
+  const printCount = useRef(actionTriggers.print);
+  const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();
+  const [triggerExportFee] = useLazyExportFeeScheduleVarianceQuery();
+  const [triggerExportPayment] = useLazyExportPaymentVarianceQuery();
+  const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
+  const {
+    data: filterData,
+    isFetching: filterFetching,
+    isError: filterError,
+  } = useGetAllTransactionsFiltersQuery(undefined, { skip });
+  const payerOptions = useMemo(
+    () => filterData?.data?.payers?.map((p) => ({ label: p.payerName, value: p.payerName })) ?? [],
+    [filterData],
+  );
+  useEffect(() => {
+    if (actionTriggers.reload > reloadCount.current) {
+      const doReload = async () => {
         try {
-            dispatch(setGlobalDrillingDown(true));
-            const identifier = row.claimId || row.transactionNo || row.id || '';
-            if (identifier) {
-                dispatch(setSelectedPaymentId(identifier));
-
-                // Call both APIs simultaneously
-                const [claimResult] = await Promise.all([
-                    triggerGetRemittance({
-                        claimId: identifier,
-                        page: drillDownParams.page + 1,
-                        size: drillDownParams.size,
-                        sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === 'desc'
-                    }).unwrap(),
-                    triggerSearchServiceLines({
-                        page: drillDownParams.page + 1,
-                        size: drillDownParams.size,
-                        sort: drillDownParams.sortField,
-                        desc: drillDownParams.sortOrder === SORT_ORDER.DESC,
-                        check: identifier
-                    }).unwrap()
-                ]);
-
-                const claimsArr = normalizeRemittanceClaims(claimResult);
-
-                if (claimsArr.length === 0) {
-                    dispatch(setRemittanceClaims([]));
-                    dispatch(setRemittanceDetail(null));
-                    dispatch(setShowRemittanceDetail(true));
-                    return;
-                }
-
-                dispatch(setRemittanceClaims(claimsArr));
-                dispatch(setSelectedClaimIndex(0));
-                const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
-                dispatch(setRemittanceDetail(selectedClaim));
-                dispatch(setShowRemittanceDetail(true));
-            }
-        } catch (err) {
-            console.error('Failed to fetch remittance details:', err);
+          dispatch(setIsReloading(true));
+          if (activeSubTab === 0) {
+            await Promise.all([refetchFee(), refetchFeeSummary()]);
+          } else {
+            await Promise.all([refetchPayment(), refetchPaymentSummary()]);
+          }
         } finally {
-            dispatch(setGlobalDrillingDown(false));
+          dispatch(setIsReloading(false));
         }
-    }, [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams]);
+      };
+      doReload();
+      reloadCount.current = actionTriggers.reload;
+    }
+  }, [
+    actionTriggers.reload,
+    activeSubTab,
+    refetchFee,
+    refetchFeeSummary,
+    refetchPayment,
+    refetchPaymentSummary,
+    dispatch,
+  ]);
 
-    const isAnyError = activeSubTab === 0 ? (feeError || feeSummaryError || filterError) : (paymentError || paymentSummaryError || filterError);
-    const isAnyFetching = activeSubTab === 0 ? (feeFetching || feeSummaryFetching || filterFetching) : (paymentFetching || paymentSummaryFetching || filterFetching);
+  const handleDrillDown = useCallback(
+    async (row: FeeScheduleVariance | PaymentVariance) => {
+      try {
+        dispatch(setGlobalDrillingDown(true));
+        const identifier = row.claimId || row.transactionNo || row.id || '';
+        if (identifier) {
+          dispatch(setSelectedPaymentId(identifier));
 
-    useEffect(() => {
-        if (skip || isAnyError) {
-            dispatch(setIsGlobalFetching(false));
+          // Call both APIs simultaneously
+          const [claimResult] = await Promise.all([
+            triggerGetRemittance({
+              claimId: identifier,
+              page: drillDownParams.page + 1,
+              size: drillDownParams.size,
+              sort: drillDownParams.sortField,
+              desc: drillDownParams.sortOrder === 'desc',
+            }).unwrap(),
+            triggerSearchServiceLines({
+              page: drillDownParams.page + 1,
+              size: drillDownParams.size,
+              sort: drillDownParams.sortField,
+              desc: drillDownParams.sortOrder === SORT_ORDER.DESC,
+              check: identifier,
+            }).unwrap(),
+          ]);
+
+          const claimsArr = normalizeRemittanceClaims(claimResult);
+
+          if (claimsArr.length === 0) {
+            dispatch(setRemittanceClaims([]));
+            dispatch(setRemittanceDetail(null));
+            dispatch(setShowRemittanceDetail(true));
             return;
+          }
+
+          dispatch(setRemittanceClaims(claimsArr));
+          dispatch(setSelectedClaimIndex(0));
+          const selectedClaim: RemittanceDetail | null = claimsArr.find(isRemittanceDetail) ?? null;
+          dispatch(setRemittanceDetail(selectedClaim));
+          dispatch(setShowRemittanceDetail(true));
         }
-        dispatch(setIsGlobalFetching(isAnyFetching));
-        return () => { dispatch(setIsGlobalFetching(false)); };
-    }, [isAnyFetching, isAnyError, skip, dispatch]);
+      } catch (err) {
+        console.error('Failed to fetch remittance details:', err);
+      } finally {
+        dispatch(setGlobalDrillingDown(false));
+      }
+    },
+    [dispatch, triggerGetRemittance, triggerSearchServiceLines, drillDownParams],
+  );
 
-    const handleRangeChange = useCallback((range: string) => {
-        if (range.includes(' to ')) {
-            const [from, to] = range.split(' to ');
-            setQueryParams(prev => {
-                if (prev.fromDate === from && prev.toDate === to) return prev;
-                return { ...prev, fromDate: from, toDate: to, page: 0 };
-            });
-            // Update global filters for persistence - label is 'Custom' if it's a date string
-            dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
-        } else {
-            // It's a preset label
-            const dates = calculateDatesFromLabel(range);
-            if (dates) {
-                setQueryParams(prev => {
-                    if (prev.fromDate === dates.from && prev.toDate === dates.to) return prev;
-                    return { ...prev, fromDate: dates.from, toDate: dates.to, page: 0 };
-                });
-                // Update global filters for persistence - preserve the label
-                dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
-            }
-        }
-    }, [dispatch]);
-    const handleExport = useCallback(async (format: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
-        try {
-            dispatch(setActiveExportType(format));
+  const isAnyError =
+    activeSubTab === 0
+      ? feeError || feeSummaryError || filterError
+      : paymentError || paymentSummaryError || filterError;
+  const isAnyFetching =
+    activeSubTab === 0
+      ? feeFetching || feeSummaryFetching || filterFetching
+      : paymentFetching || paymentSummaryFetching || filterFetching;
 
-            const params = {
-                fromDate: queryParams.fromDate,
-                toDate: queryParams.toDate,
-                format
-            };
-
-            let blob: Blob;
-            if (activeSubTab === 0) {
-                blob = await triggerExportFee(params).unwrap();
-            } else {
-                blob = await triggerExportPayment(params).unwrap();
-            }
-
-            const filename = `${activeSubTab === 0 ? 'fee-schedule-variance' : 'payment-variance'}-${formatDateForFilename(queryParams.fromDate)}-to-${formatDateForFilename(queryParams.toDate)}.${format}`;
-            downloadFileFromBlob(blob, filename);
-
-        } catch (error) {
-            console.error('Export failed:', error);
-            alert('Failed to export. Please try again.');
-        } finally {
-            dispatch(setActiveExportType(null));
-        }
-    }, [dispatch, queryParams.fromDate, queryParams.toDate, activeSubTab, triggerExportFee, triggerExportPayment]);
-    useEffect(() => {
-        if (actionTriggers.export > exportCount.current) {
-            handleExport(EXPORT_FORMATS.XLSX);
-            exportCount.current = actionTriggers.export;
-        }
-    }, [actionTriggers.export, handleExport]);
-
-    useEffect(() => {
-        if (actionTriggers.print > printCount.current) {
-            handleExport(EXPORT_FORMATS.PDF);
-            printCount.current = actionTriggers.print;
-        }
-    }, [actionTriggers.print, handleExport]);
-    const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
-        setQueryParams(prev => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
-    }, []);
-
-    const handlePageChange = useCallback((p: number) => setQueryParams(prev => ({ ...prev, page: p })), []);
-    const handleRowsPerPageChange = useCallback((s: number) => setQueryParams(prev => ({ ...prev, size: s, page: 0 })), []);
-
-    const handleFilterChange = useCallback((filters: Record<string, string>) => {
-        setQueryParams(prev => {
-            const next = {
-                ...prev,
-                payerName: filters.payerName || null,
-                page: 0
-            };
-            return prev.payerName !== next.payerName ? next : prev;
-        });
-    }, []);
-
-    return {
-        activeSubTab,
-        actionTriggers,
-        queryParams,
-        globalFilters,
-        drillDownParams,
-        feeData,
-        feeSummaryData,
-        paymentData,
-        paymentSummaryData,
-        totalElementsFee: feeData?.data?.totalElements ?? 0,
-        totalElementsPayment: paymentData?.data?.totalElements ?? 0,
-        handleDrillDown,
-        handleRangeChange,
-        handleSortChange,
-        handlePageChange,
-        handleRowsPerPageChange,
-        onDrillDownParamsChange: (params: Partial<typeof drillDownParams>) => setDrillDownParams(prev => ({ ...prev, ...params })),
-        refetchFee,
-        refetchPayment,
-        searchTerm,
-        setSearchTerm,
-        onSearch: handleSearch,
-        handleFilterChange,
-        payerOptions,
-        payerOptionsLoading: filterFetching,
-        payerOptionsError: filterError,
-        isFetching: isAnyFetching,
-        isError: isAnyError,
-        dispatch
+  useEffect(() => {
+    if (skip || isAnyError) {
+      dispatch(setIsGlobalFetching(false));
+      return;
+    }
+    dispatch(setIsGlobalFetching(isAnyFetching));
+    return () => {
+      dispatch(setIsGlobalFetching(false));
     };
+  }, [isAnyFetching, isAnyError, skip, dispatch]);
+
+  const handleRangeChange = useCallback(
+    (range: string) => {
+      if (range.includes(' to ')) {
+        const [from, to] = range.split(' to ');
+        setQueryParams((prev) => {
+          if (prev.fromDate === from && prev.toDate === to) return prev;
+          return { ...prev, fromDate: from, toDate: to, page: 0 };
+        });
+        // Update global filters for persistence - label is 'Custom' if it's a date string
+        dispatch(setGlobalFilters({ fromDate: from, toDate: to, rangeLabel: 'Custom' }));
+      } else {
+        // It's a preset label
+        const dates = calculateDatesFromLabel(range);
+        if (dates) {
+          setQueryParams((prev) => {
+            if (prev.fromDate === dates.from && prev.toDate === dates.to) return prev;
+            return { ...prev, fromDate: dates.from, toDate: dates.to, page: 0 };
+          });
+          // Update global filters for persistence - preserve the label
+          dispatch(setGlobalFilters({ fromDate: dates.from, toDate: dates.to, rangeLabel: range }));
+        }
+      }
+    },
+    [dispatch],
+  );
+  const handleExport = useCallback(
+    async (format: typeof EXPORT_FORMATS.PDF | typeof EXPORT_FORMATS.XLSX) => {
+      try {
+        dispatch(setActiveExportType(format));
+
+        const params = {
+          fromDate: queryParams.fromDate,
+          toDate: queryParams.toDate,
+          format,
+        };
+
+        let blob: Blob;
+        if (activeSubTab === 0) {
+          blob = await triggerExportFee(params).unwrap();
+        } else {
+          blob = await triggerExportPayment(params).unwrap();
+        }
+
+        const filename = `${activeSubTab === 0 ? 'fee-schedule-variance' : 'payment-variance'}-${formatDateForFilename(queryParams.fromDate)}-to-${formatDateForFilename(queryParams.toDate)}.${format}`;
+        downloadFileFromBlob(blob, filename);
+      } catch (error) {
+        console.error('Export failed:', error);
+        alert('Failed to export. Please try again.');
+      } finally {
+        dispatch(setActiveExportType(null));
+      }
+    },
+    [
+      dispatch,
+      queryParams.fromDate,
+      queryParams.toDate,
+      activeSubTab,
+      triggerExportFee,
+      triggerExportPayment,
+    ],
+  );
+  useEffect(() => {
+    if (actionTriggers.export > exportCount.current) {
+      handleExport(EXPORT_FORMATS.XLSX);
+      exportCount.current = actionTriggers.export;
+    }
+  }, [actionTriggers.export, handleExport]);
+
+  useEffect(() => {
+    if (actionTriggers.print > printCount.current) {
+      handleExport(EXPORT_FORMATS.PDF);
+      printCount.current = actionTriggers.print;
+    }
+  }, [actionTriggers.print, handleExport]);
+  const handleSortChange = useCallback((colId: string, direction: 'asc' | 'desc') => {
+    setQueryParams((prev) => ({ ...prev, sortField: colId, sortOrder: direction, page: 0 }));
+  }, []);
+
+  const handlePageChange = useCallback(
+    (p: number) => setQueryParams((prev) => ({ ...prev, page: p })),
+    [],
+  );
+  const handleRowsPerPageChange = useCallback(
+    (s: number) => setQueryParams((prev) => ({ ...prev, size: s, page: 0 })),
+    [],
+  );
+
+  const handleFilterChange = useCallback((filters: Record<string, string>) => {
+    setQueryParams((prev) => {
+      const next = {
+        ...prev,
+        payerName: filters.payerName || null,
+        page: 0,
+      };
+      return prev.payerName !== next.payerName ? next : prev;
+    });
+  }, []);
+
+  return {
+    activeSubTab,
+    actionTriggers,
+    queryParams,
+    globalFilters,
+    drillDownParams,
+    feeData,
+    feeSummaryData,
+    paymentData,
+    paymentSummaryData,
+    totalElementsFee: feeData?.data?.totalElements ?? 0,
+    totalElementsPayment: paymentData?.data?.totalElements ?? 0,
+    handleDrillDown,
+    handleRangeChange,
+    handleSortChange,
+    handlePageChange,
+    handleRowsPerPageChange,
+    onDrillDownParamsChange: (params: Partial<typeof drillDownParams>) =>
+      setDrillDownParams((prev) => ({ ...prev, ...params })),
+    refetchFee,
+    refetchPayment,
+    searchTerm,
+    setSearchTerm,
+    onSearch: handleSearch,
+    handleFilterChange,
+    payerOptions,
+    payerOptionsLoading: filterFetching,
+    payerOptionsError: filterError,
+    isFetching: isAnyFetching,
+    isError: isAnyError,
+    dispatch,
+  };
 };

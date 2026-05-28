@@ -35,21 +35,27 @@ export const mainTabItemStyles = (isActive: boolean, isDisabled?: boolean): SxPr
   py: 1,
   borderRadius: '6px',
   cursor: isDisabled ? 'not-allowed' : 'pointer',
-  backgroundColor: isDisabled 
-    ? themeConfig.colors.slate[50] 
-    : (isActive ? themeConfig.colors.tabs.activeBg : themeConfig.colors.tabs.inactiveBg),
-  color: isDisabled 
-    ? themeConfig.colors.slate[300] 
-    : (isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive),
+  backgroundColor: isDisabled
+    ? themeConfig.colors.slate[50]
+    : isActive
+      ? themeConfig.colors.tabs.activeBg
+      : themeConfig.colors.tabs.inactiveBg,
+  color: isDisabled
+    ? themeConfig.colors.slate[300]
+    : isActive
+      ? themeConfig.colors.tabs.textActive
+      : themeConfig.colors.tabs.textInactive,
   fontWeight: isActive ? 600 : 500,
   fontSize: '13px',
   whiteSpace: 'nowrap',
   transition: 'all 0.2s',
   opacity: isDisabled ? 0.6 : 1,
   '&:hover': {
-    backgroundColor: isDisabled 
-      ? themeConfig.colors.slate[50] 
-      : (isActive ? themeConfig.colors.tabs.activeBgHover : themeConfig.colors.tabs.inactiveBgHover),
+    backgroundColor: isDisabled
+      ? themeConfig.colors.slate[50]
+      : isActive
+        ? themeConfig.colors.tabs.activeBgHover
+        : themeConfig.colors.tabs.inactiveBgHover,
   },
 });
 
@@ -69,24 +75,29 @@ export const subTabItemStyles = (isActive: boolean, isDisabled?: boolean): SxPro
   py: 0.5,
   borderRadius: '16px',
   cursor: isDisabled ? 'not-allowed' : 'pointer',
-  backgroundColor: isDisabled 
-    ? themeConfig.colors.slate[100] 
-    : (isActive ? themeConfig.colors.tabs.activeBgHover : 'transparent'),
-  color: isDisabled 
-    ? themeConfig.colors.slate[300] 
-    : (isActive ? themeConfig.colors.tabs.textActive : themeConfig.colors.tabs.textInactive),
+  backgroundColor: isDisabled
+    ? themeConfig.colors.slate[100]
+    : isActive
+      ? themeConfig.colors.tabs.activeBgHover
+      : 'transparent',
+  color: isDisabled
+    ? themeConfig.colors.slate[300]
+    : isActive
+      ? themeConfig.colors.tabs.textActive
+      : themeConfig.colors.tabs.textInactive,
   fontWeight: 500,
   fontSize: '13px',
   whiteSpace: 'nowrap',
   transition: 'all 0.2s',
   border: isDisabled ? `1px dashed ${themeConfig.colors.slate[200]}` : 'none',
   '&:hover': {
-    backgroundColor: isDisabled 
-      ? themeConfig.colors.slate[100] 
-      : (isActive ? themeConfig.colors.primary : themeConfig.colors.tabs.subBg),
+    backgroundColor: isDisabled
+      ? themeConfig.colors.slate[100]
+      : isActive
+        ? themeConfig.colors.primary
+        : themeConfig.colors.tabs.subBg,
   },
 });
-
 
 export const actionsGroupStyles = (isMobile: boolean): SxProps<Theme> => ({
   display: 'flex',

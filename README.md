@@ -7,6 +7,7 @@ Welcome to the **iCanManage Financial Dashboard** (ican-rcm) repository. This pr
 The iCanManage Financial Dashboard provides a unified interface to view, analyze, and reconcile financial data.
 
 Key features include:
+
 - **Bank Deposits & Reconciliation**
 - **All Transactions Tracking**
 - **Variances (Fee Schedule & Payment Variances)**
@@ -42,6 +43,7 @@ This project is built using modern frontend technologies:
 ### Installation
 
 1. Clone the repository and navigate into the project directory:
+
    ```bash
    git clone <YOUR_GIT_URL>
    cd ICANMANAGE-Financial
@@ -67,7 +69,9 @@ This project is built using modern frontend technologies:
 This project follows a strict modular architecture and modern coding standards to ensure maintainability and type safety:
 
 ### Modular Hook Pattern
+
 Every major screen is divided into a consistent four-file structure:
+
 - `[Name]Screen.tsx`: The main UI component (kept lean, focuses on rendering).
 - `[Name]Screen.hook.ts`: The "brain" of the screen, containing all state, API calls, and business logic.
 - `sub-hooks/`: For complex screens, logic is further decomposed into specialized hooks (e.g., `use[Name]Data`, `use[Name]Filters`).
@@ -75,6 +79,7 @@ Every major screen is divided into a consistent four-file structure:
 - `components/`: Sub-components specific to that screen to prevent monolithic files.
 
 ### Type Safety & Standards
+
 - **Enums for Statuses**: All reconciliation and system statuses are managed via enums in `src/constants/statuses.ts`.
 - **Centralized Constants**: Magic strings (like brand names or default client IDs) are stored in `src/constants/brands.ts` and `src/constants/common.ts`.
 - **Standardized Interfaces**: All API request/response parameters are defined as named interfaces in `src/interfaces/api/`.
@@ -95,6 +100,7 @@ ICANMANAGE-Financial/
 ```
 
 ## Recent Updates
+
 - **Bank Deposits & Financial Modules**: Implemented advanced modularization using the `sub-hooks/` pattern for cleaner state management.
 - **Export System**: Standardized all export filenames to `MM-DD-YYYY` format using universal utilities.
 - **API Consistency**: Aligned payload schemas (e.g., `payerIds` and `payerName`) across all modules for reliable backend communication.

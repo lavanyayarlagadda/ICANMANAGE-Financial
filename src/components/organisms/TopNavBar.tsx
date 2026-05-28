@@ -98,9 +98,18 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
           zIndex: theme.zIndex.drawer + 1,
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between', minHeight: { xs: 56, md: 64 }, px: { xs: 1.5, md: 3 } }}>
+        <Toolbar
+          sx={{
+            justifyContent: 'space-between',
+            minHeight: { xs: 56, md: 64 },
+            px: { xs: 1.5, md: 3 },
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton onClick={isMobile ? onMenuToggle : () => dispatch(toggleSidebarCollapse())} size="small">
+            <IconButton
+              onClick={isMobile ? onMenuToggle : () => dispatch(toggleSidebarCollapse())}
+              size="small"
+            >
               <MenuIcon />
             </IconButton>
             <Logo collapsed={isSmallMobile} />
@@ -120,7 +129,14 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
               </>
             )}
             {isCognitiveUser && (
-              <FormControl size="small" sx={{ minWidth: { xs: 60, sm: 160 }, maxWidth: { xs: 100, sm: 'none' }, ml: { xs: 0.5, sm: 2 } }}>
+              <FormControl
+                size="small"
+                sx={{
+                  minWidth: { xs: 60, sm: 160 },
+                  maxWidth: { xs: 100, sm: 'none' },
+                  ml: { xs: 0.5, sm: 2 },
+                }}
+              >
                 <Select
                   value={selectedTenantId || ''}
                   onChange={handleTenantChange}
@@ -143,7 +159,7 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
                     },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                       borderColor: theme.palette.primary.main,
-                    }
+                    },
                   }}
                 >
                   {tenantData?.map((t) => (
@@ -164,17 +180,30 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
                 cursor: 'pointer',
                 p: 0.5,
                 borderRadius: 1,
-                '&:hover': { backgroundColor: `${theme.palette.action.hover}` }
+                '&:hover': { backgroundColor: `${theme.palette.action.hover}` },
               }}
               onClick={handleClick}
             >
-              <Avatar src={`/avatar-placeholder.png`} sx={{ width: 36, height: 36, bgcolor: theme.palette.primary.main, fontSize: '0.9rem' }}>
-                {user.firstName[0]}{user.lastName[0]}
+              <Avatar
+                src={`/avatar-placeholder.png`}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: theme.palette.primary.main,
+                  fontSize: '0.9rem',
+                }}
+              >
+                {user.firstName[0]}
+                {user.lastName[0]}
               </Avatar>
               {!isMobile && (
                 <Box>
-                  <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>{user.firstName} {user.lastName}</Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1 }}>{user.company}</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                    {user.firstName} {user.lastName}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1 }}>
+                    {user.company}
+                  </Typography>
                 </Box>
               )}
             </Box>
@@ -188,13 +217,17 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
               slotProps={{
                 paper: {
                   elevation: 3,
-                  sx: { minWidth: 260, mt: 1, borderRadius: 2 }
-                }
+                  sx: { minWidth: 260, mt: 1, borderRadius: 2 },
+                },
               }}
             >
               <Box sx={{ px: 2, py: 1.5 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{user.firstName} {user.lastName}</Typography>
-                <Typography variant="body2" color="primary">{user.email}</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  {user.firstName} {user.lastName}
+                </Typography>
+                <Typography variant="body2" color="primary">
+                  {user.email}
+                </Typography>
               </Box>
               <Divider />
 
@@ -219,11 +252,12 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onMenuToggle }) => {
               <Divider />
 
               <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
-                <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
+                <ListItemIcon>
+                  <LogoutIcon fontSize="small" />
+                </ListItemIcon>
                 <Typography variant="body2">Log out</Typography>
               </MenuItem>
             </Menu>
-
           </Box>
         </Toolbar>
       </AppBar>

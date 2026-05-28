@@ -1,4 +1,4 @@
-import { baseApi } from "./baseApi";
+import { baseApi } from './baseApi';
 import {
   PaymentSearchRequest,
   PaymentSearchResponse,
@@ -7,50 +7,46 @@ import {
   RemittanceClaimsResponse,
   ServiceLineSearchRequest,
   ServiceLineSearchResponse,
-  DateRangeParams
-} from "@/interfaces/api";
-import { RemittanceDetail } from "@/interfaces/financials";
-import { normalizeRemittanceClaims } from "@/utils/normalizeRemittanceClaims";
+  DateRangeParams,
+} from '@/interfaces/api';
+import { RemittanceDetail } from '@/interfaces/financials';
+import { normalizeRemittanceClaims } from '@/utils/normalizeRemittanceClaims';
 
 export const paymentsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     searchPayments: builder.query<PaymentSearchResponse, PaymentSearchRequest>({
       query: (body) => ({
-        url: "financials/payments/search",
-        method: "POST",
+        url: 'financials/payments/search',
+        method: 'POST',
         body,
       }),
-      providesTags: ["Payments"],
+      providesTags: ['Payments'],
     }),
     getPaymentStatus: builder.query<PaymentStatusResponse, void>({
       query: () => 'financials/posting-status/list',
-      providesTags: ["Payments"],
+      providesTags: ['Payments'],
     }),
-    getRemittanceClaims: builder.query<RemittanceDetail[], { claimId: string; } & Partial<PaymentSearchRequest>>({
+    getRemittanceClaims: builder.query<
+      RemittanceDetail[],
+      { claimId: string } & Partial<PaymentSearchRequest>
+    >({
       query: ({ claimId, ...params }) => ({
         url: `financials/payments/remittance-claims/${claimId}`,
-        params
+        params,
       }),
-      transformResponse: (
-        response: RawRemittanceClaimsResponse,
-      ): RemittanceClaimsResponse => normalizeRemittanceClaims(response),
-      providesTags: ["Payments"],
+      transformResponse: (response: RawRemittanceClaimsResponse): RemittanceClaimsResponse =>
+        normalizeRemittanceClaims(response),
+      providesTags: ['Payments'],
     }),
-    searchServiceLines: builder.query<
-      ServiceLineSearchResponse,
-      ServiceLineSearchRequest
-    >({
+    searchServiceLines: builder.query<ServiceLineSearchResponse, ServiceLineSearchRequest>({
       query: (body) => ({
-        url: "financials/payments/service-lines/search",
-        method: "POST",
+        url: 'financials/payments/service-lines/search',
+        method: 'POST',
         body,
       }),
-      providesTags: ["Payments"],
+      providesTags: ['Payments'],
     }),
-    exportPayments: builder.query<
-      Blob,
-      DateRangeParams & { format: "pdf" | "xlsx" }
-    >({
+    exportPayments: builder.query<Blob, DateRangeParams & { format: 'pdf' | 'xlsx' }>({
       query: (params) => ({
         url: `financials/export/payments`,
         params,

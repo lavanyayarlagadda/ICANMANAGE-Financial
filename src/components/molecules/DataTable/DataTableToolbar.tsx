@@ -108,17 +108,28 @@ export function DataTableToolbar<T>({
           <Typography variant="body2" color="primary" fontWeight={600}>
             ({selectedKeys.size}) Rows Selected
           </Typography>
-          <Typography variant="body2" color="text.secondary">·</Typography>
+          <Typography variant="body2" color="text.secondary">
+            ·
+          </Typography>
           <ActionLink variant="body2" onClick={() => handleSelectionChange(new Set())}>
             Deselect All
           </ActionLink>
-          <Typography variant="body2" color="text.secondary">·</Typography>
-          <ActionLink variant="body2" onClick={() => handleSelectionChange(new Set(sortedData.map(rowKey)))}>
+          <Typography variant="body2" color="text.secondary">
+            ·
+          </Typography>
+          <ActionLink
+            variant="body2"
+            onClick={() => handleSelectionChange(new Set(sortedData.map(rowKey)))}
+          >
             Select Max
           </ActionLink>
 
           {(activeFilterCount > 0 || customToolbarContent) && (
-            <Divider orientation="vertical" flexItem sx={{ mx: 1, height: 16, alignSelf: 'center' }} />
+            <Divider
+              orientation="vertical"
+              flexItem
+              sx={{ mx: 1, height: 16, alignSelf: 'center' }}
+            />
           )}
         </SelectionBar>
       )}
@@ -131,7 +142,8 @@ export function DataTableToolbar<T>({
             </Typography>
           ) : (
             <RecordsText variant="caption">
-              {totalCount ?? sortedData.length} record{(totalCount ?? sortedData.length) === 1 ? '' : 's'}
+              {totalCount ?? sortedData.length} record
+              {(totalCount ?? sortedData.length) === 1 ? '' : 's'}
             </RecordsText>
           )}
           {activeFilterCount > 0 && (
@@ -178,7 +190,13 @@ export function DataTableToolbar<T>({
                   ),
                   endAdornment: search && (
                     <InputAdornment position="end">
-                      <IconButton size="small" onClick={() => { setSearch(''); onSearchChange?.(''); }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setSearch('');
+                          onSearchChange?.('');
+                        }}
+                      >
                         <ClearIcon fontSize="small" />
                       </IconButton>
                     </InputAdornment>
@@ -205,18 +223,39 @@ export function DataTableToolbar<T>({
                   onClose={() => setDownloadAnchor(null)}
                 >
                   {onDownload ? (
-                    <MenuItem onClick={() => { setDownloadAnchor(null); onDownload(); }}>
-                      <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                    <MenuItem
+                      onClick={() => {
+                        setDownloadAnchor(null);
+                        onDownload();
+                      }}
+                    >
+                      <ListItemIcon>
+                        <TableChartIcon fontSize="small" />
+                      </ListItemIcon>
                       <ListItemText>Download {EXPORT_FORMATS.XLSX.toUpperCase()}</ListItemText>
                     </MenuItem>
                   ) : (
-                    <MenuItem onClick={() => { handleCSVExport(); setDownloadAnchor(null); }}>
-                      <ListItemIcon><TableChartIcon fontSize="small" /></ListItemIcon>
+                    <MenuItem
+                      onClick={() => {
+                        handleCSVExport();
+                        setDownloadAnchor(null);
+                      }}
+                    >
+                      <ListItemIcon>
+                        <TableChartIcon fontSize="small" />
+                      </ListItemIcon>
                       <ListItemText>Download CSV</ListItemText>
                     </MenuItem>
                   )}
-                  <MenuItem onClick={() => { handlePDFExport(); setDownloadAnchor(null); }}>
-                    <ListItemIcon><PictureAsPdfIcon fontSize="small" /></ListItemIcon>
+                  <MenuItem
+                    onClick={() => {
+                      handlePDFExport();
+                      setDownloadAnchor(null);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <PictureAsPdfIcon fontSize="small" />
+                    </ListItemIcon>
                     <ListItemText>Download {EXPORT_FORMATS.PDF.toUpperCase()}</ListItemText>
                   </MenuItem>
                 </Menu>
@@ -236,18 +275,23 @@ export function DataTableToolbar<T>({
               alignItems: 'center',
               width: '100%',
               overflowX: customFilterContent ? 'auto' : 'visible',
-                          pt: customFilterContent ? 2 : 0,
+              pt: customFilterContent ? 2 : 0,
               pb: customFilterContent ? 1 : 0,
             }}
           >
             {filterableColumns.map((col) => {
               const options = col.filterOptions.map((opt) =>
-                typeof opt === 'string' ? { label: opt, value: opt } : opt
+                typeof opt === 'string' ? { label: opt, value: opt } : opt,
               );
-              const value = options.find((o) => String(o.value) === String(columnFilters[col.id])) || null;
+              const value =
+                options.find((o) => String(o.value) === String(columnFilters[col.id])) || null;
 
               return (
-                <FormControl key={col.id} size="small" sx={{ minWidth: 160, maxWidth: 200, flexShrink: 0 }}>
+                <FormControl
+                  key={col.id}
+                  size="small"
+                  sx={{ minWidth: 160, maxWidth: 200, flexShrink: 0 }}
+                >
                   <Autocomplete
                     size="small"
                     options={options}
@@ -255,10 +299,12 @@ export function DataTableToolbar<T>({
                     filterOptions={createFilterOptions({
                       matchFrom: 'any',
                       stringify: (option) => String(option.label || ''),
-                      trim: true
+                      trim: true,
                     })}
                     value={value}
-                    isOptionEqualToValue={(option, val) => String(option.value) === String(val.value)}
+                    isOptionEqualToValue={(option, val) =>
+                      String(option.value) === String(val.value)
+                    }
                     onChange={(_, newValue) => {
                       const nextValue = newValue ? newValue.value : '';
                       const next = { ...columnFilters, [col.id]: String(nextValue) };
@@ -275,7 +321,8 @@ export function DataTableToolbar<T>({
                       },
                     }}
                     renderOption={(props, option) => {
-                      const { key: _key, ...rest } = props as React.HTMLAttributes<HTMLLIElement> & { key?: React.Key };
+                      const { key: _key, ...rest } =
+                        props as React.HTMLAttributes<HTMLLIElement> & { key?: React.Key };
                       return (
                         <li key={option.value || option.label} {...rest}>
                           {option.label}
@@ -285,15 +332,15 @@ export function DataTableToolbar<T>({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        placeholder={
-                          col.filterError ? 'Error loading...' : `All ${col.label}`
-                        }
+                        placeholder={col.filterError ? 'Error loading...' : `All ${col.label}`}
                         error={!!col.filterError}
                         InputProps={{
                           ...params.InputProps,
                           endAdornment: (
                             <React.Fragment>
-                              {col.isFilterLoading ? <CircularProgress color="inherit" size={16} /> : null}
+                              {col.isFilterLoading ? (
+                                <CircularProgress color="inherit" size={16} />
+                              ) : null}
                               {params.InputProps.endAdornment}
                             </React.Fragment>
                           ),

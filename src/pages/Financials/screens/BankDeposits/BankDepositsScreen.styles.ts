@@ -17,7 +17,7 @@ export const EntityChip = styled(Chip)<{ isSelected: boolean }>(({ theme, isSele
   marginBottom: theme.spacing(0.5),
   '&:hover': {
     backgroundColor: isSelected ? theme.palette.primary.dark : theme.palette.grey[200],
-  }
+  },
 }));
 
 export const ToolbarWrapper = styled(Box)(({ theme }) => ({
@@ -44,8 +44,8 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
   '& .MuiOutlinedInput-root': {
     height: 36,
-    fontSize: '13px'
-  }
+    fontSize: '13px',
+  },
 }));
 
 export const RefreshButton = styled(Button)(({ theme }) => ({
@@ -73,7 +73,7 @@ export const FinalizeButton = styled(Button)(({ theme }) => ({
   '&:hover': {
     backgroundColor: theme.palette.primary.dark,
     boxShadow: 'none',
-  }
+  },
 }));
 
 export const EntitySectionHeader = styled(Box)(({ theme }) => ({
@@ -81,25 +81,25 @@ export const EntitySectionHeader = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.grey[100],
   borderRadius: '4px 4px 0 0',
   border: `1px solid ${theme.palette.divider}`,
-  borderBottom: 'none'
+  borderBottom: 'none',
 }));
 
 export const ExpandedContentBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   backgroundColor: theme.palette.background.paper,
   border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(1)
+  borderRadius: theme.spacing(1),
 }));
 
 export const SubSectionWrapper = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.spacing(1)
+  borderRadius: theme.spacing(1),
 }));
 
 export const SubSectionHeader = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1, 2),
   borderBottom: `1px solid ${theme.palette.divider}`,
-  backgroundColor: theme.palette.background.default
+  backgroundColor: theme.palette.background.default,
 }));
 
 export const PostingItemBox = styled(Box)(({ theme }) => ({
@@ -107,5 +107,5 @@ export const PostingItemBox = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1.5),
   backgroundColor: theme.palette.background.default,
   borderRadius: theme.spacing(1),
-  border: `1px solid ${theme.palette.grey[100]}`
+  border: `1px solid ${theme.palette.grey[100]}`,
 }));

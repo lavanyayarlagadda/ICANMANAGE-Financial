@@ -16,13 +16,15 @@ export const UserSelectionPanel: React.FC<UserSelectionPanelProps> = ({
   currentUserId,
 }) => {
   return (
-    <Box sx={{
-      border: `1px solid ${themeConfig.colors.primaryLight}40`,
-      borderRadius: 2,
-      p: 2,
-      mb: 3,
-      backgroundColor: `${themeConfig.colors.primaryLight}10`
-    }}>
+    <Box
+      sx={{
+        border: `1px solid ${themeConfig.colors.primaryLight}40`,
+        borderRadius: 2,
+        p: 2,
+        mb: 3,
+        backgroundColor: `${themeConfig.colors.primaryLight}10`,
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
         <PersonOutlineIcon fontSize="small" sx={{ color: themeConfig.colors.primary }} />
         <Typography variant="subtitle2" sx={{ color: themeConfig.colors.primary, fontWeight: 600 }}>
@@ -31,7 +33,9 @@ export const UserSelectionPanel: React.FC<UserSelectionPanelProps> = ({
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-        <Typography variant="body2" sx={{ minWidth: 80, fontWeight: 500 }}>Select User:</Typography>
+        <Typography variant="body2" sx={{ minWidth: 80, fontWeight: 500 }}>
+          Select User:
+        </Typography>
         <FormControl fullWidth size="small">
           <Select
             value={selectedUser}
@@ -41,7 +45,8 @@ export const UserSelectionPanel: React.FC<UserSelectionPanelProps> = ({
           >
             {LOGIN_API_RESPONSE.map((u) => (
               <MenuItem key={u.id} value={u.id}>
-                {u.username} ({u.role.charAt(0).toUpperCase() + u.role.slice(1)}) {u.id === currentUserId ? '(You)' : ''}
+                {u.username} ({u.role.charAt(0).toUpperCase() + u.role.slice(1)}){' '}
+                {u.id === currentUserId ? '(You)' : ''}
               </MenuItem>
             ))}
           </Select>

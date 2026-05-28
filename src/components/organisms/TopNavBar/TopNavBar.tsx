@@ -58,7 +58,10 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
       <AppBar position="fixed" sx={styles.appBarStyles(theme)}>
         <Toolbar sx={styles.toolbarStyles}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pointerEvents: 'auto' }}>
-            <IconButton onClick={isMobile ? handleSidebarToggle : handleSidebarCollapse} size="small">
+            <IconButton
+              onClick={isMobile ? handleSidebarToggle : handleSidebarCollapse}
+              size="small"
+            >
               <MenuIcon />
             </IconButton>
             <Logo collapsed={isMobile} />
@@ -66,7 +69,14 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
             {isCognitiveUser && (
-              <Box sx={{ minWidth: { xs: 60, sm: 160 }, maxWidth: { xs: 100, sm: 'none' }, ml: { xs: 0.5, sm: 2 }, pointerEvents: 'auto' }}>
+              <Box
+                sx={{
+                  minWidth: { xs: 60, sm: 160 },
+                  maxWidth: { xs: 100, sm: 'none' },
+                  ml: { xs: 0.5, sm: 2 },
+                  pointerEvents: 'auto',
+                }}
+              >
                 <TextField
                   select
                   fullWidth
@@ -88,7 +98,12 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
             <Box sx={styles.userProfileBoxStyles(theme)} onClick={handleClick}>
               <Avatar
                 src="/avatar-placeholder.png"
-                sx={{ width: 36, height: 36, bgcolor: theme.palette.primary.main, fontSize: '0.9rem' }}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: theme.palette.primary.main,
+                  fontSize: '0.9rem',
+                }}
               >
                 {(user.firstName?.[0] || user.username?.[0] || 'U').toUpperCase()}
                 {(user.lastName?.[0] || '').toUpperCase()}
@@ -116,12 +131,16 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
                   {user.firstName || user.username || 'User'} {user.lastName || ''}
                 </Typography>
-                <Typography variant="body2" color="primary">{user.email}</Typography>
+                <Typography variant="body2" color="primary">
+                  {user.email}
+                </Typography>
               </Box>
               <Divider />
 
               <MenuItem onClick={openProfile} sx={{ py: 1.5 }}>
-                <ListItemIcon><LockOutlinedIcon fontSize="small" /></ListItemIcon>
+                <ListItemIcon>
+                  <LockOutlinedIcon fontSize="small" />
+                </ListItemIcon>
                 <Typography variant="body2">Profile & Password</Typography>
               </MenuItem>
               {user.role === 'Admin' && (
@@ -133,7 +152,9 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                     </Typography>
                   </Box>
                   <MenuItem onClick={openDemoModal} sx={{ py: 1.5 }}>
-                    <ListItemIcon><SettingsOutlinedIcon fontSize="small" /></ListItemIcon>
+                    <ListItemIcon>
+                      <SettingsOutlinedIcon fontSize="small" />
+                    </ListItemIcon>
                     <Typography variant="body2">Demo & Security</Typography>
                   </MenuItem>
                 </>
@@ -142,7 +163,9 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
               <Divider />
 
               <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
-                <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
+                <ListItemIcon>
+                  <LogoutIcon fontSize="small" />
+                </ListItemIcon>
                 <Typography variant="body2">Log out</Typography>
               </MenuItem>
             </Menu>
@@ -160,4 +183,3 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
 };
 
 export default TopNavBar;
-

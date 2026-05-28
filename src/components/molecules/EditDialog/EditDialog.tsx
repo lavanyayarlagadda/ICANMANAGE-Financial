@@ -38,8 +38,12 @@ const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, onSave, title, d
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={styles.dialogTitleStyles}>
-        <Typography variant="h6" sx={styles.titleTextStyles}>Edit {title}</Typography>
-        <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
+        <Typography variant="h6" sx={styles.titleTextStyles}>
+          Edit {title}
+        </Typography>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
       <Divider />
       <DialogContent sx={styles.dialogContentStyles}>
@@ -58,8 +62,12 @@ const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, onSave, title, d
         </Box>
       </DialogContent>
       <DialogActions sx={styles.dialogActionsStyles}>
-        <Button onClick={onClose} variant="outlined" size="small">Cancel</Button>
-        <Button onClick={handleSave} variant="contained" size="small">Save Changes</Button>
+        <Button onClick={onClose} variant="outlined" size="small">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} variant="contained" size="small">
+          Save Changes
+        </Button>
       </DialogActions>
     </Dialog>
   );

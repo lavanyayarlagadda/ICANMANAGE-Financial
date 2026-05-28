@@ -13,12 +13,12 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
   const [internalVal, setInternalVal] = useState(value);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
-  
 
-  
   // Store custom dates separately to restore them when switching back to 'Custom'
-  const [customRange, setCustomRange] = useState<{from: Date | null, to: Date | null}>(getInitialCustomRange());
-  
+  const [customRange, setCustomRange] = useState<{ from: Date | null; to: Date | null }>(
+    getInitialCustomRange(),
+  );
+
   const [errorOpen, setErrorOpen] = useState(false);
 
   // Sync internal value and dates with prop.
@@ -26,21 +26,31 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
   // while the user is interacting with calendar navigation.
   useEffect(() => {
     setInternalVal(value);
-    
+
     if (value !== 'Custom' && !value.includes(' to ')) {
       const dates = calculateDatesFromLabel(value);
       if (dates) {
-        setFromDate(prev => { const n = new Date(dates.from); return prev?.getTime() === n.getTime() ? prev : n; });
-        setToDate(prev => { const n = new Date(dates.to); return prev?.getTime() === n.getTime() ? prev : n; });
+        setFromDate((prev) => {
+          const n = new Date(dates.from);
+          return prev?.getTime() === n.getTime() ? prev : n;
+        });
+        setToDate((prev) => {
+          const n = new Date(dates.to);
+          return prev?.getTime() === n.getTime() ? prev : n;
+        });
       }
     } else if (value.includes(' to ')) {
-        const [from, to] = value.split(' to ');
-        const fDate = new Date(from);
-        const tDate = new Date(to);
-        setFromDate(prev => prev?.getTime() === fDate.getTime() ? prev : fDate);
-        setToDate(prev => prev?.getTime() === tDate.getTime() ? prev : tDate);
-        setCustomRange(prev => (prev.from?.getTime() === fDate.getTime() && prev.to?.getTime() === tDate.getTime()) ? prev : { from: fDate, to: tDate });
-        setInternalVal('Custom');
+      const [from, to] = value.split(' to ');
+      const fDate = new Date(from);
+      const tDate = new Date(to);
+      setFromDate((prev) => (prev?.getTime() === fDate.getTime() ? prev : fDate));
+      setToDate((prev) => (prev?.getTime() === tDate.getTime() ? prev : tDate));
+      setCustomRange((prev) =>
+        prev.from?.getTime() === fDate.getTime() && prev.to?.getTime() === tDate.getTime()
+          ? prev
+          : { from: fDate, to: tDate },
+      );
+      setInternalVal('Custom');
     } else {
       // For shared "Custom" mode, prefer globally selected date range
       // so the same custom dates persist across all screens.
@@ -48,70 +58,92 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
         const globalFrom = new Date(globalFilters.fromDate);
         const globalTo = new Date(globalFilters.toDate);
         if (!Number.isNaN(globalFrom.getTime()) && !Number.isNaN(globalTo.getTime())) {
-          setFromDate(prev => prev?.getTime() === globalFrom.getTime() ? prev : globalFrom);
-          setToDate(prev => prev?.getTime() === globalTo.getTime() ? prev : globalTo);
-          setCustomRange(prev => (prev.from?.getTime() === globalFrom.getTime() && prev.to?.getTime() === globalTo.getTime()) ? prev : { from: globalFrom, to: globalTo });
+          setFromDate((prev) => (prev?.getTime() === globalFrom.getTime() ? prev : globalFrom));
+          setToDate((prev) => (prev?.getTime() === globalTo.getTime() ? prev : globalTo));
+          setCustomRange((prev) =>
+            prev.from?.getTime() === globalFrom.getTime() &&
+            prev.to?.getTime() === globalTo.getTime()
+              ? prev
+              : { from: globalFrom, to: globalTo },
+          );
           return;
         }
       }
-      setFromDate(prev => prev?.getTime() === customRange.from?.getTime() ? prev : customRange.from);
-      setToDate(prev => prev?.getTime() === customRange.to?.getTime() ? prev : customRange.to);
+      setFromDate((prev) =>
+        prev?.getTime() === customRange.from?.getTime() ? prev : customRange.from,
+      );
+      setToDate((prev) => (prev?.getTime() === customRange.to?.getTime() ? prev : customRange.to));
     }
-  }, [value, globalFilters.fromDate, globalFilters.toDate, globalFilters.rangeLabel, customRange.from, customRange.to]);
+  }, [
+    value,
+    globalFilters.fromDate,
+    globalFilters.toDate,
+    globalFilters.rangeLabel,
+    customRange.from,
+    customRange.to,
+  ]);
 
-  const handleRangeChange = useCallback((val: string) => {
-    setInternalVal(val);
-    
-    if (val === 'Custom') {
-      // Default custom to current month whenever switching to Custom.
-      const defaultCustom = getInitialCustomRange();
-      setFromDate(defaultCustom.from);
-      setToDate(defaultCustom.to);
-      setCustomRange(defaultCustom);
-      onChange?.(`${format(defaultCustom.from, 'yyyy-MM-dd')} to ${format(defaultCustom.to, 'yyyy-MM-dd')}`);
-    } else {
-      const dates = calculateDatesFromLabel(val);
-      if (dates) {
-        setFromDate(new Date(dates.from));
-        setToDate(new Date(dates.to));
-        onChange?.(val);
+  const handleRangeChange = useCallback(
+    (val: string) => {
+      setInternalVal(val);
+
+      if (val === 'Custom') {
+        // Default custom to current month whenever switching to Custom.
+        const defaultCustom = getInitialCustomRange();
+        setFromDate(defaultCustom.from);
+        setToDate(defaultCustom.to);
+        setCustomRange(defaultCustom);
+        onChange?.(
+          `${format(defaultCustom.from, 'yyyy-MM-dd')} to ${format(defaultCustom.to, 'yyyy-MM-dd')}`,
+        );
       } else {
-        onChange?.(val);
+        const dates = calculateDatesFromLabel(val);
+        if (dates) {
+          setFromDate(new Date(dates.from));
+          setToDate(new Date(dates.to));
+          onChange?.(val);
+        } else {
+          onChange?.(val);
+        }
       }
-    }
-  }, [onChange]);
+    },
+    [onChange],
+  );
 
-  const handleDateChange = useCallback((type: 'from' | 'to', val: Date | null) => {
-    if (!val) return;
+  const handleDateChange = useCallback(
+    (type: 'from' | 'to', val: Date | null) => {
+      if (!val) return;
 
-    setInternalVal('Custom');
+      setInternalVal('Custom');
 
-    let nextFrom = fromDate;
-    let nextTo = toDate;
+      let nextFrom = fromDate;
+      let nextTo = toDate;
 
-    if (type === 'from') {
-      if (toDate && isAfter(val, toDate)) {
-        setErrorOpen(true);
-        return;
+      if (type === 'from') {
+        if (toDate && isAfter(val, toDate)) {
+          setErrorOpen(true);
+          return;
+        }
+        setFromDate(val);
+        setCustomRange((prev) => ({ ...prev, from: val }));
+        nextFrom = val;
+      } else {
+        if (fromDate && isAfter(fromDate, val)) {
+          setErrorOpen(true);
+          return;
+        }
+        setToDate(val);
+        setCustomRange((prev) => ({ ...prev, to: val }));
+        nextTo = val;
       }
-      setFromDate(val);
-      setCustomRange(prev => ({ ...prev, from: val }));
-      nextFrom = val;
-    } else {
-      if (fromDate && isAfter(fromDate, val)) {
-        setErrorOpen(true);
-        return;
-      }
-      setToDate(val);
-      setCustomRange(prev => ({ ...prev, to: val }));
-      nextTo = val;
-    }
 
-    // Trigger on every valid date change so both From and To edits refresh results.
-    if (nextFrom && nextTo) {
-      onChange?.(`${format(nextFrom, 'yyyy-MM-dd')} to ${format(nextTo, 'yyyy-MM-dd')}`);
-    }
-  }, [fromDate, toDate, onChange]);
+      // Trigger on every valid date change so both From and To edits refresh results.
+      if (nextFrom && nextTo) {
+        onChange?.(`${format(nextFrom, 'yyyy-MM-dd')} to ${format(nextTo, 'yyyy-MM-dd')}`);
+      }
+    },
+    [fromDate, toDate, onChange],
+  );
 
   return {
     internalVal,
@@ -120,6 +152,6 @@ export const useRangeDropdown = ({ value, onChange }: UseRangeDropdownProps) => 
     handleRangeChange,
     handleDateChange,
     errorOpen,
-    setErrorOpen
+    setErrorOpen,
   };
 };

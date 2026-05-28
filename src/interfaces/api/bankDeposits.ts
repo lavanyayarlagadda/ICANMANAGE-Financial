@@ -1,66 +1,66 @@
 import { BankDepositItem } from '../financials';
 
 export interface BankDepositSearchRequest {
-    startDate: string;
-    endDate: string;
-    payerList: string[];
-    stateList: string[];
-    transactionNo: string;
-    transactionsList: string[];
-    accountList: string[];
-    stateId: number;
-    batchOwnerIds: string[];
-    icanManageId: number | string;
-    pageNumber: number;
-    pageSize: number;
-    sort: string;
-    desc: boolean;
-    clientName: string;
-    statusList: string[];
+  startDate: string;
+  endDate: string;
+  payerList: string[];
+  stateList: string[];
+  transactionNo: string;
+  transactionsList: string[];
+  accountList: string[];
+  stateId: number;
+  batchOwnerIds: string[];
+  icanManageId: number | string;
+  pageNumber: number;
+  pageSize: number;
+  sort: string;
+  desc: boolean;
+  clientName: string;
+  statusList: string[];
 }
 
 export interface BankDepositExportRequest {
-    startDate: string;
-    endDate: string;
-    icanManageId: number;
-    clientName: string;
-    hospitalId: number | string;
+  startDate: string;
+  endDate: string;
+  icanManageId: number;
+  clientName: string;
+  hospitalId: number | string;
 }
 
 export interface BankDepositResponse {
-    data: BankDepositItem[];
+  data: BankDepositItem[];
 }
 
 export interface BankDepositWidgetResponse {
-    data: {
-        totalRecords: number;
-        totalBaiAmount: number;
-        reconciledRecords: number;
-        reconciledBaiAmount: number;
-        nonReconciledRecords: number;
-        nonReconciledBaiAmount: number;
-        actionRequiredCount: number;
-        reconciliationRatePercentage: number;
-    };
-    message: string | null;
+  data: {
+    totalRecords: number;
+    totalBaiAmount: number;
+    reconciledRecords: number;
+    reconciledBaiAmount: number;
+    nonReconciledRecords: number;
+    nonReconciledBaiAmount: number;
+    actionRequiredCount: number;
+    reconciliationRatePercentage: number;
+  };
+  message: string | null;
 }
 
 export type BankDepositSearchResponse = BankDepositItem[];
 
 export interface BankDepositWidgetParams {
-    startDate: string;
-    endDate: string;
-    icanManageId: string | number;
-    stateId?: number;
-    clientName?: string;
+  startDate: string;
+  endDate: string;
+  icanManageId: string | number;
+  stateId?: number;
+  clientName?: string;
 }
 
 export interface BankDepositHistoryParams {
-    transactionNo: string;
+  transactionNo: string;
 }
 
 export interface BaiTriggerHistoryParams {
-    eftNo: string;
-    pageFlag: string;
-    clientName: string;
+  eftNo: string;
+  pageFlag: string;
+  clientName: string;
 }

@@ -4,7 +4,10 @@ export const useMultiValueDisplay = (value: string) => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const items = (value || '').split(',').map(s => s.trim()).filter(Boolean);
+  const items = (value || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 
   const handleOpenPopover = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
@@ -22,8 +25,8 @@ export const useMultiValueDisplay = (value: string) => {
     navigator.clipboard.writeText(text);
   }, []);
 
-  const filteredItems = items.filter(item =>
-    item.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredItems = items.filter((item) =>
+    item.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return {

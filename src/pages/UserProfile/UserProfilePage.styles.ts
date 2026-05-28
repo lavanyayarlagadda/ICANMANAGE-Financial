@@ -37,8 +37,8 @@ export const tabsStyles: SxProps<Theme> = {
       color: themeConfig.colors.text.primary,
       backgroundColor: themeConfig.colors.surface,
       boxShadow: `0 1px 3px ${themeConfig.colors.overlay.black}`,
-    }
-  }
+    },
+  },
 };
 
 export const cardStyles: SxProps<Theme> = {

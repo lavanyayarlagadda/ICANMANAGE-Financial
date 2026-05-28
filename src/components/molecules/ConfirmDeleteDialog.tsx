@@ -15,7 +15,12 @@ interface ConfirmDeleteDialogProps {
   itemType: string;
 }
 
-const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({ open, onClose, onConfirm, itemType }) => {
+const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
+  open,
+  onClose,
+  onConfirm,
+  itemType,
+}) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ fontWeight: 700 }}>Confirm Delete</DialogTitle>
@@ -25,8 +30,12 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({ open, onClose
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} variant="outlined" size="small">Cancel</Button>
-        <Button onClick={onConfirm} variant="contained" color="error" size="small">Delete</Button>
+        <Button onClick={onClose} variant="outlined" size="small">
+          Cancel
+        </Button>
+        <Button onClick={onConfirm} variant="contained" color="error" size="small">
+          Delete
+        </Button>
       </DialogActions>
     </Dialog>
   );

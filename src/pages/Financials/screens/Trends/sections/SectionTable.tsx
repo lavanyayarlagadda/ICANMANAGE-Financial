@@ -1,12 +1,12 @@
-import React from "react";
-import { Box, Card, CardContent, Typography, useTheme } from "@mui/material";
-import { Sparkline } from "./Sparkline";
+import React from 'react';
+import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
+import { Sparkline } from './Sparkline';
 import {
   deltaColor,
   toText,
   type TrendColumn,
   type SectionRow,
-} from "../helpers/depositReconciliationHelpers";
+} from '../helpers/depositReconciliationHelpers';
 
 interface SectionTableProps {
   title: string;
@@ -24,8 +24,8 @@ export const SectionTable: React.FC<SectionTableProps> = ({
   compareMode,
 }) => {
   const theme = useTheme();
-  const firstForecastIdx = columns.findIndex((col) => col.kind === "FORECAST");
-  const deltaLabel = compareMode?.toUpperCase() === "YOY" ? "Δ YoY" : "Δ MoM";
+  const firstForecastIdx = columns.findIndex((col) => col.kind === 'FORECAST');
+  const deltaLabel = compareMode?.toUpperCase() === 'YOY' ? 'Δ YoY' : 'Δ MoM';
 
   return (
     <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
@@ -36,48 +36,48 @@ export const SectionTable: React.FC<SectionTableProps> = ({
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {description}
         </Typography>
-        <Box sx={{ 
-          overflowX: "auto",
-          maxWidth: "100%",
-          "&::-webkit-scrollbar": { height: '8px' },
-          "&::-webkit-scrollbar-track": { background: "transparent" },
-          "&::-webkit-scrollbar-thumb": { 
-            background: theme.palette.grey[300], 
-            borderRadius: '10px', 
-            "&:hover": { background: theme.palette.grey[400] } 
-          },
-          scrollbarWidth: 'thin',
-          scrollbarColor: `${theme.palette.grey[300]} transparent`,
-        }}>
+        <Box
+          sx={{
+            overflowX: 'auto',
+            maxWidth: '100%',
+            '&::-webkit-scrollbar': { height: '8px' },
+            '&::-webkit-scrollbar-track': { background: 'transparent' },
+            '&::-webkit-scrollbar-thumb': {
+              background: theme.palette.grey[300],
+              borderRadius: '10px',
+              '&:hover': { background: theme.palette.grey[400] },
+            },
+            scrollbarWidth: 'thin',
+            scrollbarColor: `${theme.palette.grey[300]} transparent`,
+          }}
+        >
           <Box
             component="table"
-            sx={{ width: "100%", borderCollapse: "collapse", minWidth: "max-content" }}
+            sx={{ width: '100%', borderCollapse: 'collapse', minWidth: 'max-content' }}
           >
             <Box component="thead">
               <Box component="tr">
-                {["", "Trend", deltaLabel, ...columns.map((col) => col.label)].map(
-                  (label, idx) => (
-                    <Box
-                      component="th"
-                      key={`${label}-${idx}`}
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        textAlign: idx === 0 ? "left" : "right",
-                        color: theme.palette.text.secondary,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                        borderLeft:
-                          firstForecastIdx >= 0 && idx === firstForecastIdx + 3
-                            ? `1px dotted ${theme.palette.divider}`
-                            : "none",
-                        fontSize: 12,
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {label}
-                    </Box>
-                  ),
-                )}
+                {['', 'Trend', deltaLabel, ...columns.map((col) => col.label)].map((label, idx) => (
+                  <Box
+                    component="th"
+                    key={`${label}-${idx}`}
+                    sx={{
+                      py: 1,
+                      px: 1,
+                      textAlign: idx === 0 ? 'left' : 'right',
+                      color: theme.palette.text.secondary,
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                      borderLeft:
+                        firstForecastIdx >= 0 && idx === firstForecastIdx + 3
+                          ? `1px dotted ${theme.palette.divider}`
+                          : 'none',
+                      fontSize: 12,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {label}
+                  </Box>
+                ))}
               </Box>
             </Box>
             <Box component="tbody">
@@ -94,7 +94,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                           borderBottom: `1px solid ${theme.palette.divider}`,
                           fontWeight: 600,
                           color: theme.palette.text.primary,
-                          whiteSpace: "nowrap",
+                          whiteSpace: 'nowrap',
                         }}
                       >
                         {row.name}
@@ -110,9 +110,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                     component="tr"
                     key={row.id}
                     sx={{
-                      backgroundColor: isBoldRow
-                        ? theme.palette.action.hover
-                        : "transparent",
+                      backgroundColor: isBoldRow ? theme.palette.action.hover : 'transparent',
                     }}
                   >
                     <Box
@@ -123,7 +121,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                         pl: row.isSubtotal || row.isTotal ? 1 : 2.5,
                         borderBottom: `1px solid ${theme.palette.divider}`,
                         fontWeight: isBoldRow ? 700 : 500,
-                        whiteSpace: "nowrap",
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {row.name}
@@ -134,7 +132,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                         py: 1,
                         px: 1,
                         borderBottom: `1px solid ${theme.palette.divider}`,
-                        textAlign: "right",
+                        textAlign: 'right',
                       }}
                     >
                       {row.sparkline && row.sparkline.length > 0 ? (
@@ -155,7 +153,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                         py: 1,
                         px: 1,
                         borderBottom: `1px solid ${theme.palette.divider}`,
-                        textAlign: "right",
+                        textAlign: 'right',
                         color: deltaColor(
                           row.momDelta,
                           theme.palette.success.main,
@@ -163,14 +161,13 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                           theme.palette.text.secondary,
                         ),
                         fontWeight: 700,
-                        whiteSpace: "nowrap",
+                        whiteSpace: 'nowrap',
                       }}
                     >
                       {toText(row.momDelta)}
                     </Box>
                     {row.amounts.map((value, idx) => {
-                      const isForecast =
-                        firstForecastIdx >= 0 && idx >= firstForecastIdx;
+                      const isForecast = firstForecastIdx >= 0 && idx >= firstForecastIdx;
                       return (
                         <Box
                           component="td"
@@ -178,18 +175,18 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                           sx={{
                             py: 1,
                             px: 1,
-                            textAlign: "right",
+                            textAlign: 'right',
                             borderBottom: `1px solid ${theme.palette.divider}`,
                             borderLeft:
                               idx === firstForecastIdx
                                 ? `1px dotted ${theme.palette.divider}`
-                                : "none",
+                                : 'none',
                             color: isForecast
                               ? theme.palette.text.secondary
                               : theme.palette.text.primary,
-                            fontStyle: isForecast ? "italic" : "normal",
+                            fontStyle: isForecast ? 'italic' : 'normal',
                             fontWeight: isBoldRow ? 700 : 500,
-                            whiteSpace: "nowrap",
+                            whiteSpace: 'nowrap',
                           }}
                         >
                           {value}

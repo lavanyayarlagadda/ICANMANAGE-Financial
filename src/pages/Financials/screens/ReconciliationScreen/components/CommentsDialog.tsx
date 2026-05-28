@@ -28,8 +28,12 @@ const CommentsDialog: React.FC<CommentsDialogProps> = ({ open, onClose }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>Comments</Typography>
+      <DialogTitle
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}
+      >
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          Comments
+        </Typography>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
@@ -38,13 +42,13 @@ const CommentsDialog: React.FC<CommentsDialogProps> = ({ open, onClose }) => {
       <DialogContent sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {history.map((item, index) => (
-            <Box 
-              key={index} 
-              sx={{ 
-                p: 2, 
-                borderRadius: '8px', 
+            <Box
+              key={index}
+              sx={{
+                p: 2,
+                borderRadius: '8px',
                 bgcolor: 'grey.50',
-                border: (t) => `1px solid ${t.palette.divider}`
+                border: (t) => `1px solid ${t.palette.divider}`,
               }}
             >
               <Typography variant="body2" sx={{ color: 'text.primary', mb: 0.5 }}>
@@ -56,14 +60,26 @@ const CommentsDialog: React.FC<CommentsDialogProps> = ({ open, onClose }) => {
             </Box>
           ))}
           {!history.length && (
-            <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary', textAlign: 'center', py: 4 }}>
+            <Typography
+              variant="body2"
+              sx={{ fontStyle: 'italic', color: 'text.secondary', textAlign: 'center', py: 4 }}
+            >
               No comments available for this transaction.
             </Typography>
           )}
         </Box>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose} variant="contained" sx={{ bgcolor: 'grey.100', color: 'text.primary', border: 'none', '&:hover': { bgcolor: 'grey.200' } }}>
+        <Button
+          onClick={onClose}
+          variant="contained"
+          sx={{
+            bgcolor: 'grey.100',
+            color: 'text.primary',
+            border: 'none',
+            '&:hover': { bgcolor: 'grey.200' },
+          }}
+        >
           Close
         </Button>
       </DialogActions>

@@ -18,14 +18,16 @@ const LocationTabs: React.FC<LocationTabsProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <LocationTabWrapper sx={{
-      mb: 2,
-      display: 'flex',
-      flexDirection: isMobile ? 'column' : 'row',
-      alignItems: isMobile ? 'flex-start' : 'center',
-      flexWrap: 'nowrap',
-      gap: 2
-    }}>
+    <LocationTabWrapper
+      sx={{
+        mb: 2,
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        alignItems: isMobile ? 'flex-start' : 'center',
+        flexWrap: 'nowrap',
+        gap: 2,
+      }}
+    >
       <Box sx={{ width: '100%', minWidth: 0, overflow: 'hidden' }}>
         <Tabs
           value={activeLocation}
@@ -45,8 +47,8 @@ const LocationTabs: React.FC<LocationTabsProps> = ({
               mx: 0.5,
               transition: 'all 0.2s',
               '&:hover': { bgcolor: 'grey.200' },
-              '&.Mui-disabled': { display: 'none' }
-            }
+              '&.Mui-disabled': { display: 'none' },
+            },
           }}
         >
           {locations.map((loc) => (
@@ -72,8 +74,8 @@ const LocationTabs: React.FC<LocationTabsProps> = ({
                   color: 'common.white',
                 },
                 '&:hover': {
-                  bgcolor: activeLocation === loc ? 'primary.dark' : 'grey.200'
-                }
+                  bgcolor: activeLocation === loc ? 'primary.dark' : 'grey.200',
+                },
               }}
             />
           ))}

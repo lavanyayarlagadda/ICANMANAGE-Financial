@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Grid,
-  TextField,
-  MenuItem,
-  Button,
-} from '@mui/material';
+import { Box, Typography, Grid, TextField, MenuItem, Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { format, isToday, parseISO } from 'date-fns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -16,7 +9,7 @@ import {
   ToggleWrapper,
   ToggleButton,
   DayStripContainer,
-  DayCard
+  DayCard,
 } from '../ReconciliationScreen.styles';
 import { FilterState, ReconciliationStatus } from '../ReconciliationScreen.hook';
 
@@ -45,7 +38,7 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
   daysInView,
   activeAge,
   setActiveAge,
-  ageRanges
+  ageRanges,
 }) => {
   if (view === 'my-queue') return null;
 
@@ -57,8 +50,12 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
           {view !== 'reconciled' && (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
               <ToggleWrapper>
-                <ToggleButton active={dateMode === 'range'} onClick={() => setDateMode('range')}>DateRange</ToggleButton>
-                <ToggleButton active={dateMode === 'day'} onClick={() => setDateMode('day')}>DayWise</ToggleButton>
+                <ToggleButton active={dateMode === 'range'} onClick={() => setDateMode('range')}>
+                  DateRange
+                </ToggleButton>
+                <ToggleButton active={dateMode === 'day'} onClick={() => setDateMode('day')}>
+                  DayWise
+                </ToggleButton>
               </ToggleWrapper>
             </Box>
           )}
@@ -67,7 +64,17 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
           <Grid container spacing={2} alignItems="flex-end">
             {view === 'reconciled' ? (
               <Grid size={{ xs: 12, md: 3 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: 'text.secondary', fontSize: '11px', textTransform: 'uppercase' }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 800,
+                    display: 'block',
+                    mb: 0.5,
+                    color: 'text.secondary',
+                    fontSize: '11px',
+                    textTransform: 'uppercase',
+                  }}
+                >
                   Aging Filter
                 </Typography>
                 <TextField
@@ -79,47 +86,91 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                   sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } }}
                 >
                   <MenuItem value="All">All Aging Selected</MenuItem>
-                  {ageRanges.map(age => (
-                    <MenuItem key={age} value={age}>{age}</MenuItem>
+                  {ageRanges.map((age) => (
+                    <MenuItem key={age} value={age}>
+                      {age}
+                    </MenuItem>
                   ))}
                 </TextField>
               </Grid>
             ) : (
               <>
                 <Grid size={{ xs: 12, md: 2 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: 'text.secondary', fontSize: '11px', textTransform: 'uppercase' }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 800,
+                      display: 'block',
+                      mb: 0.5,
+                      color: 'text.secondary',
+                      fontSize: '11px',
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     From Date
                   </Typography>
                   <DatePicker
                     value={searchFilters.fromDate ? parseISO(searchFilters.fromDate) : null}
-                    onChange={(newValue) => setSearchFilters({ ...searchFilters, fromDate: newValue ? format(newValue, 'yyyy-MM-dd') : '' })}
-                    slotProps={{ 
-                      textField: { 
-                        size: 'small', 
+                    onChange={(newValue) =>
+                      setSearchFilters({
+                        ...searchFilters,
+                        fromDate: newValue ? format(newValue, 'yyyy-MM-dd') : '',
+                      })
+                    }
+                    slotProps={{
+                      textField: {
+                        size: 'small',
                         fullWidth: true,
-                        sx: { '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } }
-                      } 
+                        sx: { '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } },
+                      },
                     }}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: 'text.secondary', fontSize: '11px', textTransform: 'uppercase' }}>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 800,
+                      display: 'block',
+                      mb: 0.5,
+                      color: 'text.secondary',
+                      fontSize: '11px',
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     To Date
                   </Typography>
                   <DatePicker
                     value={searchFilters.toDate ? parseISO(searchFilters.toDate) : null}
-                    onChange={(newValue) => setSearchFilters({ ...searchFilters, toDate: newValue ? format(newValue, 'yyyy-MM-dd') : '' })}
-                    slotProps={{ 
-                      textField: { 
-                        size: 'small', 
+                    onChange={(newValue) =>
+                      setSearchFilters({
+                        ...searchFilters,
+                        toDate: newValue ? format(newValue, 'yyyy-MM-dd') : '',
+                      })
+                    }
+                    slotProps={{
+                      textField: {
+                        size: 'small',
                         fullWidth: true,
-                        sx: { '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } }
-                      } 
+                        sx: { '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } },
+                      },
                     }}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: 'text.secondary', fontSize: '11px', textTransform: 'uppercase' }}>Payor</Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 800,
+                      display: 'block',
+                      mb: 0.5,
+                      color: 'text.secondary',
+                      fontSize: '11px',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Payor
+                  </Typography>
                   <TextField
                     size="small"
                     select
@@ -134,7 +185,19 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                   </TextField>
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mb: 0.5, color: 'text.secondary', fontSize: '11px', textTransform: 'uppercase' }}>Status</Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 800,
+                      display: 'block',
+                      mb: 0.5,
+                      color: 'text.secondary',
+                      fontSize: '11px',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Status
+                  </Typography>
                   <TextField
                     size="small"
                     select
@@ -150,12 +213,21 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                 </Grid>
               </>
             )}
-            <Grid size={{ xs: 12, md: view === 'reconciled' ? 2 : 4 }} sx={{ display: 'flex', gap: 1 }}>
+            <Grid
+              size={{ xs: 12, md: view === 'reconciled' ? 2 : 4 }}
+              sx={{ display: 'flex', gap: 1 }}
+            >
               <Button
                 variant="contained"
                 startIcon={<SearchIcon fontSize="small" />}
                 onClick={applyFilters}
-                sx={{ height: '40px', textTransform: 'none', fontWeight: 700, borderRadius: '8px', px: 4 }}
+                sx={{
+                  height: '40px',
+                  textTransform: 'none',
+                  fontWeight: 700,
+                  borderRadius: '8px',
+                  px: 4,
+                }}
               >
                 Search
               </Button>
@@ -164,7 +236,16 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
 
           {/* Row 2: Advanced Actions - Hide for reconciled */}
           {view !== 'reconciled' && (
-            <Box sx={{ mt: 3, pt: 2, borderTop: (t) => `1px solid ${t.palette.divider}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box
+              sx={{
+                mt: 3,
+                pt: 2,
+                borderTop: (t) => `1px solid ${t.palette.divider}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
               <Box
                 sx={{
                   display: 'flex',
@@ -174,7 +255,7 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                   color: 'primary.main',
                   fontWeight: 700,
                   fontSize: '13px',
-                  '&:hover': { opacity: 0.8, textDecoration: 'underline' }
+                  '&:hover': { opacity: 0.8, textDecoration: 'underline' },
                 }}
                 onClick={() => setAdvancedSearchOpen(true)}
               >
@@ -214,7 +295,15 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                   applyFilters();
                 }}
               >
-                <Typography variant="caption" sx={{ fontWeight: 800, fontSize: '10px', textTransform: 'uppercase', opacity: isActive ? 1 : 0.6 }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    opacity: isActive ? 1 : 0.6,
+                  }}
+                >
                   {format(day, 'EEE')}
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 900, fontSize: '18px', my: -0.2 }}>

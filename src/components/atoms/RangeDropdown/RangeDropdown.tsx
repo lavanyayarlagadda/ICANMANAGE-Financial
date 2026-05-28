@@ -1,5 +1,14 @@
 import React from 'react';
-import { Box, Typography, Select, MenuItem, useTheme, useMediaQuery, Snackbar, Alert } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Select,
+  MenuItem,
+  useTheme,
+  useMediaQuery,
+  Snackbar,
+  Alert,
+} from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useRangeDropdown } from './RangeDropdown.hook';
 import * as styles from './RangeDropdown.styles';
@@ -13,7 +22,7 @@ export interface RangeDropdownProps {
 const RangeDropdown: React.FC<RangeDropdownProps> = ({
   value = '1 month',
   onChange,
-  options = ['MTD', '1 month', '3 months', '6 months', '1 year', 'Custom']
+  options = ['MTD', '1 month', '3 months', '6 months', '1 year', 'Custom'],
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -25,7 +34,7 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
     handleRangeChange,
     handleDateChange,
     errorOpen,
-    setErrorOpen
+    setErrorOpen,
   } = useRangeDropdown({ value, onChange });
 
   return (
@@ -50,7 +59,9 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
 
       <Box sx={styles.datePickersContainerStyles()}>
         <Box sx={styles.datePickerItemStyles()}>
-          <Typography variant="caption" color="text.secondary" sx={styles.dateLabelStyles}>FROM</Typography>
+          <Typography variant="caption" color="text.secondary" sx={styles.dateLabelStyles}>
+            FROM
+          </Typography>
           <DatePicker
             value={fromDate}
             onChange={(val) => handleDateChange('from', val)}
@@ -58,13 +69,15 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
               ...styles.slotProps(isMobile),
               textField: {
                 ...styles.slotProps(isMobile).textField,
-                error: errorOpen
-              }
+                error: errorOpen,
+              },
             }}
           />
         </Box>
         <Box sx={styles.datePickerItemStyles()}>
-          <Typography variant="caption" color="text.secondary" sx={styles.dateLabelStyles}>TO</Typography>
+          <Typography variant="caption" color="text.secondary" sx={styles.dateLabelStyles}>
+            TO
+          </Typography>
           <DatePicker
             value={toDate}
             onChange={(val) => handleDateChange('to', val)}
@@ -72,8 +85,8 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
               ...styles.slotProps(isMobile),
               textField: {
                 ...styles.slotProps(isMobile).textField,
-                error: errorOpen
-              }
+                error: errorOpen,
+              },
             }}
           />
         </Box>
@@ -85,7 +98,12 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         sx={{ zIndex: (theme) => Math.max(theme.zIndex.snackbar, 9999), mt: '64px' }}
       >
-        <Alert onClose={() => setErrorOpen(false)} severity="error" variant="filled" sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => setErrorOpen(false)}
+          severity="error"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
           From Date cannot be after To Date
         </Alert>
       </Snackbar>
@@ -94,4 +112,3 @@ const RangeDropdown: React.FC<RangeDropdownProps> = ({
 };
 
 export default RangeDropdown;
-

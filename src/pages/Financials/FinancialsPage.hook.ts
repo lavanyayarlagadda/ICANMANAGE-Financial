@@ -39,20 +39,23 @@ export const useFinancialsPage = () => {
 
   const { userDetails, isLoadingDetails, accessibleModules } = useUserPermissions();
   const authUser = useAppSelector((s) => s.auth.user);
-  const menus = useMemo(() => (userDetails?.menus || authUser?.menus || []) as MenuItem[], [userDetails, authUser]);
+  const menus = useMemo(
+    () => (userDetails?.menus || authUser?.menus || []) as MenuItem[],
+    [userDetails, authUser],
+  );
   const { financialsTabs }: NavigationStructure = useMemo(
     () => getNavigationStructure(menus, accessibleModules, selectedTenantId),
-    [menus, accessibleModules, selectedTenantId]
+    [menus, accessibleModules, selectedTenantId],
   );
 
   // Build dynamic path map from financialsTabs
   const pathMap = useMemo(() => {
     const map: Record<string, { tab: number; subTab: number }> = {};
-    financialsTabs.forEach(mainTab => {
+    financialsTabs.forEach((mainTab) => {
       const mainPath = mainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
       if (mainPath) map[mainPath] = { tab: mainTab.id, subTab: 0 };
 
-      mainTab.subTabs?.forEach(subTab => {
+      mainTab.subTabs?.forEach((subTab) => {
         const subPath = subTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
         if (subPath) {
           map[subPath] = { tab: mainTab.id, subTab: subTab.id };
@@ -60,8 +63,14 @@ export const useFinancialsPage = () => {
           // Keep explicit aliases for Deposit Reconciliation because backend menu/path
           // variants have used multiple route shapes over time.
           if (subPath.endsWith('deposit-reconciliation')) {
-            map['trends-forecast/forecast/deposit-reconciliation'] = { tab: mainTab.id, subTab: subTab.id };
-            map['trends-forecast/summary/deposit-reconciliation'] = { tab: mainTab.id, subTab: subTab.id };
+            map['trends-forecast/forecast/deposit-reconciliation'] = {
+              tab: mainTab.id,
+              subTab: subTab.id,
+            };
+            map['trends-forecast/summary/deposit-reconciliation'] = {
+              tab: mainTab.id,
+              subTab: subTab.id,
+            };
             map['trends-forecast/deposit-reconciliation'] = { tab: mainTab.id, subTab: subTab.id };
           }
         }
@@ -84,8 +93,8 @@ export const useFinancialsPage = () => {
     const match = pathMap[pathPart];
     if (match || currentPath === '/financials') return null;
 
-    const isKnownRoute = Object.values(NAV_CONFIG).some(cfg =>
-      cfg.path.toLowerCase().replace(/\/$/, '').includes(pathPart)
+    const isKnownRoute = Object.values(NAV_CONFIG).some((cfg) =>
+      cfg.path.toLowerCase().replace(/\/$/, '').includes(pathPart),
     );
     if (!isKnownRoute) return null;
 
@@ -108,7 +117,6 @@ export const useFinancialsPage = () => {
     if (isLoadingDetails) return; // Wait for menus to load before resolving paths
 
     if (location.pathname.startsWith('/financials')) {
-
       // Normalize current path
       const currentPath = decodeURIComponent(location.pathname).toLowerCase().replace(/\/$/, '');
 
@@ -128,16 +136,21 @@ export const useFinancialsPage = () => {
       }
 
       if (match) {
-        const activeMainTab = financialsTabs.find(t => t.id === match.tab);
-        const matchedSubTab = activeMainTab?.subTabs?.find(st => st.id === match.subTab);
+        const activeMainTab = financialsTabs.find((t) => t.id === match.tab);
+        const matchedSubTab = activeMainTab?.subTabs?.find((st) => st.id === match.subTab);
         const isMatchedSubTabAccessible = matchedSubTab?.status === 'Active';
 
         if (!isMatchedSubTabAccessible && activeMainTab?.subTabs?.length) {
           const currentPathPart = currentPath.split('/financials/')[1] || '';
-          const nextActiveSubTab = activeMainTab.subTabs.find(st => st.status === 'Active');
-          if (nextActiveSubTab && nextActiveSubTab.path.toLowerCase().replace(/\/$/, '') !== `/financials/${currentPathPart}`) {
+          const nextActiveSubTab = activeMainTab.subTabs.find((st) => st.status === 'Active');
+          if (
+            nextActiveSubTab &&
+            nextActiveSubTab.path.toLowerCase().replace(/\/$/, '') !==
+              `/financials/${currentPathPart}`
+          ) {
             if (uiState.activeTab !== activeMainTab.id) dispatch(setActiveTab(activeMainTab.id));
-            if (uiState.activeSubTab !== nextActiveSubTab.id) dispatch(setActiveSubTab(nextActiveSubTab.id));
+            if (uiState.activeSubTab !== nextActiveSubTab.id)
+              dispatch(setActiveSubTab(nextActiveSubTab.id));
             navigate(nextActiveSubTab.path, { replace: true });
             return;
           }
@@ -149,7 +162,8 @@ export const useFinancialsPage = () => {
         // Automatic redirect for main modules with subtabs
         if (activeMainTab && activeMainTab.subTabs && activeMainTab.subTabs.length > 0) {
           const pathPart = currentPath.split('/financials/')[1] || '';
-          const mainPathPart = activeMainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
+          const mainPathPart =
+            activeMainTab.path.toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
 
           if (pathPart === mainPathPart) {
             const firstSubTabPath = activeMainTab.subTabs[0].path;
@@ -163,7 +177,16 @@ export const useFinancialsPage = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, dispatch, navigate, financialsTabs, isLoadingDetails, pathMap, firstAvailablePath, hiddenRouteRedirectPath]);
+  }, [
+    location.pathname,
+    dispatch,
+    navigate,
+    financialsTabs,
+    isLoadingDetails,
+    pathMap,
+    firstAvailablePath,
+    hiddenRouteRedirectPath,
+  ]);
 
   useEffect(() => {
     const previousTenantId = previousTenantIdRef.current;
@@ -190,7 +213,9 @@ export const useFinancialsPage = () => {
     };
     deleteMap[confirmDeleteType]?.();
     dispatch(closeConfirmDelete());
-    dispatch(showSnackbar({ message: `${confirmDeleteType} deleted successfully.`, severity: 'success' }));
+    dispatch(
+      showSnackbar({ message: `${confirmDeleteType} deleted successfully.`, severity: 'success' }),
+    );
   }, [uiState, dispatch]);
 
   const handleEditSave = useCallback(() => {
@@ -208,7 +233,11 @@ export const useFinancialsPage = () => {
 
   const isRestricted = useMemo(() => {
     // 1. If we have a match in the pathMap, check for 'Disabled' status
-    const pathPart = decodeURIComponent(location.pathname).toLowerCase().replace(/\/$/, '').split('/financials/')[1] || '';
+    const pathPart =
+      decodeURIComponent(location.pathname)
+        .toLowerCase()
+        .replace(/\/$/, '')
+        .split('/financials/')[1] || '';
     const match = pathMap[pathPart];
 
     if (hiddenRouteRedirectPath) return false;
@@ -230,8 +259,8 @@ export const useFinancialsPage = () => {
     if (location.pathname.startsWith('/financials') && pathPart !== '') {
       // If it's a known configuration path in NAV_CONFIG but missing from our pathMap, it's hidden.
       // We find any config that starts with /financials/ and matches our path
-      const isKnownRoute = Object.values(NAV_CONFIG).some(cfg =>
-        cfg.path.toLowerCase().replace(/\/$/, '').includes(pathPart)
+      const isKnownRoute = Object.values(NAV_CONFIG).some((cfg) =>
+        cfg.path.toLowerCase().replace(/\/$/, '').includes(pathPart),
       );
 
       if (isKnownRoute) return true;

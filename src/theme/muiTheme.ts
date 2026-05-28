@@ -77,18 +77,52 @@ export const muiTheme = createTheme({
     fontFamily: typography.fontFamily.primary,
     htmlFontSize: 13,
     fontSize: 13,
-    h1: { fontSize: typography.fontSize.h1, fontWeight: typography.fontWeight.bold, lineHeight: 1.2, fontFamily: typography.fontFamily.headline },
-    h2: { fontSize: typography.fontSize.h2, fontWeight: typography.fontWeight.bold, lineHeight: 1.3, fontFamily: typography.fontFamily.headline },
-    h3: { fontSize: typography.fontSize.h3, fontWeight: typography.fontWeight.semibold, lineHeight: 1.3, fontFamily: typography.fontFamily.headline },
-    h4: { fontSize: typography.fontSize.h4, fontWeight: typography.fontWeight.semibold, lineHeight: 1.4, fontFamily: typography.fontFamily.headline },
-    h5: { fontSize: typography.fontSize.h5, fontWeight: typography.fontWeight.semibold, lineHeight: 1.4, fontFamily: typography.fontFamily.headline },
-    h6: { fontSize: typography.fontSize.h6, fontWeight: typography.fontWeight.semibold, lineHeight: 1.5, fontFamily: typography.fontFamily.headline },
+    h1: {
+      fontSize: typography.fontSize.h1,
+      fontWeight: typography.fontWeight.bold,
+      lineHeight: 1.2,
+      fontFamily: typography.fontFamily.headline,
+    },
+    h2: {
+      fontSize: typography.fontSize.h2,
+      fontWeight: typography.fontWeight.bold,
+      lineHeight: 1.3,
+      fontFamily: typography.fontFamily.headline,
+    },
+    h3: {
+      fontSize: typography.fontSize.h3,
+      fontWeight: typography.fontWeight.semibold,
+      lineHeight: 1.3,
+      fontFamily: typography.fontFamily.headline,
+    },
+    h4: {
+      fontSize: typography.fontSize.h4,
+      fontWeight: typography.fontWeight.semibold,
+      lineHeight: 1.4,
+      fontFamily: typography.fontFamily.headline,
+    },
+    h5: {
+      fontSize: typography.fontSize.h5,
+      fontWeight: typography.fontWeight.semibold,
+      lineHeight: 1.4,
+      fontFamily: typography.fontFamily.headline,
+    },
+    h6: {
+      fontSize: typography.fontSize.h6,
+      fontWeight: typography.fontWeight.semibold,
+      lineHeight: 1.5,
+      fontFamily: typography.fontFamily.headline,
+    },
     body1: { fontSize: typography.fontSize.body, fontWeight: typography.fontWeight.regular },
     body2: { fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.regular },
     subtitle1: { fontSize: typography.fontSize.md, fontWeight: typography.fontWeight.medium },
     subtitle2: { fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.medium },
     caption: { fontSize: typography.fontSize.xs, fontWeight: typography.fontWeight.regular },
-    button: { fontSize: typography.fontSize.sm, fontWeight: typography.fontWeight.semibold, textTransform: 'none' },
+    button: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: typography.fontWeight.semibold,
+      textTransform: 'none',
+    },
   },
   shape: { borderRadius: spacing.borderRadius.md },
   components: {
@@ -123,12 +157,20 @@ export const muiTheme = createTheme({
     },
     MuiCard: {
       styleOverrides: {
-        root: { borderRadius: spacing.borderRadius.lg, boxShadow: themeConfig.shadows.card, border: `1px solid ${colors.border}` },
+        root: {
+          borderRadius: spacing.borderRadius.lg,
+          boxShadow: themeConfig.shadows.card,
+          border: `1px solid ${colors.border}`,
+        },
       },
     },
     MuiChip: {
       styleOverrides: {
-        root: { borderRadius: spacing.borderRadius.sm, fontWeight: typography.fontWeight.medium, fontSize: typography.fontSize.xs },
+        root: {
+          borderRadius: spacing.borderRadius.sm,
+          fontWeight: typography.fontWeight.medium,
+          fontSize: typography.fontSize.xs,
+        },
       },
     },
     MuiTableHead: {
@@ -216,7 +258,9 @@ export const muiTheme = createTheme({
       styleOverrides: { root: { boxShadow: themeConfig.shadows.card } },
     },
     MuiTooltip: {
-      styleOverrides: { tooltip: { fontSize: typography.fontSize.xs, borderRadius: spacing.borderRadius.sm } },
+      styleOverrides: {
+        tooltip: { fontSize: typography.fontSize.xs, borderRadius: spacing.borderRadius.sm },
+      },
     },
     MuiIconButton: {
       styleOverrides: { root: { borderRadius: spacing.borderRadius.sm } },

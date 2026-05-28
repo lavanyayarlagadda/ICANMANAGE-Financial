@@ -15,8 +15,8 @@ export const chipStyles = (maxWidth: number | string): SxProps<Theme> => ({
   '& .MuiChip-label': {
     px: 1,
     overflow: 'hidden',
-    textOverflow: 'ellipsis'
-  }
+    textOverflow: 'ellipsis',
+  },
 });
 
 export const moreChipStyles: SxProps<Theme> = {
@@ -25,8 +25,8 @@ export const moreChipStyles: SxProps<Theme> = {
   fontWeight: 600,
   color: 'primary.main',
   bgcolor: themeConfig.colors.surfaceInfo,
-  border: theme => `1px solid ${theme.palette.primary.light}`,
-  '&:hover': { bgcolor: themeConfig.colors.surfaceInfoHover }
+  border: (theme) => `1px solid ${theme.palette.primary.light}`,
+  '&:hover': { bgcolor: themeConfig.colors.surfaceInfoHover },
 };
 
 export const popoverPaperProps: SxProps<Theme> = {
@@ -36,7 +36,7 @@ export const popoverPaperProps: SxProps<Theme> = {
   boxShadow: themeConfig.shadows.dropdown,
   overflow: 'hidden',
   display: 'flex',
-  flexDirection: 'column'
+  flexDirection: 'column',
 };
 
 export const listStyles: SxProps<Theme> = {

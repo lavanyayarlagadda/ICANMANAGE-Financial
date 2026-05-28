@@ -3,7 +3,7 @@ export type HeroCard = {
   title: string;
   value: string;
   delta: string | number;
-  deltaTrend: "up" | "down" | "neutral";
+  deltaTrend: 'up' | 'down' | 'neutral';
   subLabel: string;
   sparkline?: number[];
 };

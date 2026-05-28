@@ -25,7 +25,7 @@ import {
   MainContentWrapper,
   ContentArea,
   GlobalOverlay,
-  NavItemStyles
+  NavItemStyles,
 } from './DashboardLayout.styles';
 import { useDashboardLayout } from './DashboardLayout.hook';
 
@@ -52,10 +52,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     financials,
   } = useDashboardLayout();
 
-  const {
-    mobileMenuOpen,
-    sidebarCollapsed,
-  } = ui;
+  const { mobileMenuOpen, sidebarCollapsed } = ui;
 
   const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
 
@@ -71,24 +68,34 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         return (
           <List key={item.id} disablePadding>
             <Tooltip
-              title={status === 'Disabled' ? "This module is currently unavailable" : (sidebarCollapsed ? item.label : '')}
+              title={
+                status === 'Disabled'
+                  ? 'This module is currently unavailable'
+                  : sidebarCollapsed
+                    ? item.label
+                    : ''
+              }
               placement="right"
               arrow
             >
               <ListItemButton
                 disabled={status === 'Disabled'}
                 selected={ui.activePage === item.label.toLowerCase()}
-                onClick={() => status !== 'Disabled' && handleNavClick(item.label.toLowerCase(), item.path)}
+                onClick={() =>
+                  status !== 'Disabled' && handleNavClick(item.label.toLowerCase(), item.path)
+                }
                 sx={{
                   ...NavItemStyles(sidebarCollapsed, theme),
                   pointerEvents: 'auto',
                   '&.Mui-disabled': {
                     opacity: 0.5,
-                    cursor: 'not-allowed'
-                  }
+                    cursor: 'not-allowed',
+                  },
                 }}
               >
-                <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}>
+                <ListItemIcon
+                  sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}
+                >
                   <Icon fontSize="small" />
                 </ListItemIcon>
                 {!sidebarCollapsed && (
@@ -118,8 +125,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               <Typography variant="h6" color="error" sx={{ fontWeight: 600 }}>
                 Initialization Failed
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1, maxWidth: 400, textAlign: 'center' }}>
-                We could not load your user permissions or organization details. Please refresh the page or try logging out and back in.
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ opacity: 0.8, mt: 1, maxWidth: 400, textAlign: 'center' }}
+              >
+                We could not load your user permissions or organization details. Please refresh the
+                page or try logging out and back in.
               </Typography>
             </>
           ) : (
@@ -128,19 +140,27 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               <Typography variant="h6" color="primary" sx={{ fontWeight: 600, mt: 2 }}>
                 {tenant.isLoading || isWaitingForTenants
                   ? 'Loading Your Organizations...'
-                  : (isLoadingDetails
+                  : isLoadingDetails
                     ? 'Authorizing Account & Permissions...'
-                    : (ui.isReloading
+                    : ui.isReloading
                       ? 'Syncing Fresh Financial Data...'
-                      : (ui.activeExportType
+                      : ui.activeExportType
                         ? `Generating ${ui.activeExportType.toUpperCase()} Report`
-                        : (ui.isDrillingDown ? 'Resolving Transaction Details...' : (ui.isGlobalFetching || financials.loading ? 'Fetching Records...' : 'Configuring View...')))))}
+                        : ui.isDrillingDown
+                          ? 'Resolving Transaction Details...'
+                          : ui.isGlobalFetching || financials.loading
+                            ? 'Fetching Records...'
+                            : 'Configuring View...'}
               </Typography>
 
               {ui.activeExportType ? (
-                <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1, maxWidth: 450, textAlign: 'center' }}>
-                  Your report is being prepared. Due to the high volume of data, this may take a moment. 
-                  Your file will download automatically once ready.
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ opacity: 0.8, mt: 1, maxWidth: 450, textAlign: 'center' }}
+                >
+                  Your report is being prepared. Due to the high volume of data, this may take a
+                  moment. Your file will download automatically once ready.
                 </Typography>
               ) : (
                 <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1 }}>
@@ -184,7 +204,12 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           variant="temporary"
           open={mobileMenuOpen}
           onClose={handleMobileMenuClose}
-          sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH, backgroundColor: theme.palette.background.paper } }}
+          sx={{
+            '& .MuiDrawer-paper': {
+              width: DRAWER_WIDTH,
+              backgroundColor: theme.palette.background.paper,
+            },
+          }}
         >
           <Toolbar sx={{ pointerEvents: 'none' }} />
           {drawerContent}
@@ -198,7 +223,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         </ContentArea>
       </MainContentWrapper>
       <Footer />
-
     </PageWrapper>
   );
 };

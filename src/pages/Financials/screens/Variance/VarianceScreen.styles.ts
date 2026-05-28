@@ -48,6 +48,6 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
   '& .MuiOutlinedInput-root': {
     height: 36,
-    fontSize: '13px'
-  }
+    fontSize: '13px',
+  },
 }));

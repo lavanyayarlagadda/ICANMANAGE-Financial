@@ -130,11 +130,57 @@
       "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/adjusted-cash-deposit"
     },
     "rows": [
-      { "name": "Actual Bank Deposit", "momDelta": "▼ 38.4%", "mar26": "$25,236,803.66", "apr26": "$23,361,397.00", "may26": "$14,388,194.82", "jun26Forecast": "$20,995,465.16", "jul26Forecast": "$20,995,465.16", "aug26Forecast": "$20,995,465.16" },
-      { "name": "Patient Accounts EMR", "momDelta": "▼ 12.0%", "mar26": "$1,716,881.67", "apr26": "$1,545,012.09", "may26": "$1,359,610.45", "jun26Forecast": "$1,540,501.40", "jul26Forecast": "$1,540,501.40", "aug26Forecast": "$1,540,501.40" },
-      { "name": "GL (General Ledger)", "momDelta": "▲ 4.7%", "mar26": "$842.10", "apr26": "$1,102.01", "may26": "$1,153.60", "jun26Forecast": "$1,032.57", "jul26Forecast": "$1,032.57", "aug26Forecast": "$1,032.57" },
-      { "name": "PIP Payment", "momDelta": "▲ 3.8%", "mar26": "$894,512.40", "apr26": "$971,034.18", "may26": "$1,008,772.55", "jun26Forecast": "$958,106.38", "jul26Forecast": "$958,106.38", "aug26Forecast": "$958,106.38" },
-      { "name": "Total Adjusted Cash Deposit", "momDelta": "▼ 35.6%", "mar26": "$27,849,039.83", "apr26": "$25,878,545.28", "may26": "$16,757,731.42", "jun26Forecast": "$23,495,105.51", "jul26Forecast": "$23,495,105.51", "aug26Forecast": "$23,495,105.51", "isTotal": true }
+      {
+        "name": "Actual Bank Deposit",
+        "momDelta": "▼ 38.4%",
+        "mar26": "$25,236,803.66",
+        "apr26": "$23,361,397.00",
+        "may26": "$14,388,194.82",
+        "jun26Forecast": "$20,995,465.16",
+        "jul26Forecast": "$20,995,465.16",
+        "aug26Forecast": "$20,995,465.16"
+      },
+      {
+        "name": "Patient Accounts EMR",
+        "momDelta": "▼ 12.0%",
+        "mar26": "$1,716,881.67",
+        "apr26": "$1,545,012.09",
+        "may26": "$1,359,610.45",
+        "jun26Forecast": "$1,540,501.40",
+        "jul26Forecast": "$1,540,501.40",
+        "aug26Forecast": "$1,540,501.40"
+      },
+      {
+        "name": "GL (General Ledger)",
+        "momDelta": "▲ 4.7%",
+        "mar26": "$842.10",
+        "apr26": "$1,102.01",
+        "may26": "$1,153.60",
+        "jun26Forecast": "$1,032.57",
+        "jul26Forecast": "$1,032.57",
+        "aug26Forecast": "$1,032.57"
+      },
+      {
+        "name": "PIP Payment",
+        "momDelta": "▲ 3.8%",
+        "mar26": "$894,512.40",
+        "apr26": "$971,034.18",
+        "may26": "$1,008,772.55",
+        "jun26Forecast": "$958,106.38",
+        "jul26Forecast": "$958,106.38",
+        "aug26Forecast": "$958,106.38"
+      },
+      {
+        "name": "Total Adjusted Cash Deposit",
+        "momDelta": "▼ 35.6%",
+        "mar26": "$27,849,039.83",
+        "apr26": "$25,878,545.28",
+        "may26": "$16,757,731.42",
+        "jun26Forecast": "$23,495,105.51",
+        "jul26Forecast": "$23,495,105.51",
+        "aug26Forecast": "$23,495,105.51",
+        "isTotal": true
+      }
     ]
   },
   "postedToEmrReconciled": {
@@ -169,10 +215,34 @@
       "endpoint": "/api/v1/financials/trends-forecast/deposit-reconciliation/top-payer-scorecard"
     },
     "rows": [
-      { "payer": "Payer 1", "total": "$46,225,292.10", "share": "32.7%", "matchRate": "78.6%", "momDelta": "▲ 4.3%" },
-      { "payer": "Payer 2", "total": "$42,723,975.99", "share": "30.3%", "matchRate": "81.2%", "momDelta": "▲ 2.8%" },
-      { "payer": "Payer 3", "total": "$13,216,066.34", "share": "9.4%", "matchRate": "75.6%", "momDelta": "▼ 6.4%" },
-      { "payer": "Payer 4", "total": "$10,154,458.18", "share": "7.2%", "matchRate": "68.7%", "momDelta": "▼ 3.4%" }
+      {
+        "payer": "Payer 1",
+        "total": "$46,225,292.10",
+        "share": "32.7%",
+        "matchRate": "78.6%",
+        "momDelta": "▲ 4.3%"
+      },
+      {
+        "payer": "Payer 2",
+        "total": "$42,723,975.99",
+        "share": "30.3%",
+        "matchRate": "81.2%",
+        "momDelta": "▲ 2.8%"
+      },
+      {
+        "payer": "Payer 3",
+        "total": "$13,216,066.34",
+        "share": "9.4%",
+        "matchRate": "75.6%",
+        "momDelta": "▼ 6.4%"
+      },
+      {
+        "payer": "Payer 4",
+        "total": "$10,154,458.18",
+        "share": "7.2%",
+        "matchRate": "68.7%",
+        "momDelta": "▼ 3.4%"
+      }
     ]
   },
   "readGuide": {

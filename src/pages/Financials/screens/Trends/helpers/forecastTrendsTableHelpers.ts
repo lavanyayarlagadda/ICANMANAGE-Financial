@@ -16,7 +16,9 @@ export const SHARED_MERGE_FIELDS = new Set<FieldKey>([
 ]);
 
 export const isOverallTeam = (team: unknown): boolean => {
-  const normalized = String(team ?? '').trim().toUpperCase();
+  const normalized = String(team ?? '')
+    .trim()
+    .toUpperCase();
   return normalized === 'OVERALL' || normalized === 'TOTAL';
 };
 
@@ -89,11 +91,10 @@ const resolveFieldValue = (
   return format(raw);
 };
 
-export const createForecastCellValueGetter = (
-  field: FieldKey,
-  overallRow: ForecastDashboardRow | null,
-  format: (value: unknown) => string,
-) => (row: ForecastDashboardRow) => resolveFieldValue(row, overallRow, field, format);
+export const createForecastCellValueGetter =
+  (field: FieldKey, overallRow: ForecastDashboardRow | null, format: (value: unknown) => string) =>
+  (row: ForecastDashboardRow) =>
+    resolveFieldValue(row, overallRow, field, format);
 
 const getTeamRowIndices = (rows: ForecastDashboardRow[]): number[] =>
   rows
@@ -101,24 +102,24 @@ const getTeamRowIndices = (rows: ForecastDashboardRow[]): number[] =>
     .filter((index): index is number => index !== null);
 
 /** Merge shared-metric cells vertically across all team rows (excluding the total row). */
-export const createSharedColumnCellProps = <T extends ForecastDashboardRow>(): NonNullable<
-  DataColumn<T>['getCellProps']
-> => (row, rowIndex, rows) => {
-  if (isOverallTeam(row.team)) {
-    return {};
-  }
+export const createSharedColumnCellProps =
+  <T extends ForecastDashboardRow>(): NonNullable<DataColumn<T>['getCellProps']> =>
+  (row, rowIndex, rows) => {
+    if (isOverallTeam(row.team)) {
+      return {};
+    }
 
-  const teamRowIndices = getTeamRowIndices(rows);
-  if (!teamRowIndices.includes(rowIndex)) {
-    return {};
-  }
+    const teamRowIndices = getTeamRowIndices(rows);
+    if (!teamRowIndices.includes(rowIndex)) {
+      return {};
+    }
 
-  if (rowIndex !== teamRowIndices[0]) {
-    return { skip: true };
-  }
+    if (rowIndex !== teamRowIndices[0]) {
+      return { skip: true };
+    }
 
-  const rowSpan = teamRowIndices.length;
-  return rowSpan > 1 ? { rowSpan } : {};
-};
+    const rowSpan = teamRowIndices.length;
+    return rowSpan > 1 ? { rowSpan } : {};
+  };
 
 export const percentFieldFormat = formatPercentCell;

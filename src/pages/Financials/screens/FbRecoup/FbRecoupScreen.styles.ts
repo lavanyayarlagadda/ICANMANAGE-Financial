@@ -8,20 +8,20 @@ export const offsetChipStyles: SxProps<Theme> = {
   fontWeight: 700,
   bgcolor: themeConfig.colors.accent + '18',
   color: themeConfig.colors.accentDark,
-  border: `1px solid ${themeConfig.colors.accent + '33'}`
+  border: `1px solid ${themeConfig.colors.accent + '33'}`,
 };
 
 export const offsetGridStyles: SxProps<Theme> = {
-  display: "grid",
-  gridTemplateColumns: "1.5fr 1fr 1.2fr 1fr",
-  minWidth: "100%",
+  display: 'grid',
+  gridTemplateColumns: '1.5fr 1fr 1.2fr 1fr',
+  minWidth: '100%',
   px: 2,
   py: 1,
 };
 
 export const noticeIdStyles: SxProps<Theme> = {
   fontWeight: 700,
-  color: themeConfig.colors.primaryDark
+  color: themeConfig.colors.primaryDark,
 };
 
 export const boldStyles: SxProps<Theme> = {
@@ -30,7 +30,7 @@ export const boldStyles: SxProps<Theme> = {
 
 export const errorAmountStyles: SxProps<Theme> = {
   fontWeight: 700,
-  color: 'error.main'
+  color: 'error.main',
 };
 
 export const toggleButtonGroupStyles: SxProps<Theme> = {
@@ -48,9 +48,9 @@ export const toggleButtonGroupStyles: SxProps<Theme> = {
       bgcolor: themeConfig.colors.tabActive,
       color: themeConfig.colors.surface,
       border: 'none',
-      '&:hover': { bgcolor: themeConfig.colors.primaryDark }
-    }
-  }
+      '&:hover': { bgcolor: themeConfig.colors.primaryDark },
+    },
+  },
 };
 
 export const ToolbarWrapper = styled(Box)(({ theme }) => ({
@@ -77,8 +77,8 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
   '& .MuiOutlinedInput-root': {
     height: 36,
-    fontSize: '13px'
-  }
+    fontSize: '13px',
+  },
 }));
 
 export const FilterField = styled(TextField)(({ theme }) => ({
@@ -91,4 +91,3 @@ export const FilterField = styled(TextField)(({ theme }) => ({
     fontSize: '13px',
   },
 }));
-

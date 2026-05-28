@@ -1,7 +1,7 @@
-import React from "react";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
-import { useAppDispatch, useAppSelector } from "@/store";
-import { setIsGlobalFetching, setIsReloading } from "@/store/slices/uiSlice";
+import React from 'react';
+import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { setIsGlobalFetching, setIsReloading } from '@/store/slices/uiSlice';
 import {
   useGetDepositReconciliationAdjustedCashDepositQuery,
   useGetDepositReconciliationAgingQuery,
@@ -10,17 +10,12 @@ import {
   useGetDepositReconciliationPostedEmrUnreconciledQuery,
   useGetDepositReconciliationTopPayersQuery,
   useLazyExportDepositReconciliationPdfQuery,
-} from "@/store/api/financialsApi";
-import { downloadFileFromBlob } from "@/utils/downloadHelper";
-import { formatDateForFilename } from "@/utils/formatters";
-import {
-  parseTrailingWindowMonths,
-} from "@/utils/dateUtils";
-import type {
-  DepositReconAgingQueryParams,
-  DepositReconTrendsQueryParams,
-} from "@/interfaces/api";
-import { toText } from "../helpers/depositReconciliationHelpers";
+} from '@/store/api/financialsApi';
+import { downloadFileFromBlob } from '@/utils/downloadHelper';
+import { formatDateForFilename } from '@/utils/formatters';
+import { parseTrailingWindowMonths } from '@/utils/dateUtils';
+import type { DepositReconAgingQueryParams, DepositReconTrendsQueryParams } from '@/interfaces/api';
+import { toText } from '../helpers/depositReconciliationHelpers';
 
 interface UseDepositReconciliationProps {
   contract: {
@@ -33,37 +28,33 @@ interface UseDepositReconciliationProps {
   skip: boolean;
 }
 
-export const useDepositReconciliation = ({
-  contract,
-  skip,
-}: UseDepositReconciliationProps) => {
+export const useDepositReconciliation = ({ contract, skip }: UseDepositReconciliationProps) => {
   const dispatch = useAppDispatch();
   const { globalFilters } = useAppSelector((s) => s.financials);
 
   const [trailingWindow, setTrailingWindow] = React.useState<string>(
-    toText(contract.controls?.trailingWindow?.selected || "3m"),
+    toText(contract.controls?.trailingWindow?.selected || '3m'),
   );
   const [forecastWindow, setForecastWindow] = React.useState<string>(
-    toText(contract.controls?.forecastWindow?.selected || "3m"),
+    toText(contract.controls?.forecastWindow?.selected || '3m'),
   );
   const [compareMode, setCompareMode] = React.useState<string>(
-    toText(contract.controls?.comparisonMode?.selected || "MoM"),
+    toText(contract.controls?.comparisonMode?.selected || 'MoM'),
   );
 
   const trendsQueryParams = React.useMemo((): DepositReconTrendsQueryParams => {
     const trailingWindowMonths = parseTrailingWindowMonths(trailingWindow);
-    const forecastMonths =
-      forecastWindow === "6m" ? 6 : forecastWindow === "3m" ? 3 : 0;
-  const toDateObj = globalFilters.toDate ? new Date(globalFilters.toDate) : new Date();
+    const forecastMonths = forecastWindow === '6m' ? 6 : forecastWindow === '3m' ? 3 : 0;
+    const toDateObj = globalFilters.toDate ? new Date(globalFilters.toDate) : new Date();
     const fromDateObj = subMonths(toDateObj, Math.max(0, trailingWindowMonths - 1));
     return {
-      fromDate: format(startOfMonth(fromDateObj), "yyyy-MM-dd"),
-      toDate: format(endOfMonth(toDateObj), "yyyy-MM-dd"),
+      fromDate: format(startOfMonth(fromDateObj), 'yyyy-MM-dd'),
+      toDate: format(endOfMonth(toDateObj), 'yyyy-MM-dd'),
       trailingWindowMonths,
       forecastMonths,
       compare: compareMode.toUpperCase(),
     };
-  }, [trailingWindow, forecastWindow, compareMode, globalFilters.toDate])
+  }, [trailingWindow, forecastWindow, compareMode, globalFilters.toDate]);
 
   const [triggerExportPdf, { isFetching: isExportingPdf }] =
     useLazyExportDepositReconciliationPdfQuery();
@@ -78,7 +69,7 @@ export const useDepositReconciliation = ({
         );
       }
     } catch (err) {
-      console.error("PDF export failed:", err);
+      console.error('PDF export failed:', err);
     }
   }, [triggerExportPdf, trendsQueryParams]);
 
@@ -94,7 +85,7 @@ export const useDepositReconciliation = ({
     data: executiveResponse,
     isFetching: isFetchingExecutive,
     refetch: refetchExecutive,
-    isError: isErrorExecutive
+    isError: isErrorExecutive,
   } = useGetDepositReconciliationExecutiveSummaryQuery(trendsQueryParams, {
     skip,
   });
@@ -102,13 +93,13 @@ export const useDepositReconciliation = ({
     data: agingResponse,
     isFetching: isFetchingAging,
     refetch: refetchAging,
-    isError: isErrorAging
+    isError: isErrorAging,
   } = useGetDepositReconciliationAgingQuery(agingQueryParams, { skip });
   const {
     data: adjustedCashResponse,
     isFetching: isFetchingAdjustedCash,
     refetch: refetchAdjustedCash,
-    isError: isErrorAdjustedCash
+    isError: isErrorAdjustedCash,
   } = useGetDepositReconciliationAdjustedCashDepositQuery(trendsQueryParams, {
     skip,
   });
@@ -116,7 +107,7 @@ export const useDepositReconciliation = ({
     data: reconciledResponse,
     isFetching: isFetchingReconciled,
     refetch: refetchReconciled,
-    isError: isErrorReconciled
+    isError: isErrorReconciled,
   } = useGetDepositReconciliationPostedEmrReconciledQuery(trendsQueryParams, {
     skip,
   });
@@ -124,7 +115,7 @@ export const useDepositReconciliation = ({
     data: unreconciledResponse,
     isFetching: isFetchingUnreconciled,
     refetch: refetchUnreconciled,
-    isError: isErrorUnreconciled
+    isError: isErrorUnreconciled,
   } = useGetDepositReconciliationPostedEmrUnreconciledQuery(trendsQueryParams, {
     skip,
   });
@@ -132,7 +123,7 @@ export const useDepositReconciliation = ({
     data: topPayersResponse,
     isFetching: isFetchingTopPayers,
     refetch: refetchTopPayers,
-    isError: isErrorTopPayers
+    isError: isErrorTopPayers,
   } = useGetDepositReconciliationTopPayersQuery(trendsQueryParams, { skip });
 
   const { actionTriggers } = useAppSelector((s) => s.ui);
@@ -160,7 +151,7 @@ export const useDepositReconciliation = ({
             refetchTopPayers(),
           ]);
         } catch (err) {
-          console.error("Reload failed:", err);
+          console.error('Reload failed:', err);
         } finally {
           dispatch(setIsReloading(false));
         }

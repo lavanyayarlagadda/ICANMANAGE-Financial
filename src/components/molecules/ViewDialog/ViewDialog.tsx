@@ -35,8 +35,12 @@ const ViewDialog: React.FC<ViewDialogProps> = ({ open, onClose, title, data }) =
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={styles.dialogTitleStyles}>
-        <Typography variant="h6" sx={styles.titleTextStyles}>{title}</Typography>
-        <IconButton onClick={onClose} size="small"><CloseIcon /></IconButton>
+        <Typography variant="h6" sx={styles.titleTextStyles}>
+          {title}
+        </Typography>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
       <Divider />
       <DialogContent sx={styles.dialogContentStyles}>
@@ -52,7 +56,9 @@ const ViewDialog: React.FC<ViewDialogProps> = ({ open, onClose, title, data }) =
         ))}
       </DialogContent>
       <DialogActions sx={styles.dialogActionsStyles}>
-        <Button onClick={onClose} variant="outlined" size="small">Close</Button>
+        <Button onClick={onClose} variant="outlined" size="small">
+          Close
+        </Button>
       </DialogActions>
     </Dialog>
   );

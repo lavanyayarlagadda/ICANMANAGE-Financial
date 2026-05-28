@@ -1,29 +1,28 @@
-import React from "react";
-import { Box } from "@mui/material";
+import React from 'react';
+import { Box } from '@mui/material';
 
 interface LogoProps {
   collapsed?: boolean;
 }
 
 const Logo: React.FC<LogoProps> = ({ collapsed = false }) => {
-
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
       <Box
         sx={{
           borderRadius: 2,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        <img 
-          src="/cognitiveLogo.svg" 
-          alt="logo" 
-          style={{ 
+        <img
+          src="/cognitiveLogo.svg"
+          alt="logo"
+          style={{
             width: collapsed ? 80 : 120,
-            transition: 'width 0.2s ease-in-out'
-          }} 
+            transition: 'width 0.2s ease-in-out',
+          }}
         />
       </Box>
       {/* {!collapsed && (

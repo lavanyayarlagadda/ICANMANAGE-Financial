@@ -1,10 +1,6 @@
-import { baseApi } from "./baseApi";
-import { RootState } from "../index";
-import {
-  RemitDataRecord,
-  CashPostingRecord,
-  BaiDataRecord,
-} from "@/interfaces/financials";
+import { baseApi } from './baseApi';
+import { RootState } from '../index';
+import { RemitDataRecord, CashPostingRecord, BaiDataRecord } from '@/interfaces/financials';
 import {
   BankDepositSearchResponse,
   BankDepositSearchRequest,
@@ -16,71 +12,68 @@ import {
   DynamicTabsResponse,
   UserMappedBrandsParams,
   BankDepositHistoryParams,
-  BaiTriggerHistoryParams
-} from "@/interfaces/api";
+  BaiTriggerHistoryParams,
+} from '@/interfaces/api';
 
 export const reconciliationApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    searchBankDepositsBody: builder.query<
-      BankDepositSearchResponse,
-      BankDepositSearchRequest
-    >({
+    searchBankDepositsBody: builder.query<BankDepositSearchResponse, BankDepositSearchRequest>({
       queryFn: async (body, api, _extraOptions, baseQuery) => {
         const state = api.getState() as RootState;
         const clientIdFromLogin = state.auth?.user?.company;
         const selectedTenantId = state.tenant?.selectedTenantId;
-        const isCognitiveClient = String(clientIdFromLogin || '').toLowerCase() === 'cognitivehealthit';
-        const clientName = isCognitiveClient && selectedTenantId
-          ? selectedTenantId
-          : (clientIdFromLogin || body.clientName);
+        const isCognitiveClient =
+          String(clientIdFromLogin || '').toLowerCase() === 'cognitivehealthit';
+        const clientName =
+          isCognitiveClient && selectedTenantId
+            ? selectedTenantId
+            : clientIdFromLogin || body.clientName;
 
         return await baseQuery({
-          url: "financials/reconciliation/bank-deposits/search",
-          method: "POST",
+          url: 'financials/reconciliation/bank-deposits/search',
+          method: 'POST',
           body: {
             ...body,
             clientName,
           },
         });
       },
-      providesTags: ["Reconciliation"],
+      providesTags: ['Reconciliation'],
     }),
-    getBankDepositWidgets: builder.query<
-      BankDepositWidgetResponse,
-      BankDepositWidgetParams
-    >({
+    getBankDepositWidgets: builder.query<BankDepositWidgetResponse, BankDepositWidgetParams>({
       queryFn: async (params, api, _extraOptions, baseQuery) => {
         const state = api.getState() as RootState;
         const clientIdFromLogin = state.auth?.user?.company;
         const selectedTenantId = state.tenant?.selectedTenantId;
-        const isCognitiveClient = String(clientIdFromLogin || '').toLowerCase() === 'cognitivehealthit';
-        const clientName = isCognitiveClient && selectedTenantId
-          ? selectedTenantId
-          : (clientIdFromLogin || params.clientName);
+        const isCognitiveClient =
+          String(clientIdFromLogin || '').toLowerCase() === 'cognitivehealthit';
+        const clientName =
+          isCognitiveClient && selectedTenantId
+            ? selectedTenantId
+            : clientIdFromLogin || params.clientName;
 
         return await baseQuery({
-          url: "financials/reconciliation/bank-deposits/widgets-data",
-          method: "GET",
+          url: 'financials/reconciliation/bank-deposits/widgets-data',
+          method: 'GET',
           params: {
             ...params,
             clientName,
           },
         });
       },
-      providesTags: ["Reconciliation"],
+      providesTags: ['Reconciliation'],
     }),
-    exportBankDeposits: builder.query<
-      Blob,
-      BankDepositExportRequest
-    >({
+    exportBankDeposits: builder.query<Blob, BankDepositExportRequest>({
       queryFn: async (body, api, _extraOptions, baseQuery) => {
         const state = api.getState() as RootState;
         const clientIdFromLogin = state.auth?.user?.company;
         const selectedTenantId = state.tenant?.selectedTenantId;
-        const isCognitiveClient = String(clientIdFromLogin || '').toLowerCase() === 'cognitivehealthit';
-        const clientName = isCognitiveClient && selectedTenantId
-          ? selectedTenantId
-          : (clientIdFromLogin || body.clientName);
+        const isCognitiveClient =
+          String(clientIdFromLogin || '').toLowerCase() === 'cognitivehealthit';
+        const clientName =
+          isCognitiveClient && selectedTenantId
+            ? selectedTenantId
+            : clientIdFromLogin || body.clientName;
 
         return await baseQuery({
           url: `financials/reconciliation/bank-deposits/export`,
@@ -93,49 +86,49 @@ export const reconciliationApi = baseApi.injectEndpoints({
         });
       },
     }),
-    getMappedHeadersData: builder.query<
-      MappedHeadersResponse,
-      MappedHeadersParams
-    >({
+    getMappedHeadersData: builder.query<MappedHeadersResponse, MappedHeadersParams>({
       query: (params) => ({
-        url: "financials/reconciliation/get-mapped-headers-data",
+        url: 'financials/reconciliation/get-mapped-headers-data',
         params,
-        method: 'POST'
+        method: 'POST',
       }),
-      providesTags: ["Reconciliation"],
+      providesTags: ['Reconciliation'],
     }),
-    getUserMappedBrands: builder.query<
-      DynamicTabsResponse,
-      UserMappedBrandsParams
-    >({
+    getUserMappedBrands: builder.query<DynamicTabsResponse, UserMappedBrandsParams>({
       query: (params) => ({
-        url: "financials/reconciliation/get-user-mapped-brands",
+        url: 'financials/reconciliation/get-user-mapped-brands',
         params,
-        method: 'POST'
+        method: 'POST',
       }),
-      providesTags: ["Reconciliation"],
+      providesTags: ['Reconciliation'],
     }),
     getBankDepositHistory: builder.query<
       { data: { remittanceAdvice: RemitDataRecord[]; postingApplication: CashPostingRecord[] } },
       BankDepositHistoryParams
     >({
       query: (params) => ({
-        url: "financials/reconciliation/bank-deposits/history",
+        url: 'financials/reconciliation/bank-deposits/history',
         params,
-        method: 'POST'
+        method: 'POST',
       }),
-      providesTags: ["Reconciliation"],
+      providesTags: ['Reconciliation'],
     }),
     getBaiTriggerHistory: builder.query<
-      { data: { baiDataRecords: BaiDataRecord[]; remitDataRecords: RemitDataRecord[]; cashPostingRecords: CashPostingRecord[] } },
+      {
+        data: {
+          baiDataRecords: BaiDataRecord[];
+          remitDataRecords: RemitDataRecord[];
+          cashPostingRecords: CashPostingRecord[];
+        };
+      },
       BaiTriggerHistoryParams
     >({
       query: (params) => ({
-        url: "financials/reconciliation/bai-trigger/history",
+        url: 'financials/reconciliation/bai-trigger/history',
         params,
-        method: 'POST'
+        method: 'POST',
       }),
-      providesTags: ["Reconciliation"],
+      providesTags: ['Reconciliation'],
     }),
   }),
 });

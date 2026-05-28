@@ -22,14 +22,13 @@ interface RowActionMenuProps {
   extraActions?: ActionMenuItem[];
 }
 
-const RowActionMenu: React.FC<RowActionMenuProps> = ({ onView, onEdit, onDelete, extraActions }) => {
-  const {
-    anchorEl,
-    open,
-    handleClick,
-    handleClose,
-    handleAction,
-  } = useRowActionMenu();
+const RowActionMenu: React.FC<RowActionMenuProps> = ({
+  onView,
+  onEdit,
+  onDelete,
+  extraActions,
+}) => {
+  const { anchorEl, open, handleClick, handleClose, handleAction } = useRowActionMenu();
 
   return (
     <>
@@ -46,15 +45,19 @@ const RowActionMenu: React.FC<RowActionMenuProps> = ({ onView, onEdit, onDelete,
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         slotProps={{ paper: { sx: styles.menuPaperProps } }}
       >
-        {onView &&
+        {onView && (
           <MenuItem onClick={() => handleAction(onView)}>
-            <ListItemIcon><VisibilityIcon fontSize="small" /></ListItemIcon>
+            <ListItemIcon>
+              <VisibilityIcon fontSize="small" />
+            </ListItemIcon>
             <ListItemText>View Details</ListItemText>
           </MenuItem>
-        }
+        )}
         {onEdit && (
           <MenuItem onClick={() => handleAction(onEdit)}>
-            <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+            <ListItemIcon>
+              <EditIcon fontSize="small" />
+            </ListItemIcon>
             <ListItemText>Edit</ListItemText>
           </MenuItem>
         )}
@@ -66,7 +69,9 @@ const RowActionMenu: React.FC<RowActionMenuProps> = ({ onView, onEdit, onDelete,
         ))}
         {onDelete && (
           <MenuItem onClick={() => handleAction(onDelete)} sx={styles.errorMenuItemStyles}>
-            <ListItemIcon><DeleteIcon fontSize="small" color="error" /></ListItemIcon>
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" color="error" />
+            </ListItemIcon>
             <ListItemText>Delete</ListItemText>
           </MenuItem>
         )}

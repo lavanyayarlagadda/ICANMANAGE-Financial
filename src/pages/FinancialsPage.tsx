@@ -39,13 +39,23 @@ import {
 const FinancialsPage: React.FC = () => {
   const theme = useTheme();
   const dispatch = useAppDispatch();
-  const { activeTab, activeSubTab, activePage, viewDialogOpen, viewDialogData, editDialogOpen, editDialogData, confirmDeleteOpen, confirmDeleteId, confirmDeleteType } = useAppSelector((s) => s.ui);
+  const {
+    activeTab,
+    activeSubTab,
+    activePage,
+    viewDialogOpen,
+    viewDialogData,
+    editDialogOpen,
+    editDialogData,
+    confirmDeleteOpen,
+    confirmDeleteId,
+    confirmDeleteType,
+  } = useAppSelector((s) => s.ui);
   const { showRemittanceDetail } = useAppSelector((s) => s.financials);
   const user = useAppSelector((s) => s.auth.user);
   const { selectedTenantId } = useAppSelector((s) => s.tenant);
   const isMindPath =
-    user?.company?.toLowerCase() === 'mindpath' ||
-    selectedTenantId?.toLowerCase() === 'mindpath';
+    user?.company?.toLowerCase() === 'mindpath' || selectedTenantId?.toLowerCase() === 'mindpath';
   const [addDialogOpen, setAddDialogOpen] = React.useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -58,12 +68,12 @@ const FinancialsPage: React.FC = () => {
       const pathPart = location.pathname.split('/financials/')[1] || '';
       const pathMap: Record<string, { tab: number; subTab: number }> = {
         // 'all-transactions': { tab: 0, subTab: 0 },
-        'payments': { tab: 0, subTab: 1 },
+        payments: { tab: 0, subTab: 1 },
         // 'recoupments': { tab: 0, subTab: 2 },
         // 'other-adjustments': { tab: 0, subTab: 3 },
         // 'pip': { tab: 0, subTab: 3 }, // Map PIP to Adjustments for now
         // 'bank-deposits': { tab: 1, subTab: 0 },
-        'statements': { tab: 2, subTab: 0 },
+        statements: { tab: 2, subTab: 0 },
         'statements/pip': { tab: 2, subTab: 0 },
         // 'statements/forward-balance': { tab: 2, subTab: 1 },
         'variance-analysis': { tab: 3, subTab: 0 },
@@ -73,7 +83,10 @@ const FinancialsPage: React.FC = () => {
 
       const match = pathMap[pathPart];
 
-      if (isMindPath && (pathPart === 'pip' || pathPart === 'statements/pip' || pathPart === 'statements')) {
+      if (
+        isMindPath &&
+        (pathPart === 'pip' || pathPart === 'statements/pip' || pathPart === 'statements')
+      ) {
         /* const target = pathPart.startsWith('statements') 
           ? '/financials/statements/forward-balance' 
           : '/financials/all-transactions';
@@ -123,7 +136,9 @@ const FinancialsPage: React.FC = () => {
     };
     deleteMap[confirmDeleteType]?.();
     dispatch(closeConfirmDelete());
-    dispatch(showSnackbar({ message: `${confirmDeleteType} deleted successfully.`, severity: 'success' }));
+    dispatch(
+      showSnackbar({ message: `${confirmDeleteType} deleted successfully.`, severity: 'success' }),
+    );
   };
 
   const handleEditSave = () => {
@@ -140,7 +155,11 @@ const FinancialsPage: React.FC = () => {
       return (
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-            <IconButton onClick={() => dispatch(setShowRemittanceDetail(false))} size="small" sx={{ border: `1px solid ${theme.palette.divider}` }}>
+            <IconButton
+              onClick={() => dispatch(setShowRemittanceDetail(false))}
+              size="small"
+              sx={{ border: `1px solid ${theme.palette.divider}` }}
+            >
               <ArrowBackIcon fontSize="small" />
             </IconButton>
             <Typography variant="body2" color="text.secondary">

@@ -1,20 +1,20 @@
-import React, { useMemo, useCallback } from "react";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import Accordion from "@/components/atoms/Accordion/Accordion";
-import StatusBadge from "@/components/atoms/StatusBadge/StatusBadge";
-import { PipRecord, NpiAllocation } from "@/interfaces/financials";
+import React, { useMemo, useCallback } from 'react';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import Accordion from '@/components/atoms/Accordion/Accordion';
+import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
+import { PipRecord, NpiAllocation } from '@/interfaces/financials';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
-import RangeDropdown from "@/components/atoms/RangeDropdown/RangeDropdown";
-import { Box, Typography, IconButton, Chip, Grid, Button, CircularProgress } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import MultiValueDisplay from "@/components/atoms/MultiValueDisplay/MultiValueDisplay";
-import { formatCurrency, formatPercent, formatDate } from "@/utils/formatters";
-import SummaryCard from "@/components/atoms/SummaryCard/SummaryCard";
-import { NpiSectionWrapper, NpiHeaderRow, NpiDataRow, SearchField } from "./PipScreen.styles";
-import type { PipSearchFilters } from "./PipScreen.hook";
-import { usePipScreen } from "./PipScreen.hook";
+import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
+import { Box, Typography, IconButton, Chip, Grid, Button, CircularProgress } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
+import { formatCurrency, formatPercent, formatDate } from '@/utils/formatters';
+import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
+import { NpiSectionWrapper, NpiHeaderRow, NpiDataRow, SearchField } from './PipScreen.styles';
+import type { PipSearchFilters } from './PipScreen.hook';
+import { usePipScreen } from './PipScreen.hook';
 
 interface NpiProps {
   allocation: NpiAllocation;
@@ -25,28 +25,72 @@ export const NpiSection: React.FC<NpiProps> = ({ allocation }) => (
     <Accordion
       defaultExpanded={false}
       summary={
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { xs: "flex-start", sm: "center" }, justifyContent: "space-between", width: "100%", gap: { xs: 1, sm: 2 } }}>
-          <Typography fontSize={13} fontWeight={600} sx={{ flex: 1, wordBreak: "break-word" }}>{allocation.npiPayerName}</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: { xs: 'space-between', sm: 'flex-end' }, width: { xs: '100%', sm: 'auto' } }}>
-            <Typography textAlign="right" fontSize={13} fontWeight={600}>{formatCurrency(Number(allocation.totalPayment))}</Typography>
-            <Box sx={{ textAlign: "right", pr: 1 }}><Chip label={`${formatPercent(Number(allocation.allocatedPercent ?? 0), 2)} Allocated`} size="small" variant="outlined" color="primary" /></Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            justifyContent: 'space-between',
+            width: '100%',
+            gap: { xs: 1, sm: 2 },
+          }}
+        >
+          <Typography fontSize={13} fontWeight={600} sx={{ flex: 1, wordBreak: 'break-word' }}>
+            {allocation.npiPayerName}
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              justifyContent: { xs: 'space-between', sm: 'flex-end' },
+              width: { xs: '100%', sm: 'auto' },
+            }}
+          >
+            <Typography textAlign="right" fontSize={13} fontWeight={600}>
+              {formatCurrency(Number(allocation.totalPayment))}
+            </Typography>
+            <Box sx={{ textAlign: 'right', pr: 1 }}>
+              <Chip
+                label={`${formatPercent(Number(allocation.allocatedPercent ?? 0), 2)} Allocated`}
+                size="small"
+                variant="outlined"
+                color="primary"
+              />
+            </Box>
           </Box>
         </Box>
       }
     >
       <NpiSectionWrapper>
         <NpiHeaderRow>
-          <Typography fontSize={12} fontWeight={600} textAlign="center">CLAIM ID</Typography>
-          <Typography fontSize={12} fontWeight={600} textAlign="center">PATIENT NAME</Typography>
-          <Typography textAlign="center" fontSize={12} fontWeight={600} >ALLOWED AMT</Typography>
-          <Typography textAlign="center" fontSize={12} fontWeight={600}>APPLIED TO PIP BALANCE</Typography>
+          <Typography fontSize={12} fontWeight={600} textAlign="center">
+            CLAIM ID
+          </Typography>
+          <Typography fontSize={12} fontWeight={600} textAlign="center">
+            PATIENT NAME
+          </Typography>
+          <Typography textAlign="center" fontSize={12} fontWeight={600}>
+            ALLOWED AMT
+          </Typography>
+          <Typography textAlign="center" fontSize={12} fontWeight={600}>
+            APPLIED TO PIP BALANCE
+          </Typography>
         </NpiHeaderRow>
         {allocation.claims.map((claim) => (
           <NpiDataRow key={claim.claimId}>
-            <Typography fontSize={13} color="primary" textAlign="center">{claim.claimId}</Typography>
-            <Typography fontSize={13} textAlign="center">{claim.patientName}</Typography>
-            <Typography fontSize={13} textAlign="center">{formatCurrency(Number(claim.allowedAmt))}</Typography>
-            <Typography fontSize={13} textAlign="center" color="success.main">{formatCurrency(Number(claim.appliedToPipBalance))}</Typography>
+            <Typography fontSize={13} color="primary" textAlign="center">
+              {claim.claimId}
+            </Typography>
+            <Typography fontSize={13} textAlign="center">
+              {claim.patientName}
+            </Typography>
+            <Typography fontSize={13} textAlign="center">
+              {formatCurrency(Number(claim.allowedAmt))}
+            </Typography>
+            <Typography fontSize={13} textAlign="center" color="success.main">
+              {formatCurrency(Number(claim.appliedToPipBalance))}
+            </Typography>
           </NpiDataRow>
         ))}
       </NpiSectionWrapper>
@@ -80,89 +124,156 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
   const getRowId = useCallback((row: PipRecord) => row.id || row.ptan, []);
 
-  const columns = useMemo<DataColumn<PipRecord>[]>(() => [
-    {
-      id: "expand",
-      label: "",
-      align: "center",
-      render: (row) => (
-        <IconButton size="small" onClick={(e) => toggleRow(row, e)} disabled={loadingDetailsPtans.has(row.ptan)}>
-          {loadingDetailsPtans.has(row.ptan) ? (
-            <CircularProgress size={16} />
-          ) : expandedRows.has(getRowId(row)) ? (
-            <KeyboardArrowDownIcon fontSize="small" />
-          ) : (
-            <KeyboardArrowRightIcon fontSize="small" />
-          )}
-        </IconButton>
-      ),
-    },
-    { id: "ptan", label: "PTAN", align: "center", accessor: (row) => row.ptan, render: (row) => row.ptan },
-    { id: "paymentDate", label: "PAYMENT DATE", align: "center", accessor: (row) => row.paymentDate, render: (row) => formatDate(row.paymentDate) },
-    { id: "checkEftNumber", label: "CHECK/EFT NUMBER", align: "center", accessor: (row) => row.checkEftNumber, render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
-    { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "center", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
-    // { id: "payer", label: "PAYER", align: "center", accessor: (row) => row.payer ?? '-', render: (row) => row.payer ?? '-' },
-    { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "center", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
-    { id: "status", label: "STATUS", align: "center", accessor: (row) => row.status,  render: (row) => <StatusBadge status={row.status} /> },
-  ], [expandedRows, loadingDetailsPtans, toggleRow, getRowId]);
+  const columns = useMemo<DataColumn<PipRecord>[]>(
+    () => [
+      {
+        id: 'expand',
+        label: '',
+        align: 'center',
+        render: (row) => (
+          <IconButton
+            size="small"
+            onClick={(e) => toggleRow(row, e)}
+            disabled={loadingDetailsPtans.has(row.ptan)}
+          >
+            {loadingDetailsPtans.has(row.ptan) ? (
+              <CircularProgress size={16} />
+            ) : expandedRows.has(getRowId(row)) ? (
+              <KeyboardArrowDownIcon fontSize="small" />
+            ) : (
+              <KeyboardArrowRightIcon fontSize="small" />
+            )}
+          </IconButton>
+        ),
+      },
+      {
+        id: 'ptan',
+        label: 'PTAN',
+        align: 'center',
+        accessor: (row) => row.ptan,
+        render: (row) => row.ptan,
+      },
+      {
+        id: 'paymentDate',
+        label: 'PAYMENT DATE',
+        align: 'center',
+        accessor: (row) => row.paymentDate,
+        render: (row) => formatDate(row.paymentDate),
+      },
+      {
+        id: 'checkEftNumber',
+        label: 'CHECK/EFT NUMBER',
+        align: 'center',
+        accessor: (row) => row.checkEftNumber,
+        render: (row) => <MultiValueDisplay value={row.checkEftNumber} />,
+      },
+      {
+        id: 'paymentAmount',
+        label: 'PAYMENT AMOUNT',
+        align: 'center',
+        accessor: (row) => row.paymentAmount,
+        render: (row) => formatCurrency(Number(row.paymentAmount)),
+      },
+      // { id: "payer", label: "PAYER", align: "center", accessor: (row) => row.payer ?? '-', render: (row) => row.payer ?? '-' },
+      {
+        id: 'suspenseBalance',
+        label: 'SUSPENSE BALANCE',
+        align: 'center',
+        accessor: (row) => row.suspenseBalance,
+        render: (row) => formatCurrency(Number(row.suspenseBalance)),
+      },
+      {
+        id: 'status',
+        label: 'STATUS',
+        align: 'center',
+        accessor: (row) => row.status,
+        render: (row) => <StatusBadge status={row.status} />,
+      },
+    ],
+    [expandedRows, loadingDetailsPtans, toggleRow, getRowId],
+  );
 
-  const pipFilterPanel = useMemo(() => (
-    <>
-      {([
-        { key: 'ptanNo' as keyof PipSearchFilters, label: 'PTAN' },
-        { key: 'checkEftNo' as keyof PipSearchFilters, label: 'Check/EFT #' },
-        // { key: 'npiPayerName' as keyof PipSearchFilters, label: 'NPI / Payer' },
-        { key: 'claimId' as keyof PipSearchFilters, label: 'Claim ID' },
-        { key: 'patientName' as keyof PipSearchFilters, label: 'Patient Name' },
-      ]).map(({ key, label }) => (
-        <SearchField
-          key={key}
-          size="small"
-          label={label}
-          value={searchFilters[key]}
-          onChange={(e) => handleSearchFilterChange(key, e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleApplySearch()}
-        />
-      ))}
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
-        <Button
-          variant="contained"
-          size="small"
-          startIcon={<SearchIcon sx={{ fontSize: 18 }} />}
-          onClick={handleApplySearch}
-          sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
-        >
-          Search
-        </Button>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={handleClearSearch}
-          sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600, px: 2 }}
-        >
-          Clear
-        </Button>
-      </Box>
-    </>
-  ), [searchFilters, handleSearchFilterChange, handleApplySearch, handleClearSearch]);
+  const pipFilterPanel = useMemo(
+    () => (
+      <>
+        {[
+          { key: 'ptanNo' as keyof PipSearchFilters, label: 'PTAN' },
+          { key: 'checkEftNo' as keyof PipSearchFilters, label: 'Check/EFT #' },
+          // { key: 'npiPayerName' as keyof PipSearchFilters, label: 'NPI / Payer' },
+          { key: 'claimId' as keyof PipSearchFilters, label: 'Claim ID' },
+          { key: 'patientName' as keyof PipSearchFilters, label: 'Patient Name' },
+        ].map(({ key, label }) => (
+          <SearchField
+            key={key}
+            size="small"
+            label={label}
+            value={searchFilters[key]}
+            onChange={(e) => handleSearchFilterChange(key, e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleApplySearch()}
+          />
+        ))}
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<SearchIcon sx={{ fontSize: 18 }} />}
+            onClick={handleApplySearch}
+            sx={{
+              height: '36px',
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 2,
+            }}
+          >
+            Search
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={handleClearSearch}
+            sx={{
+              height: '36px',
+              borderRadius: '8px',
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 2,
+            }}
+          >
+            Clear
+          </Button>
+        </Box>
+      </>
+    ),
+    [searchFilters, handleSearchFilterChange, handleApplySearch, handleClearSearch],
+  );
 
-  const renderExpandedContent = useCallback((row: PipRecord) => {
-    if (loadingDetailsPtans.has(row.ptan)) {
+  const renderExpandedContent = useCallback(
+    (row: PipRecord) => {
+      if (loadingDetailsPtans.has(row.ptan)) {
+        return (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+            <CircularProgress size={24} />
+          </Box>
+        );
+      }
+      if (!row.npiDetails?.length) {
+        return (
+          <Typography variant="body2" color="text.secondary" sx={{ py: 1, px: 2 }}>
+            No NPI details found for this PTAN.
+          </Typography>
+        );
+      }
       return (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
-          <CircularProgress size={24} />
+        <Box>
+          {row.npiDetails.map((allocation) => (
+            <NpiSection key={allocation.npiPayerName} allocation={allocation} />
+          ))}
         </Box>
       );
-    }
-    if (!row.npiDetails?.length) {
-      return (
-        <Typography variant="body2" color="text.secondary" sx={{ py: 1, px: 2 }}>
-          No NPI details found for this PTAN.
-        </Typography>
-      );
-    }
-    return <Box>{row.npiDetails.map((allocation) => <NpiSection key={allocation.npiPayerName} allocation={allocation} />)}</Box>;
-  }, [loadingDetailsPtans]);
+    },
+    [loadingDetailsPtans],
+  );
 
   return (
     <Box sx={{ position: 'relative' }}>
@@ -172,20 +283,52 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         </Alert>
       )} */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL PAID AMOUNT" value={formatCurrency(pipSummary?.totalPaidAmount)} backgroundColor="background.paper" /></Grid>
-        <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="TOTAL SUSPENSE BALANCE" value={formatCurrency(pipSummary?.totalSuspenseBalance)} backgroundColor="background.paper" /></Grid>
-        <Grid size={{ xs: 12, md: 4 }}><SummaryCard title="ACTION REQUIRED" value={pipSummary?.actionRequired?.toString() ?? '-'} variant="default" backgroundColor="background.paper" /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard
+            title="TOTAL PAID AMOUNT"
+            value={formatCurrency(pipSummary?.totalPaidAmount)}
+            backgroundColor="background.paper"
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard
+            title="TOTAL SUSPENSE BALANCE"
+            value={formatCurrency(pipSummary?.totalSuspenseBalance)}
+            backgroundColor="background.paper"
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <SummaryCard
+            title="ACTION REQUIRED"
+            value={pipSummary?.actionRequired?.toString() ?? '-'}
+            variant="default"
+            backgroundColor="background.paper"
+          />
+        </Grid>
       </Grid>
       <DataTable
-        columns={columns} data={pipRecords || []} rowKey={getRowId} expandedRows={expandedRows}
-        expandedContent={renderExpandedContent} exportTitle="PIP Records" dictionaryId="statements"
-        serverSide totalElements={totalElements} page={queryParams.page} rowsPerPage={queryParams.size}
-        sortCol={queryParams.sortField} sortDir={queryParams.sortOrder}
+        columns={columns}
+        data={pipRecords || []}
+        rowKey={getRowId}
+        expandedRows={expandedRows}
+        expandedContent={renderExpandedContent}
+        exportTitle="PIP Records"
+        dictionaryId="statements"
+        serverSide
+        totalElements={totalElements}
+        page={queryParams.page}
+        rowsPerPage={queryParams.size}
+        sortCol={queryParams.sortField}
+        sortDir={queryParams.sortOrder}
         download={false}
-        onPageChange={handlePageChange} onRowsPerPageChange={handleRowsPerPageChange} onSortChange={handleSortChange}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+        onSortChange={handleSortChange}
         onFilterChange={handleFilterChange}
         loading={isFetching}
-        customToolbarContent={<RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />}
+        customToolbarContent={
+          <RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />
+        }
         customFilterContent={pipFilterPanel}
         additionalFilterCount={Object.values(appliedSearchFilters).filter((v) => v?.trim()).length}
       />

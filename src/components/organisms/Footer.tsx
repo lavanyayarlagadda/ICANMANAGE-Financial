@@ -33,11 +33,11 @@ const Footer: React.FC = () => {
     };
 
     const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
-    events.forEach(event => document.addEventListener(event, handleActivity));
+    events.forEach((event) => document.addEventListener(event, handleActivity));
     window.addEventListener('ican_inactivity_timeout_changed', handleTimeoutChange);
 
     countdownInterval = setInterval(() => {
-      setTimeLeft(prev => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
           return 0;
         }
@@ -46,7 +46,7 @@ const Footer: React.FC = () => {
     }, 1000);
 
     return () => {
-      events.forEach(event => document.removeEventListener(event, handleActivity));
+      events.forEach((event) => document.removeEventListener(event, handleActivity));
       window.removeEventListener('ican_inactivity_timeout_changed', handleTimeoutChange);
       if (activityTimer) clearTimeout(activityTimer);
       if (countdownInterval) clearInterval(countdownInterval);
@@ -76,14 +76,17 @@ const Footer: React.FC = () => {
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: 1,
-     backgroundColor: '#0A1929',
-             flexShrink: 0,
+        backgroundColor: '#0A1929',
+        flexShrink: 0,
       }}
     >
       <Typography variant="caption" color="text.secondary">
         CognitiveHealth All Rights Reserved. iCAN RCM Platform v6.0
       </Typography>
-      <Typography variant="caption" color={timeLeft <= 60 && timeLeft > 0 ? "error" : "text.secondary"}>
+      <Typography
+        variant="caption"
+        color={timeLeft <= 60 && timeLeft > 0 ? 'error' : 'text.secondary'}
+      >
         Session Expiration: {formatTime(timeLeft)}
       </Typography>
     </Box>

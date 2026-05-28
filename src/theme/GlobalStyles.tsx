@@ -17,7 +17,9 @@ export const GlobalStyles = () => {
           '--text-secondary': theme.palette.text.secondary,
           '--border-color': theme.palette.divider,
           '--font-family-primary': theme.typography.fontFamily,
-          '--font-family-headline': (theme.typography.h1 as { fontFamily?: string }).fontFamily || theme.typography.fontFamily,
+          '--font-family-headline':
+            (theme.typography.h1 as { fontFamily?: string }).fontFamily ||
+            theme.typography.fontFamily,
         },
         /* Custom Scrollbar for Autocomplete and other lists */
         '.MuiAutocomplete-listbox::-webkit-scrollbar': {

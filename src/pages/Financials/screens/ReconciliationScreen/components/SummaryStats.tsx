@@ -31,10 +31,7 @@ const SummaryStats: React.FC<SummaryStatsProps> = ({ stats }) => {
         />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
-        <SummaryCard
-          title="Cash Posting"
-          value={formatCurrency(stats.cashPosting)}
-        />
+        <SummaryCard title="Cash Posting" value={formatCurrency(stats.cashPosting)} />
       </Grid>
       <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
         <SummaryCard

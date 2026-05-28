@@ -12,10 +12,13 @@ export const useRowActionMenu = () => {
     setAnchorEl(null);
   }, []);
 
-  const handleAction = useCallback((callback: () => void) => {
-    handleClose();
-    callback();
-  }, [handleClose]);
+  const handleAction = useCallback(
+    (callback: () => void) => {
+      handleClose();
+      callback();
+    },
+    [handleClose],
+  );
 
   return {
     anchorEl,

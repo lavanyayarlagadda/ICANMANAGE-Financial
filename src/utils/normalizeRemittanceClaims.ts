@@ -15,7 +15,9 @@ export const isRemittanceDetail = (value: unknown): value is RemittanceDetail =>
   );
 };
 
-export const normalizeRemittanceClaims = (value: RawRemittanceClaimsResponse): RemittanceDetail[] => {
+export const normalizeRemittanceClaims = (
+  value: RawRemittanceClaimsResponse,
+): RemittanceDetail[] => {
   if (Array.isArray(value)) {
     return value.filter(isRemittanceDetail);
   }

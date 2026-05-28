@@ -10,7 +10,7 @@ interface TableSkeletonProps {
 export const TableSkeleton: React.FC<TableSkeletonProps> = ({
   rows = 10,
   columns = 6,
-  hasCheckbox = true
+  hasCheckbox = true,
 }) => {
   return (
     <Box sx={{ width: '100%', overflow: 'hidden' }}>
@@ -41,7 +41,7 @@ export const TableSkeleton: React.FC<TableSkeletonProps> = ({
                 <TableCell key={colIndex} sx={{ py: 1 }}>
                   <Skeleton
                     variant="text"
-                    width={colIndex === 0 ? "80%" : colIndex === columns - 1 ? "40%" : "90%"}
+                    width={colIndex === 0 ? '80%' : colIndex === columns - 1 ? '40%' : '90%'}
                   />
                 </TableCell>
               ))}

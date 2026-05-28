@@ -35,7 +35,8 @@ export const formatDate = (dateStr: string | null | undefined): string => {
   if (!dateStr) return '';
 
   // If it's already in the display format, return it
-  const displayPattern = DATE_FORMATS.DISPLAY === 'MM/dd/yyyy' ? /^\d{2}\/\d{2}\/\d{4}$/ : /^\d{2}-\d{2}-\d{4}$/;
+  const displayPattern =
+    DATE_FORMATS.DISPLAY === 'MM/dd/yyyy' ? /^\d{2}\/\d{2}\/\d{4}$/ : /^\d{2}-\d{2}-\d{4}$/;
   if (displayPattern.test(dateStr)) return dateStr;
 
   try {

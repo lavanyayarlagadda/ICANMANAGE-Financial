@@ -1,14 +1,16 @@
 import React, { useMemo, useState } from 'react';
-import {
-  TablePagination,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
+import { TablePagination, useTheme, useMediaQuery } from '@mui/material';
 import { exportToCSV, exportToPDF } from '@/utils/exportUtils';
 import { PAGE_SIZE_OPTIONS } from '@/constants/common';
 
 import DictionaryDrawer from '../DictionaryDrawer/DictionaryDrawer';
-import { useDataTable, DataColumn, SortDirection, AccessorColumn, FilterableColumn } from './DataTable.hook';
+import {
+  useDataTable,
+  DataColumn,
+  SortDirection,
+  AccessorColumn,
+  FilterableColumn,
+} from './DataTable.hook';
 import { MainContainer } from './DataTable.styles';
 import { DataTableToolbar } from './DataTableToolbar';
 import { DataTableDesktop } from './DataTableDesktop';
@@ -119,27 +121,31 @@ function DataTable<T>({
 
   const isSortable = (col: DataColumn<T>) => !!(col.accessor && !col.disableSort);
 
-  const filterableColumns = useMemo(() =>
-    columns
-      .filter((col) => !!col)
-      .filter((col) =>
-        (Array.isArray(col.filterOptions) && col.filterOptions.length > 0) ||
-        !!col.isFilterLoading ||
-        !!col.filterError
-      )
-      .map((col) => ({
-        ...col,
-        filterOptions: col.filterOptions || [],
-      })) as FilterableColumn<T>[],
-    [columns]
+  const filterableColumns = useMemo(
+    () =>
+      columns
+        .filter((col) => !!col)
+        .filter(
+          (col) =>
+            (Array.isArray(col.filterOptions) && col.filterOptions.length > 0) ||
+            !!col.isFilterLoading ||
+            !!col.filterError,
+        )
+        .map((col) => ({
+          ...col,
+          filterOptions: col.filterOptions || [],
+        })) as FilterableColumn<T>[],
+    [columns],
   );
   const exportableColumns = columns
     .filter((col) => !!col)
     .filter((c): c is AccessorColumn<T> => c.id !== 'actions' && hasAccessor(c));
-  const paginatedData = paginated && !props.serverSide
-    ? sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-    : sortedData;
-  const activeFilterCount = Object.values(columnFilters).filter(Boolean).length + (search ? 1 : 0) + additionalFilterCount;
+  const paginatedData =
+    paginated && !props.serverSide
+      ? sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+      : sortedData;
+  const activeFilterCount =
+    Object.values(columnFilters).filter(Boolean).length + (search ? 1 : 0) + additionalFilterCount;
 
   const handleSelectAll = (checked: boolean) => {
     const newSelection = new Set(selectedKeys);
@@ -158,8 +164,10 @@ function DataTable<T>({
     handleSelectionChange(newSelection);
   };
 
-  const isAllSelected = paginatedData.length > 0 && paginatedData.every((row) => selectedKeys.has(rowKey(row)));
-  const isIndeterminate = paginatedData.some((row) => selectedKeys.has(rowKey(row))) && !isAllSelected;
+  const isAllSelected =
+    paginatedData.length > 0 && paginatedData.every((row) => selectedKeys.has(rowKey(row)));
+  const isIndeterminate =
+    paginatedData.some((row) => selectedKeys.has(rowKey(row))) && !isAllSelected;
 
   const handleCSVExport = () => {
     exportToCSV(sortedData, exportableColumns, exportTitle);
@@ -202,7 +210,11 @@ function DataTable<T>({
       />
 
       {loading ? (
-        <TableSkeleton rows={rowsPerPage} columns={columns.length} hasCheckbox={!!props.selectable} />
+        <TableSkeleton
+          rows={rowsPerPage}
+          columns={columns.length}
+          hasCheckbox={!!props.selectable}
+        />
       ) : isMobile ? (
         <DataTableMobile
           paginatedData={paginatedData}
@@ -252,7 +264,9 @@ function DataTable<T>({
           count={totalCount}
           rowsPerPage={rowsPerPage}
           page={page}
-          labelDisplayedRows={({ count, page }) => `Page ${page + 1} of ${Math.max(1, Math.ceil(count / rowsPerPage))}`}
+          labelDisplayedRows={({ count, page }) =>
+            `Page ${page + 1} of ${Math.max(1, Math.ceil(count / rowsPerPage))}`
+          }
           onPageChange={(_, p) => {
             if (props.onPageChange) props.onPageChange(p);
             else setInternalPage(p);
@@ -265,7 +279,11 @@ function DataTable<T>({
               setInternalPage(0);
             }
           }}
-          sx={{ flexShrink: 0, borderTop: (t) => `1px solid ${t.palette.divider}`, '& .MuiTablePagination-toolbar': { minHeight: 40, px: 2 } }}
+          sx={{
+            flexShrink: 0,
+            borderTop: (t) => `1px solid ${t.palette.divider}`,
+            '& .MuiTablePagination-toolbar': { minHeight: 40, px: 2 },
+          }}
         />
       )}
 
@@ -279,4 +297,3 @@ function DataTable<T>({
 }
 
 export default DataTable;
-

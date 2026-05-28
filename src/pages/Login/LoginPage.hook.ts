@@ -27,7 +27,10 @@ export const useLoginPage = () => {
   }, [isAuthenticated, navigate]);
 
   const togglePasswordVisibility = useCallback(() => setShowPassword((show) => !show), []);
-  const handleMouseDownPassword = useCallback((event: React.MouseEvent<HTMLButtonElement>) => event.preventDefault(), []);
+  const handleMouseDownPassword = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>) => event.preventDefault(),
+    [],
+  );
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,11 +53,13 @@ export const useLoginPage = () => {
       dispatch(clearSelectedTenant());
 
       // Success! Store credentials and navigate to root resolver
-      dispatch(setCredentials({
-        user: result.user,
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
-      }));
+      dispatch(
+        setCredentials({
+          user: result.user,
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        }),
+      );
 
       // Navigate to / which delegates to RootRedirect for fetching the live defaultLandingPage
       navigate('/', { replace: true });
@@ -64,7 +69,6 @@ export const useLoginPage = () => {
       setErrorMsg(error.data?.message || 'Invalid username or password');
     }
   };
-
 
   return {
     username,

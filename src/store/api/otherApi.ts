@@ -1,4 +1,4 @@
-import { baseApi } from "./baseApi";
+import { baseApi } from './baseApi';
 import {
   TableSearchRequest,
   CollectionAccount,
@@ -6,8 +6,8 @@ import {
   ForwardBalanceSummaryResponse,
   ForwardBalanceDetailsResponse,
   SuspenseAccountSearchResponse,
-  DateRangeParams
-} from "@/interfaces/api";
+  DateRangeParams,
+} from '@/interfaces/api';
 
 export const otherApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -16,59 +16,47 @@ export const otherApi = baseApi.injectEndpoints({
       TableSearchRequest
     >({
       query: (body) => ({
-        url: "financials/collections/search",
-        method: "POST",
+        url: 'financials/collections/search',
+        method: 'POST',
         body,
       }),
-      providesTags: ["Financials"],
+      providesTags: ['Financials'],
     }),
     searchForwardBalanceNotices: builder.query<
       ForwardBalanceNoticeSearchResponse,
       TableSearchRequest
     >({
       query: (body) => ({
-        url: "financials/forward-balance-notices",
-        method: "POST",
+        url: 'financials/forward-balance-notices',
+        method: 'POST',
         body,
       }),
-      providesTags: ["Financials"],
+      providesTags: ['Financials'],
     }),
-    searchSuspenseAccounts: builder.query<
-      SuspenseAccountSearchResponse,
-      TableSearchRequest
-    >({
+    searchSuspenseAccounts: builder.query<SuspenseAccountSearchResponse, TableSearchRequest>({
       query: (body) => ({
-        url: "financials/suspense-accounts",
-        method: "POST",
+        url: 'financials/suspense-accounts',
+        method: 'POST',
         body,
       }),
       transformResponse: (response: { data: SuspenseAccountSearchResponse }) => response.data,
-      providesTags: ["Financials"],
+      providesTags: ['Financials'],
     }),
-    exportForwardBalanceNotices: builder.query<
-      Blob,
-      DateRangeParams & { format: "pdf" | "xlsx" }
-    >({
+    exportForwardBalanceNotices: builder.query<Blob, DateRangeParams & { format: 'pdf' | 'xlsx' }>({
       query: (params) => ({
         url: `financials/export/forward-balances`,
         params,
         responseHandler: (response) => response.blob(),
       }),
     }),
-    exportSuspenseAccounts: builder.query<
-      Blob,
-      DateRangeParams & { format: "pdf" | "xlsx" }
-    >({
+    exportSuspenseAccounts: builder.query<Blob, DateRangeParams & { format: 'pdf' | 'xlsx' }>({
       query: (params) => ({
         url: `financials/export/suspense-accounts`,
         params,
         responseHandler: (response) => response.blob(),
       }),
     }),
-    exportCollections: builder.query<
-      Blob,
-      DateRangeParams & { format: "pdf" | "xlsx" }
-    >({
+    exportCollections: builder.query<Blob, DateRangeParams & { format: 'pdf' | 'xlsx' }>({
       query: (params) => ({
         url: `financials/export/collections`,
         params,
@@ -77,14 +65,14 @@ export const otherApi = baseApi.injectEndpoints({
     }),
     getForwardBalanceDetails: builder.query<ForwardBalanceDetailsResponse, string>({
       query: (noticeId) => `/financials/statements/forward-balances/${noticeId}/details`,
-      providesTags: ["Financials"],
+      providesTags: ['Financials'],
     }),
     getForwardBalanceSummary: builder.query<ForwardBalanceSummaryResponse, DateRangeParams>({
       query: (params) => ({
-        url: "/financials/forward-balances/summary",
+        url: '/financials/forward-balances/summary',
         params,
       }),
-      providesTags: ["Financials"],
+      providesTags: ['Financials'],
     }),
   }),
 });

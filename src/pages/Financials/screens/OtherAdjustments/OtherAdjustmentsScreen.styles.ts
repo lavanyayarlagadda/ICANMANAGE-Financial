@@ -4,13 +4,13 @@ import { themeConfig } from '@/theme/themeConfig';
 
 export const adjustmentTypeColors: Record<string, string> = {
   'WRITE-OFF': themeConfig.colors.error,
-  'CREDIT': themeConfig.colors.info,
-  'INTEREST': themeConfig.colors.accentDark,
-  'CONTRACTUAL': themeConfig.colors.primaryDark,
-  'REFUND': themeConfig.colors.charts.teal,
-  'TRANSFER': themeConfig.colors.accent,
-  'RECLASSIFICATION': themeConfig.colors.slate[700],
-  'CHARITY': themeConfig.colors.success,
+  CREDIT: themeConfig.colors.info,
+  INTEREST: themeConfig.colors.accentDark,
+  CONTRACTUAL: themeConfig.colors.primaryDark,
+  REFUND: themeConfig.colors.charts.teal,
+  TRANSFER: themeConfig.colors.accent,
+  RECLASSIFICATION: themeConfig.colors.slate[700],
+  CHARITY: themeConfig.colors.success,
 };
 
 export const adjustmentChipStyles = (type: string): SxProps<Theme> => ({
@@ -23,7 +23,12 @@ export const adjustmentChipStyles = (type: string): SxProps<Theme> => ({
 export const amountStyles = (amount: number, theme: Theme): SxProps<Theme> => ({
   fontFamily: 'monospace',
   fontWeight: 600,
-  color: amount < 0 ? theme.palette.error.main : amount > 0 ? theme.palette.success.main : theme.palette.text.primary,
+  color:
+    amount < 0
+      ? theme.palette.error.main
+      : amount > 0
+        ? theme.palette.success.main
+        : theme.palette.text.primary,
 });
 
 export const ToolbarWrapper = styled(Box)(({ theme }) => ({
@@ -50,7 +55,6 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
   '& .MuiOutlinedInput-root': {
     height: 36,
-    fontSize: '13px'
-  }
+    fontSize: '13px',
+  },
 }));
-

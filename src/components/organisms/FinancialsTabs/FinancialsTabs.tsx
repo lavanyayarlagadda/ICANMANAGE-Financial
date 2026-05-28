@@ -1,5 +1,17 @@
 import React from 'react';
-import { Box, Typography, useTheme, useMediaQuery, Select, MenuItem, SelectChangeEvent, FormControl, Tab, Tabs, Tooltip } from '@mui/material';
+import {
+  Box,
+  Typography,
+  useTheme,
+  useMediaQuery,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+  FormControl,
+  Tab,
+  Tabs,
+  Tooltip,
+} from '@mui/material';
 import Button from '@/components/atoms/Button/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -17,7 +29,13 @@ interface FinancialsTabsProps {
   isRestricted?: boolean;
 }
 
-const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onExportWizard, isRestricted, ...props }) => {
+const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
+  onPrint,
+  onReload,
+  onExportWizard,
+  isRestricted,
+  ...props
+}) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
@@ -41,18 +59,35 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
   return (
     <Box sx={styles.containerStyles}>
       <Box sx={styles.mainTabsRowStyles(theme, isTablet)}>
-        <Typography variant="h5" sx={{ ...styles.mainTitleStyles, mr: isTablet ? 0 : 4, mb: isTablet ? 0.5 : 0, flexShrink: 0 }}>
+        <Typography
+          variant="h5"
+          sx={{
+            ...styles.mainTitleStyles,
+            mr: isTablet ? 0 : 4,
+            mb: isTablet ? 0.5 : 0,
+            flexShrink: 0,
+          }}
+        >
           Financials
         </Typography>
 
-        <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', ml: isTablet ? 0 : 2 }}>
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            ml: isTablet ? 0 : 2,
+          }}
+        >
           {isMobile ? (
             <FormControl fullWidth size="small">
               <Select
                 value={activeTab}
                 onChange={(e: SelectChangeEvent<number>) => {
                   const val = Number(e.target.value);
-                  const tab = filteredMainTabs.find(t => t.id === val);
+                  const tab = filteredMainTabs.find((t) => t.id === val);
                   if (tab) handleMainTabChange(tab.id, tab.path);
                 }}
                 sx={styles.tabletSelectStyles(theme)}
@@ -76,7 +111,7 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
               scrollButtons="auto"
               allowScrollButtonsMobile
               onChange={(_, val) => {
-                const tab = filteredMainTabs.find(t => t.id === val);
+                const tab = filteredMainTabs.find((t) => t.id === val);
                 if (tab && tab.status !== 'Disabled') handleMainTabChange(tab.id, tab.path);
               }}
               sx={{
@@ -93,21 +128,21 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                   color: themeConfig.colors.primary,
                   transition: 'all 0.2s',
                   '&:hover': { backgroundColor: themeConfig.colors.slate[200] },
-                  '&.Mui-disabled': { display: 'none' }
+                  '&.Mui-disabled': { display: 'none' },
                 },
                 '& .MuiTab-root': {
                   minHeight: '40px',
                   minWidth: 'auto',
                   p: 0,
                   textTransform: 'none',
-                  opacity: 1
-                }
+                  opacity: 1,
+                },
               }}
             >
               {filteredMainTabs.map((tab) => (
                 <Tooltip
                   key={tab.id}
-                  title={tab.status === 'Disabled' ? "This module is currently unavailable" : ""}
+                  title={tab.status === 'Disabled' ? 'This module is currently unavailable' : ''}
                   placement="top"
                   arrow
                   disableFocusListener
@@ -116,7 +151,12 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                     value={tab.id}
                     disabled={tab.status === 'Disabled'}
                     label={
-                      <Box sx={styles.mainTabItemStyles(activeTab === tab.id, tab.status === 'Disabled')}>
+                      <Box
+                        sx={styles.mainTabItemStyles(
+                          activeTab === tab.id,
+                          tab.status === 'Disabled',
+                        )}
+                      >
                         {tab.label}
                       </Box>
                     }
@@ -139,8 +179,9 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 scrollButtons="auto"
                 allowScrollButtonsMobile
                 onChange={(_, val) => {
-                  const subTab = currentSubTabs.find(st => st.id === val);
-                  if (subTab && subTab.status === 'Active') handleSubTabChange(subTab.id, subTab.path);
+                  const subTab = currentSubTabs.find((st) => st.id === val);
+                  if (subTab && subTab.status === 'Active')
+                    handleSubTabChange(subTab.id, subTab.path);
                 }}
                 sx={{
                   width: '100%',
@@ -152,25 +193,27 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                     borderRadius: '4px',
                     backgroundColor: themeConfig.colors.slate[100],
                     transition: 'all 0.2s',
-                    '&.Mui-disabled': { display: 'none' }
+                    '&.Mui-disabled': { display: 'none' },
                   },
                   '& .MuiTab-root': {
                     minHeight: 'auto',
                     minWidth: 'auto',
                     p: 0,
                     textTransform: 'none',
-                    opacity: 1
-                  }
+                    opacity: 1,
+                  },
                 }}
               >
                 {currentSubTabs.map((subTab) => (
                   <Tooltip
                     key={subTab.id}
-                    title={subTab.status === 'Disabled'
-                      ? "This sub-module is currently unavailable"
-                      : subTab.status === 'Hidden'
-                        ? "This sub-module is hidden"
-                        : ""}
+                    title={
+                      subTab.status === 'Disabled'
+                        ? 'This sub-module is currently unavailable'
+                        : subTab.status === 'Hidden'
+                          ? 'This sub-module is hidden'
+                          : ''
+                    }
                     placement="top"
                     arrow
                     disableFocusListener
@@ -179,7 +222,12 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                       value={subTab.id}
                       disabled={subTab.status !== 'Active'}
                       label={
-                        <Box sx={styles.subTabItemStyles(activeSubTab === subTab.id, subTab.status !== 'Active')}>
+                        <Box
+                          sx={styles.subTabItemStyles(
+                            activeSubTab === subTab.id,
+                            subTab.status !== 'Active',
+                          )}
+                        >
                           {subTab.label}
                         </Box>
                       }
@@ -197,7 +245,9 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
                 size="small"
                 variant="outlined"
                 onClick={onPrint}
-                startIcon={<PrintIcon sx={{ fontSize: 18, color: themeConfig.colors.slate[400] }} />}
+                startIcon={
+                  <PrintIcon sx={{ fontSize: 18, color: themeConfig.colors.slate[400] }} />
+                }
                 sx={styles.printButtonStyles(isMobile)}
               >
                 Print
@@ -233,4 +283,3 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({ onPrint, onReload, onEx
 };
 
 export default FinancialsTabs;
-

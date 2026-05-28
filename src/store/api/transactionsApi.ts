@@ -1,4 +1,4 @@
-import { baseApi } from "./baseApi";
+import { baseApi } from './baseApi';
 import {
   TableSearchRequest,
   AllTransactionsSearchRequest,
@@ -10,8 +10,8 @@ import {
   DateRangeParams,
   PlbDetailsSearchRequest,
   PlbDetailsSearchResponse,
-  PlbDetailsExportRequest
-} from "@/interfaces/api";
+  PlbDetailsExportRequest,
+} from '@/interfaces/api';
 
 export const transactionsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -20,62 +20,47 @@ export const transactionsApi = baseApi.injectEndpoints({
       AllTransactionsSearchRequest
     >({
       query: (body) => ({
-        url: "financials/all-transactions",
-        method: "POST",
+        url: 'financials/all-transactions',
+        method: 'POST',
         body,
       }),
-      providesTags: ["Transactions"],
+      providesTags: ['Transactions'],
     }),
     getAllTransactionsFilters: builder.query<AllTransactionsFilterResponse, void>({
-      query: () => "financials/dropdown",
-      providesTags: ["Transactions"],
+      query: () => 'financials/dropdown',
+      providesTags: ['Transactions'],
     }),
-    searchRecoupments: builder.query<
-      RecoupmentSearchResponse,
-      TableSearchRequest
-    >({
+    searchRecoupments: builder.query<RecoupmentSearchResponse, TableSearchRequest>({
       query: (body) => ({
-        url: "financials/transactions/recoupments",
-        method: "POST",
+        url: 'financials/transactions/recoupments',
+        method: 'POST',
         body,
       }),
-      providesTags: ["Transactions"],
+      providesTags: ['Transactions'],
     }),
-    searchOtherAdjustments: builder.query<
-      OtherAdjustmentSearchResponse,
-      TableSearchRequest
-    >({
+    searchOtherAdjustments: builder.query<OtherAdjustmentSearchResponse, TableSearchRequest>({
       query: (body) => ({
-        url: "financials/transactions/adjustments",
-        method: "POST",
+        url: 'financials/transactions/adjustments',
+        method: 'POST',
         body,
       }),
-      providesTags: ["Transactions"],
+      providesTags: ['Transactions'],
     }),
-    exportRecoupments: builder.query<
-      Blob,
-      DateRangeParams & { format: "pdf" | "xlsx" }
-    >({
+    exportRecoupments: builder.query<Blob, DateRangeParams & { format: 'pdf' | 'xlsx' }>({
       query: (params) => ({
         url: `financials/export/transactions/recoupments`,
         params,
         responseHandler: (response) => response.blob(),
       }),
     }),
-    exportOtherAdjustments: builder.query<
-      Blob,
-      DateRangeParams & { format: "pdf" | "xlsx" }
-    >({
+    exportOtherAdjustments: builder.query<Blob, DateRangeParams & { format: 'pdf' | 'xlsx' }>({
       query: (params) => ({
         url: `financials/export/transactions/adjustments`,
         params,
         responseHandler: (response) => response.blob(),
       }),
     }),
-    exportAllTransactions: builder.query<
-      Blob,
-      DateRangeParams & { format: "pdf" | "xlsx" }
-    >({
+    exportAllTransactions: builder.query<Blob, DateRangeParams & { format: 'pdf' | 'xlsx' }>({
       query: (params) => ({
         url: `financials/export/transactions/all`,
         params,
@@ -83,27 +68,21 @@ export const transactionsApi = baseApi.injectEndpoints({
       }),
     }),
     getRecoupmentFilters: builder.query<RecoupmentFilterResponse, void>({
-      query: () => "financials/transactions/recoupments/filters",
-      providesTags: ["Transactions"],
+      query: () => 'financials/transactions/recoupments/filters',
+      providesTags: ['Transactions'],
     }),
-    searchPlbDetails: builder.query<
-      PlbDetailsSearchResponse,
-      PlbDetailsSearchRequest
-    >({
+    searchPlbDetails: builder.query<PlbDetailsSearchResponse, PlbDetailsSearchRequest>({
       query: (body) => ({
-        url: "financials/transactions/plb-details",
-        method: "POST",
+        url: 'financials/transactions/plb-details',
+        method: 'POST',
         body,
       }),
-      providesTags: ["Transactions"],
+      providesTags: ['Transactions'],
     }),
-    exportPlbDetails: builder.query<
-      Blob,
-      PlbDetailsExportRequest & { format?: 'pdf' | 'xlsx' }
-    >({
+    exportPlbDetails: builder.query<Blob, PlbDetailsExportRequest & { format?: 'pdf' | 'xlsx' }>({
       query: ({ format, ...body }) => ({
         url: `financials/transactions/plb-details/export/excel${format ? `?format=${format}` : ''}`,
-        method: "POST",
+        method: 'POST',
         body,
         responseHandler: (response) => response.blob(),
       }),
@@ -121,5 +100,5 @@ export const {
   useLazyExportAllTransactionsQuery,
   useGetRecoupmentFiltersQuery,
   useSearchPlbDetailsQuery,
-  useLazyExportPlbDetailsQuery
+  useLazyExportPlbDetailsQuery,
 } = transactionsApi;

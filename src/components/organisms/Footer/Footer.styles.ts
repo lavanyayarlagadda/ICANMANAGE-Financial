@@ -18,5 +18,5 @@ export const footerStyles = (theme: Theme): SxProps<Theme> => ({
   left: 0,
   zIndex: theme.zIndex.appBar,
   pointerEvents: 'none',
-  '& > *': { pointerEvents: 'auto' }
+  '& > *': { pointerEvents: 'auto' },
 });

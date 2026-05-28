@@ -10,7 +10,7 @@ export const PageWrapper = styled(Box)(({ theme }) => ({
   width: '100vw',
   overflow: 'hidden',
   backgroundColor: theme.palette.background.default,
-  position: 'relative'
+  position: 'relative',
 }));
 
 export const MainContentWrapper = styled(Box)(() => ({
@@ -34,7 +34,7 @@ export const ContentArea = styled(Box)<{ component?: React.ElementType }>(({ the
   minWidth: 0,
   [theme.breakpoints.down('sm')]: {
     padding: theme.spacing(2),
-  }
+  },
 }));
 
 export const GlobalOverlay = styled(Box)(({ theme }) => ({
@@ -51,7 +51,7 @@ export const GlobalOverlay = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  gap: theme.spacing(2)
+  gap: theme.spacing(2),
 }));
 
 export const NavItemStyles = (sidebarCollapsed: boolean, theme: Theme): SxProps<Theme> => ({

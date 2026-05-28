@@ -49,7 +49,7 @@ const RootRedirect = () => {
 
   if (defaultPageLabel) {
     const configKey = Object.keys(NAV_CONFIG).find(
-      key => key.toLowerCase() === defaultPageLabel.toLowerCase()
+      (key) => key.toLowerCase() === defaultPageLabel.toLowerCase(),
     );
 
     if (configKey) {
@@ -70,7 +70,7 @@ const App = () => (
         <BrowserRouter
           future={{
             v7_startTransition: true,
-            v7_relativeSplatPath: true
+            v7_relativeSplatPath: true,
           }}
         >
           <GlobalHooksWrapper>

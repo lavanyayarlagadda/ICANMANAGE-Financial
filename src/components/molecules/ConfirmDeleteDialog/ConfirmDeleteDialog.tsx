@@ -16,7 +16,12 @@ interface ConfirmDeleteDialogProps {
   itemType: string;
 }
 
-const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({ open, onClose, onConfirm, itemType }) => {
+const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
+  open,
+  onClose,
+  onConfirm,
+  itemType,
+}) => {
   const handleConfirm = useCallback(() => {
     onConfirm();
   }, [onConfirm]);
@@ -30,8 +35,12 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({ open, onClose
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={styles.dialogActionsStyles}>
-        <Button onClick={onClose} variant="outlined" size="small">Cancel</Button>
-        <Button onClick={handleConfirm} variant="contained" color="error" size="small">Delete</Button>
+        <Button onClick={onClose} variant="outlined" size="small">
+          Cancel
+        </Button>
+        <Button onClick={handleConfirm} variant="contained" color="error" size="small">
+          Delete
+        </Button>
       </DialogActions>
     </Dialog>
   );

@@ -5,51 +5,54 @@ import { RootState } from '@/store';
 import { useNavigate } from 'react-router-dom';
 
 export const useInactivityTimer = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-    const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
-    const resetTimer = useCallback(() => {
-        if (timeoutId.current) {
-            clearTimeout(timeoutId.current);
-        }
+  const resetTimer = useCallback(() => {
+    if (timeoutId.current) {
+      clearTimeout(timeoutId.current);
+    }
 
-        if (!isAuthenticated) return;
+    if (!isAuthenticated) return;
 
-        // Get timeout from localStorage or default to 15 mins
-        const storedTimeout = localStorage.getItem('ican_inactivity_timeout');
-        const timeoutMinutes = storedTimeout ? parseInt(storedTimeout) : 15;
+    // Get timeout from localStorage or default to 15 mins
+    const storedTimeout = localStorage.getItem('ican_inactivity_timeout');
+    const timeoutMinutes = storedTimeout ? parseInt(storedTimeout) : 15;
 
-        if (timeoutMinutes > 0) {
-            timeoutId.current = setTimeout(() => {
-                dispatch(logout());
-                navigate('/login', { replace: true });
-            }, timeoutMinutes * 60 * 1000);
-        }
-    }, [dispatch, isAuthenticated, navigate]);
+    if (timeoutMinutes > 0) {
+      timeoutId.current = setTimeout(
+        () => {
+          dispatch(logout());
+          navigate('/login', { replace: true });
+        },
+        timeoutMinutes * 60 * 1000,
+      );
+    }
+  }, [dispatch, isAuthenticated, navigate]);
 
-    useEffect(() => {
-        const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
+  useEffect(() => {
+    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
 
-        const handleActivity = () => {
-            resetTimer();
-        };
+    const handleActivity = () => {
+      resetTimer();
+    };
 
-        if (isAuthenticated) {
-            resetTimer();
-            events.forEach((event) => {
-                window.addEventListener(event, handleActivity);
-            });
-        }
+    if (isAuthenticated) {
+      resetTimer();
+      events.forEach((event) => {
+        window.addEventListener(event, handleActivity);
+      });
+    }
 
-        return () => {
-            if (timeoutId.current) {
-                clearTimeout(timeoutId.current);
-            }
-            events.forEach((event) => {
-                window.removeEventListener(event, handleActivity);
-            });
-        };
-    }, [isAuthenticated, resetTimer]);
+    return () => {
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+      }
+      events.forEach((event) => {
+        window.removeEventListener(event, handleActivity);
+      });
+    };
+  }, [isAuthenticated, resetTimer]);
 };

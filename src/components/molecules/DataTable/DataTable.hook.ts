@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { getDescriptionsForTable, TableDescription, TableDescriptions } from '@/services/descriptionService';
+import {
+  getDescriptionsForTable,
+  TableDescription,
+  TableDescriptions,
+} from '@/services/descriptionService';
 
 export interface FilterOption {
   label: string;
@@ -15,7 +19,7 @@ export interface DataColumn<T> {
   getCellProps?: (
     row: T,
     rowIndex: number,
-    rows: T[]
+    rows: T[],
   ) => {
     rowSpan?: number;
     colSpan?: number;
@@ -97,32 +101,41 @@ export function useDataTable<T>({
     }
   }, [dictionaryId]);
 
-  const handleHeaderClick = useCallback((colId: string) => {
-    if (descriptions?.[colId]) {
-      setSelectedField(descriptions[colId]);
-      setDictionaryOpen(true);
-    }
-  }, [descriptions]);
+  const handleHeaderClick = useCallback(
+    (colId: string) => {
+      if (descriptions?.[colId]) {
+        setSelectedField(descriptions[colId]);
+        setDictionaryOpen(true);
+      }
+    },
+    [descriptions],
+  );
 
-  const handleSelectionChange = useCallback((newSelection: Set<string>) => {
-    setInternalSelected(newSelection);
-    onSelectionChange?.(newSelection);
-  }, [onSelectionChange]);
+  const handleSelectionChange = useCallback(
+    (newSelection: Set<string>) => {
+      setInternalSelected(newSelection);
+      onSelectionChange?.(newSelection);
+    },
+    [onSelectionChange],
+  );
 
-  const handleSort = useCallback((colId: string) => {
-    let newDir: SortDirection = 'asc';
-    if (sortCol === colId) {
-      newDir = sortDir === 'asc' ? 'desc' : 'asc';
-    }
+  const handleSort = useCallback(
+    (colId: string) => {
+      let newDir: SortDirection = 'asc';
+      if (sortCol === colId) {
+        newDir = sortDir === 'asc' ? 'desc' : 'asc';
+      }
 
-    if (onSortChange) {
-      onSortChange(colId, newDir);
-    } else {
-      setInternalSortCol(colId);
-      setInternalSortDir(newDir);
-      setInternalPage(0);
-    }
-  }, [sortCol, sortDir, onSortChange]);
+      if (onSortChange) {
+        onSortChange(colId, newDir);
+      } else {
+        setInternalSortCol(colId);
+        setInternalSortDir(newDir);
+        setInternalPage(0);
+      }
+    },
+    [sortCol, sortDir, onSortChange],
+  );
 
   const filteredData = useMemo(() => {
     if (serverSide) return data;
@@ -130,7 +143,7 @@ export function useDataTable<T>({
     if (internalSearch.trim()) {
       const q = internalSearch.toLowerCase();
       result = result.filter((row) =>
-        columns.some((col) => col.accessor && String(col.accessor(row)).toLowerCase().includes(q))
+        columns.some((col) => col.accessor && String(col.accessor(row)).toLowerCase().includes(q)),
       );
     }
     Object.entries(internalColumnFilters).forEach(([colId, filterVal]) => {

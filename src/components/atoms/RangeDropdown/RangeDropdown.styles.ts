@@ -36,14 +36,14 @@ export const datePickersContainerStyles = (): SxProps<Theme> => ({
   alignItems: 'center',
   gap: 1,
   flexDirection: 'row', // Force row for compact view
-  width: 'auto'
+  width: 'auto',
 });
 
 export const datePickerItemStyles = (): SxProps<Theme> => ({
   display: 'flex',
   alignItems: 'center',
   gap: 0.5,
-  width: 'auto'
+  width: 'auto',
 });
 
 export const dateLabelStyles: SxProps<Theme> = {
@@ -79,9 +79,9 @@ export const slotProps = () => ({
       '& .MuiDateCalendar-root': {
         '& .MuiPickersDay-root.Mui-selected': {
           backgroundColor: themeConfig.colors.accent,
-        }
-      }
-    }
+        },
+      },
+    },
   },
   mobilePaper: {
     sx: {
@@ -94,7 +94,7 @@ export const slotProps = () => ({
       },
       '& .MuiButtonBase-root': {
         color: themeConfig.colors.accent,
-      }
-    }
-  }
+      },
+    },
+  },
 });

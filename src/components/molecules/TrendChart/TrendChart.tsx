@@ -79,24 +79,30 @@ function TrendChart<T extends Record<string, unknown>>({
     <Card>
       <CardContent>
         <Box sx={styles.headerBoxStyles}>
-          <Typography variant="subtitle2" sx={styles.titleStyles}>{title}</Typography>
+          <Typography variant="subtitle2" sx={styles.titleStyles}>
+            {title}
+          </Typography>
           <ToggleButtonGroup
             value={chartType}
             exclusive
             onChange={handleChartTypeChange}
             size="small"
           >
-            <ToggleButton value="bar" sx={styles.toggleButtonStyles}><BarChartIcon fontSize="small" /></ToggleButton>
-            <ToggleButton value="line" sx={styles.toggleButtonStyles}><ShowChartIcon fontSize="small" /></ToggleButton>
+            <ToggleButton value="bar" sx={styles.toggleButtonStyles}>
+              <BarChartIcon fontSize="small" />
+            </ToggleButton>
+            <ToggleButton value="line" sx={styles.toggleButtonStyles}>
+              <ShowChartIcon fontSize="small" />
+            </ToggleButton>
           </ToggleButtonGroup>
         </Box>
         <ResponsiveContainer width="100%" height={height}>
           {chartType === 'bar' ? (
             <BarChart data={data} barCategoryGap="20%">
-              <XAxis 
-                dataKey={xKey} 
-                tick={{ fontSize: 10 }} 
-                axisLine={false} 
+              <XAxis
+                dataKey={xKey}
+                tick={{ fontSize: 10 }}
+                axisLine={false}
                 tickLine={false}
                 interval={isMobile ? 0 : 'preserveStartEnd'}
                 angle={isMobile ? -45 : 0}
@@ -104,7 +110,11 @@ function TrendChart<T extends Record<string, unknown>>({
                 height={isMobile ? 60 : 30}
               />
               <YAxis hide domain={yDomain || [0, 'auto']} />
-              <RechartsTooltip formatter={tooltipFormatter ? (v: number) => tooltipFormatter(v as number) : undefined} />
+              <RechartsTooltip
+                formatter={
+                  tooltipFormatter ? (v: number) => tooltipFormatter(v as number) : undefined
+                }
+              />
               <Bar dataKey={yKey} radius={[6, 6, 0, 0]}>
                 {!isMobile && (
                   <LabelList
@@ -129,8 +139,8 @@ function TrendChart<T extends Record<string, unknown>>({
           ) : (
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
-              <XAxis 
-                dataKey={xKey} 
+              <XAxis
+                dataKey={xKey}
                 tick={{ fontSize: 10 }}
                 interval={isMobile ? 0 : 'preserveStartEnd'}
                 angle={isMobile ? -45 : 0}

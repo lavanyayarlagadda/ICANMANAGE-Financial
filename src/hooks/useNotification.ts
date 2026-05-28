@@ -12,7 +12,7 @@ export const useNotification = () => {
     (message: string, severity: 'success' | 'error' | 'info' | 'warning' = 'success') => {
       dispatch(showSnackbar({ message, severity }));
     },
-    [dispatch]
+    [dispatch],
   );
 
   const notifySuccess = useCallback((message: string) => notify(message, 'success'), [notify]);

@@ -87,7 +87,7 @@ export const SearchField = styled(TextField, {
   '& .MuiInputBase-root': {
     height: 32,
     fontSize: '0.8125rem',
-  }
+  },
 }));
 
 /* ICON BUTTON (FILTER) */
@@ -160,13 +160,11 @@ export const ScrollableTableContainer = styled(TableContainer)(({ theme }) => ({
   },
   scrollbarWidth: 'thin',
   scrollbarColor: `${theme.palette.grey[400]} ${theme.palette.grey[50]}`,
-
 }));
 
 /* ROW */
 export const StyledTableRow = styled(TableRow, {
-  shouldForwardProp: (prop) =>
-    prop !== 'isSelected' && prop !== 'clickable',
+  shouldForwardProp: (prop) => prop !== 'isSelected' && prop !== 'clickable',
 })<{
   isSelected?: boolean;
   clickable?: boolean;

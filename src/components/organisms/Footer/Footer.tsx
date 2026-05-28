@@ -9,11 +9,18 @@ const Footer: React.FC = () => {
   const theme = useTheme();
 
   return (
-    <Box component="footer" sx={{ ...styles.footerStyles(theme), pl: `calc(${drawerWidth}px + ${theme.spacing(3)})` }}>
+    <Box
+      component="footer"
+      sx={{ ...styles.footerStyles(theme), pl: `calc(${drawerWidth}px + ${theme.spacing(3)})` }}
+    >
       <Typography variant="caption" color="text.secondary">
-        © {new Date().getFullYear()} CognitiveHealth All Rights Reserved. iCAN RCM Platform v{pkg.version}
+        © {new Date().getFullYear()} CognitiveHealth All Rights Reserved. iCAN RCM Platform v
+        {pkg.version}
       </Typography>
-      <Typography variant="caption" color={timeLeft <= 60 && timeLeft > 0 ? "error" : "text.secondary"}>
+      <Typography
+        variant="caption"
+        color={timeLeft <= 60 && timeLeft > 0 ? 'error' : 'text.secondary'}
+      >
         Session Expiration: {formatTime(timeLeft)}
       </Typography>
     </Box>

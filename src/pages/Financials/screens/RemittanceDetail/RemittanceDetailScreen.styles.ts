@@ -17,12 +17,12 @@ export const PatientNameHeader = styled(Typography)(({ theme }) => ({
 }));
 
 export const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
-  '&.Mui-selected': { 
+  '&.Mui-selected': {
     backgroundColor: theme.palette.action.selected,
   },
-  '&:hover': { 
+  '&:hover': {
     backgroundColor: theme.palette.action.hover,
-  }
+  },
 }));
 
 export const StyledAvatar = styled(Avatar)<{ isSelected?: boolean }>(({ theme, isSelected }) => ({

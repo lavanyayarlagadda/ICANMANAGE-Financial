@@ -13,11 +13,7 @@ import {
 } from '@mui/material';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import EmptyState from '../../atoms/EmptyState/EmptyState';
-import {
-  ScrollableTableContainer,
-  HeaderTableCell,
-  StyledTableRow,
-} from './DataTable.styles';
+import { ScrollableTableContainer, HeaderTableCell, StyledTableRow } from './DataTable.styles';
 import { DataColumn, SortDirection } from './DataTable.hook';
 import { TableDescriptions } from '@/services/descriptionService';
 
@@ -81,11 +77,14 @@ export function DataTableDesktop<T>({
     <ScrollableTableContainer>
       <Table
         stickyHeader
-        size={dense ? "small" : "medium"}
+        size={dense ? 'small' : 'medium'}
         sx={{
           minWidth: 'max-content',
           '& .MuiTableCell-root': { p: dense ? 0.5 : 1, minHeight: dense ? 32 : 40 },
-          '& .MuiTableHead-root .MuiTableCell-root': { py: dense ? 0.5 : 1, minHeight: dense ? 40 : 48 }
+          '& .MuiTableHead-root .MuiTableCell-root': {
+            py: dense ? 0.5 : 1,
+            minHeight: dense ? 40 : 48,
+          },
         }}
       >
         <TableHead>
@@ -115,7 +114,12 @@ export function DataTableDesktop<T>({
                     sx={{
                       display: 'flex',
                       flexDirection: 'row',
-                      justifyContent: (col.align || 'center') === 'center' ? 'center' : col.align === 'right' ? 'flex-end' : 'flex-start',
+                      justifyContent:
+                        (col.align || 'center') === 'center'
+                          ? 'center'
+                          : col.align === 'right'
+                            ? 'flex-end'
+                            : 'flex-start',
                       '& .MuiTableSortLabel-icon': {
                         opacity: sortCol === col.id ? 1 : 0.3,
                         marginLeft: '4px',
@@ -130,9 +134,14 @@ export function DataTableDesktop<T>({
                         <IconButton
                           size="small"
                           sx={{ p: 0.2, ml: 0.5 }}
-                          onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleHeaderClick(col.id);
+                          }}
                         >
-                          <MenuBookIcon sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }} />
+                          <MenuBookIcon
+                            sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }}
+                          />
                         </IconButton>
                       )}
                     </Box>
@@ -144,9 +153,14 @@ export function DataTableDesktop<T>({
                       <IconButton
                         size="small"
                         sx={{ p: 0.2, ml: 0.5 }}
-                        onClick={(e) => { e.stopPropagation(); handleHeaderClick(col.id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleHeaderClick(col.id);
+                        }}
                       >
-                        <MenuBookIcon sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }} />
+                        <MenuBookIcon
+                          sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }}
+                        />
                       </IconButton>
                     )}
                   </Box>
@@ -158,7 +172,11 @@ export function DataTableDesktop<T>({
         <TableBody>
           {paginatedData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align="center" sx={{ p: 0 }}>
+              <TableCell
+                colSpan={columns.length + (selectable ? 1 : 0)}
+                align="center"
+                sx={{ p: 0 }}
+              >
                 <EmptyState
                   icon="search"
                   title="No Records Found"
@@ -212,7 +230,10 @@ export function DataTableDesktop<T>({
                   </StyledTableRow>
                   {expandedContent && expandedRows?.has(key) && (
                     <TableRow>
-                      <TableCell colSpan={columns.length + (selectable ? 1 : 0)} sx={{ p: 0, border: 0 }}>
+                      <TableCell
+                        colSpan={columns.length + (selectable ? 1 : 0)}
+                        sx={{ p: 0, border: 0 }}
+                      >
                         <Box sx={{ p: 2, backgroundColor: 'action.hover' }}>
                           {expandedContent(row)}
                         </Box>

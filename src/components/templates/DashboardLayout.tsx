@@ -25,11 +25,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { logout } from '@/store/slices/authSlice';
 import { financialsApi } from '@/store/api/financialsApi';
-import {
-  toggleMobileMenu,
-  closeMobileMenu,
-  closeSnackbar,
-} from '@/store/slices/uiSlice';
+import { toggleMobileMenu, closeMobileMenu, closeSnackbar } from '@/store/slices/uiSlice';
 
 const DRAWER_WIDTH = 240;
 const DRAWER_COLLAPSED_WIDTH = 64;
@@ -48,15 +44,25 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const dispatch = useAppDispatch();
-  const { mobileMenuOpen, activePage, sidebarCollapsed, snackbarOpen, snackbarMessage, snackbarSeverity,
-    activeExportType, isReloading, isDrillingDown, isGlobalFetching } = useAppSelector((s) => s.ui);
+  const {
+    mobileMenuOpen,
+    activePage,
+    sidebarCollapsed,
+    snackbarOpen,
+    snackbarMessage,
+    snackbarSeverity,
+    activeExportType,
+    isReloading,
+    isDrillingDown,
+    isGlobalFetching,
+  } = useAppSelector((s) => s.ui);
   const { loading: financialsLoading } = useAppSelector((s) => s.financials);
 
   const user = useAppSelector((state) => state.auth.user);
   const { selectedTenantId, isLoading: tenantLoading } = useAppSelector((s) => s.tenant);
 
-  const isCognitiveUser = 
-    user?.company?.toLowerCase() === 'cognitivehealthit' || 
+  const isCognitiveUser =
+    user?.company?.toLowerCase() === 'cognitivehealthit' ||
     user?.company?.toLowerCase() === 'mindpath';
   const isWaitingForTenants = isCognitiveUser && !selectedTenantId;
 
@@ -66,7 +72,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       dispatch(financialsApi.util.invalidateTags(['Financials']));
     }
   }, [selectedTenantId, dispatch]);
-
 
   const menus: MenuNode[] = (user?.menus as MenuNode[] | undefined) || [];
 
@@ -160,7 +165,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             <ListItemButton
               disabled={getMenuStatus('Financials') === 'Disabled'}
               selected={activePage === 'financials'}
-              onClick={() => getMenuStatus('Financials') !== 'Disabled' && handleNavClick('financials', '/financials/all-transactions')}
+              onClick={() =>
+                getMenuStatus('Financials') !== 'Disabled' &&
+                handleNavClick('financials', '/financials/all-transactions')
+              }
               sx={{
                 mx: sidebarCollapsed ? 0.5 : 1,
                 borderRadius: 1,
@@ -174,8 +182,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 },
               }}
             >
-              <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}><AccountBalanceIcon fontSize="small" /></ListItemIcon>
-              {!sidebarCollapsed && <ListItemText primary="Financials" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
+              <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}>
+                <AccountBalanceIcon fontSize="small" />
+              </ListItemIcon>
+              {!sidebarCollapsed && (
+                <ListItemText
+                  primary="Financials"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
+                />
+              )}
             </ListItemButton>
           </Tooltip>
         </List>
@@ -198,13 +213,24 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 color: theme.palette.error.main,
                 '&:hover': {
                   backgroundColor: `${theme.palette.error.main}12`,
-                }
+                },
               }}
             >
-              <ListItemIcon sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center', color: 'inherit' }}>
+              <ListItemIcon
+                sx={{
+                  minWidth: sidebarCollapsed ? 0 : 36,
+                  justifyContent: 'center',
+                  color: 'inherit',
+                }}
+              >
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>
-              {!sidebarCollapsed && <ListItemText primary="Logout" primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }} />}
+              {!sidebarCollapsed && (
+                <ListItemText
+                  primary="Logout"
+                  primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
+                />
+              )}
             </ListItemButton>
           </Tooltip>
         </List>
@@ -213,9 +239,22 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   );
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: theme.palette.background.default }}>
+    <Box
+      sx={{
+        display: 'flex',
+        height: '100vh',
+        overflow: 'hidden',
+        backgroundColor: theme.palette.background.default,
+      }}
+    >
       {/* Global Interaction Blocker */}
-      {(activeExportType || isReloading || isDrillingDown || isGlobalFetching || financialsLoading || tenantLoading || isWaitingForTenants) && (
+      {(activeExportType ||
+        isReloading ||
+        isDrillingDown ||
+        isGlobalFetching ||
+        financialsLoading ||
+        tenantLoading ||
+        isWaitingForTenants) && (
         <Box
           sx={{
             position: 'fixed',
@@ -230,14 +269,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 2
+            gap: 2,
           }}
         >
           <CircularProgress size={60} thickness={4} />
           <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
-            {tenantLoading || isWaitingForTenants ? 'Initializing Organization...' : (isReloading ? 'Refreshing Data...' :
-              (activeExportType ? 'Preparing Report...' :
-                (isGlobalFetching ? 'Please Wait...' : 'Processing...')))}
+            {tenantLoading || isWaitingForTenants
+              ? 'Initializing Organization...'
+              : isReloading
+                ? 'Refreshing Data...'
+                : activeExportType
+                  ? 'Preparing Report...'
+                  : isGlobalFetching
+                    ? 'Please Wait...'
+                    : 'Processing...'}
           </Typography>
         </Box>
       )}
@@ -251,13 +296,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           sx={{
             width: drawerWidth,
             flexShrink: 0,
-            transition: theme.transitions.create('width', { duration: theme.transitions.duration.shorter }),
+            transition: theme.transitions.create('width', {
+              duration: theme.transitions.duration.shorter,
+            }),
             '& .MuiDrawer-paper': {
               width: drawerWidth,
               boxSizing: 'border-box',
               borderRight: `1px solid ${theme.palette.divider}`,
               backgroundColor: theme.palette.background.paper,
-              transition: theme.transitions.create('width', { duration: theme.transitions.duration.shorter }),
+              transition: theme.transitions.create('width', {
+                duration: theme.transitions.duration.shorter,
+              }),
               overflowX: 'hidden',
             },
           }}
@@ -272,16 +321,33 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           variant="temporary"
           open={mobileMenuOpen}
           onClose={() => dispatch(closeMobileMenu())}
-          sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH, backgroundColor: theme.palette.background.paper } }}
+          sx={{
+            '& .MuiDrawer-paper': {
+              width: DRAWER_WIDTH,
+              backgroundColor: theme.palette.background.paper,
+            },
+          }}
         >
           <Toolbar />
           {drawerContent}
         </Drawer>
       )}
 
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', height: '100vh', minWidth: 0, overflow: 'hidden' }}>
+      <Box
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100vh',
+          minWidth: 0,
+          overflow: 'hidden',
+        }}
+      >
         <Toolbar />
-        <Box component="main" sx={{ flex: 1, minHeight: 0, p: { xs: 2, md: 3 }, overflow: 'auto', minWidth: 0 }}>
+        <Box
+          component="main"
+          sx={{ flex: 1, minHeight: 0, p: { xs: 2, md: 3 }, overflow: 'auto', minWidth: 0 }}
+        >
           {!isWaitingForTenants && children}
         </Box>
         <Footer />
@@ -293,7 +359,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         onClose={() => dispatch(closeSnackbar())}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
-        <Alert onClose={() => dispatch(closeSnackbar())} severity={snackbarSeverity} sx={{ width: '100%' }}>
+        <Alert
+          onClose={() => dispatch(closeSnackbar())}
+          severity={snackbarSeverity}
+          sx={{ width: '100%' }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

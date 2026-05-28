@@ -110,7 +110,6 @@ export interface VarianceRecord {
   adjustmentCodes: string;
 }
 
-
 export interface KpiCard {
   label: string;
   value: string;
@@ -133,8 +132,6 @@ export interface TeamPerformance {
   avgDaysToReconcile: number;
 }
 
-
-
 export interface PayerPerformanceRecord {
   payerName: string;
   volume: number;
@@ -154,7 +151,6 @@ export interface TrendsData {
   avgDaysTrend: { month: string; days: number }[];
   payerPerformance: PayerPerformanceRecord[];
 }
-
 
 export interface RecoupmentRecord {
   id: string;
@@ -275,9 +271,9 @@ export interface FeeScheduleVariance {
   actualAllowed: string | number;
   variance: string | number;
   adjustmentCode?: string;
-  transactionNo?:string;
-  claimId?:string;
-  adjustmentId?:string;
+  transactionNo?: string;
+  claimId?: string;
+  adjustmentId?: string;
 }
 
 export interface PaymentVariance {
@@ -289,9 +285,9 @@ export interface PaymentVariance {
   actualAllowed: string | number;
   variance: string | number;
   adjustmentCode?: string;
-  transactionNo?:string;
-  claimId?:string;
-  adjustmentId?:string;
+  transactionNo?: string;
+  claimId?: string;
+  adjustmentId?: string;
 }
 
 export interface FeeScheduleVarianceSummary {
@@ -305,5 +301,3 @@ export interface PaymentVarianceSummary {
   totalActualPaid: number;
   totalLeakage: number;
 }
-
-

@@ -26,7 +26,9 @@ export const SecuritySettingsPanel: React.FC<SecuritySettingsPanelProps> = ({
       </Box>
 
       <Box sx={{ mb: 3 }}>
-        <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>Inactivity Timeout (minutes)</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+          Inactivity Timeout (minutes)
+        </Typography>
         <TextField
           fullWidth
           size="small"
@@ -40,7 +42,9 @@ export const SecuritySettingsPanel: React.FC<SecuritySettingsPanelProps> = ({
       </Box>
 
       <Box>
-        <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>Password Expiration Policy</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+          Password Expiration Policy
+        </Typography>
         <FormControl fullWidth size="small" sx={{ mb: 1 }}>
           <Select
             value={passwordPolicy}

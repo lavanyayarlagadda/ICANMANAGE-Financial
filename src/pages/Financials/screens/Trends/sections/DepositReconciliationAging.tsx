@@ -1,11 +1,11 @@
-import React from "react";
-import { Box, Card, CardContent, Typography, useTheme } from "@mui/material";
+import React from 'react';
+import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
 import {
   agingRiskColor,
   toText,
   type AgingSummary,
   type AgingRow,
-} from "../helpers/depositReconciliationHelpers";
+} from '../helpers/depositReconciliationHelpers';
 
 interface DepositReconciliationAgingProps {
   agingData: {
@@ -16,41 +16,34 @@ interface DepositReconciliationAgingProps {
   agingRows: AgingRow[];
 }
 
-export const DepositReconciliationAging: React.FC<
-  DepositReconciliationAgingProps
-> = ({ agingData, agingSummary, agingRows }) => {
+export const DepositReconciliationAging: React.FC<DepositReconciliationAgingProps> = ({
+  agingData,
+  agingSummary,
+  agingRows,
+}) => {
   const theme = useTheme();
 
   return (
     <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
       <CardContent>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          {String(agingData.title || "")}
+          {String(agingData.title || '')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.6 }}>
-          {String(agingData.description || "")}
+          {String(agingData.description || '')}
         </Typography>
         <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {agingSummary?.headlineValue || "—"}
+          {agingSummary?.headlineValue || '—'}
         </Typography>
         <Typography variant="caption" color="text.secondary">
-          {agingSummary?.headlineMeta || ""}
+          {agingSummary?.headlineMeta || ''}
         </Typography>
 
-        <Box sx={{ mt: 2, overflowX: "auto" }}>
-          <Box
-            component="table"
-            sx={{ width: "100%", borderCollapse: "collapse", minWidth: 700 }}
-          >
+        <Box sx={{ mt: 2, overflowX: 'auto' }}>
+          <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
             <Box component="thead">
               <Box component="tr">
-                {[
-                  "Age Bucket",
-                  "Deposits",
-                  "Amount",
-                  "% of $",
-                  "Distribution",
-                ].map((label) => (
+                {['Age Bucket', 'Deposits', 'Amount', '% of $', 'Distribution'].map((label) => (
                   <Box
                     component="th"
                     key={label}
@@ -58,9 +51,7 @@ export const DepositReconciliationAging: React.FC<
                       py: 1,
                       px: 1,
                       textAlign:
-                        label === "Age Bucket" || label === "Distribution"
-                          ? "left"
-                          : "right",
+                        label === 'Age Bucket' || label === 'Distribution' ? 'left' : 'right',
                       color: theme.palette.text.secondary,
                       borderBottom: `1px solid ${theme.palette.divider}`,
                       fontSize: 12,
@@ -75,9 +66,9 @@ export const DepositReconciliationAging: React.FC<
               {agingRows.map((row) => {
                 const percent =
                   Number(
-                    toText(row.share, "0")
-                      .replace("%", "")
-                      .replace(/[^\d.-]/g, ""),
+                    toText(row.share, '0')
+                      .replace('%', '')
+                      .replace(/[^\d.-]/g, ''),
                   ) || 0;
                 const barColor = row.riskLevel
                   ? agingRiskColor(row.riskLevel, theme)
@@ -104,7 +95,7 @@ export const DepositReconciliationAging: React.FC<
                       sx={{
                         py: 1,
                         px: 1,
-                        textAlign: "right",
+                        textAlign: 'right',
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       }}
                     >
@@ -115,7 +106,7 @@ export const DepositReconciliationAging: React.FC<
                       sx={{
                         py: 1,
                         px: 1,
-                        textAlign: "right",
+                        textAlign: 'right',
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       }}
                     >
@@ -126,7 +117,7 @@ export const DepositReconciliationAging: React.FC<
                       sx={{
                         py: 1,
                         px: 1,
-                        textAlign: "right",
+                        textAlign: 'right',
                         borderBottom: `1px solid ${theme.palette.divider}`,
                       }}
                     >
@@ -150,7 +141,7 @@ export const DepositReconciliationAging: React.FC<
                         <Box
                           sx={{
                             width: `${Math.max(8, percent)}%`,
-                            height: "100%",
+                            height: '100%',
                             borderRadius: 2,
                             backgroundColor: barColor,
                           }}

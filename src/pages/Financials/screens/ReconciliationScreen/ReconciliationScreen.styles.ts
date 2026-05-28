@@ -188,8 +188,8 @@ export const SectionSidebar = styled(Box, {
     backgroundColor: theme.palette.divider,
     [theme.breakpoints.down('sm')]: {
       display: 'none',
-    }
-  }
+    },
+  },
 }));
 
 export const ModernUploadZone = styled(Box)(({ theme }) => ({
@@ -205,7 +205,7 @@ export const ModernUploadZone = styled(Box)(({ theme }) => ({
   '&:hover': {
     backgroundColor: theme.palette.grey[100],
     borderColor: theme.palette.primary.main,
-  }
+  },
 }));
 
 export const DynamicTableContainer = styled(Box)(({ theme }) => ({
@@ -233,13 +233,13 @@ export const DynamicTableContainer = styled(Box)(({ theme }) => ({
       },
       '&:hover': {
         backgroundColor: theme.palette.grey[100],
-      }
+      },
     },
     '& td': {
       padding: '14px 16px',
       fontSize: '12px',
       color: theme.palette.text.primary,
       borderBottom: `1px solid ${theme.palette.divider}`,
-    }
-  }
+    },
+  },
 }));

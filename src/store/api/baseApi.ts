@@ -1,4 +1,11 @@
-import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError, BaseQueryApi } from '@reduxjs/toolkit/query/react';
+import {
+  createApi,
+  fetchBaseQuery,
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+  BaseQueryApi,
+} from '@reduxjs/toolkit/query/react';
 import { RootState } from '../index';
 import { logout, updateToken } from '../slices/authSlice';
 import { API_CONFIG } from '@/config/constants';
@@ -86,12 +93,15 @@ const baseQueryWithReauth: BaseQueryFn<
             body: { refreshToken },
           },
           api,
-          extraOptions
+          extraOptions,
         );
 
         if (refreshResult.data) {
           // Successful refresh
-          const { accessToken, refreshToken: newRefreshToken } = refreshResult.data as { accessToken: string; refreshToken: string };
+          const { accessToken, refreshToken: newRefreshToken } = refreshResult.data as {
+            accessToken: string;
+            refreshToken: string;
+          };
 
           // Update the token in the store
           api.dispatch(updateToken({ accessToken, refreshToken: newRefreshToken }));
@@ -108,7 +118,9 @@ const baseQueryWithReauth: BaseQueryFn<
       }
     } else {
       // Handle other errors with a snackbar
-      const errorMessage = (result.error as { data?: { message?: string } })?.data?.message || 'An unexpected error occurred. Please try again.';
+      const errorMessage =
+        (result.error as { data?: { message?: string } })?.data?.message ||
+        'An unexpected error occurred. Please try again.';
       const { showSnackbar } = await import('../slices/uiSlice');
       api.dispatch(showSnackbar({ message: errorMessage, severity: 'error' }));
     }
@@ -132,7 +144,7 @@ export const baseApi = createApi({
     'Variances',
     'Reconciliation',
     'Transactions',
-    'Analytics'
+    'Analytics',
   ],
   endpoints: () => ({}),
 });
