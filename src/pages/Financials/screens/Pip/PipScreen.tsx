@@ -101,7 +101,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     { id: "paymentDate", label: "PAYMENT DATE", align: "center", accessor: (row) => row.paymentDate, render: (row) => formatDate(row.paymentDate) },
     { id: "checkEftNumber", label: "CHECK/EFT NUMBER", align: "center", accessor: (row) => row.checkEftNumber, render: (row) => <MultiValueDisplay value={row.checkEftNumber} /> },
     { id: "paymentAmount", label: "PAYMENT AMOUNT", align: "center", accessor: (row) => row.paymentAmount, render: (row) => formatCurrency(Number(row.paymentAmount)) },
-    { id: "payer", label: "PAYER", align: "center", accessor: (row) => row.payer ?? '-', render: (row) => row.payer ?? '-' },
+    // { id: "payer", label: "PAYER", align: "center", accessor: (row) => row.payer ?? '-', render: (row) => row.payer ?? '-' },
     { id: "suspenseBalance", label: "SUSPENSE BALANCE", align: "center", accessor: (row) => row.suspenseBalance, render: (row) => formatCurrency(Number(row.suspenseBalance)) },
     { id: "status", label: "STATUS", align: "center", accessor: (row) => row.status,  render: (row) => <StatusBadge status={row.status} /> },
   ], [expandedRows, loadingDetailsPtans, toggleRow, getRowId]);
@@ -111,7 +111,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       {([
         { key: 'ptanNo' as keyof PipSearchFilters, label: 'PTAN' },
         { key: 'checkEftNo' as keyof PipSearchFilters, label: 'Check/EFT #' },
-        { key: 'npiPayerName' as keyof PipSearchFilters, label: 'NPI / Payer' },
+        // { key: 'npiPayerName' as keyof PipSearchFilters, label: 'NPI / Payer' },
         { key: 'claimId' as keyof PipSearchFilters, label: 'Claim ID' },
         { key: 'patientName' as keyof PipSearchFilters, label: 'Patient Name' },
       ]).map(({ key, label }) => (
