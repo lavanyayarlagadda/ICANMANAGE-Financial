@@ -117,12 +117,32 @@ const baseQueryWithReauth: BaseQueryFn<
         api.dispatch(logout());
       }
     } else {
-      // Handle other errors with a snackbar
-      const errorMessage =
-        (result.error as { data?: { message?: string } })?.data?.message ||
-        'An unexpected error occurred. Please try again.';
-      const { showSnackbar } = await import('../slices/uiSlice');
-      api.dispatch(showSnackbar({ message: errorMessage, severity: 'error' }));
+      // Check if it's an AbortError (often caused by component unmounting or resetting api state)
+      const errState = result.error as {
+        name?: string;
+        status?: string | number;
+        originalStatus?: number;
+        error?: string;
+        data?: { message?: string };
+      };
+      
+      const isAbortError =
+        api.signal.aborted ||
+        errState?.name === 'AbortError' ||
+        (errState?.status === 'FETCH_ERROR' && String(errState?.error).includes('AbortError')) ||
+        String(errState?.error).includes('aborted');
+
+      const isParsingError200 =
+        errState?.status === 'PARSING_ERROR' && errState?.originalStatus === 200;
+
+      if (!isAbortError && !isParsingError200) {
+        // Handle other errors with a snackbar
+        const errorMessage =
+          errState?.data?.message ||
+          `An unexpected error occurred (${errState?.status || 'Unknown'}). ${errState?.error || ''} Please try again.`;
+        const { showSnackbar } = await import('../slices/uiSlice');
+        api.dispatch(showSnackbar({ message: errorMessage, severity: 'error' }));
+      }
     }
   }
   return result;
