@@ -3,6 +3,7 @@ export enum ReconStatus {
   RECONCILED = 'Reconciled',
   EXCEPTION = 'Exception',
   NOT_MATCHED = 'Not Matched',
+  BAIEXCPTION= 'BAI Exception'
 }
 
 export enum SystemStatus {

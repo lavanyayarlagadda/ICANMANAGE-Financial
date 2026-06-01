@@ -144,6 +144,7 @@ export const useBankDepositColumns = ({
         filterOptions: statusOptions,
         render: (row) => {
           const isZeroTransaction = row.transactionNo === 'No Transaction#';
+
           if (isZeroTransaction) {
             const status = row.status;
             if (!status) return '-';
@@ -165,6 +166,21 @@ export const useBankDepositColumns = ({
                   ) : (
                     <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />
                   )
+                }
+              />
+            );
+          }
+                   else if(row.status ==='Reconciled'){
+             return (
+              <Chip
+                label={row.status}
+                sx={{
+                  backgroundColor: '#E8F5E9',
+                  color: '2E7D32',
+                  border: `1px solid ${theme.palette.divider}`,
+                }}
+                icon={
+                    <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} />
                 }
               />
             );
