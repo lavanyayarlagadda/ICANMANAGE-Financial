@@ -5,7 +5,24 @@ export const NpiSectionWrapper = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
   borderTop: 'none',
   overflowX: 'auto',
+  overflowY: 'auto',
+  maxHeight: 300,
   backgroundColor: theme.palette.background.paper,
+  '&::-webkit-scrollbar': {
+    width: '6px',
+    height: '6px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: theme.palette.background.default,
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: theme.palette.divider,
+    borderRadius: '4px',
+    '&:hover': {
+      background: theme.palette.text.secondary,
+    },
+  },
+  scrollbarWidth:'thin'
 }));
 
 export const NpiHeaderRow = styled(Box)(({ theme }) => ({
@@ -15,6 +32,9 @@ export const NpiHeaderRow = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1, 2),
   backgroundColor: theme.palette.background.default,
   borderBottom: `1px solid ${theme.palette.divider}`,
+  position: 'sticky',
+  top: 0,
+  zIndex: 1,
 }));
 
 export const NpiDataRow = styled(Box)(({ theme }) => ({

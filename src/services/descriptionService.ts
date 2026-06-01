@@ -624,7 +624,7 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
       description: 'Detailed context regarding the payment origin or purpose.',
     },
     transactionNo: {
-      heading: 'Transaction Number',
+      heading: 'Transaction No',
       description: 'The reference number assigned to this payment by the bank or insurer.',
     },
     payer: {

@@ -38,17 +38,6 @@ export const SectionTitle = styled(Typography)<TypographyProps>(({ theme }) => (
   color: theme.palette.text.primary,
   marginTop: theme.spacing(5),
   marginBottom: theme.spacing(2),
-  position: 'relative',
-  '&:after': {
-    content: '""',
-    position: 'absolute',
-    bottom: -6,
-    left: 0,
-    width: 32,
-    height: 3,
-    backgroundColor: theme.palette.primary.main,
-    borderRadius: 2,
-  },
 }));
 
 export const SectionText = styled(Typography)<TypographyProps>(({ theme }) => ({

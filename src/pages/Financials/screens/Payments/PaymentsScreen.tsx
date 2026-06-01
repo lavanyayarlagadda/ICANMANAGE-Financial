@@ -61,7 +61,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       // { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
       {
         id: 'transactionNo',
-        label: 'TRANSACTION NUMBER',
+        label: 'Transaction No',
         minWidth: 220,
         align: 'center',
         accessor: (r) => r.transactionNo ?? '',

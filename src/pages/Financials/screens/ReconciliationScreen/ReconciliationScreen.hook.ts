@@ -99,7 +99,7 @@ export const useReconciliation = () => {
 
       const newHeaders: HeaderConfig[] = [
         { id: 'actions', label: 'Actions', align: 'left', isAction: true },
-        { id: 'transactionNo', label: 'Transaction Number', align: 'left', isLink: true },
+        { id: 'transactionNo', label: 'Transaction No', align: 'left', isLink: true },
         {
           id: 'location',
           label: 'Loc/State',
