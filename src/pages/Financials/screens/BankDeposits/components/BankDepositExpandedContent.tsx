@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Grid, Typography, useTheme } from '@mui/material';
+import { Box, Grid, Typography, useTheme, Tooltip } from '@mui/material';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { RowHistoryData } from '@/interfaces/financials';
 import {
@@ -12,11 +12,13 @@ import {
 interface BankDepositExpandedContentProps {
   historyData: RowHistoryData | null;
   isLoading: boolean;
+  isMindPath?: boolean;
 }
 
 const BankDepositExpandedContent: React.FC<BankDepositExpandedContentProps> = ({
   historyData,
   isLoading,
+  isMindPath,
 }) => {
   const theme = useTheme();
 
@@ -38,6 +40,78 @@ const BankDepositExpandedContent: React.FC<BankDepositExpandedContentProps> = ({
   return (
     <ExpandedContentBox sx={{ backgroundColor: theme.palette.action.hover, p: 2 }}>
       <Grid container spacing={2}>
+        {/* Section A: BANK DEPOSIT (BAI) */}
+        <Grid size={{ xs: 12, lg: 4 }}>
+          <SubSectionWrapper sx={{ height: '100%' }}>
+            <SubSectionHeader>
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}
+              >
+                (A) BANK DEPOSIT (BAI)
+              </Typography>
+            </SubSectionHeader>
+            <Box sx={{ p: 0 }}>
+              {historyData?.baiDataRecords?.map((bai, idx: number) => (
+                <Box
+                  key={idx}
+                  sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${theme.palette.divider}` }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                    <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>
+                      {bai.bankName || 'Unknown Bank'}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}
+                    >
+                      {formatCurrency(bai.amountPaid)}
+                    </Typography>
+                  </Box>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    <Box component="span" fontWeight={800} color="text.primary">Acc:</Box> {bai.accountId || '-'} | <Box component="span" fontWeight={800} color="text.primary">Date:</Box> {bai.fileReceivedDate ? formatDate(bai.fileReceivedDate) : '-'} |{' '}
+                    {isMindPath ? (
+                      <><Box component="span" fontWeight={800} color="text.primary">BAI CODE:</Box> {bai.transactionCode || '-'}</>
+                    ) : (
+                      <><Box component="span" fontWeight={800} color="text.primary">Type:</Box> {bai.transactionType || '-'}</>
+                    )}
+                  </Typography>
+                  {!isMindPath && (
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                      <Box component="span" fontWeight={800} color="text.primary">Branch:</Box> {bai.branchName || '-'} | <Box component="span" fontWeight={800} color="text.primary">Brand:</Box> {bai.brandName || '-'}
+                    </Typography>
+                  )}
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    <Box component="span" fontWeight={800} color="text.primary">File:</Box> {bai.fileName || '-'}
+                  </Typography>
+                  {!isMindPath && (
+                    <Tooltip title={bai.description || ''}>
+                      <Typography variant="caption" color="text.secondary" sx={{ 
+                        display: 'inline-block',
+                        maxWidth: '100%',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        mt: 0.5, 
+                        fontStyle: 'italic' 
+                      }}>
+                        <Box component="span" fontWeight={800} color="text.primary" sx={{ fontStyle: 'normal' }}>Desc:</Box>{' '}
+                        {bai.description && bai.description.length > 30 ? bai.description.substring(0, 30) + '...' : (bai.description || '-')}
+                      </Typography>
+                    </Tooltip>
+                  )}
+                </Box>
+              )) || (
+                <Box sx={{ p: 4, textAlign: 'center' }}>
+                  <Typography variant="caption" color="text.secondary">
+                    No BAI data found
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </SubSectionWrapper>
+        </Grid>
+
         {/* Section B: REMITTANCE ADVICE */}
         <Grid size={{ xs: 12, lg: 4 }}>
           <SubSectionWrapper sx={{ height: '100%' }}>

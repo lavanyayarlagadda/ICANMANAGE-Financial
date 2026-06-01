@@ -174,7 +174,14 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         accessor: (row) => row.paymentAmount,
         render: (row) => formatCurrency(Number(row.paymentAmount)),
       },
-      // { id: "payer", label: "PAYER", align: "center", accessor: (row) => row.payer ?? '-', render: (row) => row.payer ?? '-' },
+      {
+        id: 'payer',
+        label: 'PAYER',
+        align: 'center',
+        accessor: (row) => row.payer ?? '-',
+        disableSort:true,
+        render: (row) => <MultiValueDisplay value={row.payer ?? '-'} />,
+      },
       {
         id: 'suspenseBalance',
         label: 'SUSPENSE BALANCE',
@@ -199,7 +206,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         {[
           { key: 'ptanNo' as keyof PipSearchFilters, label: 'PTAN' },
           { key: 'checkEftNo' as keyof PipSearchFilters, label: 'Check/EFT #' },
-          // { key: 'npiPayerName' as keyof PipSearchFilters, label: 'NPI / Payer' },
+          { key: 'npiPayerName' as keyof PipSearchFilters, label: 'NPI' },
           { key: 'claimId' as keyof PipSearchFilters, label: 'Claim ID' },
           { key: 'patientName' as keyof PipSearchFilters, label: 'Patient Name' },
         ].map(({ key, label }) => (

@@ -44,6 +44,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     globalFilters,
     isFetching,
     summaryStats,
+    isMindpath,
   } = useBankDepositsScreen({ skip });
 
   const { columns } = useBankDepositColumns({
@@ -56,10 +57,10 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   });
 
   const renderExpandedContent = useCallback(
-    (item: BankDepositItem) => {
+    (item: BankDepositItem, isMindpathFlag: boolean) => {
       const history = rowHistory[item.transactionNo];
       const { data: historyData, isLoading } = history || { data: null, isLoading: false };
-      return <BankDepositExpandedContent historyData={historyData} isLoading={isLoading} />;
+      return <BankDepositExpandedContent historyData={historyData} isLoading={isLoading} isMindPath={isMindpathFlag} />;
     },
     [rowHistory],
   );
@@ -132,7 +133,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             data={entity.items}
             rowKey={(row) => row.transactionNo}
             expandedRows={expandedRows}
-            expandedContent={renderExpandedContent}
+            expandedContent={(item) => renderExpandedContent(item, isMindpath)}
             paginated={true}
             searchable={false}
             customToolbarContent={

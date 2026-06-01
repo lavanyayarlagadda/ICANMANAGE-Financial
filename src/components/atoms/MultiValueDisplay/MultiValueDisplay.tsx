@@ -22,12 +22,14 @@ interface MultiValueDisplayProps {
   value: string;
   displayCount?: number;
   maxWidth?: number | string;
+  hideSearch?: boolean;
 }
 
 const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
   value,
   displayCount = 2,
   maxWidth = 140,
+  hideSearch = false,
 }) => {
   const {
     items,
@@ -40,7 +42,7 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
     open,
     anchorEl,
   } = useMultiValueDisplay(value);
-  if (!value)
+  if (!value || value === '-' || value.trim() === '')
     return (
       <Typography variant="body2" color="text.secondary">
         -
@@ -106,21 +108,23 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
           >
             Items ({items.length})
           </Typography>
-          <TextField
-            fullWidth
-            size="small"
-            placeholder="Search numbers..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
-              sx: { height: 32, fontSize: 13, bgcolor: 'background.paper' },
-            }}
-          />
+          {!hideSearch && (
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Search numbers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+                sx: { height: 32, fontSize: 13, bgcolor: 'background.paper' },
+              }}
+            />
+          )}
         </Box>
         <List sx={styles.listStyles}>
           {filteredItems.map((item, idx) => (

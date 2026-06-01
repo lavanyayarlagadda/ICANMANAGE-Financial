@@ -437,10 +437,29 @@ export interface CashPostingRecord {
 }
 
 export interface BaiDataRecord {
-  transactionNo: string;
-  amount: number;
-  depositDate: string;
+  accountId: number;
+  accountName: string | null;
+  amountPaid: number;
+  asOfDate: string | null;
+  bankId: number;
   bankName: string;
+  branchName: string;
+  brandName: string | null;
+  description: string;
+  fileId: number;
+  fileName: string;
+  fileReceivedDate: string;
+  fkUserDetailsId: number;
+  payerId: string;
+  payerName: string;
+  pkBaiDataTempId: string | null;
+  stateId: string | null;
+  stateIdsList: string | null;
+  stateName: string | null;
+  transactionCode: string | null;
+  transactionNumber: string;
+  transactionType: string;
+  transactionTypeId: string | null;
 }
 
 export interface RowHistoryData {

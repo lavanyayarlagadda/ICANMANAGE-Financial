@@ -22,7 +22,7 @@ export const Sparkline: React.FC<SparklineProps> = ({ values, color }) => {
         })();
 
   return (
-    <svg viewBox="0 0 120 24" preserveAspectRatio="none" style={{ width: 92, height: 18 }}>
+    <svg viewBox="0 0 120 24" preserveAspectRatio="none" style={{ width: '100%', height: 32 }}>
       <polyline fill="none" stroke={color} strokeWidth="1.8" points={points} />
     </svg>
   );

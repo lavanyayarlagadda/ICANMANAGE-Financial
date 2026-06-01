@@ -11,6 +11,7 @@ import { themeConfig } from '@/theme/themeConfig';
 import { ReconStatus, SystemStatus } from '@/constants/statuses';
 
 import { DynamicColumn } from '@/interfaces/api/common';
+import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
 
 interface UseBankDepositColumnsProps {
   expandedRows: Set<string>;
@@ -292,6 +293,16 @@ export const useBankDepositColumns = ({
         },
         render: (row: BankDepositItem) => {
           const val = (row as unknown as Record<string, unknown>)[mappedId];
+
+          if (mappedId.toLowerCase().includes('adjustmentcode')) {
+            return (
+              <MultiValueDisplay 
+                value={val !== null && val !== undefined ? String(val) : '-'} 
+                hideSearch={true} 
+              />
+            );
+          }
+
           if (
             typeof val === 'number' &&
             (mappedId.toLowerCase().includes('amt') ||

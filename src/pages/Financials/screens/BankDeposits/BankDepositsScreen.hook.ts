@@ -6,6 +6,8 @@ import { useBankDepositData } from './sub-hooks/useBankDepositData';
 import { useBankDepositActions } from './sub-hooks/useBankDepositActions';
 import { useBankDepositHistory } from './sub-hooks/useBankDepositHistory';
 
+import { BRANDS } from '@/constants/brands';
+
 export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {}) => {
   // 1. Core Permissions and Tenant State
   const { user, isCognitiveUser } = useUserPermissions();
@@ -16,6 +18,12 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
     () => tenant.tenants.find((t) => t.tenantId === tenant.selectedTenantId),
     [tenant.tenants, tenant.selectedTenantId],
   );
+
+  const isMindpath = useMemo(() => {
+    const userCompany = user?.company?.toLowerCase() || '';
+    const tenantName = selectedTenant?.displayName?.toLowerCase() || '';
+    return userCompany.includes(BRANDS.MINDPATH) || tenantName.includes(BRANDS.MINDPATH);
+  }, [user, selectedTenant]);
 
   // 2. Sub-hook: Filters & Query Params
   const filterState = useBankDepositFilters();
@@ -87,5 +95,6 @@ export const useBankDepositsScreen = ({ skip = false }: { skip?: boolean } = {})
 
     // Global State
     globalFilters: filterState.globalFilters,
+    isMindpath,
   };
 };
