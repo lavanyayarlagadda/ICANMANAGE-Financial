@@ -69,34 +69,74 @@ const BankDepositExpandedContent: React.FC<BankDepositExpandedContentProps> = ({
                     </Typography>
                   </Box>
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                    <Box component="span" fontWeight={800} color="text.primary">Acc:</Box> {bai.accountId || '-'} | <Box component="span" fontWeight={800} color="text.primary">Date:</Box> {bai.fileReceivedDate ? formatDate(bai.fileReceivedDate) : '-'} |{' '}
+                    <Box component="span" fontWeight={800} color="text.primary">
+                      Acc:
+                    </Box>{' '}
+                    {bai.accountId || '-'} |{' '}
+                    <Box component="span" fontWeight={800} color="text.primary">
+                      Date:
+                    </Box>{' '}
+                    {bai.fileReceivedDate ? formatDate(bai.fileReceivedDate) : '-'} |{' '}
                     {isMindPath ? (
-                      <><Box component="span" fontWeight={800} color="text.primary">BAI CODE:</Box> {bai.transactionCode || '-'}</>
+                      <>
+                        <Box component="span" fontWeight={800} color="text.primary">
+                          BAI CODE:
+                        </Box>{' '}
+                        {bai.transactionCode || '-'}
+                      </>
                     ) : (
-                      <><Box component="span" fontWeight={800} color="text.primary">Type:</Box> {bai.transactionType || '-'}</>
+                      <>
+                        <Box component="span" fontWeight={800} color="text.primary">
+                          Type:
+                        </Box>{' '}
+                        {bai.transactionType || '-'}
+                      </>
                     )}
                   </Typography>
                   {!isMindPath && (
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                      <Box component="span" fontWeight={800} color="text.primary">Branch:</Box> {bai.branchName || '-'} | <Box component="span" fontWeight={800} color="text.primary">Brand:</Box> {bai.brandName || '-'}
+                      <Box component="span" fontWeight={800} color="text.primary">
+                        Branch:
+                      </Box>{' '}
+                      {bai.branchName || '-'} |{' '}
+                      <Box component="span" fontWeight={800} color="text.primary">
+                        Brand:
+                      </Box>{' '}
+                      {bai.brandName || '-'}
                     </Typography>
                   )}
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                    <Box component="span" fontWeight={800} color="text.primary">File:</Box> {bai.fileName || '-'}
+                    <Box component="span" fontWeight={800} color="text.primary">
+                      File:
+                    </Box>{' '}
+                    {bai.fileName || '-'}
                   </Typography>
                   {!isMindPath && (
                     <Tooltip title={bai.description || ''}>
-                      <Typography variant="caption" color="text.secondary" sx={{ 
-                        display: 'inline-block',
-                        maxWidth: '100%',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        mt: 0.5, 
-                        fontStyle: 'italic' 
-                      }}>
-                        <Box component="span" fontWeight={800} color="text.primary" sx={{ fontStyle: 'normal' }}>Desc:</Box>{' '}
-                        {bai.description && bai.description.length > 30 ? bai.description.substring(0, 30) + '...' : (bai.description || '-')}
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{
+                          display: 'inline-block',
+                          maxWidth: '100%',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          mt: 0.5,
+                          fontStyle: 'italic',
+                        }}
+                      >
+                        <Box
+                          component="span"
+                          fontWeight={800}
+                          color="text.primary"
+                          sx={{ fontStyle: 'normal' }}
+                        >
+                          Desc:
+                        </Box>{' '}
+                        {bai.description && bai.description.length > 30
+                          ? bai.description.substring(0, 30) + '...'
+                          : bai.description || '-'}
                       </Typography>
                     </Tooltip>
                   )}

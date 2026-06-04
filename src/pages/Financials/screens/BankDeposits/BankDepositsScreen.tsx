@@ -60,7 +60,13 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     (item: BankDepositItem, isMindpathFlag: boolean) => {
       const history = rowHistory[item.transactionNo];
       const { data: historyData, isLoading } = history || { data: null, isLoading: false };
-      return <BankDepositExpandedContent historyData={historyData} isLoading={isLoading} isMindPath={isMindpathFlag} />;
+      return (
+        <BankDepositExpandedContent
+          historyData={historyData}
+          isLoading={isLoading}
+          isMindPath={isMindpathFlag}
+        />
+      );
     },
     [rowHistory],
   );

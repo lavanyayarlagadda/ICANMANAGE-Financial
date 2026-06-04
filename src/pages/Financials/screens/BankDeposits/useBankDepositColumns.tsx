@@ -169,9 +169,8 @@ export const useBankDepositColumns = ({
                 }
               />
             );
-          }
-                   else if(row.status ==='Reconciled'){
-             return (
+          } else if (row.status === 'Reconciled') {
+            return (
               <Chip
                 label={row.status}
                 sx={{
@@ -179,9 +178,7 @@ export const useBankDepositColumns = ({
                   color: '2E7D32',
                   border: `1px solid ${theme.palette.divider}`,
                 }}
-                icon={
-                    <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} />
-                }
+                icon={<CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} />}
               />
             );
           }
@@ -312,9 +309,9 @@ export const useBankDepositColumns = ({
 
           if (mappedId.toLowerCase().includes('adjustmentcode')) {
             return (
-              <MultiValueDisplay 
-                value={val !== null && val !== undefined ? String(val) : '-'} 
-                hideSearch={true} 
+              <MultiValueDisplay
+                value={val !== null && val !== undefined ? String(val) : '-'}
+                hideSearch={true}
               />
             );
           }

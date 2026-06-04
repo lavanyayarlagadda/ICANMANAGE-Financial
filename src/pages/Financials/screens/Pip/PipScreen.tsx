@@ -179,7 +179,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         label: 'PAYER',
         align: 'center',
         accessor: (row) => row.payer ?? '-',
-        disableSort:true,
+        disableSort: true,
         render: (row) => <MultiValueDisplay value={row.payer ?? '-'} />,
       },
       {

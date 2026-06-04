@@ -22,7 +22,7 @@ export const NpiSectionWrapper = styled(Box)(({ theme }) => ({
       background: theme.palette.text.secondary,
     },
   },
-  scrollbarWidth:'thin'
+  scrollbarWidth: 'thin',
 }));
 
 export const NpiHeaderRow = styled(Box)(({ theme }) => ({

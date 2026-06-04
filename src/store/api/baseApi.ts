@@ -125,7 +125,7 @@ const baseQueryWithReauth: BaseQueryFn<
         error?: string;
         data?: { message?: string };
       };
-      
+
       const isAbortError =
         api.signal.aborted ||
         errState?.name === 'AbortError' ||
