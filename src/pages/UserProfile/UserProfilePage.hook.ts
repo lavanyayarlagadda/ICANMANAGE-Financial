@@ -35,6 +35,7 @@ export const PAGE_GRIDS_CONFIG: Record<string, PageGridConfig> = {
   'Recoupments': { hasGrids: true, grids: [{ name: 'Recoupments', staticColumns: ['Recoupment Date', 'Payer', 'Patient Name', 'Claim ID', 'Original Payment', 'Recoupment Amount', 'Reason', 'Status'] }] },
   'Other Adjustments': { hasGrids: true, grids: [{ name: 'Other Adjustments', staticColumns: ['Effective Date', 'Type', 'Description', 'Source Provider', 'Amount', 'Reference ID', 'Status'] }] },
   'Collections': { hasGrids: true, grids: [{ name: 'Collections', staticColumns: ['Account Number', 'Patient Name', 'Payer', 'Total Due', 'Amount Collected', 'Balance', 'Status', 'Aging', 'Priority'] }] },
+  'Deposit Reconciliation': { hasGrids: false, grids: [] },
   'Variance Analysis': { hasGrids: true, grids: [
     { name: 'Fee Schedule Variance', staticColumns: ['Transaction No', 'Payment Date', 'Patient Name', 'Payer Name', 'Expected Allowed', 'Actual Allowed', 'Variance', 'Adjustment Code 1', 'Adjustment Code 2'] },
     { name: 'Payment Variance', staticColumns: ['Transaction No', 'Payment Date', 'Patient Name', 'Payer Name', 'Expected Allowed', 'Actual Allowed', 'Variance', 'Adjustment Code 1', 'Adjustment Code 2'] }
@@ -50,11 +51,6 @@ export const PAGE_GRIDS_CONFIG: Record<string, PageGridConfig> = {
     { name: 'Recoupments', staticColumns: ['Recoupment Date', 'Payer', 'Patient Name', 'Claim ID', 'Original Payment', 'Recoupment Amount', 'Reason', 'Status'] }
   ]},
   'Bank Deposits': { hasGrids: true, grids: [{ name: 'Bank Deposits', isDynamic: true }] },
-  'Deposit Reconciliation': { hasGrids: true, grids: [
-    { name: 'Adjusted Cash' },
-    { name: 'Reconciled' },
-    { name: 'Unreconciled' }
-  ] },
 };
 
 export const useUserProfilePage = () => {

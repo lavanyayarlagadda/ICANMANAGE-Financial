@@ -151,7 +151,7 @@ const UserProfilePage: React.FC = () => {
               sx={{ ...styles.textFieldStyles, mb: 2 }}
             />
             <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Display Name (Optional)
+              Display Name
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
               <TextField
@@ -171,6 +171,9 @@ const UserProfilePage: React.FC = () => {
                 sx={styles.textFieldStyles}
               />
             </Box>
+            <Alert severity="warning" sx={{ mb: 2, mt: 1, '& .MuiAlert-message': { fontSize: '0.875rem' } }}>
+              If you update your profile details, you will need to log out and log back in for the changes to take effect.
+            </Alert>
             <Box sx={styles.actionsBoxStyles}>
               <Button
                 variant="contained"
