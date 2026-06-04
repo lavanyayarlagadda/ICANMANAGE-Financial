@@ -1,11 +1,11 @@
 import { useState, useCallback } from 'react';
 
-export const useMultiValueDisplay = (value: string) => {
+export const useMultiValueDisplay = (value: string, delimiter: string | RegExp = ',') => {
   const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   const items = (value || '')
-    .split(',')
+    .split(delimiter)
     .map((s) => s.trim())
     .filter(Boolean);
 
