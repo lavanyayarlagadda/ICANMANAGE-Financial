@@ -146,6 +146,7 @@ const ReconciliationScreen: React.FC = () => {
         </Box>
       ) : (
         <DataTable
+          gridName={view === 'unreconciled' ? 'Unreconciled' : view === 'reconciled' ? 'Reconciled' : 'My Queue'}
           columns={columns}
           data={filteredData}
           rowKey={(row) => row.id}

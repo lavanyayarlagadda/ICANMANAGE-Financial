@@ -21,6 +21,7 @@ export interface User {
   role: string;
   accessibleModules: string[];
   defaultLandingPage: string;
+  defaultColumns?: Record<string, string[]>;
   inactivityTimeout?: string;
   passwordPolicy?: string;
 }

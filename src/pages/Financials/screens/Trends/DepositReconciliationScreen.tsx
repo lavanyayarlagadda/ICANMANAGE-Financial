@@ -138,6 +138,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         agingRows={safeAgingRows}
       />
       <SectionTable
+        gridName="Adjusted Cash"
         title={String(adjustedCashData.title || '')}
         description={String(adjustedCashData.description || '')}
         columns={safeAdjustedCashColumns}
@@ -145,6 +146,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         compareMode={compareMode}
       />
       <SectionTable
+        gridName="Reconciled"
         title={String(reconciledData.title || '')}
         description={String(reconciledData.description || '')}
         columns={safePostedColumns}
@@ -152,6 +154,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         compareMode={compareMode}
       />
       <SectionTable
+        gridName="Unreconciled"
         title={String(unreconciledData.title || '')}
         description={String(unreconciledData.description || '')}
         columns={safeNotPostedColumns}

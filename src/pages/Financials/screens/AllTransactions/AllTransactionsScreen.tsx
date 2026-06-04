@@ -204,6 +204,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
       </ToolbarWrapper>
 
       <DataTable
+        gridName="All Transactions"
         columns={columns}
         data={filteredTransactions || []}
         rowKey={(r) => r.id ?? ''}

@@ -14,6 +14,8 @@ import {
   Alert,
   IconButton,
   CircularProgress,
+  Checkbox,
+  ListItemText,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout/DashboardLayout';
@@ -67,6 +69,15 @@ const UserProfilePage: React.FC = () => {
     handleBack,
     isLoadingDetails,
     landingPageChanged,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    selectedColumns,
+    setSelectedColumns,
+    handleSavePreferences,
+    currentPageConfig,
+    getColumnsForGrid,
   } = useUserProfilePage();
 
   if (!user) return null;
@@ -134,10 +145,32 @@ const UserProfilePage: React.FC = () => {
             <TextField
               fullWidth
               size="small"
+              disabled
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              sx={styles.textFieldStyles}
+              sx={{ ...styles.textFieldStyles, mb: 2 }}
             />
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+              Display Name (Optional)
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
+              <TextField
+                fullWidth
+                size="small"
+                label="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                sx={styles.textFieldStyles}
+              />
+              <TextField
+                fullWidth
+                size="small"
+                label="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                sx={styles.textFieldStyles}
+              />
+            </Box>
             <Box sx={styles.actionsBoxStyles}>
               <Button
                 variant="contained"
@@ -145,7 +178,7 @@ const UserProfilePage: React.FC = () => {
                 onClick={handleUpdateUsername}
                 sx={{ backgroundColor: themeConfig.colors.primary }}
               >
-                Update Username
+                Update Profile
               </Button>
             </Box>
           </Card>
@@ -242,11 +275,70 @@ const UserProfilePage: React.FC = () => {
               Your browser will navigate to {NAV_CONFIG[landingPage]?.path || '/'} automatically
               after selection.
             </Typography>
+            {currentPageConfig.hasGrids ? (
+              <>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
+                  Select which columns to display by default when visiting this page.
+                </Typography>
+                
+                {currentPageConfig.grids.map((grid) => {
+                  const gridColumns = getColumnsForGrid(grid);
+                  const selectedForGrid = selectedColumns[grid.name] || [];
+
+                  return (
+                    <Box key={grid.name} sx={{ mb: 2 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        Default Columns for {grid.name}
+                      </Typography>
+                      <Select
+                        fullWidth
+                        multiple
+                        size="small"
+                        value={selectedForGrid}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setSelectedColumns((prev) => ({
+                            ...prev,
+                            [grid.name]: typeof value === 'string' ? value.split(',') : value as string[],
+                          }));
+                        }}
+                        displayEmpty
+                        disabled={user?.role === 'user' || user?.username === 'demo' || isLoadingDetails}
+                        sx={{ ...styles.textFieldStyles, mb: 1 }}
+                        renderValue={(selected) => {
+                          if (selected.length === 0) {
+                            return <em>Select columns to display</em>;
+                          }
+                          return selected.join(', ');
+                        }}
+                      >
+                        {gridColumns.length > 0 ? (
+                          gridColumns.map((col: string) => (
+                            <MenuItem key={col} value={col}>
+                              <Checkbox checked={selectedForGrid.indexOf(col) > -1} />
+                              <ListItemText primary={col} />
+                            </MenuItem>
+                          ))
+                        ) : (
+                          <MenuItem disabled value="">
+                            <em>{grid.isDynamic && isLoadingDetails ? 'Loading columns...' : 'No columns available for this grid'}</em>
+                          </MenuItem>
+                        )}
+                      </Select>
+                    </Box>
+                  );
+                })}
+              </>
+            ) : (
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
+                The selected page does not have configurable grids.
+              </Typography>
+            )}
             {/* Note: Save button is now mostly redundant due to auto-save on select, but kept for UX clarity */}
             <Box sx={styles.actionsBoxStyles}>
               <Button
                 variant="contained"
-                disabled={isLoadingDetails || !landingPageChanged}
+                disabled={isLoadingDetails}
                 startIcon={
                   isLoadingDetails ? (
                     <CircularProgress size={16} color="inherit" />
@@ -254,7 +346,7 @@ const UserProfilePage: React.FC = () => {
                     <SaveIcon fontSize="small" />
                   )
                 }
-                onClick={() => handleLandingPageChange(landingPage)}
+                onClick={handleSavePreferences}
                 sx={{
                   backgroundColor: themeConfig.colors.primary,
                   '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary },

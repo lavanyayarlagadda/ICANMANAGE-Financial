@@ -137,6 +137,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         </Box>
       </ToolbarWrapper>
       <DataTable
+        gridName="Payments"
         columns={columns}
         data={payments || []}
         rowKey={(r) => r.id ?? ''}

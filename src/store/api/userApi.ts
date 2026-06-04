@@ -47,6 +47,7 @@ export interface MeDetailsResponse {
   accessibleModules: string[];
   menus: MenuItem[];
   defaultLandingPage: string;
+  defaultColumns?: Record<string, string[]>;
   inactivityTimeout: string;
   passwordPolicy: string;
   users?: UserDetail[];
@@ -106,6 +107,7 @@ export interface UpdateMenuConfigRequest {
 
 export interface UpdatePreferencesRequest {
   defaultLandingPage: string;
+  defaultColumns?: Record<string, string[]>;
 }
 
 export const userApi = baseApi.injectEndpoints({

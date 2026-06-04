@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { TablePagination, useTheme, useMediaQuery } from '@mui/material';
 import { exportToCSV, exportToPDF } from '@/utils/exportUtils';
 import { PAGE_SIZE_OPTIONS } from '@/constants/common';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 import DictionaryDrawer from '../DictionaryDrawer/DictionaryDrawer';
 import {
@@ -18,6 +20,7 @@ import { DataTableMobile } from './DataTableMobile';
 import { TableSkeleton } from '../../atoms/TableSkeleton/TableSkeleton';
 
 interface DataTableProps<T> {
+  gridName?: string;
   columns: DataColumn<T>[];
   data: T[];
   rowKey: (row: T) => string;
@@ -78,6 +81,7 @@ function DataTable<T>({
   additionalFilterCount = 0,
   showColumnDividers = false,
   tableTitle,
+  gridName,
   ...props
 }: DataTableProps<T>) {
   const hasAccessor = (column: DataColumn<T>): column is AccessorColumn<T> => !!column.accessor;
@@ -85,6 +89,21 @@ function DataTable<T>({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [showFilters, setShowFilters] = useState(false);
+
+  const user = useSelector((state: RootState) => state.auth.user);
+  const preferredColumns = gridName ? user?.defaultColumns?.[gridName] : null;
+
+  const displayColumns = useMemo(() => {
+    if (preferredColumns && preferredColumns.length > 0) {
+      return columns.filter((c) => {
+        if (c.id === 'actions' || c.id === 'expand') return true;
+        const labelStr = typeof c.label === 'string' ? c.label : c.id;
+        return preferredColumns.includes(labelStr);
+      });
+    }
+    return columns;
+  }, [columns, preferredColumns]);
+
 
   const {
     page,
@@ -109,7 +128,7 @@ function DataTable<T>({
     setInternalRowsPerPage,
     clearAllFilters,
   } = useDataTable({
-    columns,
+    columns: displayColumns,
     data,
     rowKey,
     rowsPerPageOptions,
@@ -123,7 +142,7 @@ function DataTable<T>({
 
   const filterableColumns = useMemo(
     () =>
-      columns
+      displayColumns
         .filter((col) => !!col)
         .filter(
           (col) =>
@@ -135,9 +154,9 @@ function DataTable<T>({
           ...col,
           filterOptions: col.filterOptions || [],
         })) as FilterableColumn<T>[],
-    [columns],
+    [displayColumns],
   );
-  const exportableColumns = columns
+  const exportableColumns = displayColumns
     .filter((col) => !!col)
     .filter((c): c is AccessorColumn<T> => c.id !== 'actions' && hasAccessor(c));
   const paginatedData =
@@ -212,7 +231,7 @@ function DataTable<T>({
       {loading ? (
         <TableSkeleton
           rows={rowsPerPage}
-          columns={columns.length}
+          columns={displayColumns.length}
           hasCheckbox={!!props.selectable}
         />
       ) : isMobile ? (
@@ -223,7 +242,7 @@ function DataTable<T>({
           selectable={props.selectable}
           selectedKeys={selectedKeys}
           handleSelectOne={handleSelectOne}
-          columns={columns}
+          columns={displayColumns}
           descriptions={descriptions}
           handleHeaderClick={handleHeaderClick}
           expandedContent={expandedContent}
@@ -236,7 +255,7 @@ function DataTable<T>({
           isIndeterminate={isIndeterminate}
           isAllSelected={isAllSelected}
           handleSelectAll={handleSelectAll}
-          columns={columns}
+          columns={displayColumns}
           sortCol={sortCol}
           sortDir={sortDir}
           isSortable={isSortable}

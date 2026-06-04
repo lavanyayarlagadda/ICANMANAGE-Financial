@@ -159,6 +159,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         </Box>
       </styles.ToolbarWrapper>
       <DataTable
+        gridName="Recoupments"
         columns={columns}
         data={recoupments || []}
         rowKey={(r) => r.id}

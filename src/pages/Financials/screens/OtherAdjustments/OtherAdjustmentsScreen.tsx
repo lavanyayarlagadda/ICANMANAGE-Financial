@@ -165,6 +165,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         </Box>
       </styles.ToolbarWrapper>
       <DataTable
+        gridName="Other Adjustments"
         columns={columns}
         data={adjustments || []}
         rowKey={(r) => r.id}

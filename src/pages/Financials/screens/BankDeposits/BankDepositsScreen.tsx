@@ -135,6 +135,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             </Typography>
           </EntitySectionHeader>
           <DataTable
+            gridName="Bank Deposits"
             columns={columns}
             data={entity.items}
             rowKey={(row) => row.transactionNo}

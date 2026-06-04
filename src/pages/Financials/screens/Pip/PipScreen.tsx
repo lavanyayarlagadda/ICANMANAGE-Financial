@@ -314,6 +314,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         </Grid>
       </Grid>
       <DataTable
+        gridName="PIP"
         columns={columns}
         data={pipRecords || []}
         rowKey={getRowId}

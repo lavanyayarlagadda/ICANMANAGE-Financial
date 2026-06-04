@@ -215,7 +215,9 @@ export const useBankDepositColumns = ({
       return [baseColumns.expand];
     }
 
-    const mappedColumns: DataColumn<BankDepositItem>[] = dynamicColumns.map((dc) => {
+    const activeColumns = dynamicColumns.filter(dc => dc.active !== false);
+
+    const mappedColumns: DataColumn<BankDepositItem>[] = activeColumns.map((dc) => {
       const mappedId = dc.displayName
         .toLowerCase()
         .replace(/[^a-z0-9]+(.)/g, (_: string, chr: string) => chr.toUpperCase())

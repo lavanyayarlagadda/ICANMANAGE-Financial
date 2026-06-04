@@ -356,6 +356,8 @@ export interface FeeScheduleVariance {
   actualAllowed: string | number;
   variance: string | number;
   adjustmentCode?: string;
+  adjustmentCode1?: string;
+  adjustmentCode2?: string;
   claimId?: string;
   transactionNo?: string;
 }
@@ -370,6 +372,8 @@ export interface PaymentVariance {
   actualAllowed: string | number;
   variance: string | number;
   adjustmentCode?: string;
+  adjustmentCode1?: string;
+  adjustmentCode2?: string;
   claimId?: string;
   transactionNo?: string;
 }
