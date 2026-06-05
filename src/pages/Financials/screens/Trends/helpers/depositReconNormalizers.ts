@@ -19,8 +19,6 @@ import {
   formatColumnAmount,
   ensureForecastColumns,
   toText,
-  calculateMomFromColumns,
-  calculateMomFromSeries,
   toDelta,
   resolveTrend,
   isPartialMonthColumn,
@@ -173,13 +171,10 @@ export const normalizeTrendRow = (
       ? columns.map((col) => formatColumnAmount(amountsByColumn[col.label]))
       : Object.keys(amountsByColumn).map((key) => formatColumnAmount(amountsByColumn[key]));
 
-  const calculatedMom = calculateMomFromColumns(amountsByColumn, columns);
   const hasApiMom = row.momChangePercent !== undefined && row.momChangePercent !== null;
   const momDelta = hasApiMom
     ? toDelta(row.momChangePercent, row.momDirection)
-    : calculatedMom
-      ? toDelta(calculatedMom.percent, calculatedMom.direction)
-      : '—';
+     : '—';
 
   return {
     id: rowId,
@@ -304,13 +299,10 @@ export const normalizeTopPayerRows = (rows: unknown): PayerRow[] => {
 
       const sixMonthTrend = parseTimeSeriesData(row.sixMonthTrend);
 
-      const calculatedMom = sixMonthTrend ? calculateMomFromSeries(sixMonthTrend) : null;
       const hasApiMom = row.momChangePercent !== undefined && row.momChangePercent !== null;
       const momDelta = hasApiMom
         ? toDelta(row.momChangePercent, row.momDirection)
-        : calculatedMom
-          ? toDelta(calculatedMom.percent, calculatedMom.direction)
-          : toDelta(row.momDelta, row.momDirection);
+        : toDelta(row.momDelta, row.momDirection);
 
       return {
         payer,
