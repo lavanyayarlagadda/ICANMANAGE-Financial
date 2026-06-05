@@ -141,7 +141,9 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 150,
         align: 'center',
         accessor: (r) => r.adjustmentCode || '',
-        render: (r) => <MultiValueDisplay value={r.adjustmentCode || ''} delimiter="|" hideSearch={true} />,
+        render: (r) => (
+          <MultiValueDisplay value={r.adjustmentCode || ''} delimiter="|" hideSearch={true} />
+        ),
       },
     ],
     [handleDrillDown, theme, payerOptions, payerOptionsLoading, payerOptionsError],

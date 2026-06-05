@@ -23,6 +23,7 @@ import {
   calculateMomFromSeries,
   toDelta,
   resolveTrend,
+  isPartialMonthColumn,
 } from './depositReconUtils';
 import { formatPercentValue } from '@/utils/formatters';
 
@@ -120,9 +121,15 @@ export const normalizeTrendColumns = (source: GenericRecord): TrendColumn[] => {
       if (!col) return null;
       const label = toText(col.label);
       if (!label) return null;
+
+      let kind = toText(col.kind || 'ACTUAL').toUpperCase();
+      if (kind === 'ACTUAL' && isPartialMonthColumn(label)) {
+        kind = 'PARTIAL';
+      }
+
       return {
         label,
-        kind: toText(col.kind || 'ACTUAL').toUpperCase(),
+        kind,
       };
     })
     .filter((v): v is TrendColumn => v !== null);
@@ -136,10 +143,11 @@ export const deriveColumnsFromRows = (rows: unknown, columns: TrendColumn[]): Tr
     const row = toRecord(item);
     const amountsByColumn = toRecord(row?.amountsByColumn);
     if (amountsByColumn) {
-      return Object.keys(amountsByColumn).map((label) => ({
-        label,
-        kind: 'ACTUAL',
-      }));
+      return Object.keys(amountsByColumn).map((label) => {
+        let kind = 'ACTUAL';
+        if (isPartialMonthColumn(label)) kind = 'PARTIAL';
+        return { label, kind };
+      });
     }
   }
   return [];

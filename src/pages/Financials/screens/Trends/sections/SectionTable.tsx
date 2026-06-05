@@ -4,6 +4,7 @@ import { Sparkline } from './Sparkline';
 import {
   deltaColor,
   toText,
+  getDeltaLabel,
   type TrendColumn,
   type SectionRow,
 } from '../helpers/depositReconciliationHelpers';
@@ -24,8 +25,8 @@ export const SectionTable: React.FC<SectionTableProps> = ({
   compareMode,
 }) => {
   const theme = useTheme();
-  const firstForecastIdx = columns.findIndex((col) => col.kind === 'FORECAST');
-  const deltaLabel = compareMode?.toUpperCase() === 'YOY' ? 'Δ YoY' : 'Δ MoM';
+  // const firstForecastIdx = columns.findIndex((col) => col.kind === 'FORECAST');
+  const deltaLabel = getDeltaLabel(columns, compareMode);
 
   return (
     <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
@@ -57,27 +58,39 @@ export const SectionTable: React.FC<SectionTableProps> = ({
           >
             <Box component="thead">
               <Box component="tr">
-                {['', 'Trend', deltaLabel, ...columns.map((col) => col.label)].map((label, idx) => (
-                  <Box
-                    component="th"
-                    key={`${label}-${idx}`}
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      textAlign: idx === 0 ? 'left' : 'right',
-                      color: theme.palette.text.secondary,
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      borderLeft:
-                        firstForecastIdx >= 0 && idx === firstForecastIdx + 3
-                          ? `1px dotted ${theme.palette.divider}`
-                          : 'none',
-                      fontSize: 12,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {label}
-                  </Box>
-                ))}
+                {[
+                  '',
+                  'Trend',
+                  deltaLabel,
+                  ...columns.map((col) =>
+                    col.kind === 'PARTIAL' ? `${col.label} (MTD)` : col.label,
+                  ),
+                ].map((label, idx) => {
+                  const isPartialCol = idx >= 3 && columns[idx - 3].kind === 'PARTIAL';
+                  const isForecastCol = idx >= 3 && columns[idx - 3].kind === 'FORECAST';
+
+                  return (
+                    <Box
+                      component="th"
+                      key={`${label}-${idx}`}
+                      sx={{
+                        py: 1,
+                        px: 1,
+                        textAlign: idx === 0 ? 'left' : 'right',
+                        color: theme.palette.text.secondary,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        borderLeft:
+                          isPartialCol || isForecastCol
+                            ? `1px dashed ${theme.palette.divider}`
+                            : 'none',
+                        fontSize: 12,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {label}
+                    </Box>
+                  );
+                })}
               </Box>
             </Box>
             <Box component="tbody">
@@ -167,7 +180,9 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                       {toText(row.momDelta)}
                     </Box>
                     {row.amounts.map((value, idx) => {
-                      const isForecast = firstForecastIdx >= 0 && idx >= firstForecastIdx;
+                      const col = columns[idx];
+                      const isForecast = col.kind === 'FORECAST';
+                      const isPartial = col.kind === 'PARTIAL';
                       return (
                         <Box
                           component="td"
@@ -178,13 +193,14 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                             textAlign: 'right',
                             borderBottom: `1px solid ${theme.palette.divider}`,
                             borderLeft:
-                              idx === firstForecastIdx
-                                ? `1px dotted ${theme.palette.divider}`
+                              isPartial || isForecast
+                                ? `1px dashed ${theme.palette.divider}`
                                 : 'none',
-                            color: isForecast
-                              ? theme.palette.text.secondary
-                              : theme.palette.text.primary,
-                            fontStyle: isForecast ? 'italic' : 'normal',
+                            color:
+                              isForecast || isPartial
+                                ? theme.palette.text.secondary
+                                : theme.palette.text.primary,
+                            fontStyle: isForecast || isPartial ? 'italic' : 'normal',
                             fontWeight: isBoldRow ? 700 : 500,
                             whiteSpace: 'nowrap',
                           }}

@@ -99,6 +99,38 @@ export const parseMonthColumnLabel = (label: string): Date | null => {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
+export const isPartialMonthColumn = (label: string): boolean => {
+  const parsed = parseMonthColumnLabel(label);
+  if (!parsed) return false;
+  const now = new Date();
+  return parsed.getMonth() === now.getMonth() && parsed.getFullYear() === now.getFullYear();
+};
+
+export const getDeltaLabel = (columns: TrendColumn[], compareMode?: string): string => {
+  const actualCols = columns.filter((c) => c.kind === 'ACTUAL');
+
+  if (compareMode?.toUpperCase() === 'YOY') {
+    if (actualCols.length >= 1) {
+      const presentFull = actualCols[actualCols.length - 1].label; // e.g., "May '26"
+      const match = presentFull.match(/^([A-Za-z]+)\s+'(\d{2})$/);
+      if (match) {
+        const month = match[1];
+        const year = parseInt(match[2], 10);
+        const prevYear = year - 1;
+        return `Δ YoY (${month} '${year} vs ${month} '${prevYear})`;
+      }
+    }
+    return 'Δ YoY';
+  }
+  
+  if (actualCols.length >= 2) {
+    const present = actualCols[actualCols.length - 1].label.split(' ')[0];
+    const previous = actualCols[actualCols.length - 2].label.split(' ')[0];
+    return `Δ MoM (${present} vs ${previous})`;
+  }
+  return 'Δ MoM';
+};
+
 export const ensureForecastColumns = (
   columns: TrendColumn[],
   forecastWindow: string,
@@ -151,7 +183,7 @@ export const calculateMomFromColumns = (
   amountsByColumn: GenericRecord,
   columns: TrendColumn[],
 ): { percent: number; direction: 'UP' | 'DOWN' | 'NONE' } | null => {
-  const actualColumns = columns.filter((col) => col.kind !== 'FORECAST');
+  const actualColumns = columns.filter((col) => col.kind === 'ACTUAL');
   const targetColumns = actualColumns.length >= 2 ? actualColumns : columns;
   if (targetColumns.length < 2) return null;
 

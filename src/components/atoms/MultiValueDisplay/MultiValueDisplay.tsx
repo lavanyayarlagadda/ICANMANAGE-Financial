@@ -64,7 +64,14 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
 
   return (
     <Box sx={styles.containerStyles}>
-      <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap justifyContent="center" sx={{ gap: 0.5 }}>
+      <Stack
+        direction="row"
+        spacing={0.5}
+        flexWrap="wrap"
+        useFlexGap
+        justifyContent="center"
+        sx={{ gap: 0.5 }}
+      >
         {displayItems.map((item, idx) => (
           <Tooltip key={idx} title={item} arrow>
             <Chip
