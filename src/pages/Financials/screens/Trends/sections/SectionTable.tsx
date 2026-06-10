@@ -6,6 +6,7 @@ import { Sparkline } from './Sparkline';
 import {
   deltaColor,
   toText,
+  getDeltaLabel,
   type TrendColumn,
   type SectionRow,
 } from '../helpers/depositReconciliationHelpers';
@@ -28,13 +29,8 @@ export const SectionTable: React.FC<SectionTableProps> = ({
   gridName,
 }) => {
   const theme = useTheme();
-  
-  // Fetch user preferences
-  const { user } = useSelector((state: RootState) => state.auth);
-  const preferredColumns = gridName ? user?.defaultColumns?.[gridName] : undefined;
-
-  const firstForecastIdx = columns.findIndex((col) => col.kind === 'FORECAST');
-  const deltaLabel = compareMode?.toUpperCase() === 'YOY' ? 'Δ YoY' : 'Δ MoM';
+  // const firstForecastIdx = columns.findIndex((col) => col.kind === 'FORECAST');
+  const deltaLabel = getDeltaLabel(columns, compareMode);
 
   const isVisible = (label: string) => {
     if (!preferredColumns) return true;
@@ -73,9 +69,17 @@ export const SectionTable: React.FC<SectionTableProps> = ({
           >
             <Box component="thead">
               <Box component="tr">
-                {visibleHeaderLabels.map((label, idx) => {
-                  // Approximate border logic for visible columns, though forecast index might shift
-                  const isForecastStart = label === columns[firstForecastIdx]?.label;
+                {[
+                  '',
+                  'Trend',
+                  deltaLabel,
+                  ...columns.map((col) =>
+                    col.kind === 'PARTIAL' ? `${col.label} (MTD)` : col.label,
+                  ),
+                ].map((label, idx) => {
+                  const isPartialCol = idx >= 3 && columns[idx - 3].kind === 'PARTIAL';
+                  const isForecastCol = idx >= 3 && columns[idx - 3].kind === 'FORECAST';
+
                   return (
                     <Box
                       component="th"
@@ -87,8 +91,8 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                         color: theme.palette.text.secondary,
                         borderBottom: `1px solid ${theme.palette.divider}`,
                         borderLeft:
-                          isForecastStart
-                            ? `1px dotted ${theme.palette.divider}`
+                          isPartialCol || isForecastCol
+                            ? `1px dashed ${theme.palette.divider}`
                             : 'none',
                         fontSize: 12,
                         whiteSpace: 'nowrap',
@@ -193,10 +197,9 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                       </Box>
                     )}
                     {row.amounts.map((value, idx) => {
-                      const colLabel = columns[idx].label;
-                      if (!isVisible(colLabel)) return null;
-
-                      const isForecast = firstForecastIdx >= 0 && idx >= firstForecastIdx;
+                      const col = columns[idx];
+                      const isForecast = col.kind === 'FORECAST';
+                      const isPartial = col.kind === 'PARTIAL';
                       return (
                         <Box
                           component="td"
@@ -207,13 +210,14 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                             textAlign: 'right',
                             borderBottom: `1px solid ${theme.palette.divider}`,
                             borderLeft:
-                              idx === firstForecastIdx
-                                ? `1px dotted ${theme.palette.divider}`
+                              isPartial || isForecast
+                                ? `1px dashed ${theme.palette.divider}`
                                 : 'none',
-                            color: isForecast
-                              ? theme.palette.text.secondary
-                              : theme.palette.text.primary,
-                            fontStyle: isForecast ? 'italic' : 'normal',
+                            color:
+                              isForecast || isPartial
+                                ? theme.palette.text.secondary
+                                : theme.palette.text.primary,
+                            fontStyle: isForecast || isPartial ? 'italic' : 'normal',
                             fontWeight: isBoldRow ? 700 : 500,
                             whiteSpace: 'nowrap',
                           }}
