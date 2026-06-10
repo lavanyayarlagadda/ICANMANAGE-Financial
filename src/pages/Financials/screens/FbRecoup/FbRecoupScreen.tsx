@@ -364,6 +364,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           <Button
             variant="contained"
             size="small"
+            disabled={!searchTerm}
             onClick={() => onSearch()}
             sx={{
               height: '36px',
@@ -432,8 +433,13 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end" sx={{ m: 0, p: 0 }}>
-                    <IconButton size="small" onClick={() => applyFilters()} sx={{ p: '4px' }}>
-                      <SearchIcon fontSize="small" color="primary" />
+                    <IconButton
+                      size="small"
+                      disabled={!filterNpiPtan}
+                      onClick={() => applyFilters()}
+                      sx={{ p: '4px' }}
+                    >
+                      <SearchIcon fontSize="small" color={filterNpiPtan ? 'primary' : 'action'} />
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -447,7 +453,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             />
           </FormControl>
         }
-        additionalFilterCount={(searchTerm ? 1 : 0) + (filterNpiPtan ? 1 : 0)}
+        additionalFilterCount={filterNpiPtan ? 1 : 0}
       />
     </Box>
   );

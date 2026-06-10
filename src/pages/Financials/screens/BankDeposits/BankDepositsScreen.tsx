@@ -113,6 +113,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           <Button
             variant="contained"
             size="small"
+            disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
             sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600 }}
           >
@@ -136,6 +137,8 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           </EntitySectionHeader>
           <DataTable
             gridName="Bank Deposits"
+            tableName="Bank Deposits"
+            userId="dummy_user_123"
             columns={columns}
             data={entity.items}
             rowKey={(row) => row.transactionNo}

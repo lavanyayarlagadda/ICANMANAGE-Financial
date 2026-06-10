@@ -1,7 +1,13 @@
 import React from 'react';
 import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
 import { Sparkline } from './Sparkline';
-import { deltaColor, toText, type PayerRow } from '../helpers/depositReconciliationHelpers';
+import {
+  deltaColor,
+  toText,
+  getDeltaLabel,
+  type PayerRow,
+  type TrendColumn,
+} from '../helpers/depositReconciliationHelpers';
 
 interface DepositReconciliationTopPayersProps {
   topPayersData: {
@@ -10,12 +16,14 @@ interface DepositReconciliationTopPayersProps {
   };
   topPayers: PayerRow[];
   compareMode?: string;
+  columns?: TrendColumn[];
 }
 
 export const DepositReconciliationTopPayers: React.FC<DepositReconciliationTopPayersProps> = ({
   topPayersData,
   topPayers,
   compareMode,
+  columns,
 }) => {
   const theme = useTheme();
 
@@ -54,7 +62,7 @@ export const DepositReconciliationTopPayers: React.FC<DepositReconciliationTopPa
                   'Total $',
                   '% of Total',
                   'Match Rate',
-                  compareMode?.toUpperCase() === 'YOY' ? 'Δ YoY' : 'Δ MoM',
+                  getDeltaLabel(columns || [], compareMode),
                   '6-months Trend',
                 ].map((label) => (
                   <Box

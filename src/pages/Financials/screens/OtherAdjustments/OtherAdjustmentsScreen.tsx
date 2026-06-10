@@ -151,6 +151,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
           <Button
             variant="contained"
             size="small"
+            disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
             sx={{
               height: '36px',

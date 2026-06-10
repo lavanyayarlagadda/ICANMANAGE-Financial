@@ -23,6 +23,7 @@ interface MultiValueDisplayProps {
   displayCount?: number;
   maxWidth?: number | string;
   hideSearch?: boolean;
+  delimiter?: string | RegExp;
 }
 
 const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
@@ -30,6 +31,7 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
   displayCount = 2,
   maxWidth = 140,
   hideSearch = false,
+  delimiter = ',',
 }) => {
   const {
     items,
@@ -41,7 +43,7 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
     filteredItems,
     open,
     anchorEl,
-  } = useMultiValueDisplay(value);
+  } = useMultiValueDisplay(value, delimiter);
   if (!value || value === '-' || value.trim() === '')
     return (
       <Typography variant="body2" color="text.secondary">
@@ -62,7 +64,14 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
 
   return (
     <Box sx={styles.containerStyles}>
-      <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ gap: 0.5 }}>
+      <Stack
+        direction="row"
+        spacing={0.5}
+        flexWrap="wrap"
+        useFlexGap
+        justifyContent="center"
+        sx={{ gap: 0.5 }}
+      >
         {displayItems.map((item, idx) => (
           <Tooltip key={idx} title={item} arrow>
             <Chip

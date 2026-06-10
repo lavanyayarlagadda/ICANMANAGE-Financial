@@ -14,8 +14,6 @@ import {
   Alert,
   IconButton,
   CircularProgress,
-  Checkbox,
-  ListItemText,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout/DashboardLayout';
@@ -73,11 +71,10 @@ const UserProfilePage: React.FC = () => {
     setFirstName,
     lastName,
     setLastName,
-    selectedColumns,
-    setSelectedColumns,
     handleSavePreferences,
-    currentPageConfig,
-    getColumnsForGrid,
+    // getColumnsForGrid,
+    profileChanged,
+    passwordChanged,
   } = useUserProfilePage();
 
   if (!user) return null;
@@ -154,32 +151,48 @@ const UserProfilePage: React.FC = () => {
               Display Name
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
-              <TextField
-                fullWidth
-                size="small"
-                label="First Name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                sx={styles.textFieldStyles}
-              />
-              <TextField
-                fullWidth
-                size="small"
-                label="Last Name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                sx={styles.textFieldStyles}
-              />
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  First Name
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  sx={styles.textFieldStyles}
+                />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  Last Name
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  sx={styles.textFieldStyles}
+                />
+              </Box>
             </Box>
-            <Alert severity="warning" sx={{ mb: 2, mt: 1, '& .MuiAlert-message': { fontSize: '0.875rem' } }}>
-              If you update your profile details, you will need to log out and log back in for the changes to take effect.
+            <Alert
+              severity="warning"
+              sx={{ mb: 2, mt: 1, '& .MuiAlert-message': { fontSize: '0.875rem' } }}
+            >
+              If you update your profile details, you will need to log out and log back in for the
+              changes to take effect.
             </Alert>
             <Box sx={styles.actionsBoxStyles}>
               <Button
                 variant="contained"
+                disabled={!profileChanged}
                 startIcon={<EditIcon fontSize="small" />}
                 onClick={handleUpdateUsername}
-                sx={{ backgroundColor: themeConfig.colors.primary }}
+                sx={{
+                  backgroundColor: themeConfig.colors.primary,
+                  '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary },
+                }}
               >
                 Update Profile
               </Button>
@@ -234,9 +247,13 @@ const UserProfilePage: React.FC = () => {
             <Box sx={styles.actionsBoxStyles}>
               <Button
                 variant="contained"
+                disabled={!passwordChanged}
                 startIcon={<KeyIcon fontSize="small" />}
                 onClick={handleChangePassword}
-                sx={{ backgroundColor: themeConfig.colors.primary }}
+                sx={{
+                  backgroundColor: themeConfig.colors.primary,
+                  '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary },
+                }}
               >
                 Change Password
               </Button>
@@ -275,73 +292,14 @@ const UserProfilePage: React.FC = () => {
               ))}
             </Select>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
-              Your browser will navigate to {NAV_CONFIG[landingPage]?.path || '/'} automatically
-              after selection.
+              Your browser will navigate to {NAV_CONFIG[landingPage]?.path || '/'} after you click
+              confirm.
             </Typography>
-            {currentPageConfig.hasGrids ? (
-              <>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
-                  Select which columns to display by default when visiting this page.
-                </Typography>
-                
-                {currentPageConfig.grids.map((grid) => {
-                  const gridColumns = getColumnsForGrid(grid);
-                  const selectedForGrid = selectedColumns[grid.name] || [];
-
-                  return (
-                    <Box key={grid.name} sx={{ mb: 2 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                        Default Columns for {grid.name}
-                      </Typography>
-                      <Select
-                        fullWidth
-                        multiple
-                        size="small"
-                        value={selectedForGrid}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setSelectedColumns((prev) => ({
-                            ...prev,
-                            [grid.name]: typeof value === 'string' ? value.split(',') : value as string[],
-                          }));
-                        }}
-                        displayEmpty
-                        disabled={user?.role === 'user' || user?.username === 'demo' || isLoadingDetails}
-                        sx={{ ...styles.textFieldStyles, mb: 1 }}
-                        renderValue={(selected) => {
-                          if (selected.length === 0) {
-                            return <em>Select columns to display</em>;
-                          }
-                          return selected.join(', ');
-                        }}
-                      >
-                        {gridColumns.length > 0 ? (
-                          gridColumns.map((col: string) => (
-                            <MenuItem key={col} value={col}>
-                              <Checkbox checked={selectedForGrid.indexOf(col) > -1} />
-                              <ListItemText primary={col} />
-                            </MenuItem>
-                          ))
-                        ) : (
-                          <MenuItem disabled value="">
-                            <em>{grid.isDynamic && isLoadingDetails ? 'Loading columns...' : 'No columns available for this grid'}</em>
-                          </MenuItem>
-                        )}
-                      </Select>
-                    </Box>
-                  );
-                })}
-              </>
-            ) : (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
-                The selected page does not have configurable grids.
-              </Typography>
-            )}
-            {/* Note: Save button is now mostly redundant due to auto-save on select, but kept for UX clarity */}
+            {/* Note: Save button confirms the selected preference and navigates to the new landing page. */}
             <Box sx={styles.actionsBoxStyles}>
               <Button
                 variant="contained"
-                disabled={isLoadingDetails}
+                disabled={isLoadingDetails || !landingPageChanged}
                 startIcon={
                   isLoadingDetails ? (
                     <CircularProgress size={16} color="inherit" />

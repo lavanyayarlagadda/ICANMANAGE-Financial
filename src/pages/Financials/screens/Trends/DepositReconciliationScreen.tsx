@@ -61,7 +61,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
     updatedAt: executiveData.lastUpdated,
   };
 
-  const monthAtGlanceTitle = '📌 This month at a glance';
+  // const monthAtGlanceTitle = '📌 This month at a glance';
 
   let insights = pickArray<string>(executiveData, ['atAGlanceInsights']);
   if (insights.length === 0) {
@@ -83,7 +83,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
   const topPayersFromApi = pickArray<unknown>(topPayersData, ['rows', 'topPayers', 'data']);
   const topPayers = normalizeTopPayerRows(topPayersFromApi);
 
-  const safeInsights = ensureArray<string>(insights);
+  // const safeInsights = ensureArray<string>(insights);
   const safeHeroCards = ensureArray<HeroCard>(heroCards).filter((card) => {
     const id = toText(card.id).toLowerCase();
     const title = toText(card.title).toLowerCase();
@@ -114,7 +114,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         setCompareMode={setCompareMode}
         controls={contract.controls}
       />
-      {safeInsights.length > 0 && (
+      {/* {safeInsights.length > 0 && (
         <Card sx={{ mb: 2, borderLeft: `4px solid ${theme.palette.error.main}` }}>
           <CardContent>
             <Typography
@@ -130,7 +130,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
             ))}
           </CardContent>
         </Card>
-      )}
+      )} */}
       <DepositReconciliationHeroCards heroCards={safeHeroCards} />
       <DepositReconciliationAging
         agingData={agingData}
@@ -165,6 +165,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         topPayersData={topPayersData}
         topPayers={safeTopPayers}
         compareMode={compareMode}
+        columns={safeAdjustedCashColumns}
       />
       <Card sx={{ borderLeft: `4px solid ${theme.palette.error.main}` }}>
         <CardContent>

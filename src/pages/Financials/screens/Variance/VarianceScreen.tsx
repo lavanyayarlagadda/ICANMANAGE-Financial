@@ -7,6 +7,7 @@ import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
+import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
 import { ScreenWrapper, HeaderSection, ToolbarWrapper, SearchField } from './VarianceScreen.styles';
 import { useVarianceScreen } from './VarianceScreen.hook';
 
@@ -140,7 +141,9 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 150,
         align: 'center',
         accessor: (r) => r.adjustmentCode || '',
-        render: (r) => <Typography variant="body2">{r.adjustmentCode}</Typography>,
+        render: (r) => (
+          <MultiValueDisplay value={r.adjustmentCode || ''} delimiter="|" hideSearch={true} />
+        ),
       },
       {
         id: 'adjustmentCode1',
@@ -237,6 +240,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           <Button
             variant="contained"
             size="small"
+            disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
             sx={{
               height: '36px',

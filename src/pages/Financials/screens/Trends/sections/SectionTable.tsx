@@ -1,7 +1,5 @@
 import React from 'react';
 import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
 import { Sparkline } from './Sparkline';
 import {
   deltaColor,
@@ -17,7 +15,6 @@ interface SectionTableProps {
   columns: TrendColumn[];
   rows: SectionRow[];
   compareMode?: string;
-  gridName?: string;
 }
 
 export const SectionTable: React.FC<SectionTableProps> = ({
@@ -26,18 +23,10 @@ export const SectionTable: React.FC<SectionTableProps> = ({
   columns,
   rows,
   compareMode,
-  gridName,
 }) => {
   const theme = useTheme();
   // const firstForecastIdx = columns.findIndex((col) => col.kind === 'FORECAST');
   const deltaLabel = getDeltaLabel(columns, compareMode);
-
-  const isVisible = (label: string) => {
-    if (!preferredColumns) return true;
-    return preferredColumns.includes(label);
-  };
-
-  const visibleHeaderLabels = ['', 'Trend', deltaLabel, ...columns.map((col) => col.label)].filter(isVisible);
 
   return (
     <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
@@ -111,7 +100,7 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                     <Box component="tr" key={row.id}>
                       <Box
                         component="td"
-                        colSpan={visibleHeaderLabels.length}
+                        colSpan={columns.length + 3}
                         sx={{
                           py: 1,
                           px: 1,
@@ -137,65 +126,59 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                       backgroundColor: isBoldRow ? theme.palette.action.hover : 'transparent',
                     }}
                   >
-                    {isVisible('Row Name') && (
-                      <Box
-                        component="td"
-                        sx={{
-                          py: 1,
-                          px: 1,
-                          pl: row.isSubtotal || row.isTotal ? 1 : 2.5,
-                          borderBottom: `1px solid ${theme.palette.divider}`,
-                          fontWeight: isBoldRow ? 700 : 500,
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {row.name}
-                      </Box>
-                    )}
-                    {isVisible('Trend') && (
-                      <Box
-                        component="td"
-                        sx={{
-                          py: 1,
-                          px: 1,
-                          borderBottom: `1px solid ${theme.palette.divider}`,
-                          textAlign: 'right',
-                        }}
-                      >
-                        {row.sparkline && row.sparkline.length > 0 ? (
-                          <Sparkline
-                            values={row.sparkline}
-                            color={deltaColor(
-                              row.momDelta,
-                              theme.palette.success.main,
-                              theme.palette.error.main,
-                              theme.palette.primary.main,
-                            )}
-                          />
-                        ) : null}
-                      </Box>
-                    )}
-                    {isVisible(deltaLabel) && (
-                      <Box
-                        component="td"
-                        sx={{
-                          py: 1,
-                          px: 1,
-                          borderBottom: `1px solid ${theme.palette.divider}`,
-                          textAlign: 'right',
-                          color: deltaColor(
+                    <Box
+                      component="td"
+                      sx={{
+                        py: 1,
+                        px: 1,
+                        pl: row.isSubtotal || row.isTotal ? 1 : 2.5,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        fontWeight: isBoldRow ? 700 : 500,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {row.name}
+                    </Box>
+                    <Box
+                      component="td"
+                      sx={{
+                        py: 1,
+                        px: 1,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        textAlign: 'right',
+                      }}
+                    >
+                      {row.sparkline && row.sparkline.length > 0 ? (
+                        <Sparkline
+                          values={row.sparkline}
+                          color={deltaColor(
                             row.momDelta,
                             theme.palette.success.main,
                             theme.palette.error.main,
-                            theme.palette.text.secondary,
-                          ),
-                          fontWeight: 700,
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {toText(row.momDelta)}
-                      </Box>
-                    )}
+                            theme.palette.primary.main,
+                          )}
+                        />
+                      ) : null}
+                    </Box>
+                    <Box
+                      component="td"
+                      sx={{
+                        py: 1,
+                        px: 1,
+                        borderBottom: `1px solid ${theme.palette.divider}`,
+                        textAlign: 'right',
+                        color: deltaColor(
+                          row.momDelta,
+                          theme.palette.success.main,
+                          theme.palette.error.main,
+                          theme.palette.text.secondary,
+                        ),
+                        fontWeight: 700,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {toText(row.momDelta)}
+                    </Box>
                     {row.amounts.map((value, idx) => {
                       const col = columns[idx];
                       const isForecast = col.kind === 'FORECAST';

@@ -14,6 +14,7 @@ import {
   FormControl,
   Switch,
   InputAdornment,
+  CircularProgress,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -277,8 +278,13 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
           )}
 
           {isLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography>Loading user configuration...</Typography>
+            <Box
+              sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, py: 4 }}
+            >
+              <CircularProgress size={32} thickness={4} sx={{ color: 'text.secondary' }} />
+              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+                Loading user configuration...
+              </Typography>
             </Box>
           ) : (
             moduleSelectionEnabled && (

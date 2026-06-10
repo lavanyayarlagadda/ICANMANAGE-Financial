@@ -99,6 +99,38 @@ export const parseMonthColumnLabel = (label: string): Date | null => {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
+export const isPartialMonthColumn = (label: string): boolean => {
+  const parsed = parseMonthColumnLabel(label);
+  if (!parsed) return false;
+  const now = new Date();
+  return parsed.getMonth() === now.getMonth() && parsed.getFullYear() === now.getFullYear();
+};
+
+export const getDeltaLabel = (columns: TrendColumn[], compareMode?: string): string => {
+  const actualCols = columns.filter((c) => c.kind === 'ACTUAL');
+
+  if (compareMode?.toUpperCase() === 'YOY') {
+    if (actualCols.length >= 1) {
+      const presentFull = actualCols[actualCols.length - 1].label; // e.g., "May '26"
+      const match = presentFull.match(/^([A-Za-z]+)\s+'(\d{2})$/);
+      if (match) {
+        const month = match[1];
+        const year = parseInt(match[2], 10);
+        const prevYear = year - 1;
+        return `Δ YoY (${month} '${year} vs ${month} '${prevYear})`;
+      }
+    }
+    return 'Δ YoY';
+  }
+
+  if (actualCols.length >= 2) {
+    const present = actualCols[actualCols.length - 1].label.split(' ')[0];
+    const previous = actualCols[actualCols.length - 2].label.split(' ')[0];
+    return `Δ MoM (${present} vs ${previous})`;
+  }
+  return 'Δ MoM';
+};
+
 export const ensureForecastColumns = (
   columns: TrendColumn[],
   forecastWindow: string,
@@ -136,43 +168,10 @@ export const toNumericAmount = (value: unknown): number | null => {
   return Number.isFinite(num) ? num : null;
 };
 
-export const calculateMomChangePercent = (present: number, previous: number): number | null => {
-  if (!Number.isFinite(present) || !Number.isFinite(previous) || previous === 0) return null;
-  return ((present - previous) / previous) * 100;
-};
-
 export const momDirectionFromPercent = (percent: number): 'UP' | 'DOWN' | 'NONE' => {
   if (percent > 0) return 'UP';
   if (percent < 0) return 'DOWN';
   return 'NONE';
-};
-
-export const calculateMomFromColumns = (
-  amountsByColumn: GenericRecord,
-  columns: TrendColumn[],
-): { percent: number; direction: 'UP' | 'DOWN' | 'NONE' } | null => {
-  const actualColumns = columns.filter((col) => col.kind !== 'FORECAST');
-  const targetColumns = actualColumns.length >= 2 ? actualColumns : columns;
-  if (targetColumns.length < 2) return null;
-
-  const present = toNumericAmount(amountsByColumn[targetColumns[targetColumns.length - 1].label]);
-  const previous = toNumericAmount(amountsByColumn[targetColumns[targetColumns.length - 2].label]);
-  const percent =
-    present !== null && previous !== null ? calculateMomChangePercent(present, previous) : null;
-  if (percent === null) return null;
-
-  return { percent, direction: momDirectionFromPercent(percent) };
-};
-
-export const calculateMomFromSeries = (
-  values: number[],
-): { percent: number; direction: 'UP' | 'DOWN' | 'NONE' } | null => {
-  if (values.length < 2) return null;
-  const present = values[values.length - 1];
-  const previous = values[values.length - 2];
-  const percent = calculateMomChangePercent(present, previous);
-  if (percent === null) return null;
-  return { percent, direction: momDirectionFromPercent(percent) };
 };
 
 export const toDelta = (percent: unknown, direction: unknown): string => {

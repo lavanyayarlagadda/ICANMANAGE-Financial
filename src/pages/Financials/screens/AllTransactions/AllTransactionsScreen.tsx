@@ -59,6 +59,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         id: 'transactionNo',
         label: 'Transaction No',
         minWidth: 170,
+        disableHiding: true,
         accessor: (r) => r.transactionNo ?? '-',
         render: (r) => (
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -189,6 +190,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
           <Button
             variant="contained"
             size="small"
+            disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
             sx={{
               height: '36px',

@@ -20,6 +20,7 @@ import { GlobalOverlay } from './components/templates/DashboardLayout/DashboardL
 
 const FinancialsPage = lazy(() => import('@/pages/Financials/FinancialsPage'));
 const LoginPage = lazy(() => import('@/pages/Login/LoginPage'));
+const ForgotPasswordPage = lazy(() => import('@/pages/Login/ForgotPasswordPage'));
 const UserProfilePage = lazy(() => import('@/pages/UserProfile/UserProfilePage'));
 const TermsPage = lazy(() => import('@/pages/Terms/TermsPage'));
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
@@ -79,6 +80,7 @@ const App = () => (
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/login" element={<LoginPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/terms" element={<TermsPage />} />
 
                   {/* Protected Routes */}
