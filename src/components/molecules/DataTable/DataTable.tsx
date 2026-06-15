@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { TablePagination, useTheme, useMediaQuery } from '@mui/material';
 import { exportToCSV, exportToPDF } from '@/utils/exportUtils';
 import { PAGE_SIZE_OPTIONS } from '@/constants/common';
-import { fetchColumnPreferences, updateColumnPreferences } from '@/services/mockColumnApi';
+import { useGetTableColumnsQuery, useUpdateTableColumnsMutation } from '@/store/api/userApi';
 
 import DictionaryDrawer from '../DictionaryDrawer/DictionaryDrawer';
 import {
@@ -83,7 +83,8 @@ function DataTable<T>({
   showColumnDividers = false,
   tableTitle,
   tableName,
-  userId,
+  gridName,
+  // userId,
   ...props
 }: DataTableProps<T>) {
   const hasAccessor = (column: DataColumn<T>): column is AccessorColumn<T> => !!column.accessor;
@@ -98,24 +99,39 @@ function DataTable<T>({
     [columns, hiddenColumns],
   );
 
+  const actualTableName = tableName || gridName || '';
+
+  const { data: columnPreferences, isFetching: isPreferencesFetching } = useGetTableColumnsQuery(
+    actualTableName,
+    { skip: !actualTableName },
+  );
+
+  const [updateColumns] = useUpdateTableColumnsMutation();
+
+  // Reset hidden columns immediately when switching tables to avoid state bleed
+  React.useEffect(() => {
+    setHiddenColumns(new Set());
+  }, [actualTableName]);
+
   // Fetch initial column preferences
   React.useEffect(() => {
-    if (tableName && userId) {
-      fetchColumnPreferences(tableName, userId).then((res) => {
-        const newHidden = new Set<string>();
-        // Payload has columnId -> boolean (true=visible, false=hidden)
-        Object.entries(res.columns).forEach(([colId, isVisible]) => {
-          if (!isVisible) {
-            newHidden.add(colId);
-          }
-        });
-        setHiddenColumns(newHidden);
+    if (columnPreferences && typeof columnPreferences === 'object') {
+      const newHidden = new Set<string>();
+      // Payload is columnId -> boolean (true=visible, false=hidden)
+      Object.entries(columnPreferences).forEach(([colId, isVisible]) => {
+        if (!isVisible) {
+          newHidden.add(colId);
+        }
       });
+      setHiddenColumns(newHidden);
+    } else if (columnPreferences === null || columnPreferences === '') {
+      // If the backend returns no preferences, reset to default (all visible)
+      setHiddenColumns(new Set());
     }
-  }, [tableName, userId]);
+  }, [columnPreferences]);
 
   const handleSaveColumns = async (stagedHidden: Set<string>) => {
-    if (!tableName || !userId) {
+    if (!actualTableName) {
       // If no backend config provided, just update locally
       setHiddenColumns(stagedHidden);
       return;
@@ -124,25 +140,27 @@ function DataTable<T>({
     // Construct payload: all columns, true if visible, false if hidden (in stagedHidden)
     const columnsPayload: Record<string, boolean> = {};
     columns.forEach((col) => {
-      if (col.id !== 'actions' && !col.disableHiding) {
+      if (col.id !== 'actions') {
         columnsPayload[col.id] = !stagedHidden.has(col.id);
       }
     });
 
     try {
-      const res = await updateColumnPreferences({
-        tableName,
-        userId,
+      const res = await updateColumns({
+        tableName: actualTableName,
         columns: columnsPayload,
-      });
+      }).unwrap();
 
       // Apply response back to state
       const finalHidden = new Set<string>();
-      Object.entries(res.columns).forEach(([colId, isVisible]) => {
-        if (!isVisible) {
-          finalHidden.add(colId);
-        }
-      });
+      if (res) {
+        const responseColumns = 'columns' in res ? res.columns : res;
+        Object.entries(responseColumns).forEach(([colId, isVisible]) => {
+          if (!isVisible) {
+            finalHidden.add(colId);
+          }
+        });
+      }
       setHiddenColumns(finalHidden);
     } catch (e) {
       console.error('Failed to update column preferences', e);
@@ -276,7 +294,7 @@ function DataTable<T>({
         onSaveColumns={handleSaveColumns}
       />
 
-      {loading ? (
+      {loading || isPreferencesFetching ? (
         <TableSkeleton
           rows={rowsPerPage}
           columns={visibleColumns.length}

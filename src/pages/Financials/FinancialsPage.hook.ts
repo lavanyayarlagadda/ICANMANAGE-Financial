@@ -20,6 +20,7 @@ import {
   deleteAdjustment,
   deleteAllTransaction,
   deleteCollection,
+  resetGlobalFilters,
 } from '@/store/slices/financialsSlice';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { MenuItem } from '@/store/api/userApi';
@@ -200,6 +201,10 @@ export const useFinancialsPage = () => {
       dispatch(resetRemittanceViewState());
     }
   }, [selectedTenantId, showRemittanceDetail, dispatch]);
+
+  useEffect(() => {
+    dispatch(resetGlobalFilters());
+  }, [uiState.activeTab, uiState.activeSubTab, dispatch]);
 
   const handleDelete = useCallback(() => {
     if (!uiState.confirmDeleteId) return;

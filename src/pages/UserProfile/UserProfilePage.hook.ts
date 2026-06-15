@@ -19,268 +19,268 @@ export interface PageGridConfig {
   grids: GridConfig[];
 }
 
-export const PAGE_GRIDS_CONFIG: Record<string, PageGridConfig> = {
-  'Executive Summary': { hasGrids: false, grids: [] },
-  'Trends & Forecast': { hasGrids: false, grids: [] },
-  'Forecast Trends': { hasGrids: false, grids: [] },
-  'Payer Performance': { hasGrids: false, grids: [] },
-  'All Transactions': {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'All Transactions',
-        staticColumns: [
-          'Transaction No',
-          'Effective Date',
-          'Category',
-          'Type',
-          'Description',
-          'Source Provider',
-          'Amount',
-          'Open Balance',
-          'Status',
-        ],
-      },
-    ],
-  },
-  Payments: {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Payments',
-        staticColumns: [
-          'Payment Date',
-          'Type',
-          'Transaction No',
-          'Payer',
-          'Description',
-          'Amount',
-          'Open Balance',
-          'Status',
-        ],
-      },
-    ],
-  },
-  PIP: {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'PIP',
-        staticColumns: [
-          'Payment Date',
-          'Check/EFT Number',
-          'Payment Amount',
-          'Suspense Balance',
-          'Status',
-        ],
-      },
-    ],
-  },
-  'Forward Balances': {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Forward Balances',
-        staticColumns: [
-          'Notification Date',
-          'Provider Name',
-          'NPI',
-          'Description',
-          'Original Amount',
-          'Remaining Balance',
-          'Status',
-        ],
-      },
-    ],
-  },
-  Recoupments: {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Recoupments',
-        staticColumns: [
-          'Recoupment Date',
-          'Payer',
-          'Patient Name',
-          'Claim ID',
-          'Original Payment',
-          'Recoupment Amount',
-          'Reason',
-          'Status',
-        ],
-      },
-    ],
-  },
-  'Other Adjustments': {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Other Adjustments',
-        staticColumns: [
-          'Effective Date',
-          'Type',
-          'Description',
-          'Source Provider',
-          'Amount',
-          'Reference ID',
-          'Status',
-        ],
-      },
-    ],
-  },
-  Collections: {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Collections',
-        staticColumns: [
-          'Account Number',
-          'Patient Name',
-          'Payer',
-          'Total Due',
-          'Amount Collected',
-          'Balance',
-          'Status',
-          'Aging',
-          'Priority',
-        ],
-      },
-    ],
-  },
-  'Deposit Reconciliation': { hasGrids: false, grids: [] },
-  'Variance Analysis': {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Fee Schedule Variance',
-        staticColumns: [
-          'Transaction No',
-          'Payment Date',
-          'Patient Name',
-          'Payer Name',
-          'Expected Allowed',
-          'Actual Allowed',
-          'Variance',
-          'Adjustment Code 1',
-          'Adjustment Code 2',
-        ],
-      },
-      {
-        name: 'Payment Variance',
-        staticColumns: [
-          'Transaction No',
-          'Payment Date',
-          'Patient Name',
-          'Payer Name',
-          'Expected Allowed',
-          'Actual Allowed',
-          'Variance',
-          'Adjustment Code 1',
-          'Adjustment Code 2',
-        ],
-      },
-    ],
-  },
-  'Fee Schedule Variance': {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Fee Schedule Variance',
-        staticColumns: [
-          'Transaction No',
-          'Payment Date',
-          'Patient Name',
-          'Payer Name',
-          'Expected Allowed',
-          'Actual Allowed',
-          'Variance',
-          'Adjustment Code 1',
-          'Adjustment Code 2',
-        ],
-      },
-    ],
-  },
-  'Payment Variance': {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Payment Variance',
-        staticColumns: [
-          'Transaction No',
-          'Payment Date',
-          'Patient Name',
-          'Payer Name',
-          'Expected Allowed',
-          'Actual Allowed',
-          'Variance',
-          'Adjustment Code 1',
-          'Adjustment Code 2',
-        ],
-      },
-    ],
-  },
-  'FB & Recoup': {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Forward Balances',
-        staticColumns: [
-          'Notification Date',
-          'Provider Name',
-          'NPI',
-          'Description',
-          'Original Amount',
-          'Remaining Balance',
-          'Status',
-        ],
-      },
-      {
-        name: 'Recoupments',
-        staticColumns: [
-          'Recoupment Date',
-          'Payer',
-          'Patient Name',
-          'Claim ID',
-          'Original Payment',
-          'Recoupment Amount',
-          'Reason',
-          'Status',
-        ],
-      },
-    ],
-  },
-  'Forward Balances & Recoupments': {
-    hasGrids: true,
-    grids: [
-      {
-        name: 'Forward Balances',
-        staticColumns: [
-          'Notification Date',
-          'Provider Name',
-          'NPI',
-          'Description',
-          'Original Amount',
-          'Remaining Balance',
-          'Status',
-        ],
-      },
-      {
-        name: 'Recoupments',
-        staticColumns: [
-          'Recoupment Date',
-          'Payer',
-          'Patient Name',
-          'Claim ID',
-          'Original Payment',
-          'Recoupment Amount',
-          'Reason',
-          'Status',
-        ],
-      },
-    ],
-  },
-  'Bank Deposits': { hasGrids: true, grids: [{ name: 'Bank Deposits', isDynamic: true }] },
-};
+// export const PAGE_GRIDS_CONFIG: Record<string, PageGridConfig> = {
+//   'Executive Summary': { hasGrids: false, grids: [] },
+//   'Trends & Forecast': { hasGrids: false, grids: [] },
+//   'Forecast Trends': { hasGrids: false, grids: [] },
+//   'Payer Performance': { hasGrids: false, grids: [] },
+//   'All Transactions': {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'All Transactions',
+//         staticColumns: [
+//           'Transaction No',
+//           'Effective Date',
+//           'Category',
+//           'Type',
+//           'Description',
+//           'Source Provider',
+//           'Amount',
+//           'Open Balance',
+//           'Status',
+//         ],
+//       },
+//     ],
+//   },
+//   Payments: {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Payments',
+//         staticColumns: [
+//           'Payment Date',
+//           'Type',
+//           'Transaction No',
+//           'Payer',
+//           'Description',
+//           'Amount',
+//           'Open Balance',
+//           'Status',
+//         ],
+//       },
+//     ],
+//   },
+//   PIP: {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'PIP',
+//         staticColumns: [
+//           'Payment Date',
+//           'Check/EFT Number',
+//           'Payment Amount',
+//           'Suspense Balance',
+//           'Status',
+//         ],
+//       },
+//     ],
+//   },
+//   'Forward Balances': {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Forward Balances',
+//         staticColumns: [
+//           'Notification Date',
+//           'Provider Name',
+//           'NPI',
+//           'Description',
+//           'Original Amount',
+//           'Remaining Balance',
+//           'Status',
+//         ],
+//       },
+//     ],
+//   },
+//   Recoupments: {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Recoupments',
+//         staticColumns: [
+//           'Recoupment Date',
+//           'Payer',
+//           'Patient Name',
+//           'Claim ID',
+//           'Original Payment',
+//           'Recoupment Amount',
+//           'Reason',
+//           'Status',
+//         ],
+//       },
+//     ],
+//   },
+//   'Other Adjustments': {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Other Adjustments',
+//         staticColumns: [
+//           'Effective Date',
+//           'Type',
+//           'Description',
+//           'Source Provider',
+//           'Amount',
+//           'Reference ID',
+//           'Status',
+//         ],
+//       },
+//     ],
+//   },
+//   Collections: {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Collections',
+//         staticColumns: [
+//           'Account Number',
+//           'Patient Name',
+//           'Payer',
+//           'Total Due',
+//           'Amount Collected',
+//           'Balance',
+//           'Status',
+//           'Aging',
+//           'Priority',
+//         ],
+//       },
+//     ],
+//   },
+//   'Deposit Reconciliation': { hasGrids: false, grids: [] },
+//   'Variance Analysis': {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Fee Schedule Variance',
+//         staticColumns: [
+//           'Transaction No',
+//           'Payment Date',
+//           'Patient Name',
+//           'Payer Name',
+//           'Expected Allowed',
+//           'Actual Allowed',
+//           'Variance',
+//           'Adjustment Code 1',
+//           'Adjustment Code 2',
+//         ],
+//       },
+//       {
+//         name: 'Payment Variance',
+//         staticColumns: [
+//           'Transaction No',
+//           'Payment Date',
+//           'Patient Name',
+//           'Payer Name',
+//           'Expected Allowed',
+//           'Actual Allowed',
+//           'Variance',
+//           'Adjustment Code 1',
+//           'Adjustment Code 2',
+//         ],
+//       },
+//     ],
+//   },
+//   'Fee Schedule Variance': {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Fee Schedule Variance',
+//         staticColumns: [
+//           'Transaction No',
+//           'Payment Date',
+//           'Patient Name',
+//           'Payer Name',
+//           'Expected Allowed',
+//           'Actual Allowed',
+//           'Variance',
+//           'Adjustment Code 1',
+//           'Adjustment Code 2',
+//         ],
+//       },
+//     ],
+//   },
+//   'Payment Variance': {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Payment Variance',
+//         staticColumns: [
+//           'Transaction No',
+//           'Payment Date',
+//           'Patient Name',
+//           'Payer Name',
+//           'Expected Allowed',
+//           'Actual Allowed',
+//           'Variance',
+//           'Adjustment Code 1',
+//           'Adjustment Code 2',
+//         ],
+//       },
+//     ],
+//   },
+//   'FB & Recoup': {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Forward Balances',
+//         staticColumns: [
+//           'Notification Date',
+//           'Provider Name',
+//           'NPI',
+//           'Description',
+//           'Original Amount',
+//           'Remaining Balance',
+//           'Status',
+//         ],
+//       },
+//       {
+//         name: 'Recoupments',
+//         staticColumns: [
+//           'Recoupment Date',
+//           'Payer',
+//           'Patient Name',
+//           'Claim ID',
+//           'Original Payment',
+//           'Recoupment Amount',
+//           'Reason',
+//           'Status',
+//         ],
+//       },
+//     ],
+//   },
+//   'Forward Balances & Recoupments': {
+//     hasGrids: true,
+//     grids: [
+//       {
+//         name: 'Forward Balances',
+//         staticColumns: [
+//           'Notification Date',
+//           'Provider Name',
+//           'NPI',
+//           'Description',
+//           'Original Amount',
+//           'Remaining Balance',
+//           'Status',
+//         ],
+//       },
+//       {
+//         name: 'Recoupments',
+//         staticColumns: [
+//           'Recoupment Date',
+//           'Payer',
+//           'Patient Name',
+//           'Claim ID',
+//           'Original Payment',
+//           'Recoupment Amount',
+//           'Reason',
+//           'Status',
+//         ],
+//       },
+//     ],
+//   },
+//   'Bank Deposits': { hasGrids: true, grids: [{ name: 'Bank Deposits', isDynamic: true }] },
+// };
 
 export const useUserProfilePage = () => {
   const dispatch = useAppDispatch();
@@ -313,13 +313,12 @@ export const useUserProfilePage = () => {
     user?.defaultColumns || {},
   );
 
-  // UI state
   const [successMessage, setSuccessMessage] = useState('');
 
-  const currentPageConfig = PAGE_GRIDS_CONFIG[landingPage] || {
-    hasGrids: true,
-    grids: [{ name: landingPage, staticColumns: [] }],
-  };
+  // const currentPageConfig = PAGE_GRIDS_CONFIG[landingPage] || {
+  //   hasGrids: true,
+  //   grids: [{ name: landingPage, staticColumns: [] }],
+  // };
 
   // const { data: dynamicHeadersResponse, isFetching: isFetchingHeaders } = useGetMappedHeadersDataQuery(
   //   isDynamic ? { hospitalId: 0, pageName: landingPage } : skipToken
@@ -500,7 +499,7 @@ export const useUserProfilePage = () => {
     landingPageChanged,
     profileChanged,
     passwordChanged,
-    currentPageConfig,
+    // currentPageConfig,
     // getColumnsForGrid,
   };
 };

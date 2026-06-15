@@ -164,7 +164,10 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
 
   const transactions = useMemo(() => {
     const raw = data?.data?.content ?? [];
-    return raw;
+    return raw.map((t, i) => ({
+      ...t,
+      id: t.id || t.transactionNo || `generated-id-${i}-${t.amount}`,
+    }));
   }, [data]);
 
   const exportCount = useRef(actionTriggers.export);

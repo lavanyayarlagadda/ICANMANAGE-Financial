@@ -110,6 +110,13 @@ export interface UpdatePreferencesRequest {
   defaultColumns?: Record<string, string[]>;
 }
 
+export type TableColumnsResponse = Record<string, boolean>;
+
+export interface UpdateTableColumnsRequest {
+  tableName: string;
+  columns: Record<string, boolean>;
+}
+
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getMeDetails: builder.query<MeDetailsResponse, void>({
@@ -160,6 +167,23 @@ export const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['UserPermissions', 'Auth'],
     }),
+    getTableColumns: builder.query<TableColumnsResponse, string>({
+      query: (tableName) => ({
+        url: `/me/table-columns`,
+        params: { tableName },
+      }),
+      providesTags: (result, error, tableName) => [{ type: 'Auth', id: `COLUMNS_${tableName}` }],
+    }),
+    updateTableColumns: builder.mutation<TableColumnsResponse, UpdateTableColumnsRequest>({
+      query: (body) => ({
+        url: `/me/table-columns`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: (result, error, { tableName }) => [
+        { type: 'Auth', id: `COLUMNS_${tableName}` },
+      ],
+    }),
   }),
 });
 
@@ -168,4 +192,6 @@ export const {
   useGetUserMenuConfigQuery,
   useUpdateUserMenuConfigMutation,
   useUpdateMePreferencesMutation,
+  useGetTableColumnsQuery,
+  useUpdateTableColumnsMutation,
 } = userApi;

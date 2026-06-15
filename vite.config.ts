@@ -19,4 +19,18 @@ export default defineConfig(({ mode }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('@mui')) return 'vendor-mui';
+            if (id.includes('react') || id.includes('redux')) return 'vendor-react';
+            return 'vendor-core';
+          }
+        },
+      },
+    },
+  },
 }));

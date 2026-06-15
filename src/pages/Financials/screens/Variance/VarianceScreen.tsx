@@ -145,22 +145,22 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           <MultiValueDisplay value={r.adjustmentCode || ''} delimiter="|" hideSearch={true} />
         ),
       },
-      {
-        id: 'adjustmentCode1',
-        label: 'ADJUSTMENT CODE 1',
-        minWidth: 160,
-        align: 'center',
-        accessor: (r) => r.adjustmentCode1 || '',
-        render: (r) => <Typography variant="body2">{r.adjustmentCode1}</Typography>,
-      },
-      {
-        id: 'adjustmentCode2',
-        label: 'ADJUSTMENT CODE 2',
-        minWidth: 160,
-        align: 'center',
-        accessor: (r) => r.adjustmentCode2 || '',
-        render: (r) => <Typography variant="body2">{r.adjustmentCode2}</Typography>,
-      },
+      // {
+      //   id: 'adjustmentCode1',
+      //   label: 'ADJUSTMENT CODE 1',
+      //   minWidth: 160,
+      //   align: 'center',
+      //   accessor: (r) => r.adjustmentCode1 || '',
+      //   render: (r) => <Typography variant="body2">{r.adjustmentCode1}</Typography>,
+      // },
+      // {
+      //   id: 'adjustmentCode2',
+      //   label: 'ADJUSTMENT CODE 2',
+      //   minWidth: 160,
+      //   align: 'center',
+      //   accessor: (r) => r.adjustmentCode2 || '',
+      //   render: (r) => <Typography variant="body2">{r.adjustmentCode2}</Typography>,
+      // },
     ],
     [handleDrillDown, theme, payerOptions, payerOptionsLoading, payerOptionsError],
   );

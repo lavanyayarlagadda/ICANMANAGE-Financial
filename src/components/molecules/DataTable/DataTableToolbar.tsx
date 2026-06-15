@@ -271,6 +271,7 @@ export function DataTableToolbar<T>({
                   flexDirection: 'column',
                   borderRadius: 8,
                   boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+                  scrollbarWidth: 'thin',
                 },
               }}
               MenuListProps={{ sx: { p: 0 } }}
@@ -294,15 +295,13 @@ export function DataTableToolbar<T>({
                 }}
               >
                 {(() => {
-                  const toggleableColumns = columns.filter(
-                    (c) => c.label && c.id !== 'actions' && !c.disableHiding,
-                  );
+                  const toggleableColumns = columns.filter((c) => c.label && c.id !== 'actions');
                   const visibleToggleableCount = toggleableColumns.filter(
                     (c) => !stagedColumns.has(c.id),
                   ).length;
 
                   return columns.map((col) => {
-                    if (!col.label || col.id === 'actions' || col.disableHiding) return null;
+                    if (!col.label || col.id === 'actions') return null;
                     const isHidden = stagedColumns.has(col.id);
                     const isLastVisible = !isHidden && visibleToggleableCount === 1;
 

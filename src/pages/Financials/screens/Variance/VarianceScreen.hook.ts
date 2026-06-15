@@ -37,12 +37,10 @@ import { SORT_ORDER, DEFAULT_PAGE_SIZE, EXPORT_FORMATS } from '@/constants/commo
 export const useVarianceScreen = ({ skip = false }: { skip?: boolean } = {}) => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const { activeSubTab, actionTriggers, globalFilters, selectedTenantId } = useAppSelector((s) => ({
-    activeSubTab: s.ui.activeSubTab,
-    actionTriggers: s.ui.actionTriggers,
-    globalFilters: s.financials.globalFilters,
-    selectedTenantId: s.tenant.selectedTenantId,
-  }));
+  const activeSubTab = useAppSelector((s) => s.ui.activeSubTab);
+  const actionTriggers = useAppSelector((s) => s.ui.actionTriggers);
+  const globalFilters = useAppSelector((s) => s.financials.globalFilters);
+  const selectedTenantId = useAppSelector((s) => s.tenant.selectedTenantId);
 
   const [queryParams, setQueryParams] = useState<TableQueryParams>({
     page: 0,
