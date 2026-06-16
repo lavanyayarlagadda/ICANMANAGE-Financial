@@ -1,18 +1,13 @@
 import React from 'react';
 import pkg from '../../../../package.json';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Typography } from '@mui/material';
 import { useFooter } from './Footer.hook';
-import * as styles from './Footer.styles';
+import { FooterContainer } from './Footer.styles';
 
 const Footer: React.FC = () => {
   const { timeLeft, formatTime, drawerWidth } = useFooter();
-  const theme = useTheme();
-
   return (
-    <Box
-      component="footer"
-      sx={{ ...styles.footerStyles(theme), pl: `calc(${drawerWidth}px + ${theme.spacing(3)})` }}
-    >
+    <FooterContainer component="footer" drawerWidth={drawerWidth}>
       <Typography variant="caption" color="text.secondary">
         © {new Date().getFullYear()} CognitiveHealth All Rights Reserved. iCAN RCM Platform v
         {pkg.version}
@@ -23,7 +18,7 @@ const Footer: React.FC = () => {
       >
         Session Expiration: {formatTime(timeLeft)}
       </Typography>
-    </Box>
+    </FooterContainer>
   );
 };
 

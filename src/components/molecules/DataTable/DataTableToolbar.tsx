@@ -1,23 +1,18 @@
 import React from 'react';
 import {
-  Box,
   Typography,
   Chip,
   InputAdornment,
   IconButton,
   Collapse,
-  FormControl,
-  MenuItem,
   Menu,
-  ListItemIcon,
   ListItemText,
-  Divider,
   Autocomplete,
   TextField,
   CircularProgress,
   createFilterOptions,
-  Checkbox,
-  Button,
+  MenuItem,
+  ListItemIcon,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -38,8 +33,23 @@ import {
   SearchField,
   ActionGroup,
   FilterButton,
-  ExportButton,
   FilterWrapper,
+  SelectionDivider,
+  TableTitleText,
+  SearchBox,
+  ColumnsButton,
+  ColumnMenuPaperStyles,
+  ColumnMenuHeaderBox,
+  ColumnMenuListContainer,
+  ColumnMenuItem,
+  ColumnListItemIcon,
+  ColumnCheckbox,
+  ColumnMenuFooterBox,
+  ColumnMenuUpdateButton,
+  FilterContainerBox,
+  FilterFormControl,
+  AutocompleteListboxStyles,
+  ExportButton,
 } from './DataTable.styles';
 import { FilterableColumn, DataColumn } from './DataTable.hook';
 
@@ -168,11 +178,7 @@ export function DataTableToolbar<T>({
           </ActionLink>
 
           {(activeFilterCount > 0 || customToolbarContent) && (
-            <Divider
-              orientation="vertical"
-              flexItem
-              sx={{ mx: 1, height: 16, alignSelf: 'center' }}
-            />
+            <SelectionDivider orientation="vertical" flexItem />
           )}
         </SelectionBar>
       )}
@@ -180,9 +186,7 @@ export function DataTableToolbar<T>({
       <ToolbarRow isMobile={isMobile}>
         <ToolbarLeft>
           {tableTitle ? (
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-              {tableTitle}
-            </Typography>
+            <TableTitleText variant="subtitle1">{tableTitle}</TableTitleText>
           ) : (
             <RecordsText variant="caption">
               {totalCount ?? sortedData.length} record
@@ -203,7 +207,7 @@ export function DataTableToolbar<T>({
         <ToolbarRight isMobile={isMobile}>
           {customToolbarContent}
 
-          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
+          <SearchBox>
             {(filterableColumns.length > 0 || !!customFilterContent) && (
               <FilterButton
                 size="small"
@@ -247,53 +251,32 @@ export function DataTableToolbar<T>({
                 }}
               />
             )}
-          </Box>
+          </SearchBox>
 
           <ActionGroup>
-            <ExportButton
+            <ColumnsButton
               size="small"
               variant="outlined"
               onClick={handleColumnMenuOpen}
               startIcon={<ViewColumnIcon fontSize="small" />}
-              sx={{ minWidth: 0, px: 1 }}
             >
               Columns
-            </ExportButton>
+            </ColumnsButton>
             <Menu
               anchorEl={columnMenuAnchor}
               open={Boolean(columnMenuAnchor)}
               onClose={() => setColumnMenuAnchor(null)}
               PaperProps={{
-                style: {
-                  maxHeight: 450,
-                  width: 260,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  borderRadius: 8,
-                  boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
-                  scrollbarWidth: 'thin',
-                },
+                style: ColumnMenuPaperStyles,
               }}
               MenuListProps={{ sx: { p: 0 } }}
             >
-              <Box sx={{ p: 2, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+              <ColumnMenuHeaderBox>
                 <Typography variant="subtitle2" fontWeight={600} color="text.primary">
                   Manage Columns
                 </Typography>
-              </Box>
-              <Box
-                sx={{
-                  flex: 1,
-                  overflowY: 'auto',
-                  py: 1,
-                  scrollbarWidth: 'thin',
-                  '&::-webkit-scrollbar': { width: '6px' },
-                  '&::-webkit-scrollbar-thumb': {
-                    backgroundColor: 'rgba(0,0,0,.2)',
-                    borderRadius: '4px',
-                  },
-                }}
-              >
+              </ColumnMenuHeaderBox>
+              <ColumnMenuListContainer>
                 {(() => {
                   const toggleableColumns = columns.filter((c) => c.label && c.id !== 'actions');
                   const visibleToggleableCount = toggleableColumns.filter(
@@ -306,23 +289,21 @@ export function DataTableToolbar<T>({
                     const isLastVisible = !isHidden && visibleToggleableCount === 1;
 
                     return (
-                      <MenuItem
+                      <ColumnMenuItem
                         key={col.id}
                         onClick={() => {
                           if (!isLastVisible) toggleColumnVisibility(col.id);
                         }}
                         disabled={isUpdatingColumns || isLastVisible}
-                        sx={{ py: 0.5, px: 2, minHeight: 36 }}
                       >
-                        <ListItemIcon sx={{ minWidth: 32 }}>
-                          <Checkbox
+                        <ColumnListItemIcon>
+                          <ColumnCheckbox
                             checked={!isHidden}
                             disabled={isUpdatingColumns || isLastVisible}
                             size="small"
-                            sx={{ p: 0.5 }}
                             disableRipple
                           />
-                        </ListItemIcon>
+                        </ColumnListItemIcon>
                         <ListItemText
                           primary={col.label as React.ReactNode}
                           primaryTypographyProps={{
@@ -331,34 +312,26 @@ export function DataTableToolbar<T>({
                             fontWeight: 500,
                           }}
                         />
-                      </MenuItem>
+                      </ColumnMenuItem>
                     );
                   });
                 })()}
-              </Box>
-              <Box
-                sx={{
-                  p: 1.5,
-                  borderTop: '1px solid',
-                  borderColor: 'divider',
-                  bgcolor: 'background.default',
-                }}
-              >
-                <Button
+              </ColumnMenuListContainer>
+              <ColumnMenuFooterBox>
+                <ColumnMenuUpdateButton
                   variant="contained"
                   fullWidth
                   onClick={handleUpdateColumns}
                   disabled={isUpdatingColumns || !hasChanges}
                   size="small"
-                  sx={{ textTransform: 'none', fontWeight: 600, py: 0.75 }}
                 >
                   {isUpdatingColumns ? (
                     <CircularProgress size={20} color="inherit" />
                   ) : (
                     'Update Columns'
                   )}
-                </Button>
-              </Box>
+                </ColumnMenuUpdateButton>
+              </ColumnMenuFooterBox>
             </Menu>
 
             {download && (
@@ -421,18 +394,7 @@ export function DataTableToolbar<T>({
 
       <Collapse in={showFilters}>
         <FilterWrapper>
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 1.5,
-              flexWrap: customFilterContent ? 'nowrap' : 'wrap',
-              alignItems: 'center',
-              width: '100%',
-              overflowX: customFilterContent ? 'auto' : 'visible',
-              pt: customFilterContent ? 2 : 0,
-              pb: customFilterContent ? 1 : 0,
-            }}
-          >
+          <FilterContainerBox customFilterContent={!!customFilterContent}>
             {filterableColumns.map((col) => {
               const options = col.filterOptions.map((opt) =>
                 typeof opt === 'string' ? { label: opt, value: opt } : opt,
@@ -441,11 +403,7 @@ export function DataTableToolbar<T>({
                 options.find((o) => String(o.value) === String(columnFilters[col.id])) || null;
 
               return (
-                <FormControl
-                  key={col.id}
-                  size="small"
-                  sx={{ minWidth: 160, maxWidth: 200, flexShrink: 0 }}
-                >
+                <FilterFormControl key={col.id} size="small">
                   <Autocomplete
                     size="small"
                     options={options}
@@ -468,11 +426,7 @@ export function DataTableToolbar<T>({
                     }}
                     loading={col.isFilterLoading}
                     ListboxProps={{
-                      sx: {
-                        maxHeight: 200,
-                        overflowY: 'auto',
-                        scrollbarWidth: 'thin',
-                      },
+                      sx: AutocompleteListboxStyles,
                     }}
                     renderOption={(props, option) => {
                       const { key: _key, ...rest } =
@@ -502,11 +456,11 @@ export function DataTableToolbar<T>({
                       />
                     )}
                   />
-                </FormControl>
+                </FilterFormControl>
               );
             })}
             {customFilterContent}
-          </Box>
+          </FilterContainerBox>
         </FilterWrapper>
       </Collapse>
     </ToolbarContainer>

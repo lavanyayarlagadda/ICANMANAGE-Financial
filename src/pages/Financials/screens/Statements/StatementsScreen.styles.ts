@@ -60,3 +60,104 @@ export const SearchField = styled(TextField)(({ theme }) => ({
     fontSize: '13px',
   },
 }));
+
+export const offsetWrapperStyles: SxProps<Theme> = {
+  mb: 1,
+};
+
+export const offsetSummaryStyles: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+  gap: 2,
+};
+
+export const offsetTitleStyles: SxProps<Theme> = {
+  fontWeight: 600,
+  flex: 1,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 1,
+};
+
+export const offsetAmountStyles: SxProps<Theme> = {
+  fontWeight: 700,
+  textAlign: 'center',
+};
+
+export const offsetDetailsContainerStyles: SxProps<Theme> = {
+  border: `1px solid ${themeConfig.colors.divider}`,
+  borderTop: 'none',
+  overflowX: 'auto',
+};
+
+export const offsetHeaderGridStyles: SxProps<Theme> = {
+  ...offsetGridStyles,
+  background: themeConfig.colors.surfaceAlt,
+  borderBottom: `1px solid ${themeConfig.colors.divider}`,
+};
+
+export const offsetRowGridStyles: SxProps<Theme> = {
+  ...offsetGridStyles,
+  borderBottom: `1px solid ${themeConfig.colors.divider}`,
+};
+
+export const claimIdStyles: SxProps<Theme> = {
+  fontWeight: 500,
+};
+
+export const patientNameStyles: SxProps<Theme> = {
+  fontWeight: 500,
+};
+
+export const deductedAmountStyles: SxProps<Theme> = {
+  fontWeight: 700,
+  color: 'error.main',
+};
+
+export const noticeIdTextStyles: SxProps<Theme> = {
+  fontWeight: 700,
+  color: themeConfig.colors.amberDark,
+};
+
+export const boldTextStyles: SxProps<Theme> = {
+  fontWeight: 700,
+};
+
+export const providerNameWrapperStyles: SxProps<Theme> = {
+  textAlign: 'center',
+};
+
+export const providerNameStyles: SxProps<Theme> = {
+  fontWeight: 700,
+};
+
+export const screenHeaderStyles: SxProps<Theme> = {
+  mb: 3,
+};
+
+export const screenHeaderTitleStyles: SxProps<Theme> = {
+  fontWeight: 700,
+};
+
+export const summaryGridStyles: SxProps<Theme> = {
+  mb: 4,
+};
+
+export const loadingWrapperStyles: SxProps<Theme> = {
+  p: 3,
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 2,
+};
+
+export const emptyDetailsWrapperStyles: SxProps<Theme> = {
+  p: 2,
+  textAlign: 'center',
+};
+
+export const detailsWrapperStyles: SxProps<Theme> = {
+  p: 1,
+};

@@ -1,6 +1,14 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Box, Typography, Button, Container, Paper } from '@mui/material';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { Button, Container, Typography } from '@mui/material';
+import {
+  ErrorContainer,
+  ErrorPaper,
+  ErrorIcon,
+  ErrorDescription,
+  DetailsBox,
+  PreText,
+  ActionsWrapper,
+} from './ErrorBoundary.styles';
 
 interface Props {
   children: ReactNode;
@@ -45,56 +53,26 @@ class ErrorBoundary extends Component<Props, State> {
 
       return (
         <Container maxWidth="md">
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '80vh',
-              textAlign: 'center',
-            }}
-          >
-            <Paper
-              elevation={3}
-              sx={{
-                p: 5,
-                borderRadius: 4,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                backgroundColor: 'background.paper',
-              }}
-            >
-              <ErrorOutlineIcon sx={{ fontSize: 80, color: 'error.main', mb: 2 }} />
+          <ErrorContainer>
+            <ErrorPaper elevation={3}>
+              <ErrorIcon />
               <Typography variant="h4" gutterBottom fontWeight="bold">
                 Oops! Something went wrong
               </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 500 }}>
+              <ErrorDescription variant="body1" color="text.secondary">
                 We encountered an unexpected error. This has been logged, and we are working to fix
                 it. Please try refreshing the page or returning to the dashboard.
-              </Typography>
+              </ErrorDescription>
 
               {import.meta.env.DEV && this.state.error && (
-                <Box
-                  sx={{
-                    mt: 2,
-                    mb: 4,
-                    p: 2,
-                    bgcolor: 'grey.100',
-                    borderRadius: 1,
-                    textAlign: 'left',
-                    width: '100%',
-                    overflowX: 'auto',
-                  }}
-                >
-                  <Typography variant="caption" component="pre" sx={{ color: 'error.dark' }}>
+                <DetailsBox>
+                  <PreText variant="caption" component="pre">
                     {this.state.error.toString()}
-                  </Typography>
-                </Box>
+                  </PreText>
+                </DetailsBox>
               )}
 
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              <ActionsWrapper>
                 <Button
                   variant="contained"
                   color="primary"
@@ -106,9 +84,9 @@ class ErrorBoundary extends Component<Props, State> {
                 <Button variant="outlined" size="large" onClick={this.handleReset}>
                   Go to Dashboard
                 </Button>
-              </Box>
-            </Paper>
-          </Box>
+              </ActionsWrapper>
+            </ErrorPaper>
+          </ErrorContainer>
         </Container>
       );
     }

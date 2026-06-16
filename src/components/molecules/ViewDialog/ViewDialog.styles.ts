@@ -1,39 +1,42 @@
-import { SxProps, Theme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { DialogTitle, DialogContent, DialogActions, Box, Typography } from '@mui/material';
 
-export const dialogTitleStyles: SxProps<Theme> = {
+export const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  pb: 1,
-};
+  paddingBottom: theme.spacing(1),
+}));
 
-export const titleTextStyles: SxProps<Theme> = {
+export const TitleText = styled(Typography)({
   fontWeight: 700,
-};
-
-export const dialogContentStyles: SxProps<Theme> = {
-  pt: 2,
-};
-
-export const rowBoxStyles = (theme: Theme): SxProps<Theme> => ({
-  display: 'flex',
-  justifyContent: 'space-between',
-  py: 1,
-  borderBottom: `1px solid ${theme.palette.divider}`,
 });
 
-export const labelStyles: SxProps<Theme> = {
+export const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
+  paddingTop: theme.spacing(2),
+}));
+
+export const RowBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  paddingTop: theme.spacing(1),
+  paddingBottom: theme.spacing(1),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+}));
+
+export const LabelTypography = styled(Typography)({
   fontWeight: 600,
   textTransform: 'capitalize',
-};
+});
 
-export const valueStyles: SxProps<Theme> = {
+export const ValueTypography = styled(Typography)({
   fontWeight: 500,
   textAlign: 'right',
   maxWidth: '60%',
-};
+});
 
-export const dialogActionsStyles: SxProps<Theme> = {
-  px: 3,
-  pb: 2,
-};
+export const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
+  paddingLeft: theme.spacing(3),
+  paddingRight: theme.spacing(3),
+  paddingBottom: theme.spacing(2),
+}));

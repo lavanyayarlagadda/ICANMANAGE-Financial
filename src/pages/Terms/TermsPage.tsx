@@ -1,4 +1,4 @@
-import { Box, Typography, Container } from '@mui/material';
+import { Container } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -9,6 +9,13 @@ import {
   SectionTitle,
   SectionText,
   BackButton,
+  PageWrapper,
+  TermsTitle,
+  IntroText,
+  TermsNotice,
+  NoticeText,
+  CopyrightWrapper,
+  CopyrightText,
 } from './TermsPage.styles';
 
 const TermsPage = () => {
@@ -17,25 +24,23 @@ const TermsPage = () => {
   return (
     <TermsBackground>
       <Container maxWidth="md">
-        <Box sx={{ py: 6 }}>
+        <PageWrapper>
           <BackButton startIcon={<ArrowBack />} onClick={() => navigate('/login')}>
             Back to Login
           </BackButton>
 
           <TermsCard>
             <TermsHeader>
-              <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 800 }}>
+              <TermsTitle variant="h3" component="h1" gutterBottom>
                 Terms and Conditions
-              </Typography>
+              </TermsTitle>
             </TermsHeader>
 
             <TermsContent>
-              <SectionText
-                sx={{ mb: 4, fontStyle: 'italic', fontSize: '1.1rem', color: 'text.primary' }}
-              >
+              <IntroText>
                 In using this website, you are deemed to have read and agreed to the following terms
                 and conditions:
-              </SectionText>
+              </IntroText>
 
               <SectionTitle variant="h5">Terminology</SectionTitle>
               <SectionText>
@@ -149,36 +154,23 @@ const TermsPage = () => {
                 to the Company’s services and the full content of this website.
               </SectionText>
 
-              <Box
-                sx={{
-                  mt: 6,
-                  p: 4,
-                  bgcolor: 'action.hover',
-                  borderRadius: 2,
-                  borderLeft: '4px solid',
-                  borderColor: 'primary.main',
-                }}
-              >
-                <Typography variant="body1" sx={{ lineHeight: 1.7 }}>
+              <TermsNotice>
+                <NoticeText variant="body1">
                   These terms and conditions form part of the Agreement between the Client and
                   ourselves. Your accessing of this website indicates your understanding, agreement
                   to and acceptance, of the Disclaimer Notice and the full Terms and Conditions
                   contained herein.
-                </Typography>
-              </Box>
+                </NoticeText>
+              </TermsNotice>
 
-              <Box sx={{ mt: 6, textAlign: 'center' }}>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ letterSpacing: '0.05em', fontWeight: 600 }}
-                >
+              <CopyrightWrapper>
+                <CopyrightText variant="caption" color="text.secondary">
                   © COGNITIVEHEALTH - {new Date().getFullYear()} ALL RIGHTS RESERVED
-                </Typography>
-              </Box>
+                </CopyrightText>
+              </CopyrightWrapper>
             </TermsContent>
           </TermsCard>
-        </Box>
+        </PageWrapper>
       </Container>
     </TermsBackground>
   );

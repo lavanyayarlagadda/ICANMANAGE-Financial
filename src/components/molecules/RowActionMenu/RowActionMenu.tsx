@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Tooltip } from '@mui/material';
+import { IconButton, MenuItem, ListItemIcon, ListItemText, Tooltip } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
@@ -37,13 +37,12 @@ const RowActionMenu: React.FC<RowActionMenuProps> = ({
           <MoreVertIcon fontSize="small" />
         </IconButton>
       </Tooltip>
-      <Menu
+      <styles.StyledMenu
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-        slotProps={{ paper: { sx: styles.menuPaperProps } }}
       >
         {onView && (
           <MenuItem onClick={() => handleAction(onView)}>
@@ -68,14 +67,14 @@ const RowActionMenu: React.FC<RowActionMenuProps> = ({
           </MenuItem>
         ))}
         {onDelete && (
-          <MenuItem onClick={() => handleAction(onDelete)} sx={styles.errorMenuItemStyles}>
+          <styles.ErrorMenuItem onClick={() => handleAction(onDelete)}>
             <ListItemIcon>
               <DeleteIcon fontSize="small" color="error" />
             </ListItemIcon>
             <ListItemText>Delete</ListItemText>
-          </MenuItem>
+          </styles.ErrorMenuItem>
         )}
-      </Menu>
+      </styles.StyledMenu>
     </>
   );
 };

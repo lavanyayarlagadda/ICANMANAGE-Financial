@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Card, CardContent, Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import * as styles from './SummaryCard.styles';
 
 interface SummaryCardProps {
@@ -43,21 +43,21 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   );
 
   return (
-    <Card sx={styles.cardStyles(backgroundColor, defaultBg)}>
-      <CardContent sx={styles.cardContentStyles}>
-        <Typography variant="caption" color="text.secondary" sx={styles.titleStyles}>
+    <styles.StyledCard customBg={backgroundColor} defaultBg={defaultBg}>
+      <styles.StyledCardContent>
+        <styles.TitleTypography variant="caption" color="text.secondary">
           {title}
-        </Typography>
-        <Typography variant="h5" sx={styles.valueStyles(valueColor, !!subtitle)}>
+        </styles.TitleTypography>
+        <styles.ValueTypography variant="h5" valueColor={valueColor} hasSubtitle={!!subtitle}>
           {value}
-        </Typography>
+        </styles.ValueTypography>
         {subtitle && (
-          <Typography variant="caption" color="text.secondary" sx={styles.subtitleStyles}>
+          <styles.SubtitleTypography variant="caption" color="text.secondary">
             {subtitle}
-          </Typography>
+          </styles.SubtitleTypography>
         )}
-      </CardContent>
-    </Card>
+      </styles.StyledCardContent>
+    </styles.StyledCard>
   );
 };
 

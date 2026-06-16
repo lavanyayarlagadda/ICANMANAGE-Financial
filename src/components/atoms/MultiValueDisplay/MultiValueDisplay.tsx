@@ -1,20 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  Chip,
-  Tooltip,
-  Stack,
-  Typography,
-  Popover,
-  TextField,
-  InputAdornment,
-  List,
-  ListItem,
-  ListItemText,
-  IconButton,
-} from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import SearchIcon from '@mui/icons-material/Search';
+import { Tooltip, Popover, InputAdornment, ListItem, Typography } from '@mui/material';
 import { useMultiValueDisplay } from './MultiValueDisplay.hook';
 import * as styles from './MultiValueDisplay.styles';
 
@@ -63,40 +48,34 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
   const remainingCount = items.length - displayCount;
 
   return (
-    <Box sx={styles.containerStyles}>
-      <Stack
+    <styles.ContainerBox>
+      <styles.StyledStack
         direction="row"
         spacing={0.5}
         flexWrap="wrap"
         useFlexGap
         justifyContent="center"
-        sx={{ gap: 0.5 }}
       >
         {displayItems.map((item, idx) => (
           <Tooltip key={idx} title={item} arrow>
-            <Chip
+            <styles.StyledChip
               label={item}
               size="small"
               variant="outlined"
               onClick={(e) => handleCopy(item, e)}
-              icon={<ContentCopyIcon sx={{ fontSize: '10px !important' }} />}
-              sx={styles.chipStyles(maxWidth)}
+              icon={<styles.CopyIconSmall />}
+              maxwidth={maxWidth}
             />
           </Tooltip>
         ))}
         {hasMore && (
-          <Box sx={{ display: 'inline-flex' }} onClick={handleOpenPopover}>
+          <styles.InlineFlexBox onClick={handleOpenPopover}>
             <Tooltip title="Click to view all" arrow>
-              <Chip
-                label={`+${remainingCount} more`}
-                size="small"
-                clickable
-                sx={styles.moreChipStyles}
-              />
+              <styles.MoreChip label={`+${remainingCount} more`} size="small" clickable />
             </Tooltip>
-          </Box>
+          </styles.InlineFlexBox>
         )}
-      </Stack>
+      </styles.StyledStack>
 
       <Popover
         id={open ? 'multi-value-popover' : undefined}
@@ -106,19 +85,12 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
         onClick={(e) => e.stopPropagation()}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        PaperProps={{ sx: styles.popoverPaperProps }}
+        PaperProps={{ sx: styles.PopoverPaperProps }}
       >
-        <Box
-          sx={{ p: 1.5, bgcolor: 'primary.50', borderBottom: '1px solid', borderColor: 'divider' }}
-        >
-          <Typography
-            variant="subtitle2"
-            sx={{ fontWeight: 700, mb: 1, color: 'primary.main', fontSize: 13 }}
-          >
-            Items ({items.length})
-          </Typography>
+        <styles.PopoverHeader>
+          <styles.PopoverTitle variant="subtitle2">Items ({items.length})</styles.PopoverTitle>
           {!hideSearch && (
-            <TextField
+            <styles.SearchTextField
               fullWidth
               size="small"
               placeholder="Search numbers..."
@@ -127,49 +99,42 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+                    <styles.SearchIconStyled />
                   </InputAdornment>
                 ),
-                sx: { height: 32, fontSize: 13, bgcolor: 'background.paper' },
               }}
             />
           )}
-        </Box>
-        <List sx={styles.listStyles}>
+        </styles.PopoverHeader>
+        <styles.StyledList>
           {filteredItems.map((item, idx) => (
             <ListItem
               key={idx}
               disablePadding
               secondaryAction={
-                <IconButton
-                  edge="end"
-                  size="small"
-                  onClick={(e) => handleCopy(item, e)}
-                  sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main' } }}
-                >
-                  <ContentCopyIcon sx={{ fontSize: 16 }} />
-                </IconButton>
+                <styles.CopyIconButton edge="end" size="small" onClick={(e) => handleCopy(item, e)}>
+                  <styles.CopyIconNormal />
+                </styles.CopyIconButton>
               }
             >
-              <ListItemText
+              <styles.ListItemTextStyled
                 primary={item}
                 primaryTypographyProps={{
                   variant: 'body2',
-                  sx: { fontSize: 13, fontWeight: 500, fontFamily: 'monospace', py: 0.5, px: 1 },
                 }}
               />
             </ListItem>
           ))}
           {filteredItems.length === 0 && (
-            <Box sx={{ p: 3, textAlign: 'center' }}>
+            <styles.EmptyStateBox>
               <Typography variant="caption" color="text.secondary">
                 No items match your search
               </Typography>
-            </Box>
+            </styles.EmptyStateBox>
           )}
-        </List>
+        </styles.StyledList>
       </Popover>
-    </Box>
+    </styles.ContainerBox>
   );
 };
 

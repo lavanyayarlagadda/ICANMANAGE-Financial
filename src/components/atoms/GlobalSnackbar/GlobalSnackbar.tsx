@@ -1,8 +1,9 @@
 import React from 'react';
-import { Snackbar, Alert, Box, IconButton, Slide, SlideProps } from '@mui/material';
+import { IconButton, Slide, SlideProps } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { closeSnackbar } from '@/store/slices/uiSlice';
+import * as styles from './GlobalSnackbar.styles';
 
 function TransitionDown(props: SlideProps) {
   return <Slide {...props} direction="down" />;
@@ -24,41 +25,29 @@ export const GlobalSnackbar: React.FC = () => {
   };
 
   return (
-    <Snackbar
+    <styles.StyledSnackbar
       open={snackbarOpen}
       autoHideDuration={6000}
       onClose={handleClose}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       TransitionComponent={TransitionDown}
-      sx={{
-        top: { xs: 16, sm: 24 },
-      }}
     >
-      <Alert
+      <styles.StyledAlert
         onClose={handleClose}
         severity={snackbarSeverity}
         variant="filled"
         elevation={6}
-        sx={{
-          width: '100%',
-          minWidth: { xs: '90vw', sm: '400px' },
-          borderRadius: 2,
-          fontWeight: 500,
-          '& .MuiAlert-icon': {
-            fontSize: 24,
-          },
-        }}
         action={
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <styles.ActionBox>
             <IconButton size="small" aria-label="close" color="inherit" onClick={handleClose}>
               <CloseIcon fontSize="small" />
             </IconButton>
-          </Box>
+          </styles.ActionBox>
         }
       >
         {snackbarMessage}
-      </Alert>
-    </Snackbar>
+      </styles.StyledAlert>
+    </styles.StyledSnackbar>
   );
 };
 

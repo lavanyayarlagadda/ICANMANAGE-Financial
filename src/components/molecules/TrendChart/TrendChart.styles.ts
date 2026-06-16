@@ -1,17 +1,20 @@
-import { SxProps, Theme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Box, Typography, ToggleButton } from '@mui/material';
 
-export const headerBoxStyles: SxProps<Theme> = {
+export const HeaderBox = styled(Box)({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  mb: 2,
-};
+  marginBottom: '16px',
+});
 
-export const titleStyles: SxProps<Theme> = {
+export const ChartTitle = styled(Typography)({
   fontWeight: 700,
-};
+});
 
-export const toggleButtonStyles: SxProps<Theme> = {
-  px: 1,
-  py: 0.5,
-};
+export const StyledToggleButton = styled(ToggleButton)(({ theme }) => ({
+  paddingLeft: theme.spacing(1),
+  paddingRight: theme.spacing(1),
+  paddingTop: theme.spacing(0.5),
+  paddingBottom: theme.spacing(0.5),
+}));

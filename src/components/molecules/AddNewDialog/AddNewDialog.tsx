@@ -1,17 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Box,
-  Typography,
-  Divider,
-  IconButton,
-  MenuItem,
-} from '@mui/material';
+import { Dialog, Button, TextField, Divider, IconButton, MenuItem } from '@mui/material';
+import * as styles from './AddNewDialog.styles';
 import CloseIcon from '@mui/icons-material/Close';
 
 interface AddNewDialogProps {
@@ -120,19 +109,15 @@ const AddNewDialog: React.FC<AddNewDialogProps> = ({ open, onClose, activeTab })
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle
-        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          Add New {config.title}
-        </Typography>
+      <styles.StyledDialogTitle>
+        <styles.TitleText variant="h6">Add New {config.title}</styles.TitleText>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
-      </DialogTitle>
+      </styles.StyledDialogTitle>
       <Divider />
-      <DialogContent sx={{ pt: 2 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+      <styles.StyledDialogContent>
+        <styles.FormBox>
           {config.fields.map((field) =>
             field.type === 'select' ? (
               <TextField
@@ -160,16 +145,16 @@ const AddNewDialog: React.FC<AddNewDialogProps> = ({ open, onClose, activeTab })
               />
             ),
           )}
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
+        </styles.FormBox>
+      </styles.StyledDialogContent>
+      <styles.StyledDialogActions>
         <Button onClick={onClose} variant="outlined" size="small">
           Cancel
         </Button>
         <Button onClick={handleSave} variant="contained" size="small">
           Add {config.title}
         </Button>
-      </DialogActions>
+      </styles.StyledDialogActions>
     </Dialog>
   );
 };

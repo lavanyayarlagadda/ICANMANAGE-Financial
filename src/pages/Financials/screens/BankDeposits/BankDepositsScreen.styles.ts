@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Chip, TextField, Button } from '@mui/material';
+import { Box, Chip, TextField, Button, Typography, SxProps, Theme } from '@mui/material';
 
 export const ScreenWrapper = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1, 3, 4, 3),
@@ -7,6 +7,11 @@ export const ScreenWrapper = styled(Box)(({ theme }) => ({
 
 export const ScreenHeader = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(4),
+}));
+
+export const HeaderTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 700,
+  marginBottom: theme.spacing(0.5),
 }));
 
 export const EntityChip = styled(Chip)<{ isSelected: boolean }>(({ theme, isSelected }) => ({
@@ -48,6 +53,24 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
 }));
 
+export const SearchContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(1),
+  alignItems: 'center',
+}));
+
+export const searchIconStyles: SxProps<Theme> = {
+  fontSize: 18,
+  color: 'primary.main',
+};
+
+export const searchButtonStyles: SxProps<Theme> = {
+  height: '36px',
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontWeight: 600,
+};
+
 export const RefreshButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   color: theme.palette.text.primary,
@@ -76,12 +99,21 @@ export const FinalizeButton = styled(Button)(({ theme }) => ({
   },
 }));
 
+export const EntityContainer = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+}));
+
 export const EntitySectionHeader = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1, 2),
   backgroundColor: theme.palette.grey[100],
   borderRadius: '4px 4px 0 0',
   border: `1px solid ${theme.palette.divider}`,
   borderBottom: 'none',
+}));
+
+export const EntityTitleText = styled(Typography)(({ theme }) => ({
+  fontWeight: 700,
+  color: theme.palette.text.primary,
 }));
 
 export const ExpandedContentBox = styled(Box)(({ theme }) => ({
@@ -108,4 +140,11 @@ export const PostingItemBox = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   borderRadius: theme.spacing(1),
   border: `1px solid ${theme.palette.grey[100]}`,
+}));
+
+export const NoColumnsBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(4),
+  textAlign: 'center',
+  backgroundColor: theme.palette.action.hover,
+  borderRadius: theme.spacing(1),
 }));

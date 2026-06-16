@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Card, CardContent, Grid, Typography, useTheme } from '@mui/material';
+import * as styles from './DepositReconciliationHeroCards.styles';
 import { Sparkline } from './Sparkline';
 import { deltaColor, toText, type HeroCard } from '../helpers/depositReconciliationHelpers';
 
@@ -13,36 +14,26 @@ export const DepositReconciliationHeroCards: React.FC<DepositReconciliationHeroC
   const theme = useTheme();
 
   return (
-    <Grid container spacing={2} sx={{ mb: 2 }}>
+    <styles.StyledGridContainer container spacing={2}>
       {heroCards.map((card, idx) => (
         <Grid key={`${card.id}-${idx}`} size={{ xs: 12, sm: 6, md: 3 }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-              >
-                <Box
-                  component="span"
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    backgroundColor: deltaColor(
+              <Typography variant="caption" color="text.secondary" component={styles.HeaderBox}>
+                <Box component="span">
+                  <styles.BadgeDot
+                    color={deltaColor(
                       card.delta,
                       theme.palette.success.main,
                       theme.palette.error.main,
                       theme.palette.warning.main,
-                    ),
-                  }}
-                />
-                {card.title}
+                    )}
+                  />
+                  {card.title}
+                </Box>
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mt: 0.4 }}>
-                <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                  {card.value}
-                </Typography>
+              <styles.ValueBox>
+                <styles.TitleTypography variant="h5">{card.value}</styles.TitleTypography>
                 <Typography
                   variant="body2"
                   sx={{
@@ -57,11 +48,11 @@ export const DepositReconciliationHeroCards: React.FC<DepositReconciliationHeroC
                 >
                   {toText(card.delta)}
                 </Typography>
-              </Box>
+              </styles.ValueBox>
               <Typography variant="caption" color="text.secondary">
                 {card.subLabel}
               </Typography>
-              <Box sx={{ mt: 1 }}>
+              <styles.MarginBox>
                 {card.sparkline && card.sparkline.length > 1 ? (
                   <Sparkline
                     values={card.sparkline}
@@ -74,11 +65,11 @@ export const DepositReconciliationHeroCards: React.FC<DepositReconciliationHeroC
                     }
                   />
                 ) : null}
-              </Box>
+              </styles.MarginBox>
             </CardContent>
           </Card>
         </Grid>
       ))}
-    </Grid>
+    </styles.StyledGridContainer>
   );
 };

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
 import InboxIcon from '@mui/icons-material/Inbox';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
-import { themeConfig } from '@/theme/themeConfig';
+import * as styles from './EmptyState.styles';
 
 interface EmptyStateProps {
   title?: string;
@@ -20,54 +19,20 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   const Icon = icon === 'search' ? SearchOffIcon : InboxIcon;
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        // py: 2,
-        // px: 2,
-        textAlign: 'center',
-        backgroundColor: 'background.paper',
-        borderRadius: 2,
-      }}
-    >
-      <Box
-        sx={{
-          width: 50,
-          height: 50,
-          borderRadius: '50%',
-          backgroundColor: 'grey.50',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          // mb: 1,
-        }}
-      >
-        <Icon sx={{ fontSize: 32, color: 'text.disabled' }} />
-      </Box>
-      <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
-        {title}
-      </Typography>
-      <Typography variant="body2" sx={{ color: 'text.secondary', maxWidth: 400 }}>
+    <styles.ContainerBox>
+      <styles.IconWrapper>
+        <Icon />
+      </styles.IconWrapper>
+      <styles.StyledTypographyHeader variant="h6">{title}</styles.StyledTypographyHeader>
+      <styles.StyledTypographyDescription variant="body2">
         {description}
-      </Typography>
+      </styles.StyledTypographyDescription>
       {onClearFilters && (
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={onClearFilters}
-          sx={{
-            borderRadius: themeConfig.spacing.borderRadius.md,
-            textTransform: 'none',
-            fontWeight: 600,
-          }}
-        >
+        <styles.ClearFiltersButton variant="outlined" color="primary" onClick={onClearFilters}>
           Clear All Filters
-        </Button>
+        </styles.ClearFiltersButton>
       )}
-    </Box>
+    </styles.ContainerBox>
   );
 };
 

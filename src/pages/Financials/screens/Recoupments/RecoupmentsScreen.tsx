@@ -9,7 +9,17 @@ import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { RecoupmentRecord } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useRecoupmentsScreen } from './RecoupmentsScreen.hook';
-import * as styles from './RecoupmentsScreen.styles';
+import {
+  monospaceStyles,
+  amountStyles,
+  boldStyles,
+  ToolbarWrapper,
+  SearchField,
+  pageContainerStyles,
+  searchWrapperStyles,
+  searchIconStyles,
+  searchButtonStyles,
+} from './RecoupmentsScreen.styles';
 
 const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   const theme = useTheme();
@@ -48,7 +58,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 140,
         accessor: (r) => r.recoupmentId,
         render: (r) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          <Typography variant="body2" sx={boldStyles}>
             {r.recoupmentId}
           </Typography>
         ),
@@ -88,9 +98,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         label: 'ORIG. PAYMENT',
         minWidth: 120,
         accessor: (r) => r.originalPaymentAmount,
-        render: (r) => (
-          <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.originalPaymentAmount)}</Box>
-        ),
+        render: (r) => <Box sx={monospaceStyles}>{formatCurrency(r.originalPaymentAmount)}</Box>,
       },
       {
         id: 'recoupmentAmount',
@@ -98,10 +106,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 130,
         accessor: (r) => r.recoupmentAmount,
         render: (r) => (
-          <Typography
-            variant="body2"
-            sx={{ fontFamily: 'monospace', fontWeight: 600, color: theme.palette.error.main }}
-          >
+          <Typography variant="body2" sx={amountStyles(theme)}>
             {formatCurrency(r.recoupmentAmount)}
           </Typography>
         ),
@@ -125,10 +130,10 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   );
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>
-      <styles.ToolbarWrapper>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <styles.SearchField
+    <Box sx={pageContainerStyles}>
+      <ToolbarWrapper>
+        <Box sx={searchWrapperStyles}>
+          <SearchField
             size="small"
             placeholder="Search by Transaction #"
             value={searchTerm}
@@ -137,7 +142,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  <SearchIcon sx={searchIconStyles} />
                 </InputAdornment>
               ),
             }}
@@ -147,18 +152,12 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={{
-              height: '36px',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2,
-            }}
+            sx={searchButtonStyles}
           >
             Search
           </Button>
         </Box>
-      </styles.ToolbarWrapper>
+      </ToolbarWrapper>
       <DataTable
         gridName="Recoupments"
         columns={columns}

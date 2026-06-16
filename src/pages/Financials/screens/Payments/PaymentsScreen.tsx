@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, InputAdornment, Button, useTheme } from '@mui/material';
+import { Box, Typography, InputAdornment, Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -8,7 +8,15 @@ import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { PaymentTransaction } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { ScreenWrapper, ToolbarWrapper, SearchField } from './PaymentsScreen.styles';
+import {
+  ScreenWrapper,
+  ToolbarWrapper,
+  SearchField,
+  MonospaceBox,
+  searchWrapperStyles,
+  searchIconStyles,
+  searchButtonStyles,
+} from './PaymentsScreen.styles';
 import { usePaymentsScreen } from './PaymentsScreen.hook';
 
 const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -33,8 +41,6 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     isFetching,
     // isError,
   } = usePaymentsScreen({ skip });
-
-  const theme = useTheme();
 
   const columns = useMemo<DataColumn<PaymentTransaction>[]>(
     () => [
@@ -81,7 +87,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 110,
         align: 'center',
         accessor: (r) => r.amount ?? null,
-        render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.amount)}</Box>,
+        render: (r) => <MonospaceBox>{formatCurrency(r.amount)}</MonospaceBox>,
       },
       {
         id: 'status',
@@ -105,7 +111,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Alert>
             )} */}
       <ToolbarWrapper>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={searchWrapperStyles}>
           <SearchField
             size="small"
             placeholder="Search by Transaction #"
@@ -115,7 +121,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  <SearchIcon sx={searchIconStyles} />
                 </InputAdornment>
               ),
             }}
@@ -125,13 +131,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={{
-              height: '36px',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2,
-            }}
+            sx={searchButtonStyles}
           >
             Search
           </Button>

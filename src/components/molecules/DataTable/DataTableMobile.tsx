@@ -1,16 +1,20 @@
 import React from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Checkbox,
-  Typography,
-  IconButton,
-  Divider,
-  useTheme,
-} from '@mui/material';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
+import { Checkbox } from '@mui/material';
 import EmptyState from '../../atoms/EmptyState/EmptyState';
+import {
+  MobileOuterContainer,
+  StyledMobileCard,
+  MobileCardContent,
+  MobileActionRow,
+  MobileItemRow,
+  MobileLabelBox,
+  MobileLabelText,
+  MobileValueBox,
+  MobileDivider,
+  MobileExpandedContainer,
+  StyledBookButton,
+  StyledBookIcon,
+} from './DataTable.styles';
 import { DataColumn } from './DataTable.hook';
 import { TableDescriptions } from '@/services/descriptionService';
 
@@ -43,12 +47,11 @@ export function DataTableMobile<T>({
   expandedRows,
   getRowStyle,
 }: DataTableMobileProps<T>) {
-  const theme = useTheme();
   const visibleColumns = columns.filter((c) => c.id !== 'actions' && !c.hideOnMobile);
   const actionsCol = columns.find((c) => c.id === 'actions');
 
   return (
-    <Box sx={{ p: 1.5 }}>
+    <MobileOuterContainer>
       {paginatedData.length === 0 ? (
         <EmptyState
           icon="search"
@@ -62,30 +65,16 @@ export function DataTableMobile<T>({
           const isExpanded = expandedRows?.has(key);
 
           return (
-            <Card
+            <StyledMobileCard
               key={key}
-              sx={{
-                mb: 1.5,
-                border: `1px solid ${theme.palette.divider}`,
-                borderRadius: 2,
-                boxShadow: isSelected ? `0 0 0 2px ${theme.palette.primary.main}` : 'none',
-                backgroundColor: isSelected ? 'grey.50' : 'background.paper',
-                transition: 'all 0.2s ease',
-                cursor: onRowClick ? 'pointer' : 'default',
-                ...getRowStyle?.(row),
-              }}
+              isSelected={isSelected}
+              clickable={!!onRowClick}
+              style={getRowStyle?.(row)}
               onClick={() => onRowClick?.(row)}
             >
-              <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+              <MobileCardContent>
                 {(actionsCol || selectable) && (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      mb: 1,
-                    }}
-                  >
+                  <MobileActionRow>
                     {selectable ? (
                       <Checkbox
                         size="small"
@@ -94,64 +83,45 @@ export function DataTableMobile<T>({
                         onClick={(e) => e.stopPropagation()}
                       />
                     ) : (
-                      <Box />
+                      <div />
                     )}
                     {actionsCol?.render?.(row)}
-                  </Box>
+                  </MobileActionRow>
                 )}
 
                 {visibleColumns.map((col, idx) => (
-                  <Box key={col.id}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        py: 0.75,
-                        gap: 2,
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 100 }}>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ fontWeight: 600 }}
-                        >
+                  <React.Fragment key={col.id}>
+                    <MobileItemRow>
+                      <MobileLabelBox>
+                        <MobileLabelText variant="caption" color="text.secondary">
                           {col.label}
-                        </Typography>
+                        </MobileLabelText>
                         {descriptions?.[col.id] && (
-                          <IconButton
+                          <StyledBookButton
                             size="small"
-                            sx={{ p: 0.2 }}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleHeaderClick(col.id);
                             }}
                           >
-                            <MenuBookIcon
-                              sx={{ fontSize: 12, color: theme.palette.primary.main, opacity: 0.7 }}
-                            />
-                          </IconButton>
+                            <StyledBookIcon />
+                          </StyledBookButton>
                         )}
-                      </Box>
-                      <Box sx={{ textAlign: col.align || 'center', flex: 1 }}>
-                        {col.render(row)}
-                      </Box>
-                    </Box>
-                    {idx < visibleColumns.length - 1 && <Divider sx={{ opacity: 0.5, my: 0.25 }} />}
-                  </Box>
+                      </MobileLabelBox>
+                      <MobileValueBox align={col.align}>{col.render(row)}</MobileValueBox>
+                    </MobileItemRow>
+                    {idx < visibleColumns.length - 1 && <MobileDivider />}
+                  </React.Fragment>
                 ))}
 
                 {expandedContent && isExpanded && (
-                  <Box sx={{ mt: 1.5, pt: 1.5, borderTop: `1px dashed ${theme.palette.divider}` }}>
-                    {expandedContent(row)}
-                  </Box>
+                  <MobileExpandedContainer>{expandedContent(row)}</MobileExpandedContainer>
                 )}
-              </CardContent>
-            </Card>
+              </MobileCardContent>
+            </StyledMobileCard>
           );
         })
       )}
-    </Box>
+    </MobileOuterContainer>
   );
 }

@@ -1,19 +1,20 @@
 import React from 'react';
-import {
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  Checkbox,
-  Box,
-  TableSortLabel,
-  IconButton,
-  useTheme,
-} from '@mui/material';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
+import { TableHead, TableBody, TableRow, TableCell, Checkbox } from '@mui/material';
 import EmptyState from '../../atoms/EmptyState/EmptyState';
-import { ScrollableTableContainer, HeaderTableCell, StyledTableRow } from './DataTable.styles';
+import {
+  ScrollableTableContainer,
+  HeaderTableCell,
+  StyledTableRow,
+  StyledTableCell,
+  StyledMuiTable,
+  StyledTableSortLabel,
+  LabelIconContainer,
+  StyledBookButton,
+  StyledBookIcon,
+  EmptyStateCell,
+  ExpandedCell,
+  ExpandedContentBox,
+} from './DataTable.styles';
 import { DataColumn, SortDirection } from './DataTable.hook';
 import { TableDescriptions } from '@/services/descriptionService';
 
@@ -66,27 +67,9 @@ export function DataTableDesktop<T>({
   dense = false,
   showColumnDividers = false,
 }: DataTableDesktopProps<T>) {
-  const theme = useTheme();
-
-  const columnDividerSx = (colIndex: number) =>
-    showColumnDividers && colIndex > 0
-      ? { borderLeft: `1px dotted ${theme.palette.divider}` }
-      : undefined;
-
   return (
     <ScrollableTableContainer>
-      <Table
-        stickyHeader
-        size={dense ? 'small' : 'medium'}
-        sx={{
-          minWidth: 'max-content',
-          '& .MuiTableCell-root': { p: dense ? 0.5 : 1, minHeight: dense ? 32 : 40 },
-          '& .MuiTableHead-root .MuiTableCell-root': {
-            py: dense ? 0.5 : 1,
-            minHeight: dense ? 40 : 48,
-          },
-        }}
-      >
+      <StyledMuiTable stickyHeader dense={dense}>
         <TableHead>
           <TableRow>
             {selectable && (
@@ -99,102 +82,70 @@ export function DataTableDesktop<T>({
                 />
               </TableCell>
             )}
-            {columns.map((col, colIndex) => (
-              <HeaderTableCell
-                key={col.id}
-                align={col.align || 'center'}
-                sx={{ minWidth: col.minWidth, whiteSpace: 'nowrap', ...columnDividerSx(colIndex) }}
-                sortDirection={sortCol === col.id ? sortDir : false}
-              >
-                {isSortable(col) ? (
-                  <TableSortLabel
-                    active={sortCol === col.id}
-                    direction={sortCol === col.id ? sortDir : 'asc'}
-                    onClick={() => handleSort(col.id)}
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      justifyContent:
-                        (col.align || 'center') === 'center'
-                          ? 'center'
-                          : col.align === 'right'
-                            ? 'flex-end'
-                            : 'flex-start',
-                      '& .MuiTableSortLabel-icon': {
-                        opacity: sortCol === col.id ? 1 : 0.3,
-                        marginLeft: '4px',
-                        marginRight: 0,
-                        order: 1, // Ensure icon is always after label
-                      },
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {columns.map((col, colIndex) => {
+              const showDivider = showColumnDividers && colIndex > 0;
+              return (
+                <HeaderTableCell
+                  key={col.id}
+                  align={col.align || 'center'}
+                  minWidth={col.minWidth}
+                  showDivider={showDivider}
+                  sortDirection={sortCol === col.id ? sortDir : false}
+                >
+                  {isSortable(col) ? (
+                    <StyledTableSortLabel
+                      active={sortCol === col.id}
+                      direction={sortCol === col.id ? sortDir : 'asc'}
+                      onClick={() => handleSort(col.id)}
+                      align={col.align}
+                      isActive={sortCol === col.id}
+                    >
+                      <LabelIconContainer align={col.align}>
+                        {col.label}
+                        {descriptions && descriptions[col.id] && (
+                          <StyledBookButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleHeaderClick(col.id);
+                            }}
+                          >
+                            <StyledBookIcon />
+                          </StyledBookButton>
+                        )}
+                      </LabelIconContainer>
+                    </StyledTableSortLabel>
+                  ) : (
+                    <LabelIconContainer align={col.align}>
                       {col.label}
                       {descriptions && descriptions[col.id] && (
-                        <IconButton
+                        <StyledBookButton
                           size="small"
-                          sx={{ p: 0.2, ml: 0.5 }}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleHeaderClick(col.id);
                           }}
                         >
-                          <MenuBookIcon
-                            sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }}
-                          />
-                        </IconButton>
+                          <StyledBookIcon />
+                        </StyledBookButton>
                       )}
-                    </Box>
-                  </TableSortLabel>
-                ) : (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent:
-                        (col.align || 'center') === 'center'
-                          ? 'center'
-                          : col.align === 'right'
-                            ? 'flex-end'
-                            : 'flex-start',
-                      gap: 0.5,
-                    }}
-                  >
-                    {col.label}
-                    {descriptions && descriptions[col.id] && (
-                      <IconButton
-                        size="small"
-                        sx={{ p: 0.2, ml: 0.5 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleHeaderClick(col.id);
-                        }}
-                      >
-                        <MenuBookIcon
-                          sx={{ fontSize: 13, color: theme.palette.primary.main, opacity: 0.7 }}
-                        />
-                      </IconButton>
-                    )}
-                  </Box>
-                )}
-              </HeaderTableCell>
-            ))}
+                    </LabelIconContainer>
+                  )}
+                </HeaderTableCell>
+              );
+            })}
           </TableRow>
         </TableHead>
         <TableBody>
           {paginatedData.length === 0 ? (
             <TableRow>
-              <TableCell
-                colSpan={columns.length + (selectable ? 1 : 0)}
-                align="center"
-                sx={{ p: 0 }}
-              >
+              <EmptyStateCell colSpan={columns.length + (selectable ? 1 : 0)} align="center">
                 <EmptyState
                   icon="search"
                   title="No Records Found"
                   description="Adjust your filters or search terms to find what you're looking for."
                 />
-              </TableCell>
+              </EmptyStateCell>
             </TableRow>
           ) : (
             paginatedData.map((row) => {
@@ -206,7 +157,7 @@ export function DataTableDesktop<T>({
                     clickable={!!onRowClick}
                     isSelected={selectedKeys.has(key)}
                     onClick={() => onRowClick?.(row)}
-                    sx={{ ...getRowStyle?.(row) }}
+                    style={getRowStyle?.(row)}
                   >
                     {selectable && (
                       <TableCell padding="checkbox">
@@ -222,34 +173,27 @@ export function DataTableDesktop<T>({
                       const rowIndex = paginatedData.indexOf(row);
                       const cellMeta = col.getCellProps?.(row, rowIndex, paginatedData);
                       if (cellMeta?.skip) return null;
+                      const showDivider = showColumnDividers && colIndex > 0;
+                      const isRowSpan = !!(cellMeta?.rowSpan && cellMeta.rowSpan > 1);
                       return (
-                        <TableCell
+                        <StyledTableCell
                           key={col.id}
                           align={col.align || 'center'}
                           rowSpan={cellMeta?.rowSpan}
                           colSpan={cellMeta?.colSpan}
-                          sx={{
-                            ...columnDividerSx(colIndex),
-                            ...(cellMeta?.rowSpan && cellMeta.rowSpan > 1
-                              ? { verticalAlign: 'middle' }
-                              : undefined),
-                          }}
+                          showDivider={showDivider}
+                          isRowSpan={isRowSpan}
                         >
                           {col.render(row)}
-                        </TableCell>
+                        </StyledTableCell>
                       );
                     })}
                   </StyledTableRow>
                   {expandedContent && expandedRows?.has(key) && (
                     <TableRow>
-                      <TableCell
-                        colSpan={columns.length + (selectable ? 1 : 0)}
-                        sx={{ p: 0, border: 0 }}
-                      >
-                        <Box sx={{ p: 2, backgroundColor: 'action.hover' }}>
-                          {expandedContent(row)}
-                        </Box>
-                      </TableCell>
+                      <ExpandedCell colSpan={columns.length + (selectable ? 1 : 0)}>
+                        <ExpandedContentBox>{expandedContent(row)}</ExpandedContentBox>
+                      </ExpandedCell>
                     </TableRow>
                   )}
                 </React.Fragment>
@@ -257,7 +201,7 @@ export function DataTableDesktop<T>({
             })
           )}
         </TableBody>
-      </Table>
+      </StyledMuiTable>
     </ScrollableTableContainer>
   );
 }

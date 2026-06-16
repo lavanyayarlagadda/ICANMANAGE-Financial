@@ -1,7 +1,9 @@
-import { styled, Box, Paper } from '@mui/material';
+import { styled, Box, Paper, TextField, SxProps, Theme } from '@mui/material';
+import { ReconciliationRow } from './ReconciliationScreen.hook';
 
 export const ScreenWrapper = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
+  paddingTop: theme.spacing(1),
   [theme.breakpoints.down('sm')]: {
     padding: theme.spacing(2),
   },
@@ -243,3 +245,53 @@ export const DynamicTableContainer = styled(Box)(({ theme }) => ({
     },
   },
 }));
+
+// Reconciliation screen additions
+export const TabsStatsContainer = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+}));
+
+export const CenteredLoadingBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  padding: theme.spacing(8),
+}));
+
+export const ToolbarContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(2),
+  flexWrap: 'nowrap',
+}));
+
+export const RangeWrapper = styled(Box)(() => ({
+  flexShrink: 0,
+}));
+
+export const SearchField = styled(TextField)(({ theme }) => ({
+  width: '160px',
+  '& .MuiOutlinedInput-root': {
+    height: '32px',
+    borderRadius: '6px',
+    bgcolor: theme.palette.background.paper,
+    fontSize: '12px',
+  },
+}));
+
+export const searchIconStyles: SxProps<Theme> = {
+  color: 'text.disabled',
+};
+
+export const getRowStyle = (row: ReconciliationRow) => ({
+  backgroundColor: row.isEdited ? 'grey.50' : 'transparent',
+  color: row.isEdited ? 'primary.main' : 'inherit',
+  fontWeight: row.isEdited ? 700 : 'inherit',
+  transition: 'all 0.2s ease',
+  '& td': {
+    color: row.isEdited ? 'success.main' : 'inherit',
+  },
+  '&:hover': {
+    background: (t: Theme) =>
+      row.isEdited ? t.palette.grey[100] + ' !important' : t.palette.grey[50] + ' !important',
+  },
+});

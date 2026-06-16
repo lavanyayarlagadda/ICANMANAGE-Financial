@@ -1,72 +1,89 @@
-import { SxProps, Theme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Box, Typography, Select, Snackbar, Alert, MenuItem } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { themeConfig } from '@/theme/themeConfig';
 
-export const containerStyles: SxProps<Theme> = {
+export const ContainerBox = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 1.5,
+  gap: '12px', // gap: 1.5
   flexWrap: 'nowrap',
-};
+}));
 
-export const rangeBoxStyles: SxProps<Theme> = {
+export const RangeBox = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 1,
-};
+  gap: '8px', // gap: 1
+}));
 
-export const labelStyles: SxProps<Theme> = {
+export const LabelTypography = styled(Typography)(() => ({
   fontWeight: 500,
   fontSize: '0.75rem',
   color: themeConfig.colors.slate[500],
-};
+}));
 
-export const selectStyles: SxProps<Theme> = {
+export const StyledSelect = styled(Select)(() => ({
   height: 32,
   minWidth: 100,
   fontSize: '0.8rem',
   backgroundColor: themeConfig.colors.surface,
-  borderRadius: 1.5,
+  borderRadius: '6px', // 1.5 * 4
   '& .MuiOutlinedInput-notchedOutline': {
     borderColor: themeConfig.colors.border,
   },
-};
+})) as unknown as typeof Select;
 
-export const datePickersContainerStyles = (): SxProps<Theme> => ({
+export const DatePickersContainer = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 1,
-  flexDirection: 'row', // Force row for compact view
+  gap: '8px', // gap: 1
+  flexDirection: 'row',
   width: 'auto',
-});
+}));
 
-export const datePickerItemStyles = (): SxProps<Theme> => ({
+export const DatePickerItem = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 0.5,
+  gap: '4px', // gap: 0.5
   width: 'auto',
-});
+}));
 
-export const dateLabelStyles: SxProps<Theme> = {
+export const DateLabelTypography = styled(Typography)(() => ({
   fontWeight: 600,
   fontSize: '0.7rem',
   minWidth: 'auto',
   color: themeConfig.colors.slate[400],
-};
+}));
 
-export const getDatePickerSx = (): SxProps<Theme> => ({
+export const StyledDatePicker = styled(DatePicker)(() => ({
   '& .MuiInputBase-root': {
     height: 32,
     fontSize: '0.75rem',
-    borderRadius: 1.5,
-    width: 120, // Smaller width
+    borderRadius: '6px',
+    width: 120,
     backgroundColor: themeConfig.colors.surface,
   },
-  '& .MuiOutlinedInput-notchedOutline': { borderColor: themeConfig.colors.border },
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: themeConfig.colors.border,
+  },
   flex: 'unset',
-});
+}));
 
-export const slotProps = () => ({
-  textField: { size: 'small' as const, sx: getDatePickerSx() },
+export const StyledSnackbar = styled(Snackbar)(({ theme }) => ({
+  zIndex: Math.max(theme.zIndex.snackbar, 9999),
+  marginTop: '64px',
+}));
+
+export const StyledAlert = styled(Alert)(() => ({
+  width: '100%',
+}));
+
+export const StyledMenuItem = styled(MenuItem)(() => ({
+  fontSize: '0.85rem',
+}));
+
+export const slotProps = (_isMobile: boolean) => ({
+  textField: { size: 'small' as const },
   desktopPaper: {
     sx: {
       '& .MuiPickersLayout-root': {

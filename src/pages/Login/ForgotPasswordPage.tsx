@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import pkg from '../../../package.json';
-import { Box, Typography, Link, Container, Alert } from '@mui/material';
+
 import { MailOutlined, ArrowBack } from '@mui/icons-material';
 import {
   LoginBackground,
@@ -12,6 +12,12 @@ import {
   StyledTextField,
   SubmitButton,
   FooterText,
+  LoginContainer,
+  StyledAlert,
+  LoginForm,
+  InputLabel,
+  BackToLoginWrapper,
+  BackToLoginLink,
 } from './LoginPage.styles';
 
 const ForgotPasswordPage = () => {
@@ -37,7 +43,7 @@ const ForgotPasswordPage = () => {
 
   return (
     <LoginBackground>
-      <Container maxWidth="sm" sx={{ display: 'flex', justifyContent: 'center' }}>
+      <LoginContainer maxWidth="sm">
         <LoginCard elevation={0}>
           <LogoImage src="/cognitiveLogo.svg" alt="CognitiveHealth Logo" />
 
@@ -45,20 +51,14 @@ const ForgotPasswordPage = () => {
             Forgot Password
           </LoginTitle>
 
-          <LoginSubtitle variant="body1" sx={{ mb: message ? 2 : 4, mt: 1 }}>
+          <LoginSubtitle variant="body1" hasError={!!message}>
             Enter your email to receive a password reset link.
           </LoginSubtitle>
 
-          {message && (
-            <Alert severity={message.type} sx={{ width: '100%', mb: 2 }}>
-              {message.text}
-            </Alert>
-          )}
+          {message && <StyledAlert severity={message.type}>{message.text}</StyledAlert>}
 
-          <Box component="form" sx={{ width: '100%' }} noValidate onSubmit={handleSubmit}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Email Address
-            </Typography>
+          <LoginForm component="form" noValidate onSubmit={handleSubmit}>
+            <InputLabel variant="subtitle2">Email Address</InputLabel>
             <StyledTextField
               fullWidth
               variant="outlined"
@@ -78,30 +78,18 @@ const ForgotPasswordPage = () => {
             >
               {isLoading ? 'Sending...' : 'Send Reset Link'}
             </SubmitButton>
-          </Box>
+          </LoginForm>
 
-          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 1, mt: 2 }}>
-            <Link
-              component={RouterLink}
-              to="/login"
-              variant="body2"
-              underline="hover"
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 0.5,
-                fontWeight: 500,
-                color: 'primary.main',
-              }}
-            >
+          <BackToLoginWrapper>
+            <BackToLoginLink component={RouterLink} to="/login" variant="body2" underline="hover">
               <ArrowBack fontSize="small" /> Back to Login
-            </Link>
-          </Box>
+            </BackToLoginLink>
+          </BackToLoginWrapper>
           <FooterText variant="caption">
             © {new Date().getFullYear()} CognitiveHealth LLC. | v{pkg.version}
           </FooterText>
         </LoginCard>
-      </Container>
+      </LoginContainer>
     </LoginBackground>
   );
 };

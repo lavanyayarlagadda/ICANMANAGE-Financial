@@ -1,16 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Box,
-  Typography,
-  Divider,
-  IconButton,
-} from '@mui/material';
+import { Dialog, Divider, IconButton, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { DialogData } from '@/interfaces/financials';
 import * as styles from './EditDialog.styles';
@@ -37,38 +26,35 @@ const EditDialog: React.FC<EditDialogProps> = ({ open, onClose, onSave, title, d
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={styles.dialogTitleStyles}>
-        <Typography variant="h6" sx={styles.titleTextStyles}>
-          Edit {title}
-        </Typography>
+      <styles.StyledDialogTitle>
+        <styles.TitleText variant="h6">Edit {title}</styles.TitleText>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
-      </DialogTitle>
+      </styles.StyledDialogTitle>
       <Divider />
-      <DialogContent sx={styles.dialogContentStyles}>
-        <Box sx={styles.formBoxStyles}>
+      <styles.StyledDialogContent>
+        <styles.FormBox>
           {editableEntries.map(([key, value]) => (
-            <TextField
+            <styles.StyledTextField
               key={key}
               label={key.replace(/([A-Z])/g, ' $1').trim()}
               defaultValue={String(value ?? '')}
               size="small"
               fullWidth
               variant="outlined"
-              sx={styles.textFieldStyles}
             />
           ))}
-        </Box>
-      </DialogContent>
-      <DialogActions sx={styles.dialogActionsStyles}>
+        </styles.FormBox>
+      </styles.StyledDialogContent>
+      <styles.StyledDialogActions>
         <Button onClick={onClose} variant="outlined" size="small">
           Cancel
         </Button>
         <Button onClick={handleSave} variant="contained" size="small">
           Save Changes
         </Button>
-      </DialogActions>
+      </styles.StyledDialogActions>
     </Dialog>
   );
 };

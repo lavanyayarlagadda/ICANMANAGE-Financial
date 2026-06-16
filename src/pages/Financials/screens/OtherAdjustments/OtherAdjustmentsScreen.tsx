@@ -9,7 +9,17 @@ import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { OtherAdjustmentRecord } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useOtherAdjustmentsScreen } from './OtherAdjustmentsScreen.hook';
-import * as styles from './OtherAdjustmentsScreen.styles';
+import {
+  adjustmentChipStyles,
+  amountStyles,
+  ToolbarWrapper,
+  SearchField,
+  adjustmentIdStyles,
+  pageContainerStyles,
+  searchWrapperStyles,
+  searchIconStyles,
+  searchButtonStyles,
+} from './OtherAdjustmentsScreen.styles';
 
 const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   const theme = useTheme();
@@ -47,7 +57,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         minWidth: 160,
         accessor: (r) => r.adjustmentId,
         render: (r) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          <Typography variant="body2" sx={adjustmentIdStyles}>
             {r.adjustmentId}
           </Typography>
         ),
@@ -72,9 +82,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         minWidth: 140,
         accessor: (r) => r.type,
         // filterOptions: ['WRITE-OFF', 'CREDIT', 'INTEREST', 'CONTRACTUAL', 'REFUND', 'TRANSFER', 'RECLASSIFICATION', 'CHARITY'],
-        render: (r) => (
-          <Chip label={r.type} size="small" sx={styles.adjustmentChipStyles(r.type)} />
-        ),
+        render: (r) => <Chip label={r.type} size="small" sx={adjustmentChipStyles(r.type)} />,
       },
       {
         id: 'payer',
@@ -90,19 +98,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         minWidth: 120,
         accessor: (r) => r.amount,
         render: (r) => (
-          <Typography
-            variant="body2"
-            sx={{
-              fontFamily: 'monospace',
-              fontWeight: 600,
-              color:
-                r.amount < 0
-                  ? theme.palette.error.main
-                  : r.amount > 0
-                    ? theme.palette.success.main
-                    : theme.palette.text.primary,
-            }}
-          >
+          <Typography variant="body2" sx={amountStyles(r.amount, theme)}>
             {formatCurrency(r.amount)}
           </Typography>
         ),
@@ -126,15 +122,15 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
   );
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', minHeight: 0 }}>
+    <Box sx={pageContainerStyles}>
       {/* {isError && (
                 <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
                     Failed to load Other Adjustments details. Please try reloading or contact support.
                 </Alert>
             )} */}
-      <styles.ToolbarWrapper>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <styles.SearchField
+      <ToolbarWrapper>
+        <Box sx={searchWrapperStyles}>
+          <SearchField
             size="small"
             placeholder="Search by Transaction #"
             value={searchTerm}
@@ -143,7 +139,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  <SearchIcon sx={searchIconStyles} />
                 </InputAdornment>
               ),
             }}
@@ -153,18 +149,12 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={{
-              height: '36px',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2,
-            }}
+            sx={searchButtonStyles}
           >
             Search
           </Button>
         </Box>
-      </styles.ToolbarWrapper>
+      </ToolbarWrapper>
       <DataTable
         gridName="Other Adjustments"
         columns={columns}

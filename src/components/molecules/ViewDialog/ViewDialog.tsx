@@ -1,19 +1,16 @@
 import React, { useMemo } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Box,
-  Typography,
-  Divider,
-  IconButton,
-  useTheme,
-} from '@mui/material';
+import { Dialog, Button, Divider, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { DialogData } from '@/interfaces/financials';
-import * as styles from './ViewDialog.styles';
+import {
+  StyledDialogTitle,
+  TitleText,
+  StyledDialogContent,
+  RowBox,
+  LabelTypography,
+  ValueTypography,
+  StyledDialogActions,
+} from './ViewDialog.styles';
 
 interface ViewDialogProps {
   open: boolean;
@@ -23,8 +20,6 @@ interface ViewDialogProps {
 }
 
 const ViewDialog: React.FC<ViewDialogProps> = ({ open, onClose, title, data }) => {
-  const theme = useTheme();
-
   const entries = useMemo(() => {
     if (!data) return [];
     return Object.entries(data).filter(([key]) => key !== 'id');
@@ -34,32 +29,28 @@ const ViewDialog: React.FC<ViewDialogProps> = ({ open, onClose, title, data }) =
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={styles.dialogTitleStyles}>
-        <Typography variant="h6" sx={styles.titleTextStyles}>
-          {title}
-        </Typography>
+      <StyledDialogTitle>
+        <TitleText variant="h6">{title}</TitleText>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
-      </DialogTitle>
+      </StyledDialogTitle>
       <Divider />
-      <DialogContent sx={styles.dialogContentStyles}>
+      <StyledDialogContent>
         {entries.map(([key, value]) => (
-          <Box key={key} sx={styles.rowBoxStyles(theme)}>
-            <Typography variant="body2" color="text.secondary" sx={styles.labelStyles}>
+          <RowBox key={key}>
+            <LabelTypography variant="body2" color="text.secondary">
               {key.replace(/([A-Z])/g, ' $1').trim()}
-            </Typography>
-            <Typography variant="body2" sx={styles.valueStyles}>
-              {String(value ?? 'N/A')}
-            </Typography>
-          </Box>
+            </LabelTypography>
+            <ValueTypography variant="body2">{String(value ?? 'N/A')}</ValueTypography>
+          </RowBox>
         ))}
-      </DialogContent>
-      <DialogActions sx={styles.dialogActionsStyles}>
+      </StyledDialogContent>
+      <StyledDialogActions>
         <Button onClick={onClose} variant="outlined" size="small">
           Close
         </Button>
-      </DialogActions>
+      </StyledDialogActions>
     </Dialog>
   );
 };

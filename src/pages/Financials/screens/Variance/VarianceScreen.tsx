@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, Grid, useTheme } from '@mui/material';
+import { Box, Typography, Grid } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { InputAdornment, Button } from '@mui/material';
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -8,7 +8,21 @@ import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
-import { ScreenWrapper, HeaderSection, ToolbarWrapper, SearchField } from './VarianceScreen.styles';
+import {
+  ScreenWrapper,
+  HeaderSection,
+  HeaderTitle,
+  PatientNameText,
+  BoldAmount,
+  MonospaceText,
+  VarianceText,
+  ToolbarWrapper,
+  SearchField,
+  summaryGridStyles,
+  searchWrapperStyles,
+  searchIconStyles,
+  searchButtonStyles,
+} from './VarianceScreen.styles';
 import { useVarianceScreen } from './VarianceScreen.hook';
 
 import { FeeScheduleVariance, PaymentVariance } from '@/interfaces/financials';
@@ -40,7 +54,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     isFetching,
     // isError,
   } = useVarianceScreen({ skip });
-  const theme = useTheme();
+
   const feeColumns = useMemo<DataColumn<FeeScheduleVariance | PaymentVariance>[]>(
     () => [
       {
@@ -56,9 +70,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (r) => r.transactionNo || r.id || '-',
         render: (r) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
-            {r.transactionNo || r.id || '-'}
-          </Typography>
+          <MonospaceText variant="body2">{r.transactionNo || r.id || '-'}</MonospaceText>
         ),
       },
       {
@@ -74,14 +86,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         label: 'PATIENT NAME',
         minWidth: 150,
         accessor: (r) => r.patientName,
-        render: (r) => (
-          <Typography
-            variant="body2"
-            sx={{ color: theme.palette.primary.main, fontWeight: 500, textTransform: 'uppercase' }}
-          >
-            {r.patientName}
-          </Typography>
-        ),
+        render: (r) => <PatientNameText variant="body2">{r.patientName}</PatientNameText>,
       },
       {
         id: 'payerName',
@@ -100,9 +105,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (r) => Number(r.expectedAllowed),
         render: (r) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {formatCurrency(Number(r.expectedAllowed))}
-          </Typography>
+          <BoldAmount variant="body2">{formatCurrency(Number(r.expectedAllowed))}</BoldAmount>
         ),
       },
       {
@@ -112,9 +115,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (r) => Number(r.actualAllowed),
         render: (r) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {formatCurrency(Number(r.actualAllowed))}
-          </Typography>
+          <BoldAmount variant="body2">{formatCurrency(Number(r.actualAllowed))}</BoldAmount>
         ),
       },
       {
@@ -124,15 +125,9 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (r) => Number(r.variance),
         render: (r) => (
-          <Typography
-            variant="body2"
-            sx={{
-              fontWeight: 700,
-              color: Number(r.variance) > 0 ? theme.palette.error.main : theme.palette.text.primary,
-            }}
-          >
+          <VarianceText variant="body2" amount={Number(r.variance)}>
             {formatCurrency(Number(r.variance))}
-          </Typography>
+          </VarianceText>
         ),
       },
       {
@@ -145,24 +140,8 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           <MultiValueDisplay value={r.adjustmentCode || ''} delimiter="|" hideSearch={true} />
         ),
       },
-      // {
-      //   id: 'adjustmentCode1',
-      //   label: 'ADJUSTMENT CODE 1',
-      //   minWidth: 160,
-      //   align: 'center',
-      //   accessor: (r) => r.adjustmentCode1 || '',
-      //   render: (r) => <Typography variant="body2">{r.adjustmentCode1}</Typography>,
-      // },
-      // {
-      //   id: 'adjustmentCode2',
-      //   label: 'ADJUSTMENT CODE 2',
-      //   minWidth: 160,
-      //   align: 'center',
-      //   accessor: (r) => r.adjustmentCode2 || '',
-      //   render: (r) => <Typography variant="body2">{r.adjustmentCode2}</Typography>,
-      // },
     ],
-    [handleDrillDown, theme, payerOptions, payerOptionsLoading, payerOptionsError],
+    [handleDrillDown, payerOptions, payerOptionsLoading, payerOptionsError],
   );
 
   const summaryValues = useMemo(() => {
@@ -186,9 +165,9 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   return (
     <ScreenWrapper>
       <HeaderSection>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
+        <HeaderTitle variant="h6">
           {activeSubTab === 0 ? 'Fee Variance' : 'Payment Variance'}
-        </Typography>
+        </HeaderTitle>
       </HeaderSection>
 
       {/* {isError && (
@@ -197,7 +176,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Alert>
             )} */}
 
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      <Grid container spacing={2} sx={summaryGridStyles}>
         <Grid size={{ xs: 12, md: 4 }}>
           <SummaryCard
             title="EXPECTED"
@@ -222,7 +201,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       </Grid>
 
       <ToolbarWrapper>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <Box sx={searchWrapperStyles}>
           <SearchField
             size="small"
             placeholder="Search by Transaction #"
@@ -232,7 +211,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  <SearchIcon sx={searchIconStyles} />
                 </InputAdornment>
               ),
             }}
@@ -242,13 +221,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={{
-              height: '36px',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2,
-            }}
+            sx={searchButtonStyles}
           >
             Search
           </Button>

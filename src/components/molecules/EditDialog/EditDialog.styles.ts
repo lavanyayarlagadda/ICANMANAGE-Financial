@@ -1,34 +1,43 @@
-import { SxProps, Theme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import {
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  Typography,
+  TextField,
+} from '@mui/material';
 
-export const dialogTitleStyles: SxProps<Theme> = {
+export const StyledDialogTitle = styled(DialogTitle)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  pb: 1,
-};
+  paddingBottom: theme.spacing(1),
+}));
 
-export const titleTextStyles: SxProps<Theme> = {
+export const TitleText = styled(Typography)({
   fontWeight: 700,
-};
+});
 
-export const dialogContentStyles: SxProps<Theme> = {
-  pt: 2,
-};
+export const StyledDialogContent = styled(DialogContent)(({ theme }) => ({
+  paddingTop: theme.spacing(2),
+}));
 
-export const formBoxStyles: SxProps<Theme> = {
+export const FormBox = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   gap: 2,
-  mt: 1,
-};
+  marginTop: 1,
+});
 
-export const textFieldStyles: SxProps<Theme> = {
+export const StyledTextField = styled(TextField)({
   '& .MuiInputLabel-root': {
     textTransform: 'capitalize',
   },
-};
+});
 
-export const dialogActionsStyles: SxProps<Theme> = {
-  px: 3,
-  pb: 2,
-};
+export const StyledDialogActions = styled(DialogActions)({
+  paddingLeft: 3,
+  paddingRight: 3,
+  paddingBottom: 2,
+});

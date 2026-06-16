@@ -1,3 +1,5 @@
+import { styled } from '@mui/material/styles';
+import { Chip } from '@mui/material';
 import { themeConfig } from '@/theme/themeConfig';
 import { ReconStatus, SystemStatus } from '@/constants/statuses';
 
@@ -25,3 +27,14 @@ export const statusColorMap: Record<string, { bg: string; text: string }> = {
   stable: themeConfig.status[SystemStatus.STABLE],
   critical: themeConfig.status[SystemStatus.CRITICAL],
 };
+
+export const StyledChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== 'customBg' && prop !== 'customColor',
+})<{ customBg: string; customColor: string }>(({ customBg, customColor, size }) => ({
+  backgroundColor: customBg,
+  color: customColor,
+  fontWeight: 600,
+  fontSize: '0.7rem',
+  height: size === 'small' ? 24 : 28,
+  borderRadius: '4px',
+}));

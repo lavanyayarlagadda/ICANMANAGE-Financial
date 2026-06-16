@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  ToggleButtonGroup,
-  ToggleButton,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
+import { Card, CardContent, ToggleButtonGroup, useTheme, useMediaQuery } from '@mui/material';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import {
@@ -26,7 +17,7 @@ import {
   LabelList,
 } from 'recharts';
 import { useTrendChart } from './TrendChart.hook';
-import * as styles from './TrendChart.styles';
+import { HeaderBox, ChartTitle, StyledToggleButton } from './TrendChart.styles';
 
 interface TrendChartProps<T extends Record<string, unknown>> {
   title: string;
@@ -78,24 +69,22 @@ function TrendChart<T extends Record<string, unknown>>({
   return (
     <Card>
       <CardContent>
-        <Box sx={styles.headerBoxStyles}>
-          <Typography variant="subtitle2" sx={styles.titleStyles}>
-            {title}
-          </Typography>
+        <HeaderBox>
+          <ChartTitle variant="subtitle2">{title}</ChartTitle>
           <ToggleButtonGroup
             value={chartType}
             exclusive
             onChange={handleChartTypeChange}
             size="small"
           >
-            <ToggleButton value="bar" sx={styles.toggleButtonStyles}>
+            <StyledToggleButton value="bar">
               <BarChartIcon fontSize="small" />
-            </ToggleButton>
-            <ToggleButton value="line" sx={styles.toggleButtonStyles}>
+            </StyledToggleButton>
+            <StyledToggleButton value="line">
               <ShowChartIcon fontSize="small" />
-            </ToggleButton>
+            </StyledToggleButton>
           </ToggleButtonGroup>
-        </Box>
+        </HeaderBox>
         <ResponsiveContainer width="100%" height={height}>
           {chartType === 'bar' ? (
             <BarChart data={data} barCategoryGap="20%">

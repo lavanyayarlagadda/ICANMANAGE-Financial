@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Typography, Chip, Grid, Box, useTheme } from '@mui/material';
+import { Grid } from '@mui/material';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -8,7 +8,18 @@ import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { CollectionAccount } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { ScreenWrapper, HeaderBox, priorityColors } from './CollectionsScreen.styles';
+import {
+  ScreenWrapper,
+  HeaderBox,
+  HeaderTitle,
+  AccountNumberText,
+  MonospaceBox,
+  CollectedAmountBox,
+  BalanceText,
+  AgingChip,
+  PriorityChip,
+  gridContainerStyles,
+} from './CollectionsScreen.styles';
 import { useCollectionsScreen } from './CollectionsScreen.hook';
 
 const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -28,7 +39,6 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     isFetching,
     // isError,
   } = useCollectionsScreen({ skip });
-  const theme = useTheme();
 
   const columns = useMemo<DataColumn<CollectionAccount>[]>(
     () => [
@@ -50,11 +60,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 140,
         align: 'center',
         accessor: (r) => r.accountNumber,
-        render: (r) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {r.accountNumber}
-          </Typography>
-        ),
+        render: (r) => <AccountNumberText variant="body2">{r.accountNumber}</AccountNumberText>,
       },
       {
         id: 'patientName',
@@ -77,7 +83,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 110,
         align: 'center',
         accessor: (r) => r.totalDue,
-        render: (r) => <Box sx={{ fontFamily: 'monospace' }}>{formatCurrency(r.totalDue)}</Box>,
+        render: (r) => <MonospaceBox>{formatCurrency(r.totalDue)}</MonospaceBox>,
       },
       {
         id: 'amountCollected',
@@ -85,11 +91,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 110,
         align: 'center',
         accessor: (r) => r.amountCollected,
-        render: (r) => (
-          <Box sx={{ fontFamily: 'monospace', color: 'success.main' }}>
-            {formatCurrency(r.amountCollected)}
-          </Box>
-        ),
+        render: (r) => <CollectedAmountBox>{formatCurrency(r.amountCollected)}</CollectedAmountBox>,
       },
       {
         id: 'balance',
@@ -98,16 +100,9 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (r) => r.balance,
         render: (r) => (
-          <Typography
-            variant="body2"
-            sx={{
-              fontFamily: 'monospace',
-              fontWeight: 600,
-              color: r.balance > 0 ? theme.palette.error.main : theme.palette.success.main,
-            }}
-          >
+          <BalanceText variant="body2" balance={r.balance}>
             {formatCurrency(r.balance)}
-          </Typography>
+          </BalanceText>
         ),
       },
       {
@@ -132,11 +127,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         accessor: (r) => r.aging,
         filterOptions: ['0-30', '31-60', '61-90', '91-120', '120+', 'N/A'],
         render: (r) =>
-          r.aging !== 'N/A' ? (
-            <Chip label={r.aging} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
-          ) : (
-            '–'
-          ),
+          r.aging !== 'N/A' ? <AgingChip label={r.aging} size="small" variant="outlined" /> : '–',
       },
       {
         id: 'priority',
@@ -144,21 +135,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 90,
         accessor: (r) => r.priority,
         filterOptions: ['High', 'Medium', 'Low'],
-        render: (r) => {
-          const colors = priorityColors[r.priority];
-          return (
-            <Chip
-              label={r.priority}
-              size="small"
-              sx={{
-                backgroundColor: colors.bg,
-                color: colors.text,
-                fontWeight: 600,
-                fontSize: '0.7rem',
-              }}
-            />
-          );
-        },
+        render: (r) => <PriorityChip label={r.priority} size="small" priority={r.priority} />,
       },
       {
         id: 'status',
@@ -169,18 +146,16 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         render: (r) => <StatusBadge status={r.status} />,
       },
     ],
-    [handleView, handleEdit, handleDelete, theme],
+    [handleView, handleEdit, handleDelete],
   );
 
   return (
     <ScreenWrapper>
       <HeaderBox>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          Collections
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <HeaderTitle variant="h5">Collections</HeaderTitle>
+        <HeaderTitle variant="body2" color="text.secondary">
           Manage collection accounts, track balances, and monitor recovery efforts.
-        </Typography>
+        </HeaderTitle>
       </HeaderBox>
 
       {/* {isError && (
@@ -189,7 +164,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Alert>
             )} */}
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={2} sx={gridContainerStyles}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <SummaryCard
             title="Total Due"

@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, TextField } from '@mui/material';
+import { Box, Typography, TextField, SxProps, Theme } from '@mui/material';
 
 export const ScreenWrapper = styled(Box)(() => ({
   // padding handled by parent
@@ -9,6 +9,10 @@ export const HeaderSection = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
 }));
 
+export const HeaderTitle = styled(Typography)(() => ({
+  fontWeight: 700,
+}));
+
 export const PatientNameText = styled(Typography)(({ theme }) => ({
   color: theme.palette.primary.main,
   fontWeight: 500,
@@ -16,6 +20,11 @@ export const PatientNameText = styled(Typography)(({ theme }) => ({
 }));
 
 export const BoldAmount = styled(Typography)(() => ({
+  fontWeight: 600,
+}));
+
+export const MonospaceText = styled(Typography)(() => ({
+  fontFamily: 'monospace',
   fontWeight: 600,
 }));
 
@@ -51,3 +60,26 @@ export const SearchField = styled(TextField)(({ theme }) => ({
     fontSize: '13px',
   },
 }));
+
+export const summaryGridStyles: SxProps<Theme> = {
+  mb: 4,
+};
+
+export const searchWrapperStyles: SxProps<Theme> = {
+  display: 'flex',
+  gap: 1,
+  alignItems: 'center',
+};
+
+export const searchIconStyles: SxProps<Theme> = {
+  fontSize: 18,
+  color: 'primary.main',
+};
+
+export const searchButtonStyles: SxProps<Theme> = {
+  height: '36px',
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontWeight: 600,
+  px: 2,
+};

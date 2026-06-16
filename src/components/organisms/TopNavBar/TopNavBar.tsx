@@ -1,18 +1,13 @@
 import React from 'react';
 import {
-  AppBar,
-  Toolbar,
   Box,
   Typography,
   IconButton,
-  Avatar,
   useTheme,
   useMediaQuery,
-  Menu,
   MenuItem,
   ListItemIcon,
   Divider,
-  TextField,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -21,7 +16,24 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import Logo from '@/components/atoms/Logo/Logo';
 import DemoSecurityModal from '../DemoSecurityModal/DemoSecurityModal';
 import { useTopNavBar } from './TopNavBar.hook';
-import * as styles from './TopNavBar.styles';
+import {
+  StyledAppBar,
+  StyledToolbar,
+  LeftSectionBox,
+  RightSectionBox,
+  TenantSelectBox,
+  StyledTenantSelect,
+  UserProfileBox,
+  StyledAvatar,
+  UserNameTypography,
+  UserCompanyTypography,
+  StyledMenu,
+  MenuHeaderBox,
+  MenuHeaderNameTypography,
+  StyledMenuItem,
+  MenuSectionHeaderBox,
+  MenuSectionTitleTypography,
+} from './TopNavBar.styles';
 
 interface TopNavBarProps {
   onMenuToggle: () => void;
@@ -55,9 +67,9 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
 
   return (
     <>
-      <AppBar position="fixed" sx={styles.appBarStyles(theme)}>
-        <Toolbar sx={styles.toolbarStyles}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pointerEvents: 'auto' }}>
+      <StyledAppBar position="fixed">
+        <StyledToolbar>
+          <LeftSectionBox>
             <IconButton
               onClick={isMobile ? handleSidebarToggle : handleSidebarCollapse}
               size="small"
@@ -65,28 +77,20 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
               <MenuIcon />
             </IconButton>
             <Logo collapsed={isMobile} />
-          </Box>
+          </LeftSectionBox>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
+          <RightSectionBox>
             {isCognitiveUser && (
-              <Box
-                sx={{
-                  minWidth: { xs: 60, sm: 160 },
-                  maxWidth: { xs: 100, sm: 'none' },
-                  ml: { xs: 0.5, sm: 2 },
-                  pointerEvents: 'auto',
-                }}
-              >
-                <TextField
+              <TenantSelectBox>
+                <StyledTenantSelect
                   select
                   fullWidth
                   size="small"
                   value={
                     tenants?.some((t) => t.tenantId === selectedTenantId) ? selectedTenantId : ''
                   }
-                  onChange={handleTenantChange}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleTenantChange(e)}
                   disabled={isTenantsLoading}
-                  sx={styles.tenantSelectStyles(theme)}
                 >
                   {tenants?.map((t) => (
                     <MenuItem key={t.tenantId} value={t.tenantId}>
@@ -94,86 +98,77 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                     </MenuItem>
                   ))}
                   {isTenantsLoading && <MenuItem disabled>Loading...</MenuItem>}
-                </TextField>
-              </Box>
+                </StyledTenantSelect>
+              </TenantSelectBox>
             )}
-            <Box sx={styles.userProfileBoxStyles(theme)} onClick={handleClick}>
-              <Avatar
-                src="/avatar-placeholder.png"
-                sx={{
-                  width: 36,
-                  height: 36,
-                  bgcolor: theme.palette.primary.main,
-                  fontSize: '0.9rem',
-                }}
-              >
+            <UserProfileBox onClick={handleClick}>
+              <StyledAvatar src="/avatar-placeholder.png">
                 {(user.firstName?.[0] || user.username?.[0] || 'U').toUpperCase()}
                 {(user.lastName?.[0] || '').toUpperCase()}
-              </Avatar>
+              </StyledAvatar>
               {!isMobile && (
                 <Box>
-                  <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                  <UserNameTypography variant="body2">
                     {user.firstName || user.username || 'User'} {user.lastName || ''}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ lineHeight: 1 }}>
+                  </UserNameTypography>
+                  <UserCompanyTypography variant="caption" color="text.secondary">
                     {user.company}
-                  </Typography>
+                  </UserCompanyTypography>
                 </Box>
               )}
-            </Box>
-            <Menu
+            </UserProfileBox>
+            <StyledMenu
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
               transformOrigin={{ horizontal: 'right', vertical: 'top' }}
               anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-              slotProps={{ paper: { sx: styles.menuPaperStyles } }}
             >
-              <Box sx={{ px: 2, py: 1.5 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              <MenuHeaderBox>
+                <MenuHeaderNameTypography variant="subtitle2">
                   {user.firstName || user.username || 'User'} {user.lastName || ''}
-                </Typography>
+                </MenuHeaderNameTypography>
                 <Typography variant="body2" color="primary">
                   {user.email}
                 </Typography>
-              </Box>
+              </MenuHeaderBox>
               <Divider />
 
-              <MenuItem onClick={openProfile} sx={{ py: 1.5 }}>
+              <StyledMenuItem onClick={openProfile}>
                 <ListItemIcon>
                   <LockOutlinedIcon fontSize="small" />
                 </ListItemIcon>
                 <Typography variant="body2">Profile & Password</Typography>
-              </MenuItem>
+              </StyledMenuItem>
               {user.role === 'Admin' && (
                 <>
                   <Divider />
-                  <Box sx={{ px: 2, py: 1 }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  <MenuSectionHeaderBox>
+                    <MenuSectionTitleTypography variant="caption" color="text.secondary">
                       Application Settings
-                    </Typography>
-                  </Box>
-                  <MenuItem onClick={openDemoModal} sx={{ py: 1.5 }}>
+                    </MenuSectionTitleTypography>
+                  </MenuSectionHeaderBox>
+                  <StyledMenuItem onClick={openDemoModal}>
                     <ListItemIcon>
                       <SettingsOutlinedIcon fontSize="small" />
                     </ListItemIcon>
                     <Typography variant="body2">Demo & Security</Typography>
-                  </MenuItem>
+                  </StyledMenuItem>
                 </>
               )}
 
               <Divider />
 
-              <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
+              <StyledMenuItem onClick={handleLogout}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
                 </ListItemIcon>
                 <Typography variant="body2">Log out</Typography>
-              </MenuItem>
-            </Menu>
-          </Box>
-        </Toolbar>
-      </AppBar>
+              </StyledMenuItem>
+            </StyledMenu>
+          </RightSectionBox>
+        </StyledToolbar>
+      </StyledAppBar>
 
       <DemoSecurityModal
         open={demoModalOpen}

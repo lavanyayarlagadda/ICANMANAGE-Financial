@@ -1,6 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline, CircularProgress, Typography } from '@mui/material';
+import { CssBaseline, CircularProgress } from '@mui/material';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -17,6 +17,7 @@ import { NAV_CONFIG } from '@/config/navigation';
 import { useAppSelector } from '@/store';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { GlobalOverlay } from './components/templates/DashboardLayout/DashboardLayout.styles';
+import { LoadingText } from './App.styles';
 
 const FinancialsPage = lazy(() => import('@/pages/Financials/FinancialsPage'));
 const LoginPage = lazy(() => import('@/pages/Login/LoginPage'));
@@ -28,9 +29,9 @@ const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 const LoadingFallback = () => (
   <GlobalOverlay>
     <CircularProgress size={60} thickness={4} />
-    <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8 }}>
+    <LoadingText variant="body2" color="text.secondary">
       Loading your data...
-    </Typography>
+    </LoadingText>
   </GlobalOverlay>
 );
 

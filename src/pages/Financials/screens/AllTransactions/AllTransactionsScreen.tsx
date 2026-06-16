@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Chip, Typography, useTheme, InputAdornment, Button } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, InputAdornment } from '@mui/material';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -8,8 +7,16 @@ import StatusBadge from '@/components/atoms/StatusBadge/StatusBadge';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { AllTransaction } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { themeConfig } from '@/theme/themeConfig';
-import { transactionTypeColors, ToolbarWrapper, SearchField } from './AllTransactionsScreen.styles';
+import {
+  ToolbarWrapper,
+  SearchField,
+  AmountText,
+  CategoryChip,
+  TransactionNoText,
+  SearchContainer,
+  StyledSearchIcon,
+  SearchButton,
+} from './AllTransactionsScreen.styles';
 import { useAllTransactionsScreen } from './AllTransactionsScreen.hook';
 
 const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -37,7 +44,6 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
     setSearchTerm,
     onSearch,
   } = useAllTransactionsScreen({ skip });
-  const theme = useTheme();
 
   const columns = useMemo<DataColumn<AllTransaction>[]>(
     () => [
@@ -62,9 +68,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         disableHiding: true,
         accessor: (r) => r.transactionNo ?? '-',
         render: (r) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {r.transactionNo ?? '-'}
-          </Typography>
+          <TransactionNoText variant="body2">{r.transactionNo ?? '-'}</TransactionNoText>
         ),
       },
       {
@@ -76,24 +80,13 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         filterOptions: categoryOptions,
         isFilterLoading: filterOptionsLoading,
         filterError: filterOptionsError,
-        render: (r) => {
-          const colors = transactionTypeColors[r.category] || {
-            bg: themeConfig.colors.slate[100],
-            text: themeConfig.colors.slate[600],
-          };
-          return (
-            <Chip
-              label={(r.category ?? '').replace('_', ' ')}
-              size="small"
-              sx={{
-                backgroundColor: colors.bg,
-                color: colors.text,
-                fontWeight: 600,
-                fontSize: '0.7rem',
-              }}
-            />
-          );
-        },
+        render: (r) => (
+          <CategoryChip
+            label={(r.category ?? '').replace('_', ' ')}
+            size="small"
+            category={r.category ?? ''}
+          />
+        ),
       },
       {
         id: 'type',
@@ -123,16 +116,9 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         align: 'center',
         accessor: (r) => r.amount,
         render: (r) => (
-          <Typography
-            variant="body2"
-            sx={{
-              fontFamily: 'monospace',
-              fontWeight: 600,
-              color: r.amount < 0 ? theme.palette.error.main : theme.palette.text.primary,
-            }}
-          >
+          <AmountText variant="body2" amount={r.amount}>
             {formatCurrency(r.amount)}
-          </Typography>
+          </AmountText>
         ),
       },
       {
@@ -149,8 +135,6 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
       },
     ],
     [
-      theme.palette.error.main,
-      theme.palette.text.primary,
       statusOptions,
       payerOptions,
       transactionTypeOptions,
@@ -172,7 +156,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             )} */}
 
       <ToolbarWrapper>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <SearchContainer>
           <SearchField
             size="small"
             placeholder="Search by Transaction #"
@@ -182,27 +166,20 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  <StyledSearchIcon />
                 </InputAdornment>
               ),
             }}
           />
-          <Button
+          <SearchButton
             variant="contained"
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={{
-              height: '36px',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2,
-            }}
           >
             Search
-          </Button>
-        </Box>
+          </SearchButton>
+        </SearchContainer>
       </ToolbarWrapper>
 
       <DataTable

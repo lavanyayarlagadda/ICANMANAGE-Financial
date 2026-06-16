@@ -49,3 +49,30 @@ export const SearchField = styled(TextField)(({ theme }) => ({
     fontSize: '13px',
   },
 }));
+
+export const pageContainerStyles: SxProps<Theme> = {
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  height: '100%',
+  minHeight: 0,
+};
+
+export const searchWrapperStyles: SxProps<Theme> = {
+  display: 'flex',
+  gap: 1,
+  alignItems: 'center',
+};
+
+export const searchIconStyles: SxProps<Theme> = {
+  fontSize: 18,
+  color: 'primary.main',
+};
+
+export const searchButtonStyles: SxProps<Theme> = {
+  height: '36px',
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontWeight: 600,
+  px: 2,
+};

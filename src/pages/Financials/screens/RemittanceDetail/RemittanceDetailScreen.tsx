@@ -23,6 +23,19 @@ import {
   PatientNameHeader,
   StyledListItemButton,
   StyledAvatar,
+  MonospaceAmount,
+  headerWrapperStyles,
+  refreshWrapperStyles,
+  refreshTextStyles,
+  claimsSectionWrapperStyles,
+  claimsHeaderStyles,
+  boldTextStyles,
+  paperStyles,
+  paginationWrapperStyles,
+  providerTextStyles,
+  serviceLinesHeaderStyles,
+  loadingBadgeStyles,
+  loadingTextStyles,
 } from './RemittanceDetailScreen.styles';
 import { useRemittanceDetailScreen } from './RemittanceDetailScreen.hook';
 
@@ -93,9 +106,7 @@ const RemittanceDetailScreen: React.FC = () => {
         label: 'CHARGE',
         align: 'center',
         render: (r) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-            {formatCurrency(r.charge)}
-          </Typography>
+          <MonospaceAmount variant="body2">{formatCurrency(r.charge)}</MonospaceAmount>
         ),
         accessor: (r) => r.charge,
       },
@@ -104,9 +115,7 @@ const RemittanceDetailScreen: React.FC = () => {
         label: 'ALLOWED',
         align: 'center',
         render: (r) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-            {formatCurrency(r.allowed)}
-          </Typography>
+          <MonospaceAmount variant="body2">{formatCurrency(r.allowed)}</MonospaceAmount>
         ),
         accessor: (r) => r.allowed,
       },
@@ -114,11 +123,7 @@ const RemittanceDetailScreen: React.FC = () => {
         id: 'paid',
         label: 'PAID',
         align: 'center',
-        render: (r) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-            {formatCurrency(r.paid)}
-          </Typography>
-        ),
+        render: (r) => <MonospaceAmount variant="body2">{formatCurrency(r.paid)}</MonospaceAmount>,
         accessor: (r) => r.paid,
       },
       {
@@ -126,9 +131,7 @@ const RemittanceDetailScreen: React.FC = () => {
         label: 'ADJ AMT',
         align: 'center',
         render: (r) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-            {formatCurrency(r.adjAmt)}
-          </Typography>
+          <MonospaceAmount variant="body2">{formatCurrency(r.adjAmt)}</MonospaceAmount>
         ),
         accessor: (r) => r.adjAmt,
       },
@@ -144,11 +147,11 @@ const RemittanceDetailScreen: React.FC = () => {
 
   return (
     <ScreenWrapper>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box sx={headerWrapperStyles}>
         <SectionHeader variant="h6">Remittance Detail (Claims)</SectionHeader>
         {isClaimsFetching && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography variant="caption" sx={{ fontWeight: 600, color: 'primary.main' }}>
+          <Box sx={refreshWrapperStyles}>
+            <Typography variant="caption" sx={refreshTextStyles}>
               Refreshing Claims...
             </Typography>
             <CircularProgress size={16} thickness={5} />
@@ -160,16 +163,14 @@ const RemittanceDetailScreen: React.FC = () => {
       </PatientNameHeader>
 
       {claims && (
-        <Box sx={{ mb: 3 }}>
-          <Box
-            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}
-          >
-            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+        <Box sx={claimsSectionWrapperStyles}>
+          <Box sx={claimsHeaderStyles}>
+            <Typography variant="subtitle2" sx={boldTextStyles}>
               Affected Claims in this Transaction
             </Typography>
             {/* We could add a mini pagination here if total claims > size */}
           </Box>
-          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Paper variant="outlined" sx={paperStyles}>
             <List disablePadding>
               {claims.map((claim: RemittanceDetail, idx: number) => (
                 <StyledListItemButton
@@ -192,15 +193,7 @@ const RemittanceDetailScreen: React.FC = () => {
               ))}
             </List>
             {totalClaims > 3 && (
-              <Box
-                sx={{
-                  p: 1,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  borderTop: '1px solid',
-                  borderColor: 'divider',
-                }}
-              >
+              <Box sx={paginationWrapperStyles}>
                 <Pagination
                   size="small"
                   count={Math.ceil(totalClaims / 3)}
@@ -254,38 +247,20 @@ const RemittanceDetailScreen: React.FC = () => {
             },
           ]}
           footer={
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            <Typography variant="body2" sx={providerTextStyles}>
               Provider: {detail.providerName || 'N/A'}
             </Typography>
           }
         />
       )}
 
-      <Box
-        sx={{
-          mt: 4,
-          mb: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+      <Box sx={serviceLinesHeaderStyles}>
+        <Typography variant="subtitle1" sx={boldTextStyles}>
           Service Line Details
         </Typography>
         {(isSlFetching || isSlLoading) && (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-              bgcolor: theme.palette.action.hover,
-              px: 1.5,
-              py: 0.5,
-              borderRadius: 1,
-            }}
-          >
-            <Typography variant="caption" sx={{ fontWeight: 700, color: 'primary.main' }}>
+          <Box sx={loadingBadgeStyles(theme.palette.action.hover)}>
+            <Typography variant="caption" sx={loadingTextStyles}>
               LOADING DETAILS
             </Typography>
             <CircularProgress size={14} thickness={6} />

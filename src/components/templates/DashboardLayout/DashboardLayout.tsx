@@ -1,16 +1,10 @@
 import React from 'react';
 import {
-  Box,
   CssBaseline,
-  Toolbar,
   useTheme,
   useMediaQuery,
-  Drawer,
   List,
-  ListItemButton,
-  ListItemIcon,
   ListItemText,
-  Typography,
   Tooltip,
   CircularProgress,
 } from '@mui/material';
@@ -25,7 +19,18 @@ import {
   MainContentWrapper,
   ContentArea,
   GlobalOverlay,
-  NavItemStyles,
+  DrawerContentWrapper,
+  StyledListItemButton,
+  StyledListItemIcon,
+  ErrorIconTypography,
+  ErrorTitleTypography,
+  ErrorDescTypography,
+  LoadingTitleTypography,
+  LoadingDescTypography,
+  LoadingWaitTypography,
+  PermanentDrawer,
+  TemporaryDrawer,
+  EmptyToolbar,
 } from './DashboardLayout.styles';
 import { useDashboardLayout } from './DashboardLayout.hook';
 
@@ -57,7 +62,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const drawerWidth = sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
 
   const drawerContent = (
-    <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', pointerEvents: 'none' }}>
+    <DrawerContentWrapper>
       {sidebar.map((item) => {
         const config = NAV_CONFIG[item.label];
         const Icon = config?.icon || AccountBalanceIcon;
@@ -78,38 +83,29 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               placement="right"
               arrow
             >
-              <ListItemButton
+              <StyledListItemButton
+                sidebarCollapsed={sidebarCollapsed}
                 disabled={status === 'Disabled'}
                 selected={ui.activePage === item.label.toLowerCase()}
                 onClick={() =>
                   status !== 'Disabled' && handleNavClick(item.label.toLowerCase(), item.path)
                 }
-                sx={{
-                  ...NavItemStyles(sidebarCollapsed, theme),
-                  pointerEvents: 'auto',
-                  '&.Mui-disabled': {
-                    opacity: 0.5,
-                    cursor: 'not-allowed',
-                  },
-                }}
               >
-                <ListItemIcon
-                  sx={{ minWidth: sidebarCollapsed ? 0 : 36, justifyContent: 'center' }}
-                >
+                <StyledListItemIcon sidebarCollapsed={sidebarCollapsed}>
                   <Icon fontSize="small" />
-                </ListItemIcon>
+                </StyledListItemIcon>
                 {!sidebarCollapsed && (
                   <ListItemText
                     primary={item.label}
                     primaryTypographyProps={{ variant: 'body2', fontWeight: 600 }}
                   />
                 )}
-              </ListItemButton>
+              </StyledListItemButton>
             </Tooltip>
           </List>
         );
       })}
-    </Box>
+    </DrawerContentWrapper>
   );
 
   return (
@@ -119,25 +115,21 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <GlobalOverlay>
           {hasInitError ? (
             <>
-              <Typography variant="h4" color="error" sx={{ mb: 2 }}>
+              <ErrorIconTypography variant="h4" color="error">
                 ⚠️
-              </Typography>
-              <Typography variant="h6" color="error" sx={{ fontWeight: 600 }}>
+              </ErrorIconTypography>
+              <ErrorTitleTypography variant="h6" color="error">
                 Initialization Failed
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ opacity: 0.8, mt: 1, maxWidth: 400, textAlign: 'center' }}
-              >
+              </ErrorTitleTypography>
+              <ErrorDescTypography variant="body2" color="text.secondary">
                 We could not load your user permissions or organization details. Please refresh the
                 page or try logging out and back in.
-              </Typography>
+              </ErrorDescTypography>
             </>
           ) : (
             <>
               <CircularProgress size={60} thickness={4} />
-              <Typography variant="h6" color="primary" sx={{ fontWeight: 600, mt: 2 }}>
+              <LoadingTitleTypography variant="h6" color="primary">
                 {tenant.isLoading || isWaitingForTenants
                   ? 'Loading Your Organizations...'
                   : isLoadingDetails
@@ -151,21 +143,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                           : ui.isGlobalFetching || financials.loading
                             ? 'Fetching Records...'
                             : 'Configuring View...'}
-              </Typography>
+              </LoadingTitleTypography>
 
               {ui.activeExportType ? (
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ opacity: 0.8, mt: 1, maxWidth: 450, textAlign: 'center' }}
-                >
+                <LoadingDescTypography variant="body2" color="text.secondary">
                   Your report is being prepared. Due to the high volume of data, this may take a
                   moment. Your file will download automatically once ready.
-                </Typography>
+                </LoadingDescTypography>
               ) : (
-                <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.8, mt: 1 }}>
+                <LoadingWaitTypography variant="body2" color="text.secondary">
                   Please wait while we load your data securely...
-                </Typography>
+                </LoadingWaitTypography>
               )}
             </>
           )}
@@ -176,51 +164,22 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       <TopNavBar onMenuToggle={handleMenuToggle} />
 
       {!isMobile && (
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              borderRight: 'none',
-              backgroundColor: theme.palette.background.paper,
-              overflowX: 'hidden',
-              position: 'sticky',
-              top: 0,
-              height: '100vh',
-              pointerEvents: 'none',
-            },
-          }}
-        >
-          <Toolbar sx={{ pointerEvents: 'none' }} />
+        <PermanentDrawer variant="permanent" drawerWidth={drawerWidth}>
+          <EmptyToolbar />
           {drawerContent}
-        </Drawer>
+        </PermanentDrawer>
       )}
 
       {isMobile && (
-        <Drawer
-          variant="temporary"
-          open={mobileMenuOpen}
-          onClose={handleMobileMenuClose}
-          sx={{
-            '& .MuiDrawer-paper': {
-              width: DRAWER_WIDTH,
-              backgroundColor: theme.palette.background.paper,
-            },
-          }}
-        >
-          <Toolbar sx={{ pointerEvents: 'none' }} />
+        <TemporaryDrawer variant="temporary" open={mobileMenuOpen} onClose={handleMobileMenuClose}>
+          <EmptyToolbar />
           {drawerContent}
-        </Drawer>
+        </TemporaryDrawer>
       )}
 
-      <MainContentWrapper sx={{ pl: isMobile ? 0 : `${drawerWidth}px` }}>
-        <Toolbar sx={{ pointerEvents: 'none' }} />
-        <ContentArea component="main" sx={{ pb: 8, overflow: 'visible' }}>
-          {!isWaitingForTenants && children}
-        </ContentArea>
+      <MainContentWrapper drawerWidth={isMobile ? 0 : drawerWidth}>
+        <EmptyToolbar />
+        <ContentArea component="main">{!isWaitingForTenants && children}</ContentArea>
       </MainContentWrapper>
       <Footer />
     </PageWrapper>

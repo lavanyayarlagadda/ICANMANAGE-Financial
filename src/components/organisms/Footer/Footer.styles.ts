@@ -1,15 +1,20 @@
-import { SxProps, Theme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Box } from '@mui/material';
 import { themeConfig } from '@/theme/themeConfig';
 
-export const footerStyles = (theme: Theme): SxProps<Theme> => ({
-  py: 1.5,
-  px: 3,
+export const FooterContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'drawerWidth',
+})<{ drawerWidth: number; component?: React.ElementType }>(({ theme, drawerWidth }) => ({
+  paddingTop: theme.spacing(1.5),
+  paddingBottom: theme.spacing(1.5),
+  paddingRight: theme.spacing(3),
+  paddingLeft: `calc(${drawerWidth}px + ${theme.spacing(3)})`,
   borderTop: `1px solid ${theme.palette.divider}`,
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
   flexWrap: 'wrap',
-  gap: 1,
+  gap: theme.spacing(1),
   backgroundColor: themeConfig.colors.footerBg,
   flexShrink: 0,
   position: 'fixed',
@@ -19,4 +24,4 @@ export const footerStyles = (theme: Theme): SxProps<Theme> => ({
   zIndex: theme.zIndex.appBar,
   pointerEvents: 'none',
   '& > *': { pointerEvents: 'auto' },
-});
+}));

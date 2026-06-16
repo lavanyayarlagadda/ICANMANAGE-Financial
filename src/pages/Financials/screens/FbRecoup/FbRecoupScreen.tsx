@@ -23,39 +23,46 @@ import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import { themeConfig } from '@/theme/themeConfig';
 import { useFbRecoupScreen, useFbRecoupTable } from './FbRecoupScreen.hook';
-import * as styles from './FbRecoupScreen.styles';
+import {
+  filesSectionWrapper,
+  filesSectionTitle,
+  filesContainer,
+  filesHeaderGrid,
+  getFilesRowGridStyles,
+  flexCenter,
+  fileLinkText,
+  iconLeftMargin,
+  fontWeight500,
+  boldText,
+  getTypeChipStyles,
+  boldText500,
+  getAmountStyles,
+  getSuspenseBalanceStyles,
+  screenHeader,
+  screenHeaderTitle,
+  summaryGrid,
+  ToolbarWrapper,
+  searchWrapper,
+  SearchField,
+  searchIcon,
+  searchButton,
+  emptyEraBox,
+  filterFormControl,
+  filterIconButton,
+  filterInputProps,
+} from './FbRecoupScreen.styles';
 import { useTheme } from '@mui/material/styles';
 
 const AssociatedEraFilesSection: React.FC<{
   files: AssociatedEraFile[];
   isCareHospice: boolean;
 }> = ({ files }) => (
-  <Box sx={{ width: '75%' }}>
-    <Typography
-      variant="subtitle2"
-      sx={{ fontWeight: 700, mb: 1, color: 'text.primary', textAlign: 'left' }}
-    >
+  <Box sx={filesSectionWrapper}>
+    <Typography variant="subtitle2" sx={filesSectionTitle}>
       Associated ERA Files
     </Typography>
-    <Box
-      sx={{
-        border: `1px solid ${themeConfig.colors.divider}`,
-        borderRadius: '4px',
-        maxHeight: 250,
-        overflowY: 'auto',
-        overflowX: 'hidden',
-      }}
-    >
-      <Box
-        sx={{
-          ...styles.offsetGridStyles,
-          background: '#e4f0fa',
-          borderBottom: `1px solid ${themeConfig.colors.divider}`,
-          position: 'sticky',
-          top: 0,
-          zIndex: 1,
-        }}
-      >
+    <Box sx={filesContainer}>
+      <Box sx={filesHeaderGrid}>
         <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">
           TRANSACTION NO
         </Typography>
@@ -70,37 +77,20 @@ const AssociatedEraFilesSection: React.FC<{
         </Typography>
       </Box>
       {files.map((file, idx) => (
-        <Box
-          key={idx}
-          sx={{
-            ...styles.offsetGridStyles,
-            borderBottom:
-              idx === files.length - 1 ? 'none' : `1px solid ${themeConfig.colors.divider}`,
-            alignItems: 'center',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography
-              fontSize={13}
-              color="primary"
-              sx={{ fontWeight: 600, display: 'flex', alignItems: 'center' }}
-            >
-              <InsertDriveFileOutlinedIcon sx={{ fontSize: 16, mr: 0.5 }} />
+        <Box key={idx} sx={getFilesRowGridStyles(idx === files.length - 1)}>
+          <Box sx={flexCenter}>
+            <Typography fontSize={13} color="primary" sx={fileLinkText}>
+              <InsertDriveFileOutlinedIcon sx={iconLeftMargin} />
               {file.transactionNo}
             </Typography>
           </Box>
-          <Typography fontSize={13} sx={{ fontWeight: 500 }} textAlign="center">
+          <Typography fontSize={13} sx={fontWeight500} textAlign="center">
             {file.npi}
           </Typography>
-          <Typography fontSize={13} sx={{ fontWeight: 500 }} textAlign="center">
+          <Typography fontSize={13} sx={fontWeight500} textAlign="center">
             {formatDate(file.remitDate)}
           </Typography>
-          <Typography
-            fontSize={13}
-            textAlign="center"
-            color="text.primary"
-            sx={{ fontWeight: 500 }}
-          >
+          <Typography fontSize={13} textAlign="center" color="text.primary" sx={fontWeight500}>
             {formatCurrency(file.amount)}
           </Typography>
         </Box>
@@ -178,7 +168,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.date,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+          <Typography variant="body2" sx={boldText}>
             {formatDate(row.date)}
           </Typography>
         ),
@@ -189,7 +179,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.transactionNo,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+          <Typography variant="body2" sx={boldText}>
             {row.transactionNo}
           </Typography>
         ),
@@ -202,16 +192,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         render: (row) => {
           const colors = getTypeBadgeColors(row.type);
           return (
-            <Chip
-              label={row.type}
-              size="small"
-              sx={{
-                backgroundColor: colors.bg,
-                color: colors.text,
-                fontWeight: 700,
-                fontSize: '10px',
-              }}
-            />
+            <Chip label={row.type} size="small" sx={getTypeChipStyles(colors.bg, colors.text)} />
           );
         },
       },
@@ -221,7 +202,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.state,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          <Typography variant="body2" sx={boldText500}>
             {row.state}
           </Typography>
         ),
@@ -234,7 +215,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         accessor: (row) => row.payor,
         filterOptions: payerOptions,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          <Typography variant="body2" sx={boldText}>
             {row.payor}
           </Typography>
         ),
@@ -245,7 +226,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.npi,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          <Typography variant="body2" sx={boldText500}>
             {row.npi}
           </Typography>
         ),
@@ -256,7 +237,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.identifier,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          <Typography variant="body2" sx={boldText500}>
             {row.identifier || '-'}
           </Typography>
         ),
@@ -267,10 +248,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.amount,
         render: (row) => (
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 700, color: row.amount < 0 ? 'error.main' : 'text.primary' }}
-          >
+          <Typography variant="body2" sx={getAmountStyles(row.amount)}>
             {formatCurrency(row.amount)}
           </Typography>
         ),
@@ -281,13 +259,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.suspenseBalance,
         render: (row) => (
-          <Typography
-            variant="body2"
-            sx={{
-              fontWeight: 700,
-              color: row.suspenseBalance > 0 ? 'primary.main' : 'text.secondary',
-            }}
-          >
+          <Typography variant="body2" sx={getSuspenseBalanceStyles(row.suspenseBalance)}>
             {formatCurrency(row.suspenseBalance)}
           </Typography>
         ),
@@ -306,8 +278,8 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
   return (
     <Box>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+      <Box sx={screenHeader}>
+        <Typography variant="h5" sx={screenHeaderTitle}>
           FB & Recoup
         </Typography>
         <Typography variant="body2" color="text.secondary">
@@ -321,7 +293,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                 </Alert>
             )} */}
 
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      <Grid container spacing={2} sx={summaryGrid}>
         <Grid size={{ xs: 12, md: 4 }}>
           <SummaryCard
             title="TOTAL AMOUNT"
@@ -345,9 +317,9 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           />
         </Grid>
       </Grid>
-      <styles.ToolbarWrapper>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <styles.SearchField
+      <ToolbarWrapper>
+        <Box sx={searchWrapper}>
+          <SearchField
             size="small"
             placeholder="Search by Transaction #"
             value={searchTerm}
@@ -356,7 +328,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  <SearchIcon sx={searchIcon} />
                 </InputAdornment>
               ),
             }}
@@ -366,18 +338,12 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch()}
-            sx={{
-              height: '36px',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2,
-            }}
+            sx={searchButton}
           >
             Search
           </Button>
         </Box>
-      </styles.ToolbarWrapper>
+      </ToolbarWrapper>
 
       <DataTable
         columns={columns}
@@ -387,7 +353,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         expandedContent={(row) => {
           if (!row.associatedEraFiles || row.associatedEraFiles.length === 0) {
             return (
-              <Box sx={{ p: 2, textAlign: 'center' }}>
+              <Box sx={emptyEraBox}>
                 <Typography variant="body2" color="text.secondary">
                   No associated ERA files found.
                 </Typography>
@@ -419,7 +385,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         download={false}
         loading={isFetching}
         customFilterContent={
-          <FormControl size="small" sx={{ minWidth: 160, maxWidth: 200, flexShrink: 0 }}>
+          <FormControl size="small" sx={filterFormControl}>
             <TextField
               size="small"
               value={filterNpiPtan}
@@ -437,18 +403,13 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
                       size="small"
                       disabled={!filterNpiPtan}
                       onClick={() => applyFilters()}
-                      sx={{ p: '4px' }}
+                      sx={filterIconButton}
                     >
                       <SearchIcon fontSize="small" color={filterNpiPtan ? 'primary' : 'action'} />
                     </IconButton>
                   </InputAdornment>
                 ),
-                sx: {
-                  pr: '4px',
-                  '& .MuiOutlinedInput-input': {
-                    py: '8.5px',
-                  },
-                },
+                sx: filterInputProps,
               }}
             />
           </FormControl>

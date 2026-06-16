@@ -1,5 +1,6 @@
 import { styled } from '@mui/material/styles';
-import { Typography, TextField } from '@mui/material';
+import { Typography, TextField, Chip, Box, Button } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { themeConfig } from '@/theme/themeConfig';
 
 export const AmountText = styled(Typography)<{ amount: number }>(({ theme, amount }) => ({
@@ -47,3 +48,40 @@ export const SearchField = styled(TextField)(({ theme }) => ({
     fontSize: '13px',
   },
 }));
+
+export const CategoryChip = styled(Chip)<{ category: string }>(({ category }) => {
+  const colors = transactionTypeColors[category] || {
+    bg: themeConfig.colors.slate[100],
+    text: themeConfig.colors.slate[600],
+  };
+  return {
+    backgroundColor: colors.bg,
+    color: colors.text,
+    fontWeight: 600,
+    fontSize: '0.7rem',
+  };
+});
+
+export const TransactionNoText = styled(Typography)(() => ({
+  fontWeight: 600,
+}));
+
+export const SearchContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(1),
+  alignItems: 'center',
+}));
+
+export const StyledSearchIcon = styled(SearchIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: theme.palette.primary.main,
+}));
+
+export const SearchButton = styled(Button)({
+  height: '36px',
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontWeight: 600,
+  paddingLeft: '16px',
+  paddingRight: '16px',
+});

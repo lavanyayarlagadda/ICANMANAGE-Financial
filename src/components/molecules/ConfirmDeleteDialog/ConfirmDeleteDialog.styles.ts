@@ -1,10 +1,12 @@
-import { SxProps, Theme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { DialogTitle, DialogActions } from '@mui/material';
 
-export const dialogTitleStyles: SxProps<Theme> = {
+export const StyledDialogTitle = styled(DialogTitle)(() => ({
   fontWeight: 700,
-};
+}));
 
-export const dialogActionsStyles: SxProps<Theme> = {
-  px: 3,
-  pb: 2,
-};
+export const StyledDialogActions = styled(DialogActions)(({ theme }) => ({
+  paddingLeft: theme.spacing(3),
+  paddingRight: theme.spacing(3),
+  paddingBottom: theme.spacing(2),
+}));

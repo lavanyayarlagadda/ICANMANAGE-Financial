@@ -1,5 +1,4 @@
-import React, { useMemo } from 'react';
-import { Card, CardContent, Typography, Box, useTheme } from '@mui/material';
+import React from 'react';
 import * as styles from './KpiCard.styles';
 
 interface KpiCardProps {
@@ -17,40 +16,25 @@ const KpiCard: React.FC<KpiCardProps> = ({
   changeType = 'neutral',
   icon,
 }) => {
-  const theme = useTheme();
-
-  const changeColor = useMemo(() => {
-    switch (changeType) {
-      case 'positive':
-        return theme.palette.success.main;
-      case 'negative':
-        return theme.palette.error.main;
-      default:
-        return theme.palette.text.secondary;
-    }
-  }, [changeType, theme]);
-
   return (
-    <Card sx={styles.cardStyles}>
-      <CardContent sx={styles.cardContentStyles}>
-        <Box
-          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}
-        >
-          <Typography variant="caption" color="text.secondary" sx={styles.labelStyles}>
+    <styles.StyledCard>
+      <styles.StyledCardContent>
+        <styles.HeaderContainer>
+          <styles.LabelTypography variant="caption" color="text.secondary">
             {label}
-          </Typography>
-          {icon && <Box sx={{ color: theme.palette.primary.main, opacity: 0.7 }}>{icon}</Box>}
-        </Box>
-        <Typography variant="h4" color="text.primary" sx={styles.valueStyles}>
+          </styles.LabelTypography>
+          {icon && <styles.IconContainer>{icon}</styles.IconContainer>}
+        </styles.HeaderContainer>
+        <styles.ValueTypography variant="h4" color="text.primary">
           {value}
-        </Typography>
+        </styles.ValueTypography>
         {change && (
-          <Typography variant="caption" sx={{ color: changeColor, fontWeight: 500 }}>
+          <styles.ChangeTypography variant="caption" changeType={changeType}>
             {change}
-          </Typography>
+          </styles.ChangeTypography>
         )}
-      </CardContent>
-    </Card>
+      </styles.StyledCardContent>
+    </styles.StyledCard>
   );
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import pkg from '../../../package.json';
-import { Box, Typography, Link, IconButton, InputAdornment, Container, Alert } from '@mui/material';
+import { IconButton, InputAdornment, Link } from '@mui/material';
 import { Visibility, VisibilityOff, LockOutlined } from '@mui/icons-material';
 import {
   LoginBackground,
@@ -12,6 +12,14 @@ import {
   StyledTextField,
   SubmitButton,
   FooterText,
+  LoginContainer,
+  StyledAlert,
+  LoginForm,
+  InputLabel,
+  PasswordTextField,
+  ForgotPasswordWrapper,
+  TermsWrapper,
+  TermsLink,
 } from './LoginPage.styles';
 import { useLoginPage } from './LoginPage.hook';
 
@@ -31,7 +39,7 @@ const LoginPage = () => {
 
   return (
     <LoginBackground>
-      <Container maxWidth="sm" sx={{ display: 'flex', justifyContent: 'center' }}>
+      <LoginContainer maxWidth="sm">
         <LoginCard elevation={0}>
           <LogoImage src="/cognitiveLogo.svg" alt="CognitiveHealth Logo" />
 
@@ -39,20 +47,14 @@ const LoginPage = () => {
             iCAN Manage
           </LoginTitle>
 
-          <LoginSubtitle variant="body1" sx={{ mb: errorMsg ? 2 : 4 }}>
+          <LoginSubtitle variant="body1" hasError={!!errorMsg}>
             Enter your credentials to access your account.
           </LoginSubtitle>
 
-          {errorMsg && (
-            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
-              {errorMsg}
-            </Alert>
-          )}
+          {errorMsg && <StyledAlert severity="error">{errorMsg}</StyledAlert>}
 
-          <Box component="form" sx={{ width: '100%' }} noValidate onSubmit={handleLogin}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Username
-            </Typography>
+          <LoginForm component="form" noValidate onSubmit={handleLogin}>
+            <InputLabel variant="subtitle2">Username</InputLabel>
             <StyledTextField
               fullWidth
               variant="outlined"
@@ -61,10 +63,8 @@ const LoginPage = () => {
               onChange={(e) => setUsername(e.target.value)}
             />
 
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Password
-            </Typography>
-            <StyledTextField
+            <InputLabel variant="subtitle2">Password</InputLabel>
+            <PasswordTextField
               fullWidth
               autoComplete="current-password"
               type={showPassword ? 'text' : 'password'}
@@ -91,14 +91,9 @@ const LoginPage = () => {
                   </InputAdornment>
                 ),
               }}
-              sx={{
-                '& .MuiInputBase-input': {
-                  letterSpacing: '0.25em',
-                },
-              }}
             />
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1, mb: 2 }}>
+            <ForgotPasswordWrapper>
               <Link
                 component={RouterLink}
                 to="/forgot-password"
@@ -108,7 +103,7 @@ const LoginPage = () => {
               >
                 Forgot password?
               </Link>
-            </Box>
+            </ForgotPasswordWrapper>
 
             <SubmitButton
               fullWidth
@@ -120,29 +115,24 @@ const LoginPage = () => {
             >
               {isLoading ? 'Signing In...' : 'Sign In'}
             </SubmitButton>
-          </Box>
+          </LoginForm>
 
-          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 1 }}>
-            <Link
+          <TermsWrapper>
+            <TermsLink
               component={isLoading ? 'span' : RouterLink}
               to={isLoading ? '' : '/terms'}
               variant="caption"
               underline={isLoading ? 'none' : 'hover'}
-              sx={{
-                color: 'text.secondary',
-                cursor: isLoading ? 'default' : 'pointer',
-                pointerEvents: isLoading ? 'none' : 'auto',
-                opacity: isLoading ? 0.6 : 1,
-              }}
+              isLoading={isLoading}
             >
               Terms of Service
-            </Link>
-          </Box>
+            </TermsLink>
+          </TermsWrapper>
           <FooterText variant="caption">
             © {new Date().getFullYear()} CognitiveHealth LLC. | v{pkg.version}
           </FooterText>
         </LoginCard>
-      </Container>
+      </LoginContainer>
     </LoginBackground>
   );
 };

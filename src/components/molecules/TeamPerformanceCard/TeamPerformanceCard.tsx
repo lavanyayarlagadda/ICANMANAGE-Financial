@@ -1,8 +1,18 @@
 import React from 'react';
-import { Card, CardContent, Typography, Box, Divider, useTheme } from '@mui/material';
+import { Typography } from '@mui/material';
 import { TeamPerformance } from '@/interfaces/financials';
 import { formatPercent, formatCurrency } from '@/utils/formatters';
-import * as styles from './TeamPerformanceCard.styles';
+import {
+  MetricRowContainer,
+  MetricValue,
+  StyledCard,
+  StyledCardContent,
+  TeamName,
+  SectionHeader,
+  MetricsBox,
+  StyledDivider,
+  EfficiencyBox,
+} from './TeamPerformanceCard.styles';
 
 interface TeamPerformanceCardProps {
   team: TeamPerformance;
@@ -13,33 +23,26 @@ const MetricRow: React.FC<{ label: string; value: string; highlight?: boolean }>
   value,
   highlight,
 }) => {
-  const theme = useTheme();
   return (
-    <Box sx={styles.metricRowStyles}>
+    <MetricRowContainer>
       <Typography variant="caption" color="text.secondary">
         {label}
       </Typography>
-      <Typography variant="body2" sx={styles.metricValueStyles(!!highlight, theme)}>
+      <MetricValue variant="body2" highlight={highlight}>
         {value}
-      </Typography>
-    </Box>
+      </MetricValue>
+    </MetricRowContainer>
   );
 };
 
 const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ team }) => {
-  const theme = useTheme();
-
   return (
-    <Card sx={styles.cardStyles}>
-      <CardContent sx={styles.cardContentStyles}>
-        <Typography variant="subtitle1" sx={styles.teamNameStyles(theme)}>
-          {team.teamName}
-        </Typography>
+    <StyledCard>
+      <StyledCardContent>
+        <TeamName variant="subtitle1">{team.teamName}</TeamName>
 
-        <Typography variant="caption" sx={styles.sectionHeaderStyles(theme)}>
-          Volume Metrics
-        </Typography>
-        <Box sx={styles.metricsBoxStyles}>
+        <SectionHeader variant="caption">Volume Metrics</SectionHeader>
+        <MetricsBox>
           <MetricRow
             label="Recon Check %"
             value={formatPercent(team.reconCheckPercent)}
@@ -48,14 +51,12 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ team }) => {
           <MetricRow label="Unrecon Check %" value={formatPercent(team.unreconCheckPercent)} />
           <MetricRow label="Recon Check Count" value={String(team.reconCheckCount)} />
           <MetricRow label="Unrecon Check Count" value={String(team.unreconCheckCount)} />
-        </Box>
+        </MetricsBox>
 
-        <Divider sx={{ my: 1.5 }} />
+        <StyledDivider />
 
-        <Typography variant="caption" sx={styles.sectionHeaderStyles(theme)}>
-          Financial Metrics
-        </Typography>
-        <Box sx={styles.metricsBoxStyles}>
+        <SectionHeader variant="caption">Financial Metrics</SectionHeader>
+        <MetricsBox>
           <MetricRow
             label="Recon Amount %"
             value={formatPercent(team.reconAmountPercent)}
@@ -64,22 +65,20 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ team }) => {
           <MetricRow label="Unrecon Amount %" value={formatPercent(team.unreconAmountPercent)} />
           <MetricRow label="Total Posted" value={formatCurrency(team.totalAmountPosted)} />
           <MetricRow label="Not Posted" value={formatCurrency(team.totalAmountNotPosted)} />
-        </Box>
+        </MetricsBox>
 
-        <Divider sx={{ my: 1.5 }} />
+        <StyledDivider />
 
-        <Typography variant="caption" sx={styles.sectionHeaderStyles(theme)}>
-          Efficiency
-        </Typography>
-        <Box sx={{ mt: 1 }}>
+        <SectionHeader variant="caption">Efficiency</SectionHeader>
+        <EfficiencyBox>
           <MetricRow
             label="Avg. Days to Reconcile"
             value={`${team.avgDaysToReconcile} days`}
             highlight
           />
-        </Box>
-      </CardContent>
-    </Card>
+        </EfficiencyBox>
+      </StyledCardContent>
+    </StyledCard>
   );
 };
 

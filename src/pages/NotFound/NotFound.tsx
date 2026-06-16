@@ -1,6 +1,6 @@
 import React from 'react';
-import { Typography, Button } from '@mui/material';
-import { NotFoundWrapper, ContentBox } from './NotFound.styles';
+import { Button } from '@mui/material';
+import { NotFoundWrapper, ContentBox, TitleText, Subtext } from './NotFound.styles';
 import { useNotFound } from './NotFound.hook';
 
 const NotFound: React.FC = () => {
@@ -9,12 +9,10 @@ const NotFound: React.FC = () => {
   return (
     <NotFoundWrapper>
       <ContentBox>
-        <Typography variant="h1" sx={{ fontWeight: 800, color: 'text.primary', mb: 2 }}>
-          404
-        </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
+        <TitleText variant="h1">404</TitleText>
+        <Subtext variant="h6" color="text.secondary">
           Oops! Page not found at {path}
-        </Typography>
+        </Subtext>
         <Button variant="contained" href="/">
           Return to Home
         </Button>

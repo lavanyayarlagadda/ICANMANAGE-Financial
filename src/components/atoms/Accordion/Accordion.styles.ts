@@ -1,24 +1,40 @@
-import { SxProps, Theme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import {
+  Accordion as MuiAccordion,
+  AccordionSummary as MuiAccordionSummary,
+  AccordionDetails as MuiAccordionDetails,
+  Typography,
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { themeConfig } from '@/theme/themeConfig';
 
-export const accordionStyles = (hideBorderTop: boolean): SxProps<Theme> => ({
+export const StyledAccordion = styled(MuiAccordion, {
+  shouldForwardProp: (prop) => prop !== 'hideBorderTop',
+})<{ hideBorderTop?: boolean }>(({ hideBorderTop }) => ({
   borderTop: hideBorderTop ? 'none' : `1px solid ${themeConfig.colors.border}`,
   '&:before': { display: 'none' },
-});
+}));
 
-export const summaryStyles: SxProps<Theme> = {
+export const StyledAccordionSummary = styled(MuiAccordionSummary)(() => ({
   backgroundColor: themeConfig.colors.surfaceSubtle,
   flexDirection: 'row-reverse',
-  gap: 1,
+  gap: '8px', // gap: 1
   minHeight: 48,
-  '& .MuiAccordionSummary-content': { my: 1 },
-};
+  '& .MuiAccordionSummary-content': {
+    marginTop: '8px', // my: 1
+    marginBottom: '8px',
+  },
+}));
 
-export const typographyStyles: SxProps<Theme> = {
+export const StyledExpandMoreIcon = styled(ExpandMoreIcon)(() => ({
+  color: themeConfig.colors.primary,
+}));
+
+export const SummaryTypography = styled(Typography)(() => ({
   fontSize: '0.9rem',
   color: themeConfig.colors.text.secondary,
-};
+}));
 
-export const detailsStyles: SxProps<Theme> = {
-  p: 0,
-};
+export const StyledAccordionDetails = styled(MuiAccordionDetails)(() => ({
+  padding: 0,
+}));

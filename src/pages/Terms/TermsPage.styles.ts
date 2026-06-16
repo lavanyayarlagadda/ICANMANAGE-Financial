@@ -58,3 +58,41 @@ export const BackButton = styled(Button)<ButtonProps>(({ theme }) => ({
     color: theme.palette.primary.main,
   },
 }));
+
+export const PageWrapper = styled(Box)(({ theme }) => ({
+  paddingTop: theme.spacing(6),
+  paddingBottom: theme.spacing(6),
+}));
+
+export const TermsTitle = styled(Typography)<TypographyProps>({
+  fontWeight: 800,
+});
+
+export const IntroText = styled(SectionText)<TypographyProps>(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+  fontStyle: 'italic',
+  fontSize: '1.1rem',
+  color: theme.palette.text.primary,
+}));
+
+export const TermsNotice = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(6),
+  padding: theme.spacing(4),
+  backgroundColor: theme.palette.action.hover,
+  borderRadius: (theme.shape.borderRadius as number) * 2,
+  borderLeft: `4px solid ${theme.palette.primary.main}`,
+}));
+
+export const NoticeText = styled(Typography)<TypographyProps>({
+  lineHeight: 1.7,
+});
+
+export const CopyrightWrapper = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(6),
+  textAlign: 'center',
+}));
+
+export const CopyrightText = styled(Typography)<TypographyProps>({
+  letterSpacing: '0.05em',
+  fontWeight: 600,
+});

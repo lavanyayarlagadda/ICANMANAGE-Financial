@@ -7,12 +7,32 @@ import { PipRecord, NpiAllocation } from '@/interfaces/financials';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
-import { Box, Typography, IconButton, Chip, Grid, Button, CircularProgress } from '@mui/material';
+import { IconButton, Chip, Grid, Button, CircularProgress, Box } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
 import { formatCurrency, formatPercent, formatDate } from '@/utils/formatters';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
-import { NpiSectionWrapper, NpiHeaderRow, NpiDataRow, SearchField } from './PipScreen.styles';
+import {
+  ScreenWrapper,
+  NpiSectionWrapper,
+  NpiHeaderRow,
+  NpiDataRow,
+  SearchField,
+  NpiSectionContainer,
+  SummaryRowBox,
+  PayerNameText,
+  PaymentDetailsBox,
+  NpiHeaderColText,
+  ClaimIdText,
+  NpiDataText,
+  AppliedBalanceText,
+  CenteredLoadingBox,
+  NoDetailsText,
+  FilterActionsWrapper,
+  chipContainerStyles,
+  filterButtonStyles,
+  gridContainerStyles,
+} from './PipScreen.styles';
 import type { PipSearchFilters } from './PipScreen.hook';
 import { usePipScreen } from './PipScreen.hook';
 
@@ -21,81 +41,46 @@ interface NpiProps {
 }
 
 export const NpiSection: React.FC<NpiProps> = ({ allocation }) => (
-  <Box sx={{ mb: 1 }}>
+  <NpiSectionContainer>
     <Accordion
       defaultExpanded={false}
       summary={
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            alignItems: { xs: 'flex-start', sm: 'center' },
-            justifyContent: 'space-between',
-            width: '100%',
-            gap: { xs: 1, sm: 2 },
-          }}
-        >
-          <Typography fontSize={13} fontWeight={600} sx={{ flex: 1, wordBreak: 'break-word' }}>
-            {allocation.npiPayerName}
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              justifyContent: { xs: 'space-between', sm: 'flex-end' },
-              width: { xs: '100%', sm: 'auto' },
-            }}
-          >
-            <Typography textAlign="right" fontSize={13} fontWeight={600}>
-              {formatCurrency(Number(allocation.totalPayment))}
-            </Typography>
-            <Box sx={{ textAlign: 'right', pr: 1 }}>
+        <SummaryRowBox>
+          <PayerNameText>{allocation.npiPayerName}</PayerNameText>
+          <PaymentDetailsBox>
+            <NpiHeaderColText>{formatCurrency(Number(allocation.totalPayment))}</NpiHeaderColText>
+            <IconButton sx={chipContainerStyles} disableRipple style={{ padding: 0 }}>
               <Chip
                 label={`${formatPercent(Number(allocation.allocatedPercent ?? 0), 2)} Allocated`}
                 size="small"
                 variant="outlined"
                 color="primary"
               />
-            </Box>
-          </Box>
-        </Box>
+            </IconButton>
+          </PaymentDetailsBox>
+        </SummaryRowBox>
       }
     >
       <NpiSectionWrapper>
         <NpiHeaderRow>
-          <Typography fontSize={12} fontWeight={600} textAlign="center">
-            CLAIM ID
-          </Typography>
-          <Typography fontSize={12} fontWeight={600} textAlign="center">
-            PATIENT NAME
-          </Typography>
-          <Typography textAlign="center" fontSize={12} fontWeight={600}>
-            ALLOWED AMT
-          </Typography>
-          <Typography textAlign="center" fontSize={12} fontWeight={600}>
-            APPLIED TO PIP BALANCE
-          </Typography>
+          <NpiHeaderColText>CLAIM ID</NpiHeaderColText>
+          <NpiHeaderColText>PATIENT NAME</NpiHeaderColText>
+          <NpiHeaderColText>ALLOWED AMT</NpiHeaderColText>
+          <NpiHeaderColText>APPLIED TO PIP BALANCE</NpiHeaderColText>
         </NpiHeaderRow>
         {allocation.claims.map((claim) => (
           <NpiDataRow key={claim.claimId}>
-            <Typography fontSize={13} color="primary" textAlign="center">
-              {claim.claimId}
-            </Typography>
-            <Typography fontSize={13} textAlign="center">
-              {claim.patientName}
-            </Typography>
-            <Typography fontSize={13} textAlign="center">
-              {formatCurrency(Number(claim.allowedAmt))}
-            </Typography>
-            <Typography fontSize={13} textAlign="center" color="success.main">
+            <ClaimIdText>{claim.claimId}</ClaimIdText>
+            <NpiDataText>{claim.patientName}</NpiDataText>
+            <NpiDataText>{formatCurrency(Number(claim.allowedAmt))}</NpiDataText>
+            <AppliedBalanceText>
               {formatCurrency(Number(claim.appliedToPipBalance))}
-            </Typography>
+            </AppliedBalanceText>
           </NpiDataRow>
         ))}
       </NpiSectionWrapper>
     </Accordion>
-  </Box>
+  </NpiSectionContainer>
 );
 
 const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -219,20 +204,14 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             onKeyDown={(e) => e.key === 'Enter' && handleApplySearch()}
           />
         ))}
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexShrink: 0 }}>
+        <FilterActionsWrapper>
           <Button
             variant="contained"
             size="small"
             startIcon={<SearchIcon sx={{ fontSize: 18 }} />}
             onClick={handleApplySearch}
             disabled={!Object.values(searchFilters).some((v) => v?.trim())}
-            sx={{
-              height: '36px',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2,
-            }}
+            sx={filterButtonStyles}
           >
             Search
           </Button>
@@ -240,17 +219,11 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             variant="outlined"
             size="small"
             onClick={handleClearSearch}
-            sx={{
-              height: '36px',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2,
-            }}
+            sx={filterButtonStyles}
           >
             Clear
           </Button>
-        </Box>
+        </FilterActionsWrapper>
       </>
     ),
     [searchFilters, handleSearchFilterChange, handleApplySearch, handleClearSearch],
@@ -260,16 +233,16 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
     (row: PipRecord) => {
       if (loadingDetailsPtans.has(row.ptan)) {
         return (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+          <CenteredLoadingBox>
             <CircularProgress size={24} />
-          </Box>
+          </CenteredLoadingBox>
         );
       }
       if (!row.npiDetails?.length) {
         return (
-          <Typography variant="body2" color="text.secondary" sx={{ py: 1, px: 2 }}>
+          <NoDetailsText variant="body2" color="text.secondary">
             No NPI details found for this PTAN.
-          </Typography>
+          </NoDetailsText>
         );
       }
       return (
@@ -284,13 +257,13 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   );
 
   return (
-    <Box sx={{ position: 'relative' }}>
+    <ScreenWrapper>
       {/* {isError && (
         <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
           Failed to load PIP details. Please try reloading or contact support.
         </Alert>
       )} */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={2} sx={gridContainerStyles}>
         <Grid size={{ xs: 12, md: 4 }}>
           <SummaryCard
             title="TOTAL PAID AMOUNT"
@@ -341,7 +314,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         customFilterContent={pipFilterPanel}
         additionalFilterCount={Object.values(appliedSearchFilters).filter((v) => v?.trim()).length}
       />
-    </Box>
+    </ScreenWrapper>
   );
 };
 

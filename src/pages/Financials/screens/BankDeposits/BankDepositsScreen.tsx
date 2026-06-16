@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Box, Typography, useTheme, InputAdornment, Button } from '@mui/material';
+import { Typography, InputAdornment, Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { BankDepositItem } from '@/interfaces/financials';
 import DataTable from '@/components/molecules/DataTable/DataTable';
@@ -7,9 +7,16 @@ import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import {
   ScreenWrapper,
   ScreenHeader,
+  HeaderTitle,
   ToolbarWrapper,
   SearchField,
+  SearchContainer,
+  searchIconStyles,
+  searchButtonStyles,
+  EntityContainer,
   EntitySectionHeader,
+  EntityTitleText,
+  NoColumnsBox,
 } from './BankDepositsScreen.styles';
 import { useBankDepositsScreen } from './BankDepositsScreen.hook';
 import { useBankDepositColumns } from './useBankDepositColumns';
@@ -19,7 +26,6 @@ import BankDepositTabs from './components/BankDepositTabs';
 import BankDepositExpandedContent from './components/BankDepositExpandedContent';
 
 const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-  const theme = useTheme();
   const {
     filteredDeposits,
     queryParams,
@@ -74,9 +80,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
   return (
     <ScreenWrapper>
       <ScreenHeader>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Bank Deposit Reconciliation
-        </Typography>
+        <HeaderTitle variant="h6">Bank Deposit Reconciliation</HeaderTitle>
         <Typography variant="body2" color="text.secondary">
           Match bank deposits to remittances and track their posting status across various systems.
         </Typography>
@@ -95,7 +99,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       />
 
       <ToolbarWrapper>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <SearchContainer>
           <SearchField
             size="small"
             placeholder="Search by Check"
@@ -105,7 +109,7 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  <SearchIcon sx={searchIconStyles} />
                 </InputAdornment>
               ),
             }}
@@ -115,11 +119,11 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={{ height: '36px', borderRadius: '8px', textTransform: 'none', fontWeight: 600 }}
+            sx={searchButtonStyles}
           >
             Search
           </Button>
-        </Box>
+        </SearchContainer>
       </ToolbarWrapper>
 
       <BankDepositSummary
@@ -129,11 +133,11 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       />
 
       {filteredDeposits.map((entity) => (
-        <Box key={entity.id} sx={{ mb: 4 }}>
+        <EntityContainer key={entity.id}>
           <EntitySectionHeader>
-            <Typography variant="body2" sx={{ fontWeight: 700, color: theme.palette.text.primary }}>
+            <EntityTitleText variant="body2">
               {entity.name} — {entity.items.length} Items
-            </Typography>
+            </EntityTitleText>
           </EntitySectionHeader>
           <DataTable
             gridName="Bank Deposits"
@@ -182,22 +186,15 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             download={false}
             loading={isFetching}
           />
-        </Box>
+        </EntityContainer>
       ))}
 
       {isHeadersSuccess && columns.length <= 1 && filteredDeposits.length === 0 && (
-        <Box
-          sx={{
-            p: 4,
-            textAlign: 'center',
-            backgroundColor: theme.palette.action.hover,
-            borderRadius: 2,
-          }}
-        >
+        <NoColumnsBox>
           <Typography variant="body2" color="text.secondary">
             No configurable columns found for this entity. Please contact support.
           </Typography>
-        </Box>
+        </NoColumnsBox>
       )}
     </ScreenWrapper>
   );

@@ -27,93 +27,95 @@ import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import Button from '@/components/atoms/Button/Button';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useSuspenseAccountsScreen } from './SuspenseAccountsScreen.hook';
-import * as styles from './SuspenseAccountsScreen.styles';
+import {
+  accountChipStyles,
+  toggleButtonGroupStyles,
+  ToolbarWrapper,
+  SearchField,
+  modalTitleStyles,
+  modalContentStyles,
+  modalInnerWrapperStyles,
+  modalHeaderGridStyles,
+  modalHeaderTextStyles,
+  modalHeaderCenterTextStyles,
+  modalHeaderRightTextStyles,
+  modalListContainerStyles,
+  modalRowGridStyles,
+  modalRowKeyStyles,
+  modalRowLabelStyles,
+  modalRowCenterStyles,
+  modalRowChipStyles,
+  modalRowActionsStyles,
+  disabledIconBtnStyles,
+  smallIconStyles,
+  modalSectionTitleStyles,
+  modalActionsStyles,
+  modalCancelBtnStyles,
+  itemCountStyles,
+  amountTextStyles,
+  emptyAmountStyles,
+  normalTextStyles,
+  screenWrapperStyles,
+  searchWrapperStyles,
+  searchIconStyles,
+  searchButtonStyles,
+  screenHeaderStyles,
+  screenHeaderTitleStyles,
+  screenHeaderRightStyles,
+  summaryGridStyles,
+} from './SuspenseAccountsScreen.styles';
 import { SUSPENSE_ACCOUNTS, BY_PAYER_DATA, BY_MONTH_DATA } from './SuspenseAccounts.constants';
-import { useTheme } from '@mui/material/styles';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 
 const ManageAccountsModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ fontWeight: 700, px: 3, pt: 3 }}>Manage Suspense Accounts</DialogTitle>
-      <DialogContent sx={{ px: 3 }}>
-        <Box sx={{ mt: 2 }}>
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: '1.2fr 1.5fr 0.8fr 0.5fr',
-              mb: 2,
-              pb: 1,
-              borderBottom: (t) => `1px solid ${t.palette.divider}`,
-            }}
-          >
-            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+      <DialogTitle sx={modalTitleStyles}>Manage Suspense Accounts</DialogTitle>
+      <DialogContent sx={modalContentStyles}>
+        <Box sx={modalInnerWrapperStyles}>
+          <Box sx={modalHeaderGridStyles}>
+            <Typography variant="caption" sx={modalHeaderTextStyles}>
               KEY
             </Typography>
-            <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+            <Typography variant="caption" sx={modalHeaderTextStyles}>
               LABEL
             </Typography>
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 700, color: 'text.secondary', textAlign: 'center' }}
-            >
+            <Typography variant="caption" sx={modalHeaderCenterTextStyles}>
               COLOR
             </Typography>
-            <Typography
-              variant="caption"
-              sx={{ fontWeight: 700, color: 'text.secondary', textAlign: 'right' }}
-            >
+            <Typography variant="caption" sx={modalHeaderRightTextStyles}>
               ACTIONS
             </Typography>
           </Box>
-          <Box sx={{ mb: 4 }}>
+          <Box sx={modalListContainerStyles}>
             {SUSPENSE_ACCOUNTS.map((acc) => (
-              <Box
-                key={acc.key}
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: '1.2fr 1.5fr 0.8fr 0.5fr',
-                  py: 1.5,
-                  borderBottom: (t) => `1px solid ${t.palette.divider}`,
-                  alignItems: 'center',
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 600, color: 'text.secondary', fontSize: '12px' }}
-                >
+              <Box key={acc.key} sx={modalRowGridStyles}>
+                <Typography variant="body2" sx={modalRowKeyStyles}>
                   {acc.key.toUpperCase()}
                 </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: 'text.primary' }}>
+                <Typography variant="body2" sx={modalRowLabelStyles}>
                   {acc.label}
                 </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Box sx={modalRowCenterStyles}>
                   <Chip
                     label={acc.key.split('_')[0].toUpperCase()}
                     size="small"
-                    sx={{
-                      height: 20,
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      bgcolor: acc.color,
-                      color: acc.textColor,
-                      border: `1px solid ${acc.textColor}20`,
-                    }}
+                    sx={modalRowChipStyles(acc.color, acc.textColor)}
                   />
                 </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
-                  <IconButton size="small" sx={{ color: 'text.disabled' }}>
-                    <EditIcon sx={{ fontSize: 16 }} />
+                <Box sx={modalRowActionsStyles}>
+                  <IconButton size="small" sx={disabledIconBtnStyles}>
+                    <EditIcon sx={smallIconStyles} />
                   </IconButton>
-                  <IconButton size="small" sx={{ color: 'text.disabled' }}>
-                    <DeleteIcon sx={{ fontSize: 16 }} />
+                  <IconButton size="small" sx={disabledIconBtnStyles}>
+                    <DeleteIcon sx={smallIconStyles} />
                   </IconButton>
                 </Box>
               </Box>
             ))}
           </Box>
-          <Typography variant="body2" sx={{ fontWeight: 700, mb: 2, mt: 3 }}>
+          <Typography variant="body2" sx={modalSectionTitleStyles}>
             Add New Account
           </Typography>
           <Grid container spacing={2}>
@@ -138,8 +140,8 @@ const ManageAccountsModal = ({ open, onClose }: { open: boolean; onClose: () => 
           </Grid>
         </Box>
       </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2, mt: 2 }}>
-        <Button onClick={onClose} sx={{ color: 'text.secondary' }}>
+      <DialogActions sx={modalActionsStyles}>
+        <Button onClick={onClose} sx={modalCancelBtnStyles}>
           Cancel
         </Button>
         <Button variant="contained" onClick={onClose}>
@@ -151,7 +153,6 @@ const ManageAccountsModal = ({ open, onClose }: { open: boolean; onClose: () => 
 };
 
 const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-  const theme = useTheme();
   const {
     viewType,
     manageDialogOpen,
@@ -248,35 +249,24 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
           if (id === 'accountType' || id === 'account' || id === 'payer' || id === 'month') {
             const accountInfo = SUSPENSE_ACCOUNTS.find((s) => s.label === val);
             if (accountInfo) {
-              return (
-                <Chip label={String(val)} size="small" sx={styles.accountChipStyles(accountInfo)} />
-              );
+              return <Chip label={String(val)} size="small" sx={accountChipStyles(accountInfo)} />;
             }
           }
           if (id === 'items') {
-            return (
-              <Typography sx={{ fontSize: '12px', color: 'primary.main', fontWeight: 600 }}>
-                {String(val)}
-              </Typography>
-            );
+            return <Typography sx={itemCountStyles}>{String(val)}</Typography>;
           }
           if (typeof val === 'number') {
             return (
-              <Typography
-                sx={{
-                  fontSize: '13px',
-                  fontWeight: id === 'totalBalance' || id === 'total' ? 700 : 500,
-                }}
-              >
+              <Typography sx={amountTextStyles(id === 'totalBalance' || id === 'total')}>
                 {formatCurrency(val)}
               </Typography>
             );
           }
           if (val === null || val === undefined) {
-            return <Typography sx={{ fontSize: '13px', color: 'text.secondary' }}>-</Typography>;
+            return <Typography sx={emptyAmountStyles}>-</Typography>;
           }
           return (
-            <Typography sx={{ fontSize: '13px', fontWeight: 600 }}>
+            <Typography sx={normalTextStyles}>
               {/^\d{4}-\d{2}$/.test(String(val)) || /^\d{4}-\d{2}-\d{2}$/.test(String(val))
                 ? formatDate(String(val))
                 : String(val)}
@@ -314,10 +304,10 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
   };
 
   return (
-    <Box sx={{ p: 0 }}>
-      <styles.ToolbarWrapper>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <styles.SearchField
+    <Box sx={screenWrapperStyles}>
+      <ToolbarWrapper>
+        <Box sx={searchWrapperStyles}>
+          <SearchField
             size="small"
             placeholder="Search by Transaction #"
             value={searchTerm}
@@ -326,7 +316,7 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ fontSize: 18, color: theme.palette.primary.main }} />
+                  <SearchIcon sx={searchIconStyles} />
                 </InputAdornment>
               ),
             }}
@@ -335,35 +325,27 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             variant="contained"
             size="small"
             onClick={() => onSearch(searchTerm)}
-            sx={{
-              height: '36px',
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: 600,
-              px: 2,
-            }}
+            sx={searchButtonStyles}
           >
             Search
           </MuiButton>
         </Box>
-      </styles.ToolbarWrapper>
+      </ToolbarWrapper>
 
-      <Box
-        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}
-      >
+      <Box sx={screenHeaderStyles}>
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+          <Typography variant="h6" sx={screenHeaderTitleStyles}>
             Suspense Accounts
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Monitor funds held in suspense.
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={screenHeaderRightStyles}>
           <Button
             variant="outlined"
             size="small"
-            startIcon={<SettingsIcon sx={{ fontSize: 16 }} />}
+            startIcon={<SettingsIcon sx={smallIconStyles} />}
             onClick={() => toggleManageDialog(true)}
           >
             Manage Accounts
@@ -373,7 +355,7 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             exclusive
             onChange={handleViewChange}
             size="small"
-            sx={styles.toggleButtonGroupStyles}
+            sx={toggleButtonGroupStyles}
           >
             <ToggleButton value="account">By Account</ToggleButton>
             <ToggleButton value="payer">By Payer</ToggleButton>
@@ -382,7 +364,7 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         </Box>
       </Box>
 
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      <Grid container spacing={2} sx={summaryGridStyles}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <SummaryCard
             title="TOTAL OPEN SUSPENSE"

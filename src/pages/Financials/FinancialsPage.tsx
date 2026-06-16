@@ -1,7 +1,6 @@
 import React, { Suspense, lazy, useMemo } from 'react';
-import { Box, IconButton, useTheme, CircularProgress, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SecurityIcon from '@mui/icons-material/Security';
 import DashboardLayout from '@/components/templates/DashboardLayout/DashboardLayout';
 import FinancialsTabs from '@/components/organisms/FinancialsTabs/FinancialsTabs';
 import ViewDialog from '@/components/molecules/ViewDialog/ViewDialog';
@@ -15,6 +14,13 @@ import {
   RestrictedContainer,
   RestrictedTitle,
   RestrictedBody,
+  FallbackContainer,
+  FallbackProgress,
+  FallbackText,
+  BackIconButton,
+  RestrictedIconWrapper,
+  RestrictedIcon,
+  TabContentWrapper,
 } from './FinancialsPage.styles';
 import { useFinancialsPage } from './FinancialsPage.hook';
 import { closeViewDialog, closeEditDialog, closeConfirmDelete } from '@/store/slices/uiSlice';
@@ -30,25 +36,13 @@ const CollectionsScreen = lazy(
 );
 
 const TabLoadingFallback = () => (
-  <Box
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      py: 12,
-      gap: 2,
-    }}
-  >
-    <CircularProgress size={32} thickness={4} sx={{ color: 'text.secondary' }} />
-    <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-      Preparing module view...
-    </Typography>
-  </Box>
+  <FallbackContainer>
+    <FallbackProgress size={32} thickness={4} />
+    <FallbackText variant="body2">Preparing module view...</FallbackText>
+  </FallbackContainer>
 );
 
 const FinancialsPage: React.FC = () => {
-  const theme = useTheme();
   const {
     activeTab,
     activeSubTab,
@@ -108,13 +102,9 @@ const FinancialsPage: React.FC = () => {
       return (
         <Box>
           <BackButtonWrapper>
-            <IconButton
-              onClick={handleBackToPayments}
-              size="small"
-              sx={{ border: `1px solid ${theme.palette.divider}` }}
-            >
+            <BackIconButton onClick={handleBackToPayments} size="small">
               <ArrowBackIcon fontSize="small" />
-            </IconButton>
+            </BackIconButton>
             <BackText>Back</BackText>
           </BackButtonWrapper>
           <RemittanceDetailScreen />
@@ -135,20 +125,9 @@ const FinancialsPage: React.FC = () => {
 
         {isRestricted && !isRedirectingFromHiddenRoute ? (
           <RestrictedContainer>
-            <Box
-              sx={{
-                width: 100,
-                height: 100,
-                borderRadius: '50%',
-                bgcolor: 'grey.100',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mb: 4,
-              }}
-            >
-              <SecurityIcon sx={{ fontSize: 48, color: theme.palette.primary.main }} />
-            </Box>
+            <RestrictedIconWrapper>
+              <RestrictedIcon />
+            </RestrictedIconWrapper>
             <RestrictedTitle variant="h5">Access Restricted</RestrictedTitle>
             <RestrictedBody variant="body1">
               You don't have the necessary permissions to view this module. Please contact your
@@ -156,18 +135,13 @@ const FinancialsPage: React.FC = () => {
             </RestrictedBody>
           </RestrictedContainer>
         ) : (
-          <Box
-            sx={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, px: 2, pt: 1 }}
-          >
-            {tabContent}
-          </Box>
+          <TabContentWrapper>{tabContent}</TabContentWrapper>
         )}
       </>
     );
   }, [
     activePage,
     showRemittanceDetail,
-    theme,
     handleBackToPayments,
     handlePrint,
     handleReload,

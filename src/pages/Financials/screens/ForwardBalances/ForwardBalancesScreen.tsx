@@ -11,56 +11,55 @@ import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import Accordion from '@/components/atoms/Accordion/Accordion';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
-import { themeConfig } from '@/theme/themeConfig';
 import {
   useForwardBalancesScreen,
   useForwardBalanceNoticesTable,
 } from './ForwardBalancesScreen.hook';
-import * as styles from './ForwardBalancesScreen.styles';
+import {
+  offsetChipStyles,
+  errorAmountStyles,
+  offsetWrapperStyles,
+  offsetSummaryStyles,
+  offsetTitleStyles,
+  offsetAmountStyles,
+  offsetDetailsContainerStyles,
+  offsetHeaderGridStyles,
+  offsetRowGridStyles,
+  claimIdStyles,
+  patientNameStyles,
+  deductedAmountStyles,
+  noticeIdTextStyles,
+  boldTextStyles,
+  providerNameWrapperStyles,
+  providerNameStyles,
+  screenHeaderStyles,
+  screenHeaderTitleStyles,
+  summaryGridStyles,
+  loadingWrapperStyles,
+  emptyDetailsWrapperStyles,
+  detailsWrapperStyles,
+} from './ForwardBalancesScreen.styles';
 import { useTheme } from '@mui/material/styles';
 
 const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
-  <Box sx={{ mb: 1 }}>
+  <Box sx={offsetWrapperStyles}>
     <Accordion
       defaultExpanded={false}
       summary={
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            width: '100%',
-            gap: 2,
-          }}
-        >
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 600, flex: 1, display: 'flex', alignItems: 'center', gap: 1 }}
-          >
+        <Box sx={offsetSummaryStyles}>
+          <Typography variant="body2" sx={offsetTitleStyles}>
             Offset EFT: <MultiValueDisplay value={offset.eftNumber} displayCount={1} /> &nbsp;{' '}
             {formatDate(offset.date)}
           </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 700, textAlign: 'center' }}>
+          <Typography variant="body2" sx={offsetAmountStyles}>
             {formatCurrency(offset.amount)}
           </Typography>
-          <Chip label={`CODE: ${offset.code}`} size="small" sx={styles.offsetChipStyles} />
+          <Chip label={`CODE: ${offset.code}`} size="small" sx={offsetChipStyles} />
         </Box>
       }
     >
-      <Box
-        sx={{
-          border: `1px solid ${themeConfig.colors.divider}`,
-          borderTop: 'none',
-          overflowX: 'auto',
-        }}
-      >
-        <Box
-          sx={{
-            ...styles.offsetGridStyles,
-            background: themeConfig.colors.surfaceAlt,
-            borderBottom: `1px solid ${themeConfig.colors.divider}`,
-          }}
-        >
+      <Box sx={offsetDetailsContainerStyles}>
+        <Box sx={offsetHeaderGridStyles}>
           <Typography fontSize={11} fontWeight={700} color="text.secondary">
             CLAIM ID (DEDUCTED FROM)
           </Typography>
@@ -72,24 +71,18 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
           </Typography>
         </Box>
         {offset.claims.map((claim, idx) => (
-          <Box
-            key={idx}
-            sx={{
-              ...styles.offsetGridStyles,
-              borderBottom: `1px solid ${themeConfig.colors.divider}`,
-            }}
-          >
-            <Typography fontSize={13} color="primary" sx={{ fontWeight: 500 }}>
+          <Box key={idx} sx={offsetRowGridStyles}>
+            <Typography fontSize={13} color="primary" sx={claimIdStyles}>
               {claim.claimId}
             </Typography>
-            <Typography fontSize={13} sx={{ fontWeight: 500 }}>
+            <Typography fontSize={13} sx={patientNameStyles}>
               {claim.patientName}
             </Typography>
             <Typography
               fontSize={13}
               textAlign="center"
               color="error.main"
-              sx={{ fontWeight: 700 }}
+              sx={deductedAmountStyles}
             >
               {formatCurrency(claim.deductedAmount)}
             </Typography>
@@ -149,7 +142,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         align: 'center',
         accessor: (row) => row.noticeId,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 700, color: themeConfig.colors.amberDark }}>
+          <Typography variant="body2" sx={noticeIdTextStyles}>
             {row.noticeId}
           </Typography>
         ),
@@ -160,7 +153,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         align: 'center',
         accessor: (row) => row.notificationDate,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+          <Typography variant="body2" sx={boldTextStyles}>
             {formatDate(row.notificationDate)}
           </Typography>
         ),
@@ -172,8 +165,8 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         accessor: (row) => `${row.providerName} ${row.npi}`,
         filterOptions: payerOptions,
         render: (row) => (
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+          <Box sx={providerNameWrapperStyles}>
+            <Typography variant="body2" sx={providerNameStyles}>
               {row.providerName}
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -188,7 +181,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         align: 'center',
         accessor: (row) => row.originalAmount,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 700, color: 'error.main' }}>
+          <Typography variant="body2" sx={errorAmountStyles}>
             {formatCurrency(row.originalAmount)}
           </Typography>
         ),
@@ -199,7 +192,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         align: 'center',
         accessor: (row) => row.remainingBalance,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 700, color: 'error.main' }}>
+          <Typography variant="body2" sx={errorAmountStyles}>
             {formatCurrency(row.remainingBalance)}
           </Typography>
         ),
@@ -217,8 +210,8 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
 
   return (
     <Box>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+      <Box sx={screenHeaderStyles}>
+        <Typography variant="h5" sx={screenHeaderTitleStyles}>
           Forward Balance Notices
         </Typography>
         <Typography variant="body2" color="text.secondary">
@@ -232,7 +225,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
                 </Alert>
             )} */}
 
-      <Grid container spacing={2} sx={{ mb: 4 }}>
+      <Grid container spacing={2} sx={summaryGridStyles}>
         <Grid size={{ xs: 12, md: 4 }}>
           <SummaryCard
             title="TOTAL ORIGINAL AMOUNT"
@@ -266,15 +259,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         expandedContent={(row) => {
           if (loadingDetails.has(row.id)) {
             return (
-              <Box
-                sx={{
-                  p: 3,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  gap: 2,
-                }}
-              >
+              <Box sx={loadingWrapperStyles}>
                 <Typography variant="body2" color="text.secondary">
                   Loading offset details...
                 </Typography>
@@ -285,7 +270,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
           const dynamicOffsets = noticeDetails[row.id]?.offsets || row.offsets;
           if (!dynamicOffsets || dynamicOffsets.length === 0) {
             return (
-              <Box sx={{ p: 2, textAlign: 'center' }}>
+              <Box sx={emptyDetailsWrapperStyles}>
                 <Typography variant="body2" color="text.secondary">
                   No offset details found.
                 </Typography>
@@ -294,7 +279,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
           }
 
           return (
-            <Box sx={{ p: 1 }}>
+            <Box sx={detailsWrapperStyles}>
               {dynamicOffsets.map((offset: OffsetEvent, idx: number) => (
                 <OffsetSection key={idx} offset={offset} />
               ))}

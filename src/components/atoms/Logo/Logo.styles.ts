@@ -1,19 +1,22 @@
-import { SxProps, Theme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Box } from '@mui/material';
 
-export const containerStyles: SxProps<Theme> = {
+export const ContainerBox = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 1.5,
-};
+  gap: '12px', // gap: 1.5
+}));
 
-export const imageContainerStyles: SxProps<Theme> = {
-  borderRadius: 2,
+export const ImageContainer = styled(Box)(() => ({
+  borderRadius: '8px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-};
+}));
 
-export const imageStyles = (collapsed: boolean): React.CSSProperties => ({
+export const StyledImg = styled('img', {
+  shouldForwardProp: (prop) => prop !== 'collapsed',
+})<{ collapsed: boolean }>(({ collapsed }) => ({
   width: collapsed ? 60 : 110,
   transition: 'width 0.2s ease-in-out',
-});
+}));

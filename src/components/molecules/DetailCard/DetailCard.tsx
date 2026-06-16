@@ -1,7 +1,16 @@
 import React from 'react';
-import { Card, CardContent, Typography, Divider, Box } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import * as styles from './DetailCard.styles';
+import { Box } from '@mui/material';
+import {
+  StyledCard,
+  StyledCardContent,
+  LabelContainer,
+  StyledLabel,
+  StyledValue,
+  SectionTitle,
+  FooterContainer,
+  CardMainTitle,
+  StyledDivider,
+} from './DetailCard.styles';
 
 export interface DetailField {
   label: string;
@@ -20,43 +29,39 @@ export interface DetailCardProps {
 }
 
 const LabelValue: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
-  <Box sx={styles.labelContainerStyles}>
-    <Typography variant="caption" color="text.secondary" sx={styles.labelStyles}>
+  <LabelContainer>
+    <StyledLabel variant="caption" color="text.secondary">
       {label}
-    </Typography>
-    <Box sx={styles.valueStyles}>{value}</Box>
-  </Box>
+    </StyledLabel>
+    <StyledValue>{value}</StyledValue>
+  </LabelContainer>
 );
 
 const DetailCard: React.FC<DetailCardProps> = ({ title, sections, footer }) => {
   return (
-    <Card sx={styles.cardStyles}>
-      <CardContent sx={styles.cardContentStyles}>
-        {title && (
-          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 3 }}>
-            {title}
-          </Typography>
-        )}
+    <StyledCard>
+      <StyledCardContent>
+        {title && <CardMainTitle variant="subtitle1">{title}</CardMainTitle>}
         {sections.map((section, sIndex) => (
           <React.Fragment key={sIndex}>
             {section.title && (
-              <Typography variant="body2" color="primary" sx={styles.sectionTitleStyles}>
+              <SectionTitle variant="body2" color="primary">
                 {section.title}
-              </Typography>
+              </SectionTitle>
             )}
-            <Grid container spacing={2}>
+            <Box display="flex" flexWrap="wrap" gap={2}>
               {section.fields.map((field, fIndex) => (
-                <Grid key={fIndex}>
+                <Box key={fIndex}>
                   <LabelValue label={field.label} value={field.value} />
-                </Grid>
+                </Box>
               ))}
-            </Grid>
-            {sIndex < sections.length - 1 && <Divider sx={{ my: 2, borderColor: 'divider' }} />}
+            </Box>
+            {sIndex < sections.length - 1 && <StyledDivider />}
           </React.Fragment>
         ))}
-        {footer && <Box sx={styles.footerContainerStyles}>{footer}</Box>}
-      </CardContent>
-    </Card>
+        {footer && <FooterContainer>{footer}</FooterContainer>}
+      </StyledCardContent>
+    </StyledCard>
   );
 };
 

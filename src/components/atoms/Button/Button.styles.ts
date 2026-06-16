@@ -1,6 +1,7 @@
-import { SxProps, Theme } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { Button as MuiButton } from '@mui/material';
 
-export const buttonStyles = (theme: Theme): SxProps<Theme> => ({
+export const StyledMuiButton = styled(MuiButton)(({ theme }) => ({
   textTransform: 'none',
   fontWeight: theme.typography.fontWeightMedium,
-});
+}));

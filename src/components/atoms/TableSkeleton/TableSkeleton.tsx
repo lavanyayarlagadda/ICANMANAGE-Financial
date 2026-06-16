@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Skeleton, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Skeleton, Table, TableBody, TableHead, TableRow } from '@mui/material';
+import * as styles from './TableSkeleton.styles';
 
 interface TableSkeletonProps {
   rows?: number;
@@ -13,19 +14,19 @@ export const TableSkeleton: React.FC<TableSkeletonProps> = ({
   hasCheckbox = true,
 }) => {
   return (
-    <Box sx={{ width: '100%', overflow: 'hidden' }}>
+    <styles.ContainerBox>
       <Table>
         <TableHead>
           <TableRow>
             {hasCheckbox && (
-              <TableCell sx={{ width: 48, py: 1.5 }}>
+              <styles.CheckboxHeaderCell>
                 <Skeleton variant="rectangular" width={20} height={20} />
-              </TableCell>
+              </styles.CheckboxHeaderCell>
             )}
             {Array.from({ length: columns }).map((_, i) => (
-              <TableCell key={i} sx={{ py: 1.5 }}>
+              <styles.StandardHeaderCell key={i}>
                 <Skeleton variant="text" width="60%" />
-              </TableCell>
+              </styles.StandardHeaderCell>
             ))}
           </TableRow>
         </TableHead>
@@ -33,22 +34,22 @@ export const TableSkeleton: React.FC<TableSkeletonProps> = ({
           {Array.from({ length: rows }).map((_, rowIndex) => (
             <TableRow key={rowIndex}>
               {hasCheckbox && (
-                <TableCell sx={{ py: 1 }}>
+                <styles.CheckboxBodyCell>
                   <Skeleton variant="rectangular" width={20} height={20} />
-                </TableCell>
+                </styles.CheckboxBodyCell>
               )}
               {Array.from({ length: columns }).map((_, colIndex) => (
-                <TableCell key={colIndex} sx={{ py: 1 }}>
+                <styles.StandardBodyCell key={colIndex}>
                   <Skeleton
                     variant="text"
                     width={colIndex === 0 ? '80%' : colIndex === columns - 1 ? '40%' : '90%'}
                   />
-                </TableCell>
+                </styles.StandardBodyCell>
               ))}
             </TableRow>
           ))}
         </TableBody>
       </Table>
-    </Box>
+    </styles.ContainerBox>
   );
 };

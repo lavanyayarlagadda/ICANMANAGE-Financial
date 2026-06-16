@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Card, CardContent, Divider, Typography, useTheme } from '@mui/material';
+import { CardContent } from '@mui/material';
 import summaryContract from '@/data/depositReconciliationExecutiveSummary.json';
 
 import {
@@ -27,9 +27,16 @@ import { DepositReconciliationHeroCards } from './sections/DepositReconciliation
 import { DepositReconciliationAging } from './sections/DepositReconciliationAging';
 import { SectionTable } from './sections/SectionTable';
 import { DepositReconciliationTopPayers } from './sections/DepositReconciliationTopPayers';
+import {
+  ScreenWrapper,
+  GuideCard,
+  GuideTitle,
+  GuideDivider,
+  GuideList,
+  GuideListItem,
+} from './DepositReconciliationScreen.styles';
 
 const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-  const theme = useTheme();
   const contract = summaryContract;
 
   const {
@@ -101,7 +108,7 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
   const safeTopPayers = ensureArray<PayerRow>(topPayers);
 
   return (
-    <Box sx={{ px: 2, pb: 3, pt: 1, minWidth: 0, width: '100%', maxWidth: '100%' }}>
+    <ScreenWrapper>
       <DepositReconciliationHeader
         title={screenMeta.title}
         subtitle={screenMeta.subtitle}
@@ -138,7 +145,6 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         agingRows={safeAgingRows}
       />
       <SectionTable
-        gridName="Adjusted Cash"
         title={String(adjustedCashData.title || '')}
         description={String(adjustedCashData.description || '')}
         columns={safeAdjustedCashColumns}
@@ -146,7 +152,6 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         compareMode={compareMode}
       />
       <SectionTable
-        gridName="Reconciled"
         title={String(reconciledData.title || '')}
         description={String(reconciledData.description || '')}
         columns={safePostedColumns}
@@ -154,7 +159,6 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         compareMode={compareMode}
       />
       <SectionTable
-        gridName="Unreconciled"
         title={String(unreconciledData.title || '')}
         description={String(unreconciledData.description || '')}
         columns={safeNotPostedColumns}
@@ -167,28 +171,23 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         compareMode={compareMode}
         columns={safeAdjustedCashColumns}
       />
-      <Card sx={{ borderLeft: `4px solid ${theme.palette.error.main}` }}>
+      <GuideCard>
         <CardContent>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: theme.palette.error.main }}>
-            {contract.readGuide.title}
-          </Typography>
-          <Divider sx={{ my: 1 }} />
-          <Box component="ul" sx={{ m: 0, pl: 2 }}>
+          <GuideTitle variant="subtitle1">{contract.readGuide.title}</GuideTitle>
+          <GuideDivider />
+          <GuideList>
             {ensureArray<string>(contract.readGuide.points).map((point, idx) => (
-              <Typography
-                component="li"
-                variant="body2"
+              <GuideListItem
                 key={idx}
-                sx={{ mb: 0.5 }}
                 dangerouslySetInnerHTML={{
                   __html: point.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'),
                 }}
               />
             ))}
-          </Box>
+          </GuideList>
         </CardContent>
-      </Card>{' '}
-    </Box>
+      </GuideCard>{' '}
+    </ScreenWrapper>
   );
 };
 

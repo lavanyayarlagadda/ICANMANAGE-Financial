@@ -1,23 +1,15 @@
 import React, { useMemo } from 'react';
-import { Button as MuiButton, ButtonProps as MuiButtonProps, useTheme } from '@mui/material';
+import { ButtonProps as MuiButtonProps } from '@mui/material';
 import * as styles from './Button.styles';
 
 export interface CustomButtonProps extends MuiButtonProps {
   label?: React.ReactNode;
   icon?: React.ReactNode;
   iconPosition?: 'start' | 'end';
+  isMobile?: boolean;
 }
 
-const Button: React.FC<CustomButtonProps> = ({
-  label,
-  icon,
-  iconPosition = 'start',
-  children,
-  sx,
-  ...props
-}) => {
-  const theme = useTheme();
-
+const Button = ({ label, icon, iconPosition = 'start', children, ...props }: CustomButtonProps) => {
   const startIcon = useMemo(
     () => (iconPosition === 'start' && icon ? icon : props.startIcon),
     [icon, iconPosition, props.startIcon],
@@ -29,15 +21,9 @@ const Button: React.FC<CustomButtonProps> = ({
   );
 
   return (
-    <MuiButton
-      startIcon={startIcon}
-      endIcon={endIcon}
-      // MUI will automatically flatten this array
-      sx={[styles.buttonStyles(theme), ...(Array.isArray(sx) ? sx : [sx])]}
-      {...props}
-    >
+    <styles.StyledMuiButton startIcon={startIcon} endIcon={endIcon} {...props}>
       {label || children}
-    </MuiButton>
+    </styles.StyledMuiButton>
   );
 };
 

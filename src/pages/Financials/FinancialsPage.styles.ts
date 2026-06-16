@@ -1,5 +1,6 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, CircularProgress, IconButton } from '@mui/material';
+import SecurityIcon from '@mui/icons-material/Security';
 
 export const PageWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -55,4 +56,53 @@ export const RestrictedBody = styled(Typography)(({ theme }) => ({
   fontSize: '1rem',
   lineHeight: 1.6,
   fontWeight: 500,
+}));
+
+export const FallbackContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingTop: theme.spacing(12),
+  paddingBottom: theme.spacing(12),
+  gap: theme.spacing(2),
+}));
+
+export const FallbackProgress = styled(CircularProgress)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+}));
+
+export const FallbackText = styled(Typography)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  fontWeight: 500,
+}));
+
+export const BackIconButton = styled(IconButton)(({ theme }) => ({
+  border: `1px solid ${theme.palette.divider}`,
+}));
+
+export const RestrictedIconWrapper = styled(Box)(({ theme }) => ({
+  width: 100,
+  height: 100,
+  borderRadius: '50%',
+  backgroundColor: theme.palette.grey[100],
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: theme.spacing(4),
+}));
+
+export const RestrictedIcon = styled(SecurityIcon)(({ theme }) => ({
+  fontSize: 48,
+  color: theme.palette.primary.main,
+}));
+
+export const TabContentWrapper = styled(Box)(({ theme }) => ({
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: 0,
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+  paddingTop: theme.spacing(1),
 }));

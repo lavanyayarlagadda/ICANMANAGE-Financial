@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, TextField } from '@mui/material';
+import { Box, Typography, TextField, SxProps, Theme } from '@mui/material';
 
 export const ScreenWrapper = styled(Box)(() => ({
   position: 'relative',
@@ -49,3 +49,22 @@ export const SearchField = styled(TextField)(({ theme }) => ({
     fontSize: '13px',
   },
 }));
+
+export const searchWrapperStyles: SxProps<Theme> = {
+  display: 'flex',
+  gap: 1,
+  alignItems: 'center',
+};
+
+export const searchIconStyles: SxProps<Theme> = {
+  fontSize: 18,
+  color: 'primary.main',
+};
+
+export const searchButtonStyles: SxProps<Theme> = {
+  height: '36px',
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontWeight: 600,
+  px: 2,
+};

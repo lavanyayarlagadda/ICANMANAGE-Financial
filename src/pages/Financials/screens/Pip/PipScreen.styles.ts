@@ -1,5 +1,9 @@
 import { styled } from '@mui/material/styles';
-import { Box, TextField } from '@mui/material';
+import { Box, TextField, Typography, SxProps, Theme } from '@mui/material';
+
+export const ScreenWrapper = styled(Box)(() => ({
+  position: 'relative',
+}));
 
 export const NpiSectionWrapper = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.divider}`,
@@ -59,3 +63,102 @@ export const SearchField = styled(TextField)(({ theme }) => ({
     fontSize: '13px',
   },
 }));
+
+// Added styled components for NPI section and layout clean up
+export const NpiSectionContainer = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(1),
+}));
+
+export const SummaryRowBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  width: '100%',
+  gap: theme.spacing(1),
+  [theme.breakpoints.up('sm')]: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing(2),
+  },
+}));
+
+export const PayerNameText = styled(Typography)(() => ({
+  fontSize: 13,
+  fontWeight: 600,
+  flex: 1,
+  wordBreak: 'break-word',
+}));
+
+export const PaymentDetailsBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(2),
+  justifyContent: 'space-between',
+  width: '100%',
+  [theme.breakpoints.up('sm')]: {
+    justifyContent: 'flex-end',
+    width: 'auto',
+  },
+}));
+
+export const NpiHeaderColText = styled(Typography)(() => ({
+  fontSize: 12,
+  fontWeight: 600,
+  textAlign: 'center',
+}));
+
+export const ClaimIdText = styled(Typography)(({ theme }) => ({
+  fontSize: 13,
+  color: theme.palette.primary.main,
+  textAlign: 'center',
+}));
+
+export const NpiDataText = styled(Typography)(() => ({
+  fontSize: 13,
+  textAlign: 'center',
+}));
+
+export const AppliedBalanceText = styled(Typography)(({ theme }) => ({
+  fontSize: 13,
+  textAlign: 'center',
+  color: theme.palette.success.main,
+}));
+
+export const CenteredLoadingBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'center',
+  paddingTop: theme.spacing(2),
+  paddingBottom: theme.spacing(2),
+}));
+
+export const NoDetailsText = styled(Typography)(({ theme }) => ({
+  paddingTop: theme.spacing(1),
+  paddingBottom: theme.spacing(1),
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+}));
+
+export const FilterActionsWrapper = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(1),
+  alignItems: 'center',
+  flexShrink: 0,
+}));
+
+export const chipContainerStyles: SxProps<Theme> = {
+  textAlign: 'right',
+  pr: 1,
+};
+
+export const filterButtonStyles: SxProps<Theme> = {
+  height: '36px',
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontWeight: 600,
+  px: 2,
+};
+
+export const gridContainerStyles: SxProps<Theme> = {
+  mb: 3,
+};

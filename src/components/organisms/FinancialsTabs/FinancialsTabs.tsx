@@ -1,23 +1,33 @@
 import React from 'react';
 import {
-  Box,
-  Typography,
   useTheme,
   useMediaQuery,
-  Select,
   MenuItem,
   SelectChangeEvent,
   FormControl,
   Tab,
-  Tabs,
   Tooltip,
 } from '@mui/material';
-import Button from '@/components/atoms/Button/Button';
 import PrintIcon from '@mui/icons-material/Print';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useFinancialsTabs } from './FinancialsTabs.hook';
-import { themeConfig } from '@/theme/themeConfig';
-import * as styles from './FinancialsTabs.styles';
+import {
+  Container,
+  MainTabsRow,
+  MainTitle,
+  TabsWrapper,
+  TabletSelect,
+  StyledTabs,
+  MainTabItem,
+  SubTabsRow,
+  SubTabsWrapper,
+  StyledSubTabs,
+  SubTabItem,
+  ActionsGroup,
+  PrintButton,
+  ReloadButton,
+  ExportButton,
+} from './FinancialsTabs.styles';
 
 interface FinancialsTabsProps {
   onPrint?: () => void;
@@ -44,7 +54,6 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
     activeTab,
     activeSubTab,
     isReloading,
-    // isMindPath,
     shouldShowPrint,
     shouldShowReload,
     shouldShowExport,
@@ -57,55 +66,32 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
   } = useFinancialsTabs({ ...props, isRestricted });
 
   return (
-    <Box sx={styles.containerStyles}>
-      <Box sx={styles.mainTabsRowStyles(theme, isTablet)}>
-        <Typography
-          variant="h5"
-          sx={{
-            ...styles.mainTitleStyles,
-            mr: isTablet ? 0 : 4,
-            mb: isTablet ? 0.5 : 0,
-            flexShrink: 0,
-          }}
-        >
+    <Container>
+      <MainTabsRow isTablet={isTablet}>
+        <MainTitle variant="h5" isTablet={isTablet}>
           Financials
-        </Typography>
+        </MainTitle>
 
-        <Box
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            overflow: 'hidden',
-            display: 'flex',
-            alignItems: 'center',
-            ml: isTablet ? 0 : 2,
-          }}
-        >
+        <TabsWrapper isTablet={isTablet}>
           {isMobile ? (
             <FormControl fullWidth size="small">
-              <Select
+              <TabletSelect
                 value={activeTab}
                 onChange={(e: SelectChangeEvent<number>) => {
                   const val = Number(e.target.value);
                   const tab = filteredMainTabs.find((t) => t.id === val);
                   if (tab) handleMainTabChange(tab.id, tab.path);
                 }}
-                sx={styles.tabletSelectStyles(theme)}
               >
                 {filteredMainTabs.map((tab) => (
-                  <MenuItem
-                    key={tab.id}
-                    value={tab.id}
-                    disabled={tab.status === 'Disabled'}
-                    sx={{ fontWeight: 500, fontSize: '14px' }}
-                  >
+                  <MenuItem key={tab.id} value={tab.id} disabled={tab.status === 'Disabled'}>
                     {tab.label}
                   </MenuItem>
                 ))}
-              </Select>
+              </TabletSelect>
             </FormControl>
           ) : (
-            <Tabs
+            <StyledTabs
               value={activeTab}
               variant="scrollable"
               scrollButtons="auto"
@@ -113,30 +99,6 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
               onChange={(_, val) => {
                 const tab = filteredMainTabs.find((t) => t.id === val);
                 if (tab && tab.status !== 'Disabled') handleMainTabChange(tab.id, tab.path);
-              }}
-              sx={{
-                width: '100%',
-                minHeight: '40px',
-                '& .MuiTabs-indicator': { display: 'none' },
-                '& .MuiTabs-flexContainer': { gap: 0.5 },
-                '& .MuiTabs-scroller': { overflow: 'hidden !important' },
-                '& .MuiTabs-scrollButtons': {
-                  width: '32px',
-                  borderRadius: '4px',
-                  backgroundColor: themeConfig.colors.slate[100],
-                  mx: 0.5,
-                  color: themeConfig.colors.primary,
-                  transition: 'all 0.2s',
-                  '&:hover': { backgroundColor: themeConfig.colors.slate[200] },
-                  '&.Mui-disabled': { display: 'none' },
-                },
-                '& .MuiTab-root': {
-                  minHeight: '40px',
-                  minWidth: 'auto',
-                  p: 0,
-                  textTransform: 'none',
-                  opacity: 1,
-                },
               }}
             >
               {filteredMainTabs.map((tab) => (
@@ -151,29 +113,27 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                     value={tab.id}
                     disabled={tab.status === 'Disabled'}
                     label={
-                      <Box
-                        sx={styles.mainTabItemStyles(
-                          activeTab === tab.id,
-                          tab.status === 'Disabled',
-                        )}
+                      <MainTabItem
+                        isActive={activeTab === tab.id}
+                        isDisabled={tab.status === 'Disabled'}
                       >
                         {tab.label}
-                      </Box>
+                      </MainTabItem>
                     }
                     disableRipple
                   />
                 </Tooltip>
               ))}
-            </Tabs>
+            </StyledTabs>
           )}
-        </Box>
-      </Box>
+        </TabsWrapper>
+      </MainTabsRow>
 
       {showSubTabsRow && (
-        <Box sx={styles.subTabsRowStyles(isMobile)}>
-          <Box sx={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+        <SubTabsRow isMobile={isMobile}>
+          <SubTabsWrapper>
             {hasSubTabs && (
-              <Tabs
+              <StyledSubTabs
                 value={activeSubTab}
                 variant="scrollable"
                 scrollButtons="auto"
@@ -182,26 +142,6 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                   const subTab = currentSubTabs.find((st) => st.id === val);
                   if (subTab && subTab.status === 'Active')
                     handleSubTabChange(subTab.id, subTab.path);
-                }}
-                sx={{
-                  width: '100%',
-                  minHeight: 'auto',
-                  '& .MuiTabs-indicator': { display: 'none' },
-                  '& .MuiTabs-flexContainer': { gap: 1 },
-                  '& .MuiTabs-scrollButtons': {
-                    width: '28px',
-                    borderRadius: '4px',
-                    backgroundColor: themeConfig.colors.slate[100],
-                    transition: 'all 0.2s',
-                    '&.Mui-disabled': { display: 'none' },
-                  },
-                  '& .MuiTab-root': {
-                    minHeight: 'auto',
-                    minWidth: 'auto',
-                    p: 0,
-                    textTransform: 'none',
-                    opacity: 1,
-                  },
                 }}
               >
                 {currentSubTabs.map((subTab) => (
@@ -222,63 +162,59 @@ const FinancialsTabs: React.FC<FinancialsTabsProps> = ({
                       value={subTab.id}
                       disabled={subTab.status !== 'Active'}
                       label={
-                        <Box
-                          sx={styles.subTabItemStyles(
-                            activeSubTab === subTab.id,
-                            subTab.status !== 'Active',
-                          )}
+                        <SubTabItem
+                          isActive={activeSubTab === subTab.id}
+                          isDisabled={subTab.status !== 'Active'}
                         >
                           {subTab.label}
-                        </Box>
+                        </SubTabItem>
                       }
                       disableRipple
                     />
                   </Tooltip>
                 ))}
-              </Tabs>
+              </StyledSubTabs>
             )}
-          </Box>
+          </SubTabsWrapper>
 
-          <Box sx={styles.actionsGroupStyles(isMobile)}>
+          <ActionsGroup isMobile={isMobile}>
             {shouldShowPrint && (
-              <Button
+              <PrintButton
                 size="small"
                 variant="outlined"
                 onClick={onPrint}
-                startIcon={
-                  <PrintIcon sx={{ fontSize: 18, color: themeConfig.colors.slate[400] }} />
-                }
-                sx={styles.printButtonStyles(isMobile)}
+                startIcon={<PrintIcon />}
+                isMobile={isMobile}
               >
                 Print
-              </Button>
+              </PrintButton>
             )}
             {shouldShowReload && (
-              <Button
+              <ReloadButton
                 size="small"
                 variant="outlined"
                 onClick={onReload}
                 disabled={isReloading}
-                startIcon={<RefreshIcon sx={{ fontSize: 18 }} />}
-                sx={styles.reloadButtonStyles(isMobile)}
+                startIcon={<RefreshIcon />}
+                isMobile={isMobile}
               >
                 Reload
-              </Button>
+              </ReloadButton>
             )}
             {shouldShowExport && (
-              <Button
+              <ExportButton
                 size="small"
                 variant="contained"
                 onClick={onExportWizard}
-                sx={styles.exportButtonStyles(isMobile)}
+                isMobile={isMobile}
               >
                 Export Wizard
-              </Button>
+              </ExportButton>
             )}
-          </Box>
-        </Box>
+          </ActionsGroup>
+        </SubTabsRow>
       )}
-    </Box>
+    </Container>
   );
 };
 

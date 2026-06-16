@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { TablePagination, useTheme, useMediaQuery } from '@mui/material';
+import { useTheme, useMediaQuery } from '@mui/material';
 import { exportToCSV, exportToPDF } from '@/utils/exportUtils';
 import { PAGE_SIZE_OPTIONS } from '@/constants/common';
 import { useGetTableColumnsQuery, useUpdateTableColumnsMutation } from '@/store/api/userApi';
@@ -12,7 +12,7 @@ import {
   AccessorColumn,
   FilterableColumn,
 } from './DataTable.hook';
-import { MainContainer } from './DataTable.styles';
+import { MainContainer, StyledTablePagination } from './DataTable.styles';
 import { DataTableToolbar } from './DataTableToolbar';
 import { DataTableDesktop } from './DataTableDesktop';
 import { DataTableMobile } from './DataTableMobile';
@@ -343,7 +343,7 @@ function DataTable<T>({
       )}
 
       {paginated && (
-        <TablePagination
+        <StyledTablePagination
           rowsPerPageOptions={rowsPerPageOptions}
           component="div"
           count={totalCount}
@@ -363,11 +363,6 @@ function DataTable<T>({
               setInternalRowsPerPage(rpp);
               setInternalPage(0);
             }
-          }}
-          sx={{
-            flexShrink: 0,
-            borderTop: (t) => `1px solid ${t.palette.divider}`,
-            '& .MuiTablePagination-toolbar': { minHeight: 40, px: 2 },
           }}
         />
       )}

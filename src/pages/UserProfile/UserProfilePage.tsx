@@ -1,23 +1,15 @@
 import React from 'react';
 import {
-  Box,
   Typography,
-  Card,
-  Tabs,
   Tab,
-  TextField,
-  Button,
-  Select,
   MenuItem,
   useTheme,
   useMediaQuery,
-  Alert,
-  IconButton,
   CircularProgress,
+  SelectChangeEvent,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DashboardLayout from '@/components/templates/DashboardLayout/DashboardLayout';
-import { themeConfig } from '@/theme';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
@@ -38,7 +30,7 @@ const TabPanel = (props: { children?: React.ReactNode; index: number; value: num
       aria-labelledby={`tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 0, mt: 2 }}>{children}</Box>}
+      {value === index && <styles.StyledTabPanel>{children}</styles.StyledTabPanel>}
     </div>
   );
 };
@@ -72,7 +64,6 @@ const UserProfilePage: React.FC = () => {
     lastName,
     setLastName,
     handleSavePreferences,
-    // getColumnsForGrid,
     profileChanged,
     passwordChanged,
   } = useUserProfilePage();
@@ -81,34 +72,28 @@ const UserProfilePage: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <Box sx={styles.pageContainerStyles}>
-        <Box sx={styles.headerBoxStyles}>
-          <IconButton onClick={handleBack} sx={{ mr: 1, color: themeConfig.colors.text.primary }}>
+      <styles.PageContainer>
+        <styles.HeaderBox>
+          <styles.BackButton onClick={handleBack}>
             <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h5" sx={{ fontWeight: 700 }}>
-            User Profile
-          </Typography>
-        </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mb: 2 }}>
+          </styles.BackButton>
+          <styles.PageTitle variant="h5">User Profile</styles.PageTitle>
+        </styles.HeaderBox>
+        <styles.Subtitle variant="body2" color="text.secondary">
           Manage your account settings and preferences.
-        </Typography>
+        </styles.Subtitle>
 
         {successMessage && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {successMessage}
-          </Alert>
+          <styles.StyledAlert severity="success">{successMessage}</styles.StyledAlert>
         )}
 
-        <Box sx={styles.tabsContainerStyles}>
-          <Tabs
+        <styles.TabsContainer>
+          <styles.StyledTabs
             value={tabIndex}
             onChange={handleTabChange}
             variant={isMobile ? 'scrollable' : 'fullWidth'}
             scrollButtons="auto"
             allowScrollButtonsMobile
-            TabIndicatorProps={{ style: { display: 'none' } }}
-            sx={styles.tabsStyles}
           >
             <Tab
               icon={<PersonOutlineIcon fontSize="small" />}
@@ -125,179 +110,140 @@ const UserProfilePage: React.FC = () => {
               iconPosition="start"
               label="Preferences"
             />
-          </Tabs>
-        </Box>
+          </styles.StyledTabs>
+        </styles.TabsContainer>
 
         <TabPanel value={tabIndex} index={0}>
-          <Card sx={styles.cardStyles}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Account Information
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <styles.StyledCard>
+            <styles.CardTitle variant="subtitle1">Account Information</styles.CardTitle>
+            <styles.CardSubtitle variant="body2" color="text.secondary">
               Update your username.
-            </Typography>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Username
-            </Typography>
-            <TextField
+            </styles.CardSubtitle>
+            <styles.InputLabel variant="subtitle2">Username</styles.InputLabel>
+            <styles.StyledTextField
               fullWidth
               size="small"
               disabled
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              sx={{ ...styles.textFieldStyles, mb: 2 }}
             />
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Display Name
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                  First Name
-                </Typography>
-                <TextField
+            <styles.InputLabel variant="subtitle2">Display Name</styles.InputLabel>
+            <styles.FieldsRow>
+              <styles.FieldCol>
+                <styles.InputLabel variant="subtitle2">First Name</styles.InputLabel>
+                <styles.StyledTextField
                   fullWidth
                   size="small"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  sx={styles.textFieldStyles}
                 />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                  Last Name
-                </Typography>
-                <TextField
+              </styles.FieldCol>
+              <styles.FieldCol>
+                <styles.InputLabel variant="subtitle2">Last Name</styles.InputLabel>
+                <styles.StyledTextField
                   fullWidth
                   size="small"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  sx={styles.textFieldStyles}
                 />
-              </Box>
-            </Box>
-            <Alert
-              severity="warning"
-              sx={{ mb: 2, mt: 1, '& .MuiAlert-message': { fontSize: '0.875rem' } }}
-            >
+              </styles.FieldCol>
+            </styles.FieldsRow>
+            <styles.WarningAlert severity="warning">
               If you update your profile details, you will need to log out and log back in for the
               changes to take effect.
-            </Alert>
-            <Box sx={styles.actionsBoxStyles}>
-              <Button
+            </styles.WarningAlert>
+            <styles.ActionsBox>
+              <styles.PrimaryButton
                 variant="contained"
                 disabled={!profileChanged}
                 startIcon={<EditIcon fontSize="small" />}
                 onClick={handleUpdateUsername}
-                sx={{
-                  backgroundColor: themeConfig.colors.primary,
-                  '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary },
-                }}
               >
                 Update Profile
-              </Button>
-            </Box>
-          </Card>
+              </styles.PrimaryButton>
+            </styles.ActionsBox>
+          </styles.StyledCard>
         </TabPanel>
 
         <TabPanel value={tabIndex} index={1}>
-          <Card sx={styles.cardStyles}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Change Password
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <styles.StyledCard>
+            <styles.CardTitle variant="subtitle1">Change Password</styles.CardTitle>
+            <styles.CardSubtitle variant="body2" color="text.secondary">
               Update your login password.
-            </Typography>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Current Password
-            </Typography>
-            <TextField
+            </styles.CardSubtitle>
+            <styles.InputLabel variant="subtitle2">Current Password</styles.InputLabel>
+            <styles.StyledTextField
               fullWidth
               type="password"
               size="small"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              sx={styles.textFieldStyles}
             />
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              New Password
-            </Typography>
-            <TextField
+            <styles.InputLabel variant="subtitle2">New Password</styles.InputLabel>
+            <styles.NewPasswordField
               fullWidth
               type="password"
               size="small"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              sx={{ ...styles.textFieldStyles, mb: 1 }}
             />
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
+            <styles.CaptionBlock variant="caption" color="text.secondary">
               Use 8+ characters with uppercase, lowercase, numbers, and special characters.
-            </Typography>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-              Confirm New Password
-            </Typography>
-            <TextField
+            </styles.CaptionBlock>
+            <styles.InputLabel variant="subtitle2">Confirm New Password</styles.InputLabel>
+            <styles.ConfirmPasswordField
               fullWidth
               type="password"
               size="small"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              sx={{ ...styles.textFieldStyles, mb: 3 }}
             />
-            <Box sx={styles.actionsBoxStyles}>
-              <Button
+            <styles.ActionsBox>
+              <styles.PrimaryButton
                 variant="contained"
                 disabled={!passwordChanged}
                 startIcon={<KeyIcon fontSize="small" />}
                 onClick={handleChangePassword}
-                sx={{
-                  backgroundColor: themeConfig.colors.primary,
-                  '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary },
-                }}
               >
                 Change Password
-              </Button>
-            </Box>
-          </Card>
+              </styles.PrimaryButton>
+            </styles.ActionsBox>
+          </styles.StyledCard>
         </TabPanel>
 
         <TabPanel value={tabIndex} index={2}>
-          <Card sx={styles.cardStyles}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-              User Preferences
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <styles.StyledCard>
+            <styles.CardTitle variant="subtitle1">User Preferences</styles.CardTitle>
+            <styles.CardSubtitle variant="body2" color="text.secondary">
               Customize your application experience.
-            </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+            </styles.CardSubtitle>
+            <styles.PreferenceHeader>
+              <styles.PreferenceLabel variant="subtitle2">
                 Default Landing Page
-              </Typography>
+              </styles.PreferenceLabel>
               <Typography variant="caption" color="primary">
                 Current: {landingPage}
               </Typography>
-            </Box>
-            <Select
+            </styles.PreferenceHeader>
+            <styles.StyledSelect
               fullWidth
               size="small"
               disabled={user?.role === 'user' || user?.username === 'demo' || isLoadingDetails}
               value={landingPage}
-              onChange={(e) => handleLandingPageChange(e.target.value)}
-              sx={{ ...styles.textFieldStyles, mb: 1 }}
+              onChange={(e: SelectChangeEvent<string>) => handleLandingPageChange(e.target.value)}
             >
               {getAccessiblePages().map((pageLabel) => (
                 <MenuItem key={pageLabel} value={pageLabel}>
                   {pageLabel}
                 </MenuItem>
               ))}
-            </Select>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
+            </styles.StyledSelect>
+            <styles.CaptionBlockBottom variant="caption" color="text.secondary">
               Your browser will navigate to {NAV_CONFIG[landingPage]?.path || '/'} after you click
               confirm.
-            </Typography>
-            {/* Note: Save button confirms the selected preference and navigates to the new landing page. */}
-            <Box sx={styles.actionsBoxStyles}>
-              <Button
+            </styles.CaptionBlockBottom>
+            <styles.ActionsBox>
+              <styles.PrimaryButton
                 variant="contained"
                 disabled={isLoadingDetails || !landingPageChanged}
                 startIcon={
@@ -308,17 +254,13 @@ const UserProfilePage: React.FC = () => {
                   )
                 }
                 onClick={handleSavePreferences}
-                sx={{
-                  backgroundColor: themeConfig.colors.primary,
-                  '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary },
-                }}
               >
                 {isLoadingDetails ? 'Saving...' : 'Confirm Preference'}
-              </Button>
-            </Box>
-          </Card>
+              </styles.PrimaryButton>
+            </styles.ActionsBox>
+          </styles.StyledCard>
         </TabPanel>
-      </Box>
+      </styles.PageContainer>
     </DashboardLayout>
   );
 };

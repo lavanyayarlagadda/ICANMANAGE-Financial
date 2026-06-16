@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, CircularProgress, Theme } from '@mui/material';
+import { CircularProgress, InputAdornment } from '@mui/material';
 import { useAppSelector } from '@/store';
 import {
   useReconciliation,
@@ -21,8 +21,17 @@ import CommentsDialog from './components/CommentsDialog';
 import EditDetailsDialog from './components/EditDialog';
 import AssignUserDialog from './components/AssignUserDialog';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
-import { InputAdornment, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import {
+  ScreenWrapper,
+  TabsStatsContainer,
+  CenteredLoadingBox,
+  ToolbarContainer,
+  RangeWrapper,
+  SearchField,
+  searchIconStyles,
+  getRowStyle,
+} from './ReconciliationScreen.styles';
 
 const ReconciliationScreen: React.FC = () => {
   const { activeSubTab, actionTriggers } = useAppSelector((s) => s.ui);
@@ -129,8 +138,8 @@ const ReconciliationScreen: React.FC = () => {
   );
 
   return (
-    <Box sx={{ p: 3, pt: 1 }}>
-      <Box sx={{ mb: 4 }}>
+    <ScreenWrapper>
+      <TabsStatsContainer>
         <LocationTabs
           view={view}
           locations={locations}
@@ -138,12 +147,12 @@ const ReconciliationScreen: React.FC = () => {
           setActiveLocation={setActiveLocation}
         />
         <SummaryStats stats={stats} />
-      </Box>
+      </TabsStatsContainer>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
+        <CenteredLoadingBox>
           <CircularProgress />
-        </Box>
+        </CenteredLoadingBox>
       ) : (
         <DataTable
           gridName={
@@ -168,30 +177,16 @@ const ReconciliationScreen: React.FC = () => {
               setActiveAge(filters.complexStatus || null);
             }
           }}
-          getRowStyle={(row) => ({
-            backgroundColor: row.isEdited ? 'grey.50' : 'transparent',
-            color: row.isEdited ? 'primary.main' : 'inherit',
-            fontWeight: row.isEdited ? 700 : 'inherit',
-            transition: 'all 0.2s ease',
-            '& td': {
-              color: row.isEdited ? 'success.main' : 'inherit',
-            },
-            '&:hover': {
-              background: (t: Theme) =>
-                row.isEdited
-                  ? t.palette.grey[100] + ' !important'
-                  : t.palette.grey[50] + ' !important',
-            },
-          })}
+          getRowStyle={(row) => getRowStyle(row)}
           customToolbarContent={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'nowrap' }}>
+            <ToolbarContainer>
               {view !== 'reconciled' && (
                 <>
-                  <Box sx={{ flexShrink: 0 }}>
+                  <RangeWrapper>
                     <RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />
-                  </Box>
+                  </RangeWrapper>
 
-                  <TextField
+                  <SearchField
                     size="small"
                     placeholder="Search Tx No"
                     value={searchFilters.transactionNo || ''}
@@ -199,26 +194,17 @@ const ReconciliationScreen: React.FC = () => {
                     onKeyDown={(e) =>
                       e.key === 'Enter' && handleSearchWrapper(searchFilters.transactionNo || '')
                     }
-                    sx={{
-                      width: '160px',
-                      '& .MuiOutlinedInput-root': {
-                        height: '32px',
-                        borderRadius: '6px',
-                        bgcolor: 'background.paper',
-                        fontSize: '12px',
-                      },
-                    }}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <SearchIcon fontSize="small" sx={{ color: 'text.disabled' }} />
+                          <SearchIcon fontSize="small" sx={searchIconStyles} />
                         </InputAdornment>
                       ),
                     }}
                   />
                 </>
               )}
-            </Box>
+            </ToolbarContainer>
           }
         />
       )}
@@ -276,7 +262,7 @@ const ReconciliationScreen: React.FC = () => {
           alert(`Transaction ${selectedTxNo} assigned to ${user}`);
         }}
       />
-    </Box>
+    </ScreenWrapper>
   );
 };
 
