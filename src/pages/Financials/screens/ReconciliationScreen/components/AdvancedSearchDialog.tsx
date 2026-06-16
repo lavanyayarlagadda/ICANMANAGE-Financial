@@ -121,10 +121,10 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
           {/* Row 2 */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-              Transaction NO.
+              TRANSACTION NO.
             </Typography>
             <TextField
-              placeholder="Transaction NO."
+              placeholder="TRANSACTION NO."
               fullWidth
               size="small"
               value={searchFilters.transactionNo}

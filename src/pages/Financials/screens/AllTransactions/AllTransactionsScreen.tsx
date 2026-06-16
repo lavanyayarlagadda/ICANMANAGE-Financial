@@ -57,7 +57,7 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
       },
       {
         id: 'transactionNo',
-        label: 'Transaction No',
+        label: 'TRANSACTION NO',
         minWidth: 170,
         disableHiding: true,
         accessor: (r) => r.transactionNo ?? '-',

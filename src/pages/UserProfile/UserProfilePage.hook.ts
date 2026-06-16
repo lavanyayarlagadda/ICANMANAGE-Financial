@@ -30,7 +30,7 @@ export interface PageGridConfig {
 //       {
 //         name: 'All Transactions',
 //         staticColumns: [
-//           'Transaction No',
+//           'TRANSACTION NO',
 //           'Effective Date',
 //           'Category',
 //           'Type',
@@ -51,7 +51,7 @@ export interface PageGridConfig {
 //         staticColumns: [
 //           'Payment Date',
 //           'Type',
-//           'Transaction No',
+//           'TRANSACTION NO',
 //           'Payer',
 //           'Description',
 //           'Amount',
@@ -154,7 +154,7 @@ export interface PageGridConfig {
 //       {
 //         name: 'Fee Schedule Variance',
 //         staticColumns: [
-//           'Transaction No',
+//           'TRANSACTION NO',
 //           'Payment Date',
 //           'Patient Name',
 //           'Payer Name',
@@ -168,7 +168,7 @@ export interface PageGridConfig {
 //       {
 //         name: 'Payment Variance',
 //         staticColumns: [
-//           'Transaction No',
+//           'TRANSACTION NO',
 //           'Payment Date',
 //           'Patient Name',
 //           'Payer Name',
@@ -187,7 +187,7 @@ export interface PageGridConfig {
 //       {
 //         name: 'Fee Schedule Variance',
 //         staticColumns: [
-//           'Transaction No',
+//           'TRANSACTION NO',
 //           'Payment Date',
 //           'Patient Name',
 //           'Payer Name',
@@ -206,7 +206,7 @@ export interface PageGridConfig {
 //       {
 //         name: 'Payment Variance',
 //         staticColumns: [
-//           'Transaction No',
+//           'TRANSACTION NO',
 //           'Payment Date',
 //           'Patient Name',
 //           'Payer Name',

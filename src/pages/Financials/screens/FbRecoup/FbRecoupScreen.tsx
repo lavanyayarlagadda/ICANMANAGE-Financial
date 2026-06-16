@@ -57,16 +57,16 @@ const AssociatedEraFilesSection: React.FC<{
         }}
       >
         <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">
-          Transaction No
+          TRANSACTION NO
         </Typography>
         <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">
           NPI
         </Typography>
         <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">
-          Remit Date
+          REMIT DATE
         </Typography>
         <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">
-          Amount
+          AMOUNT
         </Typography>
       </Box>
       {files.map((file, idx) => (

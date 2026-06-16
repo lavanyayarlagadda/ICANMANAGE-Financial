@@ -265,5 +265,15 @@ export const muiTheme = createTheme({
     MuiIconButton: {
       styleOverrides: { root: { borderRadius: spacing.borderRadius.sm } },
     },
+    MuiMenu: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
+    MuiPopover: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
   },
 });

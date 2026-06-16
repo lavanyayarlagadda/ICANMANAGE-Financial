@@ -55,7 +55,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       },
       {
         id: 'transactionNo',
-        label: 'Transaction No',
+        label: 'TRANSACTION NO',
         minWidth: 160,
         accessor: (r) => r.transactionNo ?? '-',
         render: (r) => r.transactionNo ?? '-',

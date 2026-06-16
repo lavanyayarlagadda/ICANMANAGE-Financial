@@ -51,7 +51,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       },
       {
         id: 'transactionNo',
-        label: 'Transaction No',
+        label: 'TRANSACTION NO',
         minWidth: 160,
         align: 'center',
         accessor: (r) => r.transactionNo || r.id || '-',

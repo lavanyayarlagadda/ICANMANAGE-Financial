@@ -99,7 +99,7 @@ export const useReconciliation = () => {
 
       const newHeaders: HeaderConfig[] = [
         { id: 'actions', label: 'Actions', align: 'left', isAction: true },
-        { id: 'transactionNo', label: 'Transaction No', align: 'left', isLink: true },
+        { id: 'transactionNo', label: 'TRANSACTION NO', align: 'left', isLink: true },
         {
           id: 'location',
           label: 'Loc/State',
@@ -268,7 +268,7 @@ export const useReconciliation = () => {
           setSearchFilters((prev) => ({ ...prev, transactionNo: txNo }));
           setAppliedFilters({ ...searchFilters, transactionNo: txNo });
         } else {
-          alert('Transaction not found across any tabs.');
+          alert('TRANSACTION NOt found across any tabs.');
         }
         setLoading(false);
       }, 300);
