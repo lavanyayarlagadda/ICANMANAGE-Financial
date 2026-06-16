@@ -14,7 +14,7 @@ export const useFooter = () => {
   const drawerWidth = isMobile ? 0 : sidebarCollapsed ? DRAWER_COLLAPSED_WIDTH : DRAWER_WIDTH;
 
   const getTimeoutSeconds = useCallback(() => {
-    const timeoutMin = parseInt(localStorage.getItem('ican_inactivity_timeout') || '15', 10);
+    const timeoutMin = parseInt(sessionStorage.getItem('ican_inactivity_timeout') || '15', 10);
     return (isNaN(timeoutMin) ? 15 : timeoutMin) * 60;
   }, []);
 

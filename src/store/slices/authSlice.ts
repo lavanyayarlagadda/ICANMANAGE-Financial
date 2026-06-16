@@ -67,7 +67,7 @@ const REFRESH_TOKEN_KEY = 'ican_refresh_token';
 
 const loadUserFromStorage = (): User | null => {
   try {
-    const storedUser = localStorage.getItem(AUTH_STORAGE_KEY);
+    const storedUser = sessionStorage.getItem(AUTH_STORAGE_KEY);
     if (storedUser) {
       const parsed = JSON.parse(storedUser);
       const result = userSchema.safeParse(parsed);
@@ -85,8 +85,8 @@ const loadUserFromStorage = (): User | null => {
 };
 
 const savedUser = loadUserFromStorage();
-const savedToken = localStorage.getItem(TOKEN_KEY);
-const savedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+const savedToken = sessionStorage.getItem(TOKEN_KEY);
+const savedRefreshToken = sessionStorage.getItem(REFRESH_TOKEN_KEY);
 
 console.log('[AuthSlice] Initializing state from storage:', {
   hasUser: !!savedUser,
@@ -116,15 +116,15 @@ const authSlice = createSlice({
       state.accessToken = accessToken;
       state.refreshToken = refreshToken;
       state.error = null;
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
-      localStorage.setItem(TOKEN_KEY, accessToken);
-      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+      sessionStorage.setItem(TOKEN_KEY, accessToken);
+      sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
     },
     updateToken(state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) {
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
-      localStorage.setItem(TOKEN_KEY, action.payload.accessToken);
-      localStorage.setItem(REFRESH_TOKEN_KEY, action.payload.refreshToken);
+      sessionStorage.setItem(TOKEN_KEY, action.payload.accessToken);
+      sessionStorage.setItem(REFRESH_TOKEN_KEY, action.payload.refreshToken);
     },
     loginFailure(state, action: PayloadAction<string>) {
       state.isAuthenticated = false;
@@ -132,9 +132,9 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
       state.error = action.payload;
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(REFRESH_TOKEN_KEY);
     },
     logout(state) {
       state.isAuthenticated = false;
@@ -142,10 +142,10 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
       state.error = null;
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(REFRESH_TOKEN_KEY);
-      localStorage.removeItem('ican_inactivity_timeout');
+      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+      sessionStorage.removeItem('ican_inactivity_timeout');
     },
     clearError(state) {
       state.error = null;

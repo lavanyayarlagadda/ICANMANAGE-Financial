@@ -140,11 +140,11 @@ const baseQueryWithReauth: BaseQueryFn<
         const errorMessage =
           errState?.data?.message ||
           `An unexpected error occurred (${errState?.status || 'Unknown'}). ${errState?.error || ''} Please try again.`;
-        
+
         // Dispatch by plain action type to avoid circular dependency and dynamic import warnings
-        api.dispatch({ 
-          type: 'ui/showSnackbar', 
-          payload: { message: errorMessage, severity: 'error' } 
+        api.dispatch({
+          type: 'ui/showSnackbar',
+          payload: { message: errorMessage, severity: 'error' },
         });
       }
     }
