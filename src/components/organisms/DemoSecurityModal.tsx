@@ -28,7 +28,7 @@ interface DemoSecurityModalProps {
 const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, currentUser }) => {
   const [selectedUser, setSelectedUser] = useState(currentUser.id);
   const [inactivityTimeout, setInactivityTimeout] = useState(
-    () => localStorage.getItem('ican_inactivity_timeout') || '15',
+    () => sessionStorage.getItem('ican_inactivity_timeout') || '15',
   );
   const [passwordPolicy, setPasswordPolicy] = useState('30 Days');
 
@@ -70,7 +70,7 @@ const DemoSecurityModal: React.FC<DemoSecurityModalProps> = ({ open, onClose, cu
   };
 
   const handleSave = () => {
-    localStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
+    sessionStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
     window.dispatchEvent(new Event('ican_inactivity_timeout_changed'));
     onClose();
   };

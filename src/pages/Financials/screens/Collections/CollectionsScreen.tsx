@@ -213,6 +213,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       </Grid>
 
       <DataTable
+        gridName="Collections"
         columns={columns}
         data={collections || []}
         rowKey={(r) => r.id}

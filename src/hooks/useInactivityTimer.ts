@@ -17,8 +17,8 @@ export const useInactivityTimer = () => {
 
     if (!isAuthenticated) return;
 
-    // Get timeout from localStorage or default to 15 mins
-    const storedTimeout = localStorage.getItem('ican_inactivity_timeout');
+    // Get timeout from sessionStorage or default to 15 mins
+    const storedTimeout = sessionStorage.getItem('ican_inactivity_timeout');
     const timeoutMinutes = storedTimeout ? parseInt(storedTimeout) : 15;
 
     if (timeoutMinutes > 0) {

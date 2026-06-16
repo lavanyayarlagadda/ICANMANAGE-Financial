@@ -225,6 +225,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             size="small"
             startIcon={<SearchIcon sx={{ fontSize: 18 }} />}
             onClick={handleApplySearch}
+            disabled={!Object.values(searchFilters).some((v) => v?.trim())}
             sx={{
               height: '36px',
               borderRadius: '8px',
@@ -314,6 +315,7 @@ const PipScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         </Grid>
       </Grid>
       <DataTable
+        gridName="PIP"
         columns={columns}
         data={pipRecords || []}
         rowKey={getRowId}

@@ -16,6 +16,8 @@ import {
   TextField,
   CircularProgress,
   createFilterOptions,
+  Checkbox,
+  Button,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -23,6 +25,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import { EXPORT_FORMATS } from '@/constants/common';
 import {
   ToolbarContainer,
@@ -38,7 +41,7 @@ import {
   ExportButton,
   FilterWrapper,
 } from './DataTable.styles';
-import { FilterableColumn } from './DataTable.hook';
+import { FilterableColumn, DataColumn } from './DataTable.hook';
 
 interface DataTableToolbarProps<T> {
   selectable?: boolean;
@@ -68,6 +71,9 @@ interface DataTableToolbarProps<T> {
   handleCSVExport: () => void;
   handlePDFExport: () => void;
   tableTitle?: string;
+  columns: DataColumn<T>[];
+  hiddenColumns: Set<string>;
+  onSaveColumns: (stagedHidden: Set<string>) => Promise<void>;
 }
 
 export function DataTableToolbar<T>({
@@ -98,8 +104,45 @@ export function DataTableToolbar<T>({
   handleCSVExport,
   handlePDFExport,
   tableTitle,
+  columns,
+  hiddenColumns,
+  onSaveColumns,
 }: DataTableToolbarProps<T>) {
   const [downloadAnchor, setDownloadAnchor] = React.useState<null | HTMLElement>(null);
+  const [columnMenuAnchor, setColumnMenuAnchor] = React.useState<null | HTMLElement>(null);
+  const [stagedColumns, setStagedColumns] = React.useState<Set<string>>(new Set());
+  const [isUpdatingColumns, setIsUpdatingColumns] = React.useState(false);
+
+  const handleColumnMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setStagedColumns(new Set(hiddenColumns));
+    setColumnMenuAnchor(event.currentTarget);
+  };
+
+  const hasChanges =
+    stagedColumns.size !== hiddenColumns.size ||
+    [...stagedColumns].some((col) => !hiddenColumns.has(col));
+
+  const toggleColumnVisibility = (colId: string) => {
+    setStagedColumns((prev) => {
+      const newHidden = new Set(prev);
+      if (newHidden.has(colId)) {
+        newHidden.delete(colId);
+      } else {
+        newHidden.add(colId);
+      }
+      return newHidden;
+    });
+  };
+
+  const handleUpdateColumns = async () => {
+    setIsUpdatingColumns(true);
+    try {
+      await onSaveColumns(stagedColumns);
+      setColumnMenuAnchor(null);
+    } finally {
+      setIsUpdatingColumns(false);
+    }
+  };
 
   return (
     <ToolbarContainer>
@@ -207,6 +250,117 @@ export function DataTableToolbar<T>({
           </Box>
 
           <ActionGroup>
+            <ExportButton
+              size="small"
+              variant="outlined"
+              onClick={handleColumnMenuOpen}
+              startIcon={<ViewColumnIcon fontSize="small" />}
+              sx={{ minWidth: 0, px: 1 }}
+            >
+              Columns
+            </ExportButton>
+            <Menu
+              anchorEl={columnMenuAnchor}
+              open={Boolean(columnMenuAnchor)}
+              onClose={() => setColumnMenuAnchor(null)}
+              PaperProps={{
+                style: {
+                  maxHeight: 450,
+                  width: 260,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  borderRadius: 8,
+                  boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+                  scrollbarWidth: 'thin',
+                },
+              }}
+              MenuListProps={{ sx: { p: 0 } }}
+            >
+              <Box sx={{ p: 2, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+                  Manage Columns
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  flex: 1,
+                  overflowY: 'auto',
+                  py: 1,
+                  scrollbarWidth: 'thin',
+                  '&::-webkit-scrollbar': { width: '6px' },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: 'rgba(0,0,0,.2)',
+                    borderRadius: '4px',
+                  },
+                }}
+              >
+                {(() => {
+                  const toggleableColumns = columns.filter((c) => c.label && c.id !== 'actions');
+                  const visibleToggleableCount = toggleableColumns.filter(
+                    (c) => !stagedColumns.has(c.id),
+                  ).length;
+
+                  return columns.map((col) => {
+                    if (!col.label || col.id === 'actions') return null;
+                    const isHidden = stagedColumns.has(col.id);
+                    const isLastVisible = !isHidden && visibleToggleableCount === 1;
+
+                    return (
+                      <MenuItem
+                        key={col.id}
+                        onClick={() => {
+                          if (!isLastVisible) toggleColumnVisibility(col.id);
+                        }}
+                        disabled={isUpdatingColumns || isLastVisible}
+                        sx={{ py: 0.5, px: 2, minHeight: 36 }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 32 }}>
+                          <Checkbox
+                            checked={!isHidden}
+                            disabled={isUpdatingColumns || isLastVisible}
+                            size="small"
+                            sx={{ p: 0.5 }}
+                            disableRipple
+                          />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={col.label as React.ReactNode}
+                          primaryTypographyProps={{
+                            variant: 'body2',
+                            color: 'text.secondary',
+                            fontWeight: 500,
+                          }}
+                        />
+                      </MenuItem>
+                    );
+                  });
+                })()}
+              </Box>
+              <Box
+                sx={{
+                  p: 1.5,
+                  borderTop: '1px solid',
+                  borderColor: 'divider',
+                  bgcolor: 'background.default',
+                }}
+              >
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleUpdateColumns}
+                  disabled={isUpdatingColumns || !hasChanges}
+                  size="small"
+                  sx={{ textTransform: 'none', fontWeight: 600, py: 0.75 }}
+                >
+                  {isUpdatingColumns ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    'Update Columns'
+                  )}
+                </Button>
+              </Box>
+            </Menu>
+
             {download && (
               <>
                 <ExportButton

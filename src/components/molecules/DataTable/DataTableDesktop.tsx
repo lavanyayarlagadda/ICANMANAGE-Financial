@@ -147,7 +147,19 @@ export function DataTableDesktop<T>({
                     </Box>
                   </TableSortLabel>
                 ) : (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent:
+                        (col.align || 'center') === 'center'
+                          ? 'center'
+                          : col.align === 'right'
+                            ? 'flex-end'
+                            : 'flex-start',
+                      gap: 0.5,
+                    }}
+                  >
                     {col.label}
                     {descriptions && descriptions[col.id] && (
                       <IconButton

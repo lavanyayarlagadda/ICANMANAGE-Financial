@@ -81,7 +81,9 @@ const TopNavBar: React.FC<TopNavBarProps> = (props) => {
                   select
                   fullWidth
                   size="small"
-                  value={selectedTenantId || ''}
+                  value={
+                    tenants?.some((t) => t.tenantId === selectedTenantId) ? selectedTenantId : ''
+                  }
                   onChange={handleTenantChange}
                   disabled={isTenantsLoading}
                   sx={styles.tenantSelectStyles(theme)}

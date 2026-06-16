@@ -99,7 +99,13 @@ const LoginPage = () => {
             />
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: -1, mb: 2 }}>
-              <Link href="#" variant="body2" underline="hover" fontWeight={500}>
+              <Link
+                component={RouterLink}
+                to="/forgot-password"
+                variant="body2"
+                underline="hover"
+                fontWeight={500}
+              >
                 Forgot password?
               </Link>
             </Box>

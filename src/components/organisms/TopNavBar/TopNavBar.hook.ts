@@ -112,7 +112,7 @@ export const useTopNavBar = ({ onMenuToggle }: UseTopNavBarProps) => {
 
   const handleLogout = useCallback(() => {
     handleClose();
-    localStorage.removeItem('ican_selected_tenant');
+    sessionStorage.removeItem('ican_selected_tenant');
     dispatch(logout());
     dispatch(resetUiState());
     dispatch(resetRemittanceViewState());

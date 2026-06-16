@@ -122,7 +122,7 @@ export const getDeltaLabel = (columns: TrendColumn[], compareMode?: string): str
     }
     return 'Δ YoY';
   }
-  
+
   if (actualCols.length >= 2) {
     const present = actualCols[actualCols.length - 1].label.split(' ')[0];
     const previous = actualCols[actualCols.length - 2].label.split(' ')[0];
@@ -168,13 +168,11 @@ export const toNumericAmount = (value: unknown): number | null => {
   return Number.isFinite(num) ? num : null;
 };
 
-
 export const momDirectionFromPercent = (percent: number): 'UP' | 'DOWN' | 'NONE' => {
   if (percent > 0) return 'UP';
   if (percent < 0) return 'DOWN';
   return 'NONE';
 };
-
 
 export const toDelta = (percent: unknown, direction: unknown): string => {
   const num = typeof percent === 'number' ? percent : Number(percent);

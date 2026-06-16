@@ -43,7 +43,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
   const [updateMenuConfig, { isLoading: isSaving }] = useUpdateUserMenuConfigMutation();
 
   const [inactivityTimeout, setInactivityTimeout] = useState(
-    () => localStorage.getItem('ican_inactivity_timeout') || '15',
+    () => sessionStorage.getItem('ican_inactivity_timeout') || '15',
   );
   const [passwordPolicy, setPasswordPolicy] = useState<PasswordPolicy>('30 Days');
 
@@ -80,7 +80,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
 
   useEffect(() => {
     if (selectedUser) {
-      localStorage.setItem('ican_demo_security_selected_user', selectedUser);
+      sessionStorage.setItem('ican_demo_security_selected_user', selectedUser);
     }
   }, [selectedUser]);
 
@@ -115,7 +115,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
   const handleUserChange = useCallback((event: SelectChangeEvent<string>) => {
     const userId = event.target.value;
     setSelectedUser(userId);
-    localStorage.setItem('ican_demo_security_selected_user', userId);
+    sessionStorage.setItem('ican_demo_security_selected_user', userId);
   }, []);
 
   const handleModuleStatusChange = useCallback(
@@ -254,7 +254,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
         overrides,
       }).unwrap();
 
-      localStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
+      sessionStorage.setItem('ican_inactivity_timeout', inactivityTimeout);
       window.dispatchEvent(new Event('ican_inactivity_timeout_changed'));
 
       // Give a tiny delay for RTK Query to start refetching and for the user to see 'Success'
@@ -324,7 +324,7 @@ export const useDemoSecurityModal = ({ currentUser, open, onClose }: UseDemoSecu
 
       // 3. Check others
       if (moduleSelectionEnabled !== true) return true; // Assuming default is true
-      if (inactivityTimeout !== (localStorage.getItem('ican_inactivity_timeout') || '15'))
+      if (inactivityTimeout !== (sessionStorage.getItem('ican_inactivity_timeout') || '15'))
         return true;
       if (passwordPolicy !== '30 Days') return true; // Assuming default
 

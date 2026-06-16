@@ -51,7 +51,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       },
       {
         id: 'transactionNo',
-        label: 'Transaction No',
+        label: 'TRANSACTION NO',
         minWidth: 160,
         align: 'center',
         accessor: (r) => r.transactionNo || r.id || '-',
@@ -145,6 +145,22 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           <MultiValueDisplay value={r.adjustmentCode || ''} delimiter="|" hideSearch={true} />
         ),
       },
+      // {
+      //   id: 'adjustmentCode1',
+      //   label: 'ADJUSTMENT CODE 1',
+      //   minWidth: 160,
+      //   align: 'center',
+      //   accessor: (r) => r.adjustmentCode1 || '',
+      //   render: (r) => <Typography variant="body2">{r.adjustmentCode1}</Typography>,
+      // },
+      // {
+      //   id: 'adjustmentCode2',
+      //   label: 'ADJUSTMENT CODE 2',
+      //   minWidth: 160,
+      //   align: 'center',
+      //   accessor: (r) => r.adjustmentCode2 || '',
+      //   render: (r) => <Typography variant="body2">{r.adjustmentCode2}</Typography>,
+      // },
     ],
     [handleDrillDown, theme, payerOptions, payerOptionsLoading, payerOptionsError],
   );
@@ -224,6 +240,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           <Button
             variant="contained"
             size="small"
+            disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
             sx={{
               height: '36px',
@@ -238,6 +255,7 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         </Box>
       </ToolbarWrapper>
       <DataTable
+        gridName={activeSubTab === 0 ? 'Fee Schedule Variance' : 'Payment Variance'}
         columns={feeColumns}
         data={
           activeSubTab === 0 ? (feeData?.data?.content ?? []) : (paymentData?.data?.content ?? [])

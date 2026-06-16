@@ -624,7 +624,7 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
       description: 'Detailed context regarding the payment origin or purpose.',
     },
     transactionNo: {
-      heading: 'Transaction No',
+      heading: 'TRANSACTION NO',
       description: 'The reference number assigned to this payment by the bank or insurer.',
     },
     payer: {
@@ -650,7 +650,7 @@ export const mockDescriptions: Record<string, TableDescriptions> = {
       description: 'The date on which the bank deposit or remit record was officially recognized.',
     },
     transactionNo: {
-      heading: 'Transaction NO',
+      heading: 'TRANSACTION NO',
       description:
         'The unique identification number (e.g., Check # or EFT #) associated with the transaction.',
     },

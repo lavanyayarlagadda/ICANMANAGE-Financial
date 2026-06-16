@@ -172,9 +172,7 @@ export const normalizeTrendRow = (
       : Object.keys(amountsByColumn).map((key) => formatColumnAmount(amountsByColumn[key]));
 
   const hasApiMom = row.momChangePercent !== undefined && row.momChangePercent !== null;
-  const momDelta = hasApiMom
-    ? toDelta(row.momChangePercent, row.momDirection)
-     : '—';
+  const momDelta = hasApiMom ? toDelta(row.momChangePercent, row.momDirection) : '—';
 
   return {
     id: rowId,

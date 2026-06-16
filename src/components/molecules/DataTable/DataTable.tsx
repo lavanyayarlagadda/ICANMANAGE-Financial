@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { TablePagination, useTheme, useMediaQuery } from '@mui/material';
 import { exportToCSV, exportToPDF } from '@/utils/exportUtils';
 import { PAGE_SIZE_OPTIONS } from '@/constants/common';
+import { useGetTableColumnsQuery, useUpdateTableColumnsMutation } from '@/store/api/userApi';
 
 import DictionaryDrawer from '../DictionaryDrawer/DictionaryDrawer';
 import {
@@ -56,6 +57,9 @@ interface DataTableProps<T> {
   loading?: boolean;
   showColumnDividers?: boolean;
   tableTitle?: string;
+  tableName?: string;
+  gridName?: string;
+  userId?: string;
 }
 
 function DataTable<T>({
@@ -78,6 +82,9 @@ function DataTable<T>({
   additionalFilterCount = 0,
   showColumnDividers = false,
   tableTitle,
+  tableName,
+  gridName,
+  // userId,
   ...props
 }: DataTableProps<T>) {
   const hasAccessor = (column: DataColumn<T>): column is AccessorColumn<T> => !!column.accessor;
@@ -85,6 +92,81 @@ function DataTable<T>({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [showFilters, setShowFilters] = useState(false);
+  const [hiddenColumns, setHiddenColumns] = useState<Set<string>>(new Set());
+
+  const visibleColumns = useMemo(
+    () => columns.filter((col) => !hiddenColumns.has(col.id)),
+    [columns, hiddenColumns],
+  );
+
+  const actualTableName = tableName || gridName || '';
+
+  const { data: columnPreferences, isFetching: isPreferencesFetching } = useGetTableColumnsQuery(
+    actualTableName,
+    { skip: !actualTableName },
+  );
+
+  const [updateColumns] = useUpdateTableColumnsMutation();
+
+  // Reset hidden columns immediately when switching tables to avoid state bleed
+  React.useEffect(() => {
+    setHiddenColumns(new Set());
+  }, [actualTableName]);
+
+  // Fetch initial column preferences
+  React.useEffect(() => {
+    if (columnPreferences && typeof columnPreferences === 'object') {
+      const newHidden = new Set<string>();
+      // Payload is columnId -> boolean (true=visible, false=hidden)
+      Object.entries(columnPreferences).forEach(([colId, isVisible]) => {
+        if (!isVisible) {
+          newHidden.add(colId);
+        }
+      });
+      setHiddenColumns(newHidden);
+    } else if (columnPreferences === null || columnPreferences === '') {
+      // If the backend returns no preferences, reset to default (all visible)
+      setHiddenColumns(new Set());
+    }
+  }, [columnPreferences]);
+
+  const handleSaveColumns = async (stagedHidden: Set<string>) => {
+    if (!actualTableName) {
+      // If no backend config provided, just update locally
+      setHiddenColumns(stagedHidden);
+      return;
+    }
+
+    // Construct payload: all columns, true if visible, false if hidden (in stagedHidden)
+    const columnsPayload: Record<string, boolean> = {};
+    columns.forEach((col) => {
+      if (col.id !== 'actions') {
+        columnsPayload[col.id] = !stagedHidden.has(col.id);
+      }
+    });
+
+    try {
+      const res = await updateColumns({
+        tableName: actualTableName,
+        columns: columnsPayload,
+      }).unwrap();
+
+      // Apply response back to state
+      const finalHidden = new Set<string>();
+      if (res) {
+        const responseColumns = 'columns' in res ? res.columns : res;
+        Object.entries(responseColumns).forEach(([colId, isVisible]) => {
+          if (!isVisible) {
+            finalHidden.add(colId);
+          }
+        });
+      }
+      setHiddenColumns(finalHidden);
+    } catch (e) {
+      console.error('Failed to update column preferences', e);
+      // Revert or show error if needed
+    }
+  };
 
   const {
     page,
@@ -137,7 +219,7 @@ function DataTable<T>({
         })) as FilterableColumn<T>[],
     [columns],
   );
-  const exportableColumns = columns
+  const exportableColumns = visibleColumns
     .filter((col) => !!col)
     .filter((c): c is AccessorColumn<T> => c.id !== 'actions' && hasAccessor(c));
   const paginatedData =
@@ -207,12 +289,15 @@ function DataTable<T>({
         handlePDFExport={handlePDFExport}
         customFilterContent={props.customFilterContent}
         tableTitle={tableTitle}
+        columns={columns}
+        hiddenColumns={hiddenColumns}
+        onSaveColumns={handleSaveColumns}
       />
 
-      {loading ? (
+      {loading || isPreferencesFetching ? (
         <TableSkeleton
           rows={rowsPerPage}
-          columns={columns.length}
+          columns={visibleColumns.length}
           hasCheckbox={!!props.selectable}
         />
       ) : isMobile ? (
@@ -223,7 +308,7 @@ function DataTable<T>({
           selectable={props.selectable}
           selectedKeys={selectedKeys}
           handleSelectOne={handleSelectOne}
-          columns={columns}
+          columns={visibleColumns}
           descriptions={descriptions}
           handleHeaderClick={handleHeaderClick}
           expandedContent={expandedContent}
@@ -236,7 +321,7 @@ function DataTable<T>({
           isIndeterminate={isIndeterminate}
           isAllSelected={isAllSelected}
           handleSelectAll={handleSelectAll}
-          columns={columns}
+          columns={visibleColumns}
           sortCol={sortCol}
           sortDir={sortDir}
           isSortable={isSortable}

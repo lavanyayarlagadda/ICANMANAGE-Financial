@@ -61,7 +61,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       // { id: 'description', label: 'DESCRIPTION', minWidth: 200, accessor: (r) => r.description ?? '-', render: (r) => r.description ?? '-' },
       {
         id: 'transactionNo',
-        label: 'Transaction No',
+        label: 'TRANSACTION NO',
         minWidth: 220,
         align: 'center',
         accessor: (r) => r.transactionNo ?? '',
@@ -123,6 +123,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           <Button
             variant="contained"
             size="small"
+            disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
             sx={{
               height: '36px',
@@ -137,6 +138,7 @@ const PaymentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         </Box>
       </ToolbarWrapper>
       <DataTable
+        gridName="Payments"
         columns={columns}
         data={payments || []}
         rowKey={(r) => r.id ?? ''}

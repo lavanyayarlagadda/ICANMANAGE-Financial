@@ -54,7 +54,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
       },
       {
         id: 'transactionNo',
-        label: 'Transaction No',
+        label: 'TRANSACTION NO',
         minWidth: 160,
         accessor: (r) => r.transactionNo ?? '-',
         render: (r) => r.transactionNo ?? '-',
@@ -151,6 +151,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
           <Button
             variant="contained"
             size="small"
+            disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
             sx={{
               height: '36px',
@@ -165,6 +166,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         </Box>
       </styles.ToolbarWrapper>
       <DataTable
+        gridName="Other Adjustments"
         columns={columns}
         data={adjustments || []}
         rowKey={(r) => r.id}

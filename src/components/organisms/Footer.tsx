@@ -5,7 +5,7 @@ const Footer: React.FC = () => {
   const theme = useTheme();
 
   const getTimeoutSeconds = () => {
-    const timeoutMin = parseInt(localStorage.getItem('ican_inactivity_timeout') || '15', 10);
+    const timeoutMin = parseInt(sessionStorage.getItem('ican_inactivity_timeout') || '15', 10);
     return (isNaN(timeoutMin) ? 15 : timeoutMin) * 60;
   };
 

@@ -33,6 +33,7 @@ export interface DataColumn<T> {
   isFilterLoading?: boolean;
   filterError?: string | boolean;
   exportLabel?: string;
+  disableHiding?: boolean;
 }
 
 export type AccessorColumn<T> = DataColumn<T> & { accessor: (row: T) => string | number };

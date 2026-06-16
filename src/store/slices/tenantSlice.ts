@@ -16,7 +16,7 @@ const TENANT_STORAGE_KEY = 'ican_selected_tenant';
 
 const initialState: TenantState = {
   tenants: [],
-  selectedTenantId: localStorage.getItem(TENANT_STORAGE_KEY),
+  selectedTenantId: sessionStorage.getItem(TENANT_STORAGE_KEY),
   isLoading: false,
   error: null,
 };
@@ -30,11 +30,11 @@ const tenantSlice = createSlice({
     },
     setSelectedTenantId: (state, action: PayloadAction<string>) => {
       state.selectedTenantId = action.payload;
-      localStorage.setItem(TENANT_STORAGE_KEY, action.payload);
+      sessionStorage.setItem(TENANT_STORAGE_KEY, action.payload);
     },
     clearSelectedTenant: (state) => {
       state.selectedTenantId = null;
-      localStorage.removeItem(TENANT_STORAGE_KEY);
+      sessionStorage.removeItem(TENANT_STORAGE_KEY);
     },
     setTenantLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;

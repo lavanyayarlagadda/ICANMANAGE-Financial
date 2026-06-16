@@ -214,6 +214,7 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
                 />
                 <Button
                   variant="contained"
+                  disabled={!selectedTxNo}
                   sx={{
                     borderRadius: '8px',
                     px: 2,

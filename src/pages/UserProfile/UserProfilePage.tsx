@@ -67,6 +67,14 @@ const UserProfilePage: React.FC = () => {
     handleBack,
     isLoadingDetails,
     landingPageChanged,
+    firstName,
+    setFirstName,
+    lastName,
+    setLastName,
+    handleSavePreferences,
+    // getColumnsForGrid,
+    profileChanged,
+    passwordChanged,
   } = useUserProfilePage();
 
   if (!user) return null;
@@ -134,18 +142,59 @@ const UserProfilePage: React.FC = () => {
             <TextField
               fullWidth
               size="small"
+              disabled
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              sx={styles.textFieldStyles}
+              sx={{ ...styles.textFieldStyles, mb: 2 }}
             />
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+              Display Name
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, mb: 1 }}>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  First Name
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  sx={styles.textFieldStyles}
+                />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                  Last Name
+                </Typography>
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  sx={styles.textFieldStyles}
+                />
+              </Box>
+            </Box>
+            <Alert
+              severity="warning"
+              sx={{ mb: 2, mt: 1, '& .MuiAlert-message': { fontSize: '0.875rem' } }}
+            >
+              If you update your profile details, you will need to log out and log back in for the
+              changes to take effect.
+            </Alert>
             <Box sx={styles.actionsBoxStyles}>
               <Button
                 variant="contained"
+                disabled={!profileChanged}
                 startIcon={<EditIcon fontSize="small" />}
                 onClick={handleUpdateUsername}
-                sx={{ backgroundColor: themeConfig.colors.primary }}
+                sx={{
+                  backgroundColor: themeConfig.colors.primary,
+                  '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary },
+                }}
               >
-                Update Username
+                Update Profile
               </Button>
             </Box>
           </Card>
@@ -198,9 +247,13 @@ const UserProfilePage: React.FC = () => {
             <Box sx={styles.actionsBoxStyles}>
               <Button
                 variant="contained"
+                disabled={!passwordChanged}
                 startIcon={<KeyIcon fontSize="small" />}
                 onClick={handleChangePassword}
-                sx={{ backgroundColor: themeConfig.colors.primary }}
+                sx={{
+                  backgroundColor: themeConfig.colors.primary,
+                  '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary },
+                }}
               >
                 Change Password
               </Button>
@@ -239,10 +292,10 @@ const UserProfilePage: React.FC = () => {
               ))}
             </Select>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 3 }}>
-              Your browser will navigate to {NAV_CONFIG[landingPage]?.path || '/'} automatically
-              after selection.
+              Your browser will navigate to {NAV_CONFIG[landingPage]?.path || '/'} after you click
+              confirm.
             </Typography>
-            {/* Note: Save button is now mostly redundant due to auto-save on select, but kept for UX clarity */}
+            {/* Note: Save button confirms the selected preference and navigates to the new landing page. */}
             <Box sx={styles.actionsBoxStyles}>
               <Button
                 variant="contained"
@@ -254,7 +307,7 @@ const UserProfilePage: React.FC = () => {
                     <SaveIcon fontSize="small" />
                   )
                 }
-                onClick={() => handleLandingPageChange(landingPage)}
+                onClick={handleSavePreferences}
                 sx={{
                   backgroundColor: themeConfig.colors.primary,
                   '&:disabled': { opacity: 0.5, backgroundColor: themeConfig.colors.primary },

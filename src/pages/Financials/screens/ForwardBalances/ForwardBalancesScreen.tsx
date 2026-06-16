@@ -258,6 +258,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
       </Grid>
 
       <DataTable
+        gridName="Forward Balances"
         columns={columns}
         data={forwardBalanceNotices}
         rowKey={(row) => row.id}

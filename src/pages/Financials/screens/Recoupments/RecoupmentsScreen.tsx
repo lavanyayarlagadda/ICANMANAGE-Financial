@@ -55,7 +55,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       },
       {
         id: 'transactionNo',
-        label: 'Transaction No',
+        label: 'TRANSACTION NO',
         minWidth: 160,
         accessor: (r) => r.transactionNo ?? '-',
         render: (r) => r.transactionNo ?? '-',
@@ -145,6 +145,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
           <Button
             variant="contained"
             size="small"
+            disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
             sx={{
               height: '36px',
@@ -159,6 +160,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         </Box>
       </styles.ToolbarWrapper>
       <DataTable
+        gridName="Recoupments"
         columns={columns}
         data={recoupments || []}
         rowKey={(r) => r.id}
