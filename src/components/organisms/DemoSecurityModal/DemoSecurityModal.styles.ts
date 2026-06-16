@@ -222,7 +222,6 @@ export const StatusSelect = styled(Select)(() => ({
   },
 })) as unknown as typeof Select;
 
-
 export const UserSelect = styled(Select)(() => ({
   backgroundColor: themeConfig.colors.surface,
   borderRadius: 4,
