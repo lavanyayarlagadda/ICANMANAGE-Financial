@@ -51,19 +51,19 @@ export const useFinancialsTabs = ({
         dispatch(setActiveTab(index));
         dispatch(setActiveSubTab(0));
       }
- 
+
       // Automatically navigate to the first sub-tab if it exists
       const targetTab = financialsTabs.find((t) => t.id === index);
       const targetPath =
         targetTab && targetTab.subTabs && targetTab.subTabs.length > 0
           ? targetTab.subTabs[0].path
           : path;
- 
+
       navigate(targetPath);
     },
     [dispatch, navigate, activeTab, financialsTabs],
   );
- 
+
   const handleSubTabChange = useCallback(
     (index: number, path: string) => {
       if (activeSubTab !== index) {

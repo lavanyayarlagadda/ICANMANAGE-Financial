@@ -296,7 +296,8 @@ export function DataTableToolbar<T>({
                     checked={stagedColumns.size === 0}
                     indeterminate={
                       stagedColumns.size > 0 &&
-                      stagedColumns.size < columns.filter((c) => c.label && c.id !== 'actions').length
+                      stagedColumns.size <
+                        columns.filter((c) => c.label && c.id !== 'actions').length
                     }
                     disabled={isUpdatingColumns}
                     size="small"
@@ -312,7 +313,7 @@ export function DataTableToolbar<T>({
                   }}
                 />
               </ColumnMenuItem>
-      <ColumnMenuListContainer>
+              <ColumnMenuListContainer>
                 {(() => {
                   const toggleableColumns = columns.filter((c) => c.label && c.id !== 'actions');
                   const visibleToggleableCount = toggleableColumns.filter(
