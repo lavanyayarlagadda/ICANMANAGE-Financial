@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
-import { Typography, InputAdornment, Button } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Typography, InputAdornment } from '@mui/material';
 import { BankDepositItem } from '@/interfaces/financials';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -11,12 +10,13 @@ import {
   ToolbarWrapper,
   SearchField,
   SearchContainer,
-  searchIconStyles,
-  searchButtonStyles,
+  StyledSearchIcon,
+  SearchButton,
   EntityContainer,
   EntitySectionHeader,
   EntityTitleText,
   NoColumnsBox,
+  _ErrorAlert,
 } from './BankDepositsScreen.styles';
 import { useBankDepositsScreen } from './BankDepositsScreen.hook';
 import { useBankDepositColumns } from './useBankDepositColumns';
@@ -87,9 +87,9 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       </ScreenHeader>
       {/* 
             {isError && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
+                <_ErrorAlert severity="error">
                     Failed to load Bank Deposit Details. Please try reloading or contact support.
-                </Alert>
+                </_ErrorAlert>
             )} */}
 
       <BankDepositTabs
@@ -109,20 +109,19 @@ const BankDepositsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={searchIconStyles} />
+                  <StyledSearchIcon />
                 </InputAdornment>
               ),
             }}
           />
-          <Button
+          <SearchButton
             variant="contained"
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={searchButtonStyles}
           >
             Search
-          </Button>
+          </SearchButton>
         </SearchContainer>
       </ToolbarWrapper>
 

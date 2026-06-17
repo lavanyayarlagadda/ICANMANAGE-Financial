@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, Grid } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import { InputAdornment, Button } from '@mui/material';
+import { Typography, Grid } from '@mui/material';
+import { InputAdornment } from '@mui/material';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -18,10 +17,11 @@ import {
   VarianceText,
   ToolbarWrapper,
   SearchField,
-  summaryGridStyles,
-  searchWrapperStyles,
-  searchIconStyles,
-  searchButtonStyles,
+  SummaryGrid,
+  SearchWrapper,
+  StyledSearchIcon,
+  SearchButton,
+  _ErrorAlert,
 } from './VarianceScreen.styles';
 import { useVarianceScreen } from './VarianceScreen.hook';
 
@@ -171,12 +171,12 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       </HeaderSection>
 
       {/* {isError && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
-                    Failed to load Variance details. Please try reloading or contact support.
-                </Alert>
-            )} */}
+        <_ErrorAlert severity="error">
+          Failed to load Variance details. Please try reloading or contact support.
+        </_ErrorAlert>
+      )} */}
 
-      <Grid container spacing={2} sx={summaryGridStyles}>
+      <SummaryGrid container spacing={2}>
         <Grid size={{ xs: 12, md: 4 }}>
           <SummaryCard
             title="EXPECTED"
@@ -198,10 +198,10 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             backgroundColor="background.paper"
           />
         </Grid>
-      </Grid>
+      </SummaryGrid>
 
       <ToolbarWrapper>
-        <Box sx={searchWrapperStyles}>
+        <SearchWrapper>
           <SearchField
             size="small"
             placeholder="Search by Transaction #"
@@ -211,21 +211,20 @@ const VarianceScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={searchIconStyles} />
+                  <StyledSearchIcon />
                 </InputAdornment>
               ),
             }}
           />
-          <Button
+          <SearchButton
             variant="contained"
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={searchButtonStyles}
           >
             Search
-          </Button>
-        </Box>
+          </SearchButton>
+        </SearchWrapper>
       </ToolbarWrapper>
       <DataTable
         gridName={activeSubTab === 0 ? 'Fee Schedule Variance' : 'Payment Variance'}

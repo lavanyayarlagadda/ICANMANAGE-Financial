@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, TextField, SxProps, Theme } from '@mui/material';
+import { Box, Typography, TextField } from '@mui/material';
 
 export const ScreenWrapper = styled(Box)(() => ({
   // padding handled by parent
@@ -61,25 +61,34 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-export const summaryGridStyles: SxProps<Theme> = {
-  mb: 4,
-};
+import SearchIcon from '@mui/icons-material/Search';
+import { Grid, Alert, Button } from '@mui/material';
 
-export const searchWrapperStyles: SxProps<Theme> = {
+export const SummaryGrid = styled(Grid)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+}));
+
+export const SearchWrapper = styled(Box)(() => ({
   display: 'flex',
-  gap: 1,
+  gap: '8px',
   alignItems: 'center',
-};
+}));
 
-export const searchIconStyles: SxProps<Theme> = {
+export const StyledSearchIcon = styled(SearchIcon)(({ theme }) => ({
   fontSize: 18,
-  color: 'primary.main',
-};
+  color: theme.palette.primary.main,
+}));
 
-export const searchButtonStyles: SxProps<Theme> = {
+export const SearchButton = styled(Button)(() => ({
   height: '36px',
   borderRadius: '8px',
   textTransform: 'none',
   fontWeight: 600,
-  px: 2,
-};
+  paddingLeft: '16px',
+  paddingRight: '16px',
+}));
+
+export const _ErrorAlert = styled(Alert)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  borderRadius: '8px',
+}));

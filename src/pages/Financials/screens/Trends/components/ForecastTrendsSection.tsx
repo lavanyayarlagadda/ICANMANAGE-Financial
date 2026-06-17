@@ -19,7 +19,15 @@ import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
 import { formatCompactCurrency, formatCurrency } from '@/utils/formatters';
 
-import { ChartContainer, LegendWrapper, SectionHeader, TitleText } from '../TrendsScreen.styles';
+import {
+  ChartContainer,
+  LegendWrapper,
+  SectionHeader,
+  TitleText,
+  StyledCellText,
+  MarginGrid,
+  BoldTypography,
+} from '../TrendsScreen.styles';
 import {
   avgDaysFieldFormat,
   countFieldFormat,
@@ -110,9 +118,9 @@ export const ForecastTrendsSection: React.FC<ForecastTrendsSectionProps> = ({
         accessor: (row) => row[field] as string | number,
         ...(mergeAcrossTeams ? { getCellProps: createSharedColumnCellProps() } : {}),
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>
+          <StyledCellText variant="body2" isOverall={isOverallTeam(row.team)}>
             {getDisplayValue(row)}
-          </Typography>
+          </StyledCellText>
         ),
       };
     };
@@ -125,9 +133,9 @@ export const ForecastTrendsSection: React.FC<ForecastTrendsSectionProps> = ({
         align: 'center',
         disableSort: true,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: isOverallTeam(row.team) ? 700 : 500 }}>
+          <StyledCellText variant="body2" isOverall={isOverallTeam(row.team)}>
             {row.team}
-          </Typography>
+          </StyledCellText>
         ),
         accessor: (row) => row.team,
       },
@@ -219,7 +227,7 @@ export const ForecastTrendsSection: React.FC<ForecastTrendsSectionProps> = ({
           Monthly reconciliation performance summary.
         </Typography>
       </SectionHeader>
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <MarginGrid container spacing={2}>
         <Grid size={{ xs: 12, md: 3 }}>
           <SummaryCard
             title="TOTAL RECONCILED"
@@ -248,11 +256,9 @@ export const ForecastTrendsSection: React.FC<ForecastTrendsSectionProps> = ({
             backgroundColor={theme.palette.background.paper}
           />
         </Grid>
-      </Grid>
+      </MarginGrid>
       <LegendWrapper>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-          Performance
-        </Typography>
+        <BoldTypography variant="subtitle1">Performance</BoldTypography>
         <RangeDropdown value={globalFilters.rangeLabel} onChange={handleRangeChange} />
       </LegendWrapper>
       <ChartContainer>

@@ -38,3 +38,18 @@ export const GuideListItem = styled('li')(({ theme }) => ({
   lineHeight: theme.typography.body2.lineHeight,
   color: theme.palette.text.primary,
 }));
+
+export const _InsightsCard = styled(Card)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+  borderLeft: `4px solid ${theme.palette.error.main}`,
+}));
+
+export const _InsightsTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 700,
+  color: theme.palette.error.main,
+  marginBottom: theme.spacing(1),
+}));
+
+export const _InsightsText = styled(Typography)(({ theme }) => ({
+  marginBottom: theme.spacing(0.5),
+}));

@@ -1,29 +1,12 @@
 import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Divider,
-  Grid,
-  Box,
-  Typography,
-  IconButton,
-  TextField,
-  Button,
-} from '@mui/material';
+import { Dialog, Grid, Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
-import DescriptionIcon from '@mui/icons-material/Description';
-import {
-  GlassDialog,
-  SectionSidebar,
-  ModernUploadZone,
-  DynamicTableContainer,
-} from '../ReconciliationScreen.styles';
+import { GlassDialog, SectionSidebar, DynamicTableContainer } from '../ReconciliationScreen.styles';
 import { ReconciliationRow, ReconciliationStatus } from '../ReconciliationScreen.hook';
 import { formatDate } from '@/utils/formatters';
+import * as styles from './EftDetailsDialog.styles';
 
 interface EftDetailsDialogProps {
   view?: ReconciliationStatus;
@@ -64,7 +47,7 @@ const PopupTable: React.FC<{
                   style={
                     typeof cell === 'string' && cell.endsWith('.pdf')
                       ? {
-                          color: 'primary.main',
+                          color: '#1976d2', // standard primary.main color
                           textDecoration: 'underline',
                           cursor: 'pointer',
                           fontWeight: 700,
@@ -112,173 +95,69 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth PaperComponent={GlassDialog}>
-      <DialogTitle
-        sx={{
-          p: { xs: 2, sm: 2.5 },
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          bgcolor: 'grey.50',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, flex: 1, mt: 0.5 }}>
-          <Box
-            sx={{
-              p: 1,
-              borderRadius: '10px',
-              bgcolor: 'primary.main',
-              color: 'common.white',
-              display: 'flex',
-            }}
-          >
+      <styles.StyledDialogTitle>
+        <styles.HeaderLeftBox>
+          <styles.IconWrapper>
             <CalendarMonthIcon fontSize="small" />
-          </Box>
+          </styles.IconWrapper>
           <Box>
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: 900, color: 'text.primary', lineHeight: 1.2 }}
-            >
+            <styles.HeaderTitleText variant="subtitle1">
               EFT Transaction Details
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: 'text.secondary', fontWeight: 600, display: 'block', mt: 0.5 }}
-            >
+            </styles.HeaderTitleText>
+            <styles.HeaderSubtitleText variant="caption">
               {selectedRow ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    gap: { xs: 0.5, sm: 2 },
-                  }}
-                >
+                <styles.SubtitleRow>
                   <span>{selectedRow.transactionNo}</span>
                   {selectedRow.reconcileDate && (
-                    <Box component="span" sx={{ color: 'success.main', fontWeight: 800 }}>
+                    <styles.ReconcileSpan>
                       Reconcile Date: {formatDate(selectedRow.reconcileDate)}
-                    </Box>
+                    </styles.ReconcileSpan>
                   )}
-                </Box>
+                </styles.SubtitleRow>
               ) : (
                 'No Selection'
               )}
-            </Typography>
+            </styles.HeaderSubtitleText>
           </Box>
-        </Box>
-        <IconButton
-          onClick={onClose}
-          sx={{ bgcolor: 'background.paper', boxShadow: (t) => t.shadows[1], flexShrink: 0 }}
-          size="small"
-        >
+        </styles.HeaderLeftBox>
+        <styles.CloseButton onClick={onClose} size="small">
           <CloseIcon />
-        </IconButton>
-      </DialogTitle>
-      <Divider sx={{ opacity: 0.5 }} />
+        </styles.CloseButton>
+      </styles.StyledDialogTitle>
+      <styles.StyledDivider />
 
-      <DialogContent sx={{ p: { xs: 2, sm: 3 }, bgcolor: 'background.default' }}>
+      <styles.StyledDialogContent>
         {/* Actions Row - Reorganized */}
-        <Grid container spacing={{ xs: 2, md: 2 }} sx={{ mb: 4, alignItems: 'stretch' }}>
+        <styles.ActionsRowGrid container spacing={{ xs: 2, md: 2 }}>
           {/* 1. TRANSACTION SEARCH */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Box
-              sx={{
-                height: '100%',
-                p: 2,
-                borderRadius: '12px',
-                bgcolor: 'grey.50',
-                border: (t) => `1px solid ${t.palette.divider}`,
-              }}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: 800,
-                  mb: 1,
-                  display: 'block',
-                  color: 'text.secondary',
-                  textTransform: 'uppercase',
-                }}
-              >
-                Scan/Search Transaction
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
+            <styles.SearchBoxWrapper>
+              <styles.LabelText variant="caption">Scan/Search Transaction</styles.LabelText>
+              <styles.ActionRow>
+                <styles.SearchTextField
                   size="small"
                   fullWidth
                   value={selectedTxNo}
                   onChange={(e) => setSelectedTxNo(e.target.value)}
                   placeholder="Enter ID..."
-                  InputProps={{
-                    sx: { borderRadius: '8px', bgcolor: 'background.paper', fontWeight: 700 },
-                  }}
                 />
-                <Button
-                  variant="contained"
-                  disabled={!selectedTxNo}
-                  sx={{
-                    borderRadius: '8px',
-                    px: 2,
-                    textTransform: 'none',
-                    fontWeight: 800,
-                    boxShadow: 'none',
-                  }}
-                >
+                <styles.StyledSearchButton variant="contained" disabled={!selectedTxNo}>
                   Search
-                </Button>
-              </Box>
-            </Box>
+                </styles.StyledSearchButton>
+              </styles.ActionRow>
+            </styles.SearchBoxWrapper>
           </Grid>
 
           {/* 2. UPLOAD ZONE */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Box
-              sx={{
-                height: '100%',
-                p: 2,
-                borderRadius: '12px',
-                bgcolor: 'grey.50',
-                border: (t) => `1px solid ${t.palette.divider}`,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: 800,
-                  mb: 1,
-                  display: 'block',
-                  color: 'text.secondary',
-                  textTransform: 'uppercase',
-                }}
-              >
-                Documentation
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', height: '100%' }}>
-                <ModernUploadZone
-                  as="label"
-                  sx={{
-                    flex: 1,
-                    height: '40px',
-                    py: 0,
-                    px: 1.5,
-                    borderStyle: 'solid',
-                    borderWidth: '1px',
-                  }}
-                >
-                  <CloudUploadIcon color="primary" sx={{ fontSize: 20 }} />
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight: 700,
-                      color: uploadedFileName ? 'success.main' : 'text.secondary',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
+            <styles.SearchBoxWrapper>
+              <styles.LabelText variant="caption">Documentation</styles.LabelText>
+              <styles.ActionRow>
+                <styles.UploadZoneWrapper as="label">
+                  <styles.StyledCloudUploadIcon color="primary" />
+                  <styles.UploadedFileNameTypography variant="caption" hasFile={!!uploadedFileName}>
                     {uploadedFileName || 'Choose PDF...'}
-                  </Typography>
+                  </styles.UploadedFileNameTypography>
                   <input
                     type="file"
                     hidden
@@ -287,52 +166,28 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
                       if (e.target.files?.[0]) setUploadedFileName(e.target.files[0].name);
                     }}
                   />
-                </ModernUploadZone>
-                <Button
+                </styles.UploadZoneWrapper>
+                <styles.StyledSubmitButton
                   variant="contained"
                   disabled={!uploadedFileName}
                   onClick={() => setSubmitConfirmOpen(true)}
                   color="success"
-                  sx={{
-                    borderRadius: '8px',
-                    height: '40px',
-                    textTransform: 'none',
-                    fontWeight: 800,
-                    px: 2,
-                  }}
                 >
                   Submit
-                </Button>
-              </Box>
-            </Box>
+                </styles.StyledSubmitButton>
+              </styles.ActionRow>
+            </styles.SearchBoxWrapper>
           </Grid>
-        </Grid>
+        </styles.ActionsRowGrid>
 
         {/* Reusable Sectioned Content */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+        <styles.SectionsContainer>
           {/* BAI SECTION */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: (t) => `1px solid ${t.palette.divider}`,
-              boxShadow: (t) => t.shadows[1],
-            }}
-          >
+          <styles.SectionWrapper>
             <SectionSidebar bgColor="warning.light">
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: 900,
-                  color: 'warning.dark',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                }}
-              >
+              <styles.SectionSidebarTitle variant="caption" darkColor="warning.dark">
                 BAI
-              </Typography>
+              </styles.SectionSidebarTitle>
             </SectionSidebar>
             <PopupTable
               headers={['File Received Date', 'Amount', 'Payor', 'Location', 'File Name']}
@@ -343,31 +198,14 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
                 val.endsWith('.pdf') ? setPdfPreviewOpen(true) : setBaiDataOpen(true)
               }
             />
-          </Box>
+          </styles.SectionWrapper>
 
           {/* REMIT SECTION */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: (t) => `1px solid ${t.palette.divider}`,
-              boxShadow: (t) => t.shadows[1],
-            }}
-          >
+          <styles.SectionWrapper>
             <SectionSidebar bgColor="success.light">
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: 900,
-                  color: 'success.dark',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                }}
-              >
+              <styles.SectionSidebarTitle variant="caption" darkColor="success.dark">
                 Remit
-              </Typography>
+              </styles.SectionSidebarTitle>
             </SectionSidebar>
             <PopupTable
               headers={['File Received Date', 'Amount', 'Payor', 'File Name']}
@@ -381,64 +219,37 @@ const EftDetailsDialog: React.FC<EftDetailsDialogProps> = ({
               ]}
               onCellClick={(val) => (val.endsWith('.pdf') ? setPdfPreviewOpen(true) : null)}
             />
-          </Box>
+          </styles.SectionWrapper>
 
           {/* CASH POSTING SECTION */}
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              borderRadius: '16px',
-              overflow: 'hidden',
-              border: (t) => `1px solid ${t.palette.divider}`,
-              boxShadow: (t) => t.shadows[1],
-            }}
-          >
+          <styles.SectionWrapper>
             <SectionSidebar bgColor="secondary.light">
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: 900,
-                  color: 'secondary.dark',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                }}
-              >
+              <styles.SectionSidebarTitle variant="caption" darkColor="secondary.dark">
                 Cash Posting
-              </Typography>
+              </styles.SectionSidebarTitle>
             </SectionSidebar>
             <PopupTable
               headers={['File Received Date', 'Amount', 'Batch Id', 'Batch Owner', 'File Name']}
               rows={[[formatDate('06/30/2025'), '$292.88', '778945', 'ICAN', 'POST_82775.pdf']]}
               onCellClick={(val) => (val.endsWith('.pdf') ? setPdfPreviewOpen(true) : null)}
             />
-          </Box>
-        </Box>
+          </styles.SectionWrapper>
+        </styles.SectionsContainer>
 
         {/* History of Uploaded Documentation */}
-        <Box sx={{ mt: 5 }}>
-          <Typography
-            variant="subtitle2"
-            sx={{
-              mb: 1.5,
-              fontWeight: 900,
-              color: 'text.primary',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1,
-            }}
-          >
-            <DescriptionIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+        <styles.HistoryContainer>
+          <styles.HistoryTitle variant="subtitle2">
+            <styles.StyledDescriptionIcon />
             Document Submission History
-          </Typography>
+          </styles.HistoryTitle>
           <PopupTable
             headers={['File Name', 'Uploaded By', 'Action']}
             rows={[['payment-variance-analysis.pdf', 'ICAN_SYSTEM', 'Delete']]}
             onCellClick={(val) => (val.endsWith('.pdf') ? setPdfPreviewOpen(true) : null)}
             onDeleteClick={() => alert('Document deleted')}
           />
-        </Box>
-      </DialogContent>
+        </styles.HistoryContainer>
+      </styles.StyledDialogContent>
     </Dialog>
   );
 };

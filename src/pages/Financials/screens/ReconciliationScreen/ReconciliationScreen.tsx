@@ -21,7 +21,6 @@ import CommentsDialog from './components/CommentsDialog';
 import EditDetailsDialog from './components/EditDialog';
 import AssignUserDialog from './components/AssignUserDialog';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
-import SearchIcon from '@mui/icons-material/Search';
 import {
   ScreenWrapper,
   TabsStatsContainer,
@@ -29,7 +28,7 @@ import {
   ToolbarContainer,
   RangeWrapper,
   SearchField,
-  searchIconStyles,
+  StyledSearchIcon,
   getRowStyle,
 } from './ReconciliationScreen.styles';
 
@@ -197,7 +196,7 @@ const ReconciliationScreen: React.FC = () => {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <SearchIcon fontSize="small" sx={searchIconStyles} />
+                          <StyledSearchIcon fontSize="small" />
                         </InputAdornment>
                       ),
                     }}

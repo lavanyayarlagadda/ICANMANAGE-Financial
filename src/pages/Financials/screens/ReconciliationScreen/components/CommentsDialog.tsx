@@ -1,17 +1,8 @@
 import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Box,
-  Typography,
-  IconButton,
-  Divider,
-} from '@mui/material';
+import { Dialog, IconButton, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import Button from '@/components/atoms/Button/Button';
 import { ReconciliationRow } from '@/interfaces/financials';
+import * as styles from './CommentsDialog.styles';
 
 interface CommentsDialogProps {
   open: boolean;
@@ -28,61 +19,35 @@ const CommentsDialog: React.FC<CommentsDialogProps> = ({ open, onClose }) => {
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle
-        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2 }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          Comments
-        </Typography>
+      <styles.StyledDialogTitle>
+        <styles.DialogTitleText variant="h6">Comments</styles.DialogTitleText>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
-      </DialogTitle>
+      </styles.StyledDialogTitle>
       <Divider />
-      <DialogContent sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <styles.StyledDialogContent>
+        <styles.CommentsContainer>
           {history.map((item, index) => (
-            <Box
-              key={index}
-              sx={{
-                p: 2,
-                borderRadius: '8px',
-                bgcolor: 'grey.50',
-                border: (t) => `1px solid ${t.palette.divider}`,
-              }}
-            >
-              <Typography variant="body2" sx={{ color: 'text.primary', mb: 0.5 }}>
-                {item.text}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500 }}>
+            <styles.CommentHistoryBox key={index}>
+              <styles.CommentText variant="body2">{item.text}</styles.CommentText>
+              <styles.CommentMeta variant="caption">
                 ,updated By {item.user} ,created on {item.date}
-              </Typography>
-            </Box>
+              </styles.CommentMeta>
+            </styles.CommentHistoryBox>
           ))}
           {!history.length && (
-            <Typography
-              variant="body2"
-              sx={{ fontStyle: 'italic', color: 'text.secondary', textAlign: 'center', py: 4 }}
-            >
+            <styles.EmptyCommentsText variant="body2">
               No comments available for this transaction.
-            </Typography>
+            </styles.EmptyCommentsText>
           )}
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
-        <Button
-          onClick={onClose}
-          variant="contained"
-          sx={{
-            bgcolor: 'grey.100',
-            color: 'text.primary',
-            border: 'none',
-            '&:hover': { bgcolor: 'grey.200' },
-          }}
-        >
+        </styles.CommentsContainer>
+      </styles.StyledDialogContent>
+      <styles.StyledDialogActions>
+        <styles.CloseButton onClick={onClose} variant="contained">
           Close
-        </Button>
-      </DialogActions>
+        </styles.CloseButton>
+      </styles.StyledDialogActions>
     </Dialog>
   );
 };

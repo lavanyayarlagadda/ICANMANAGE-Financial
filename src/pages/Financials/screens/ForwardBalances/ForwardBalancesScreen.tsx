@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, IconButton, Chip, Grid } from '@mui/material';
+import { Box, Typography, IconButton, Grid } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { formatCurrency, formatDate } from '@/utils/formatters';
@@ -16,50 +16,51 @@ import {
   useForwardBalanceNoticesTable,
 } from './ForwardBalancesScreen.hook';
 import {
-  offsetChipStyles,
-  errorAmountStyles,
-  offsetWrapperStyles,
-  offsetSummaryStyles,
-  offsetTitleStyles,
-  offsetAmountStyles,
-  offsetDetailsContainerStyles,
-  offsetHeaderGridStyles,
-  offsetRowGridStyles,
-  claimIdStyles,
-  patientNameStyles,
-  deductedAmountStyles,
-  noticeIdTextStyles,
-  boldTextStyles,
-  providerNameWrapperStyles,
-  providerNameStyles,
-  screenHeaderStyles,
-  screenHeaderTitleStyles,
-  summaryGridStyles,
-  loadingWrapperStyles,
-  emptyDetailsWrapperStyles,
-  detailsWrapperStyles,
+  OffsetChip,
+  ErrorAmountText,
+  OffsetWrapperBox,
+  OffsetSummaryBox,
+  OffsetTitleTypography,
+  OffsetAmountTypography,
+  OffsetDetailsContainerBox,
+  OffsetHeaderGridBox,
+  OffsetRowGridBox,
+  ClaimIdTypography,
+  PatientNameTypography,
+  DeductedAmountTypography,
+  NoticeIdTextTypography,
+  BoldTextTypography,
+  ProviderNameWrapperBox,
+  ProviderNameTypography,
+  ScreenHeaderBox,
+  ScreenHeaderTitleText,
+  SummaryGrid,
+  LoadingWrapperBox,
+  EmptyDetailsWrapperBox,
+  DetailsWrapperBox,
+  _ErrorAlert,
 } from './ForwardBalancesScreen.styles';
 import { useTheme } from '@mui/material/styles';
 
 const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
-  <Box sx={offsetWrapperStyles}>
+  <OffsetWrapperBox>
     <Accordion
       defaultExpanded={false}
       summary={
-        <Box sx={offsetSummaryStyles}>
-          <Typography variant="body2" sx={offsetTitleStyles}>
+        <OffsetSummaryBox>
+          <OffsetTitleTypography variant="body2">
             Offset EFT: <MultiValueDisplay value={offset.eftNumber} displayCount={1} /> &nbsp;{' '}
             {formatDate(offset.date)}
-          </Typography>
-          <Typography variant="body2" sx={offsetAmountStyles}>
+          </OffsetTitleTypography>
+          <OffsetAmountTypography variant="body2">
             {formatCurrency(offset.amount)}
-          </Typography>
-          <Chip label={`CODE: ${offset.code}`} size="small" sx={offsetChipStyles} />
-        </Box>
+          </OffsetAmountTypography>
+          <OffsetChip label={`CODE: ${offset.code}`} size="small" />
+        </OffsetSummaryBox>
       }
     >
-      <Box sx={offsetDetailsContainerStyles}>
-        <Box sx={offsetHeaderGridStyles}>
+      <OffsetDetailsContainerBox>
+        <OffsetHeaderGridBox>
           <Typography fontSize={11} fontWeight={700} color="text.secondary">
             CLAIM ID (DEDUCTED FROM)
           </Typography>
@@ -69,28 +70,21 @@ const OffsetSection: React.FC<{ offset: OffsetEvent }> = ({ offset }) => (
           <Typography fontSize={11} fontWeight={700} color="text.secondary" textAlign="center">
             DEDUCTED AMOUNT
           </Typography>
-        </Box>
+        </OffsetHeaderGridBox>
         {offset.claims.map((claim, idx) => (
-          <Box key={idx} sx={offsetRowGridStyles}>
-            <Typography fontSize={13} color="primary" sx={claimIdStyles}>
+          <OffsetRowGridBox key={idx}>
+            <ClaimIdTypography fontSize={13} color="primary">
               {claim.claimId}
-            </Typography>
-            <Typography fontSize={13} sx={patientNameStyles}>
-              {claim.patientName}
-            </Typography>
-            <Typography
-              fontSize={13}
-              textAlign="center"
-              color="error.main"
-              sx={deductedAmountStyles}
-            >
+            </ClaimIdTypography>
+            <PatientNameTypography fontSize={13}>{claim.patientName}</PatientNameTypography>
+            <DeductedAmountTypography fontSize={13} textAlign="center">
               {formatCurrency(claim.deductedAmount)}
-            </Typography>
-          </Box>
+            </DeductedAmountTypography>
+          </OffsetRowGridBox>
         ))}
-      </Box>
+      </OffsetDetailsContainerBox>
     </Accordion>
-  </Box>
+  </OffsetWrapperBox>
 );
 
 const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -142,9 +136,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         align: 'center',
         accessor: (row) => row.noticeId,
         render: (row) => (
-          <Typography variant="body2" sx={noticeIdTextStyles}>
-            {row.noticeId}
-          </Typography>
+          <NoticeIdTextTypography variant="body2">{row.noticeId}</NoticeIdTextTypography>
         ),
       },
       {
@@ -153,9 +145,9 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         align: 'center',
         accessor: (row) => row.notificationDate,
         render: (row) => (
-          <Typography variant="body2" sx={boldTextStyles}>
+          <BoldTextTypography variant="body2">
             {formatDate(row.notificationDate)}
-          </Typography>
+          </BoldTextTypography>
         ),
       },
       {
@@ -165,14 +157,12 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         accessor: (row) => `${row.providerName} ${row.npi}`,
         filterOptions: payerOptions,
         render: (row) => (
-          <Box sx={providerNameWrapperStyles}>
-            <Typography variant="body2" sx={providerNameStyles}>
-              {row.providerName}
-            </Typography>
+          <ProviderNameWrapperBox>
+            <ProviderNameTypography variant="body2">{row.providerName}</ProviderNameTypography>
             <Typography variant="caption" color="text.secondary">
               NPI: {row.npi}
             </Typography>
-          </Box>
+          </ProviderNameWrapperBox>
         ),
       },
       {
@@ -181,9 +171,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         align: 'center',
         accessor: (row) => row.originalAmount,
         render: (row) => (
-          <Typography variant="body2" sx={errorAmountStyles}>
-            {formatCurrency(row.originalAmount)}
-          </Typography>
+          <ErrorAmountText variant="body2">{formatCurrency(row.originalAmount)}</ErrorAmountText>
         ),
       },
       {
@@ -192,9 +180,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         align: 'center',
         accessor: (row) => row.remainingBalance,
         render: (row) => (
-          <Typography variant="body2" sx={errorAmountStyles}>
-            {formatCurrency(row.remainingBalance)}
-          </Typography>
+          <ErrorAmountText variant="body2">{formatCurrency(row.remainingBalance)}</ErrorAmountText>
         ),
       },
       {
@@ -210,22 +196,20 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
 
   return (
     <Box>
-      <Box sx={screenHeaderStyles}>
-        <Typography variant="h5" sx={screenHeaderTitleStyles}>
-          Forward Balance Notices
-        </Typography>
+      <ScreenHeaderBox>
+        <ScreenHeaderTitleText variant="h5">Forward Balance Notices</ScreenHeaderTitleText>
         <Typography variant="body2" color="text.secondary">
           Overpayment notices with offset events.
         </Typography>
-      </Box>
+      </ScreenHeaderBox>
       {/* 
             {isError && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
+                <_ErrorAlert severity="error">
                     Failed to load Forward Balance Notices. Please try reloading or contact support.
-                </Alert>
+                </_ErrorAlert>
             )} */}
 
-      <Grid container spacing={2} sx={summaryGridStyles}>
+      <SummaryGrid container spacing={2}>
         <Grid size={{ xs: 12, md: 4 }}>
           <SummaryCard
             title="TOTAL ORIGINAL AMOUNT"
@@ -248,7 +232,7 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
             backgroundColor={theme.palette.background.paper}
           />
         </Grid>
-      </Grid>
+      </SummaryGrid>
 
       <DataTable
         gridName="Forward Balances"
@@ -259,31 +243,31 @@ const ForwardBalancesScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
         expandedContent={(row) => {
           if (loadingDetails.has(row.id)) {
             return (
-              <Box sx={loadingWrapperStyles}>
+              <LoadingWrapperBox>
                 <Typography variant="body2" color="text.secondary">
                   Loading offset details...
                 </Typography>
-              </Box>
+              </LoadingWrapperBox>
             );
           }
 
           const dynamicOffsets = noticeDetails[row.id]?.offsets || row.offsets;
           if (!dynamicOffsets || dynamicOffsets.length === 0) {
             return (
-              <Box sx={emptyDetailsWrapperStyles}>
+              <EmptyDetailsWrapperBox>
                 <Typography variant="body2" color="text.secondary">
                   No offset details found.
                 </Typography>
-              </Box>
+              </EmptyDetailsWrapperBox>
             );
           }
 
           return (
-            <Box sx={detailsWrapperStyles}>
+            <DetailsWrapperBox>
               {dynamicOffsets.map((offset: OffsetEvent, idx: number) => (
                 <OffsetSection key={idx} offset={offset} />
               ))}
-            </Box>
+            </DetailsWrapperBox>
           );
         }}
         exportTitle="Forward Balance Notices"

@@ -1,37 +1,6 @@
-import { SxProps, Theme, Box, TextField } from '@mui/material';
+import { Box, TextField, Typography, Chip, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { themeConfig } from '@/theme/themeConfig';
-
-export const offsetChipStyles: SxProps<Theme> = {
-  height: 20,
-  fontSize: '10px',
-  fontWeight: 700,
-  bgcolor: themeConfig.colors.accent + '18',
-  color: themeConfig.colors.accentDark,
-  border: `1px solid ${themeConfig.colors.accent + '33'}`,
-};
-
-export const offsetGridStyles: SxProps<Theme> = {
-  display: 'grid',
-  gridTemplateColumns: '1.2fr 2fr 1fr',
-  minWidth: 500,
-  px: 2,
-  py: 1,
-};
-
-export const noticeIdStyles: SxProps<Theme> = {
-  fontWeight: 700,
-  color: themeConfig.colors.primaryDark,
-};
-
-export const boldStyles: SxProps<Theme> = {
-  fontWeight: 700,
-};
-
-export const errorAmountStyles: SxProps<Theme> = {
-  fontWeight: 700,
-  color: 'error.main',
-};
 
 export const ToolbarWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -61,103 +30,129 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-export const offsetWrapperStyles: SxProps<Theme> = {
-  mb: 1,
-};
+export const OffsetWrapperBox = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(1),
+}));
 
-export const offsetSummaryStyles: SxProps<Theme> = {
+export const OffsetSummaryBox = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
   width: '100%',
-  gap: 2,
-};
+  gap: '16px',
+}));
 
-export const offsetTitleStyles: SxProps<Theme> = {
+export const OffsetTitleTypography = styled(Typography)(() => ({
   fontWeight: 600,
   flex: 1,
   display: 'flex',
   alignItems: 'center',
-  gap: 1,
-};
+  gap: '8px',
+}));
 
-export const offsetAmountStyles: SxProps<Theme> = {
+export const OffsetAmountTypography = styled(Typography)(() => ({
   fontWeight: 700,
   textAlign: 'center',
-};
+}));
 
-export const offsetDetailsContainerStyles: SxProps<Theme> = {
+export const OffsetChip = styled(Chip)(() => ({
+  height: 20,
+  fontSize: '10px',
+  fontWeight: 700,
+  backgroundColor: themeConfig.colors.accent + '18',
+  color: themeConfig.colors.accentDark,
+  border: `1px solid ${themeConfig.colors.accent + '33'}`,
+}));
+
+export const OffsetDetailsContainerBox = styled(Box)(() => ({
   border: `1px solid ${themeConfig.colors.divider}`,
   borderTop: 'none',
   overflowX: 'auto',
-};
+}));
 
-export const offsetHeaderGridStyles: SxProps<Theme> = {
-  ...offsetGridStyles,
-  background: themeConfig.colors.surfaceAlt,
+export const OffsetHeaderGridBox = styled(Box)(() => ({
+  display: 'grid',
+  gridTemplateColumns: '1.2fr 2fr 1fr',
+  minWidth: 500,
+  paddingLeft: '16px',
+  paddingRight: '16px',
+  paddingTop: '8px',
+  paddingBottom: '8px',
+  backgroundColor: themeConfig.colors.surfaceAlt,
   borderBottom: `1px solid ${themeConfig.colors.divider}`,
-};
+}));
 
-export const offsetRowGridStyles: SxProps<Theme> = {
-  ...offsetGridStyles,
+export const OffsetRowGridBox = styled(Box)(() => ({
+  display: 'grid',
+  gridTemplateColumns: '1.2fr 2fr 1fr',
+  minWidth: 500,
+  paddingLeft: '16px',
+  paddingRight: '16px',
+  paddingTop: '8px',
+  paddingBottom: '8px',
   borderBottom: `1px solid ${themeConfig.colors.divider}`,
-};
+}));
 
-export const claimIdStyles: SxProps<Theme> = {
+export const ClaimIdTypography = styled(Typography)(() => ({
   fontWeight: 500,
-};
+}));
 
-export const patientNameStyles: SxProps<Theme> = {
+export const PatientNameTypography = styled(Typography)(() => ({
   fontWeight: 500,
-};
+}));
 
-export const deductedAmountStyles: SxProps<Theme> = {
+export const DeductedAmountTypography = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
-  color: 'error.main',
-};
+  color: theme.palette.error.main,
+}));
 
-export const noticeIdTextStyles: SxProps<Theme> = {
+export const NoticeIdTypography = styled(Typography)(() => ({
   fontWeight: 700,
   color: themeConfig.colors.amberDark,
-};
+}));
 
-export const boldTextStyles: SxProps<Theme> = {
+export const BoldTextTypography = styled(Typography)(() => ({
   fontWeight: 700,
-};
+}));
 
-export const providerNameWrapperStyles: SxProps<Theme> = {
+export const ProviderNameWrapperBox = styled(Box)(() => ({
   textAlign: 'center',
-};
+}));
 
-export const providerNameStyles: SxProps<Theme> = {
+export const ProviderNameTypography = styled(Typography)(() => ({
   fontWeight: 700,
-};
+}));
 
-export const screenHeaderStyles: SxProps<Theme> = {
-  mb: 3,
-};
-
-export const screenHeaderTitleStyles: SxProps<Theme> = {
+export const ErrorAmountTypography = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
-};
+  color: theme.palette.error.main,
+}));
 
-export const summaryGridStyles: SxProps<Theme> = {
-  mb: 4,
-};
+export const ScreenHeaderBox = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+}));
 
-export const loadingWrapperStyles: SxProps<Theme> = {
-  p: 3,
+export const ScreenHeaderTitleTypography = styled(Typography)(() => ({
+  fontWeight: 700,
+}));
+
+export const SummaryGridContainer = styled(Grid)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+}));
+
+export const LoadingWrapperBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  gap: 2,
-};
+  gap: theme.spacing(2),
+}));
 
-export const emptyDetailsWrapperStyles: SxProps<Theme> = {
-  p: 2,
+export const EmptyDetailsWrapperBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
   textAlign: 'center',
-};
+}));
 
-export const detailsWrapperStyles: SxProps<Theme> = {
-  p: 1,
-};
+export const DetailsWrapperBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(1),
+}));

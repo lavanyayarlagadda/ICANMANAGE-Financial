@@ -1,16 +1,9 @@
 import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Box,
-  IconButton,
-  Divider,
-} from '@mui/material';
+import { Dialog, IconButton, Divider } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { GlassDialog, DynamicTableContainer } from '../ReconciliationScreen.styles';
+import * as styles from './BaiDataDialog.styles';
 
 interface BaiDataDialogProps {
   open: boolean;
@@ -55,42 +48,24 @@ const PopupTable: React.FC<{
 const BaiDataDialog: React.FC<BaiDataDialogProps> = ({ open, onClose, txNo }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth PaperComponent={GlassDialog}>
-      <DialogTitle
-        sx={{
-          p: 2.5,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          bgcolor: 'grey.50',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box
-            sx={{
-              p: 1,
-              borderRadius: '10px',
-              bgcolor: 'info.main',
-              color: 'common.white',
-              display: 'flex',
-            }}
-          >
+      <styles.StyledDialogTitle>
+        <styles.HeaderLeftBox>
+          <styles.IconContainer>
             <SearchIcon fontSize="small" />
-          </Box>
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 900, color: 'text.primary' }}>
+          </styles.IconContainer>
+          <div>
+            <styles.HeaderTitleText variant="subtitle1">
               Granular BAI Information
-            </Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 800 }}>
-              Audit Level Trace: {txNo}
-            </Typography>
-          </Box>
-        </Box>
+            </styles.HeaderTitleText>
+            <styles.HeaderSubText variant="caption">Audit Level Trace: {txNo}</styles.HeaderSubText>
+          </div>
+        </styles.HeaderLeftBox>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
-      </DialogTitle>
+      </styles.StyledDialogTitle>
       <Divider />
-      <DialogContent sx={{ p: 0 }}>
+      <styles.StyledDialogContent>
         <PopupTable
           headers={[
             'AS OF DATE',
@@ -117,12 +92,12 @@ const BaiDataDialog: React.FC<BaiDataDialogProps> = ({ open, onClose, txNo }) =>
             ],
           ]}
         />
-        <Box sx={{ p: 6, textAlign: 'center', bgcolor: 'grey.50' }}>
-          <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+        <styles.FooterContainer>
+          <styles.FooterText variant="body2">
             End of granular data trace. All records verified against bank feed.
-          </Typography>
-        </Box>
-      </DialogContent>
+          </styles.FooterText>
+        </styles.FooterContainer>
+      </styles.StyledDialogContent>
     </Dialog>
   );
 };

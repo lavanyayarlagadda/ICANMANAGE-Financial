@@ -1,19 +1,9 @@
 import React from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Typography,
-  IconButton,
-  Divider,
-  Grid,
-  TextField,
-  MenuItem,
-  Button,
-} from '@mui/material';
+import { Dialog, Divider, Grid, MenuItem, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { FilterState, ReconciliationStatus } from '../ReconciliationScreen.hook';
+import { GlassDialog } from '../ReconciliationScreen.styles';
+import * as styles from './AdvancedSearchDialog.styles';
 
 interface AdvancedSearchDialogProps {
   open: boolean;
@@ -33,97 +23,66 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
   onSearch,
 }) => {
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: {
-          bgcolor: 'background.paper',
-          color: 'text.primary',
-          borderRadius: 2,
-        },
-      }}
-    >
-      <DialogTitle
-        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}
-      >
-        <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-          Advanced Filters
-        </Typography>
-        <IconButton onClick={onClose} sx={{ color: 'text.secondary' }}>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth PaperComponent={GlassDialog}>
+      <styles.StyledDialogTitle>
+        <styles.TitleText variant="subtitle1">Advanced Filters</styles.TitleText>
+        <IconButton onClick={onClose} color="secondary">
           <CloseIcon />
         </IconButton>
-      </DialogTitle>
-      <Divider sx={{ borderColor: 'divider' }} />
-      <DialogContent sx={{ py: 3 }}>
+      </styles.StyledDialogTitle>
+      <Divider />
+      <styles.StyledDialogContent>
         <Grid container spacing={3}>
           {/* Row 1 */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
+            <styles.LabelText variant="caption">
               {view === 'reconciled' ? 'Reconciled From Date' : 'From Date'}
-            </Typography>
-            <TextField
+            </styles.LabelText>
+            <styles.SearchTextField
               type="date"
               fullWidth
               size="small"
               value={searchFilters.fromDate}
               onChange={(e) => setSearchFilters({ ...searchFilters, fromDate: e.target.value })}
-              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
+            <styles.LabelText variant="caption">
               {view === 'reconciled' ? 'Reconciled To Date' : 'To Date'}
-            </Typography>
-            <TextField
+            </styles.LabelText>
+            <styles.SearchTextField
               type="date"
               fullWidth
               size="small"
               value={searchFilters.toDate}
               onChange={(e) => setSearchFilters({ ...searchFilters, toDate: e.target.value })}
-              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-              Payor
-            </Typography>
-            <TextField
+            <styles.LabelText variant="caption">Payor</styles.LabelText>
+            <styles.SearchTextField
               select
               fullWidth
               size="small"
               value={searchFilters.payor || 'All'}
               onChange={(e) => setSearchFilters({ ...searchFilters, payor: e.target.value })}
-              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
             >
               <MenuItem value="All">All Payors Selected</MenuItem>
               <MenuItem value="Aetna">Aetna</MenuItem>
-            </TextField>
+            </styles.SearchTextField>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-              State
-            </Typography>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              defaultValue="All"
-              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
-            >
+            <styles.LabelText variant="caption">State</styles.LabelText>
+            <styles.SearchTextField select fullWidth size="small" defaultValue="All">
               <MenuItem value="All">Select State</MenuItem>
               <MenuItem value="AZ">Arizona</MenuItem>
-            </TextField>
+            </styles.SearchTextField>
           </Grid>
 
           {/* Row 2 */}
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-              TRANSACTION NO.
-            </Typography>
-            <TextField
+            <styles.LabelText variant="caption">TRANSACTION NO.</styles.LabelText>
+            <styles.SearchTextField
               placeholder="TRANSACTION NO."
               fullWidth
               size="small"
@@ -131,84 +90,55 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
               onChange={(e) =>
                 setSearchFilters({ ...searchFilters, transactionNo: e.target.value })
               }
-              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-              Transaction Type
-            </Typography>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              defaultValue="All"
-              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
-            >
+            <styles.LabelText variant="caption">Transaction Type</styles.LabelText>
+            <styles.SearchTextField select fullWidth size="small" defaultValue="All">
               <MenuItem value="All">Select Transaction Type</MenuItem>
-            </TextField>
+            </styles.SearchTextField>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-              Account
-            </Typography>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              defaultValue="All"
-              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
-            >
+            <styles.LabelText variant="caption">Account</styles.LabelText>
+            <styles.SearchTextField select fullWidth size="small" defaultValue="All">
               <MenuItem value="All">Select Account</MenuItem>
-            </TextField>
+            </styles.SearchTextField>
           </Grid>
           <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-            <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-              Batch Owner
-            </Typography>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              defaultValue="All"
-              sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
-            >
+            <styles.LabelText variant="caption">Batch Owner</styles.LabelText>
+            <styles.SearchTextField select fullWidth size="small" defaultValue="All">
               <MenuItem value="All">Select Batch Owner</MenuItem>
-            </TextField>
+            </styles.SearchTextField>
           </Grid>
 
           {/* Status (Hide for Reconciled) */}
           {view !== 'reconciled' && (
             <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, mb: 0.5, display: 'block' }}>
-                Status
-              </Typography>
-              <TextField
+              <styles.LabelText variant="caption">Status</styles.LabelText>
+              <styles.SearchTextField
                 select
                 fullWidth
                 size="small"
                 value={searchFilters.status || 'All'}
                 onChange={(e) => setSearchFilters({ ...searchFilters, status: e.target.value })}
-                sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
               >
                 <MenuItem value="All">Select Status</MenuItem>
-              </TextField>
+              </styles.SearchTextField>
             </Grid>
           )}
         </Grid>
-      </DialogContent>
-      <DialogActions sx={{ p: 3, gap: 1 }}>
-        <Button
+      </styles.StyledDialogContent>
+      <styles.StyledDialogActions>
+        <styles.SearchButton
           variant="contained"
           onClick={() => {
             onSearch(searchFilters.transactionNo);
             onClose();
           }}
-          sx={{ textTransform: 'lowercase', px: 4, py: 1 }}
         >
           Search
-        </Button>
-        <Button
+        </styles.SearchButton>
+        <styles.ClearButton
           variant="contained"
           onClick={() =>
             setSearchFilters({
@@ -219,11 +149,10 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
               transactionNo: '',
             })
           }
-          sx={{ textTransform: 'lowercase', px: 4, py: 1, bgcolor: 'primary.main' }}
         >
           clear
-        </Button>
-      </DialogActions>
+        </styles.ClearButton>
+      </styles.StyledDialogActions>
     </Dialog>
   );
 };

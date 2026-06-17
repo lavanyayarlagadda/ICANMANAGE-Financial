@@ -16,6 +16,7 @@ import {
   SearchContainer,
   StyledSearchIcon,
   SearchButton,
+  _ErrorAlert,
 } from './AllTransactionsScreen.styles';
 import { useAllTransactionsScreen } from './AllTransactionsScreen.hook';
 
@@ -150,10 +151,10 @@ const AllTransactionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) =
   return (
     <Box>
       {/* {isError && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
-                    Failed to load All Transactions details. Please try reloading or contact support.
-                </Alert>
-            )} */}
+        <_ErrorAlert severity="error">
+          Failed to load All Transactions details. Please try reloading or contact support.
+        </_ErrorAlert>
+      )} */}
 
       <ToolbarWrapper>
         <SearchContainer>

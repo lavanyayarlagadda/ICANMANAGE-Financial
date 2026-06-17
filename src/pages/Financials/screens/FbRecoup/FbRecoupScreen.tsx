@@ -1,19 +1,8 @@
 import React, { useMemo } from 'react';
-import {
-  Box,
-  Typography,
-  IconButton,
-  Chip,
-  Grid,
-  Button,
-  TextField,
-  InputAdornment,
-  FormControl,
-} from '@mui/material';
+import { Box, Typography, IconButton, Grid, InputAdornment } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import SearchIcon from '@mui/icons-material/Search';
-import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { PlbDetailRecord, AssociatedEraFile } from '@/interfaces/api/transactions';
 import DataTable from '@/components/molecules/DataTable/DataTable';
@@ -24,32 +13,34 @@ import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import { themeConfig } from '@/theme/themeConfig';
 import { useFbRecoupScreen, useFbRecoupTable } from './FbRecoupScreen.hook';
 import {
-  filesSectionWrapper,
-  filesSectionTitle,
-  filesContainer,
-  filesHeaderGrid,
-  getFilesRowGridStyles,
-  flexCenter,
-  fileLinkText,
-  iconLeftMargin,
-  fontWeight500,
-  boldText,
-  getTypeChipStyles,
-  boldText500,
-  getAmountStyles,
-  getSuspenseBalanceStyles,
-  screenHeader,
-  screenHeaderTitle,
-  summaryGrid,
+  FilesSectionWrapperBox,
+  FilesSectionTitleText,
+  FilesContainerBox,
+  FilesHeaderGridBox,
+  FilesRowGridBox,
+  FlexCenterBox,
+  FileLinkTextTypography,
+  LeftMarginFileIcon,
+  FontWeight500Typography,
+  BoldTextTypography,
+  TypeChip,
+  BoldText500Typography,
+  AmountTypography,
+  SuspenseBalanceTypography,
+  ScreenHeaderBox,
+  ScreenHeaderTitleText,
+  SummaryGrid,
   ToolbarWrapper,
-  searchWrapper,
+  SearchWrapper,
   SearchField,
-  searchIcon,
-  searchButton,
-  emptyEraBox,
-  filterFormControl,
-  filterIconButton,
-  filterInputProps,
+  SearchIconStyled,
+  SearchButton,
+  EmptyEraBox,
+  FilterFormControl,
+  FilterIconButton,
+  FilterTextField,
+  _ErrorAlert,
+  AdornmentBox,
 } from './FbRecoupScreen.styles';
 import { useTheme } from '@mui/material/styles';
 
@@ -57,12 +48,10 @@ const AssociatedEraFilesSection: React.FC<{
   files: AssociatedEraFile[];
   isCareHospice: boolean;
 }> = ({ files }) => (
-  <Box sx={filesSectionWrapper}>
-    <Typography variant="subtitle2" sx={filesSectionTitle}>
-      Associated ERA Files
-    </Typography>
-    <Box sx={filesContainer}>
-      <Box sx={filesHeaderGrid}>
+  <FilesSectionWrapperBox>
+    <FilesSectionTitleText variant="subtitle2">Associated ERA Files</FilesSectionTitleText>
+    <FilesContainerBox>
+      <FilesHeaderGridBox>
         <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">
           TRANSACTION NO
         </Typography>
@@ -75,28 +64,28 @@ const AssociatedEraFilesSection: React.FC<{
         <Typography fontSize={12} fontWeight={700} color="text.primary" textAlign="center">
           AMOUNT
         </Typography>
-      </Box>
+      </FilesHeaderGridBox>
       {files.map((file, idx) => (
-        <Box key={idx} sx={getFilesRowGridStyles(idx === files.length - 1)}>
-          <Box sx={flexCenter}>
-            <Typography fontSize={13} color="primary" sx={fileLinkText}>
-              <InsertDriveFileOutlinedIcon sx={iconLeftMargin} />
+        <FilesRowGridBox key={idx} isLast={idx === files.length - 1}>
+          <FlexCenterBox>
+            <FileLinkTextTypography fontSize={13} color="primary">
+              <LeftMarginFileIcon />
               {file.transactionNo}
-            </Typography>
-          </Box>
-          <Typography fontSize={13} sx={fontWeight500} textAlign="center">
+            </FileLinkTextTypography>
+          </FlexCenterBox>
+          <FontWeight500Typography fontSize={13} textAlign="center">
             {file.npi}
-          </Typography>
-          <Typography fontSize={13} sx={fontWeight500} textAlign="center">
+          </FontWeight500Typography>
+          <FontWeight500Typography fontSize={13} textAlign="center">
             {formatDate(file.remitDate)}
-          </Typography>
-          <Typography fontSize={13} textAlign="center" color="text.primary" sx={fontWeight500}>
+          </FontWeight500Typography>
+          <FontWeight500Typography fontSize={13} textAlign="center" color="text.primary">
             {formatCurrency(file.amount)}
-          </Typography>
-        </Box>
+          </FontWeight500Typography>
+        </FilesRowGridBox>
       ))}
-    </Box>
-  </Box>
+    </FilesContainerBox>
+  </FilesSectionWrapperBox>
 );
 
 const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -168,9 +157,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.date,
         render: (row) => (
-          <Typography variant="body2" sx={boldText}>
-            {formatDate(row.date)}
-          </Typography>
+          <BoldTextTypography variant="body2">{formatDate(row.date)}</BoldTextTypography>
         ),
       },
       {
@@ -179,9 +166,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.transactionNo,
         render: (row) => (
-          <Typography variant="body2" sx={boldText}>
-            {row.transactionNo}
-          </Typography>
+          <BoldTextTypography variant="body2">{row.transactionNo}</BoldTextTypography>
         ),
       },
       {
@@ -191,9 +176,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         accessor: (row) => row.type,
         render: (row) => {
           const colors = getTypeBadgeColors(row.type);
-          return (
-            <Chip label={row.type} size="small" sx={getTypeChipStyles(colors.bg, colors.text)} />
-          );
+          return <TypeChip label={row.type} size="small" bg={colors.bg} textColor={colors.text} />;
         },
       },
       {
@@ -201,35 +184,23 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         label: isCareHospice ? 'BRAND' : 'STATE',
         align: 'center',
         accessor: (row) => row.state,
-        render: (row) => (
-          <Typography variant="body2" sx={boldText500}>
-            {row.state}
-          </Typography>
-        ),
+        render: (row) => <BoldText500Typography variant="body2">{row.state}</BoldText500Typography>,
         filterOptions: brandOrStateOptions,
       },
       {
         id: 'payor',
-        label: 'PAYOR',
+        label: 'PAYER',
         align: 'center',
         accessor: (row) => row.payor,
         filterOptions: payerOptions,
-        render: (row) => (
-          <Typography variant="body2" sx={boldText}>
-            {row.payor}
-          </Typography>
-        ),
+        render: (row) => <BoldTextTypography variant="body2">{row.payor}</BoldTextTypography>,
       },
       {
         id: 'npi',
         label: isCareHospice ? 'PTAN' : 'NPI',
         align: 'center',
         accessor: (row) => row.npi,
-        render: (row) => (
-          <Typography variant="body2" sx={boldText500}>
-            {row.npi}
-          </Typography>
-        ),
+        render: (row) => <BoldText500Typography variant="body2">{row.npi}</BoldText500Typography>,
       },
       {
         id: 'identifier',
@@ -237,9 +208,7 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.identifier,
         render: (row) => (
-          <Typography variant="body2" sx={boldText500}>
-            {row.identifier || '-'}
-          </Typography>
+          <BoldText500Typography variant="body2">{row.identifier || '-'}</BoldText500Typography>
         ),
       },
       {
@@ -248,9 +217,9 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.amount,
         render: (row) => (
-          <Typography variant="body2" sx={getAmountStyles(row.amount)}>
+          <AmountTypography variant="body2" amount={row.amount}>
             {formatCurrency(row.amount)}
-          </Typography>
+          </AmountTypography>
         ),
       },
       {
@@ -259,9 +228,9 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         align: 'center',
         accessor: (row) => row.suspenseBalance,
         render: (row) => (
-          <Typography variant="body2" sx={getSuspenseBalanceStyles(row.suspenseBalance)}>
+          <SuspenseBalanceTypography variant="body2" balance={row.suspenseBalance}>
             {formatCurrency(row.suspenseBalance)}
-          </Typography>
+          </SuspenseBalanceTypography>
         ),
       },
       {
@@ -278,22 +247,20 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
 
   return (
     <Box>
-      <Box sx={screenHeader}>
-        <Typography variant="h5" sx={screenHeaderTitle}>
-          FB & Recoup
-        </Typography>
+      <ScreenHeaderBox>
+        <ScreenHeaderTitleText variant="h5">FB & Recoup</ScreenHeaderTitleText>
         <Typography variant="body2" color="text.secondary">
           Forward Balance and recoupment transaction details.
         </Typography>
-      </Box>
+      </ScreenHeaderBox>
 
       {/* {isError && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
-                    Failed to load Forward Balance and Recoupment transaction details. Please try reloading or contact support.
-                </Alert>
-            )} */}
+        <_ErrorAlert severity="error">
+          Failed to load Forward Balance and Recoupment transaction details. Please try reloading or contact support.
+        </_ErrorAlert>
+      )} */}
 
-      <Grid container spacing={2} sx={summaryGrid}>
+      <SummaryGrid container spacing={2}>
         <Grid size={{ xs: 12, md: 4 }}>
           <SummaryCard
             title="TOTAL AMOUNT"
@@ -316,9 +283,9 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             backgroundColor={theme.palette.background.paper}
           />
         </Grid>
-      </Grid>
+      </SummaryGrid>
       <ToolbarWrapper>
-        <Box sx={searchWrapper}>
+        <SearchWrapper>
           <SearchField
             size="small"
             placeholder="Search by Transaction #"
@@ -328,21 +295,20 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={searchIcon} />
+                  <SearchIconStyled />
                 </InputAdornment>
               ),
             }}
           />
-          <Button
+          <SearchButton
             variant="contained"
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch()}
-            sx={searchButton}
           >
             Search
-          </Button>
-        </Box>
+          </SearchButton>
+        </SearchWrapper>
       </ToolbarWrapper>
 
       <DataTable
@@ -353,11 +319,11 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         expandedContent={(row) => {
           if (!row.associatedEraFiles || row.associatedEraFiles.length === 0) {
             return (
-              <Box sx={emptyEraBox}>
+              <EmptyEraBox>
                 <Typography variant="body2" color="text.secondary">
                   No associated ERA files found.
                 </Typography>
-              </Box>
+              </EmptyEraBox>
             );
           }
           return (
@@ -385,8 +351,8 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         download={false}
         loading={isFetching}
         customFilterContent={
-          <FormControl size="small" sx={filterFormControl}>
-            <TextField
+          <FilterFormControl size="small">
+            <FilterTextField
               size="small"
               value={filterNpiPtan}
               onChange={(e) => setFilterNpiPtan(e.target.value)}
@@ -398,21 +364,19 @@ const FbRecoupScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
               placeholder={isCareHospice ? 'All PTAN' : 'All NPI'}
               InputProps={{
                 endAdornment: (
-                  <InputAdornment position="end" sx={{ m: 0, p: 0 }}>
-                    <IconButton
+                  <AdornmentBox position="end">
+                    <FilterIconButton
                       size="small"
                       disabled={!filterNpiPtan}
                       onClick={() => applyFilters()}
-                      sx={filterIconButton}
                     >
                       <SearchIcon fontSize="small" color={filterNpiPtan ? 'primary' : 'action'} />
-                    </IconButton>
-                  </InputAdornment>
+                    </FilterIconButton>
+                  </AdornmentBox>
                 ),
-                sx: filterInputProps,
               }}
             />
-          </FormControl>
+          </FilterFormControl>
         }
         additionalFilterCount={filterNpiPtan ? 1 : 0}
       />

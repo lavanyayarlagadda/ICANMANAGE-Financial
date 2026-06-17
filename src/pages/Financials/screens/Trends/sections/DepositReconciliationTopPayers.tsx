@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
+import { CardContent, useTheme } from '@mui/material';
 import { Sparkline } from './Sparkline';
 import {
   deltaColor,
@@ -8,6 +8,7 @@ import {
   type PayerRow,
   type TrendColumn,
 } from '../helpers/depositReconciliationHelpers';
+import * as styles from './DepositReconciliationTopPayers.styles';
 
 interface DepositReconciliationTopPayersProps {
   topPayersData: {
@@ -28,35 +29,16 @@ export const DepositReconciliationTopPayers: React.FC<DepositReconciliationTopPa
   const theme = useTheme();
 
   return (
-    <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
+    <styles.StyledCard>
       <CardContent>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          {String(topPayersData.title || '')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <styles.TitleText variant="h6">{String(topPayersData.title || '')}</styles.TitleText>
+        <styles.DescriptionText variant="body2" color="text.secondary">
           {String(topPayersData.description || '')}
-        </Typography>
-        <Box
-          sx={{
-            overflowX: 'auto',
-            maxWidth: '100%',
-            '&::-webkit-scrollbar': { height: '8px' },
-            '&::-webkit-scrollbar-track': { background: 'transparent' },
-            '&::-webkit-scrollbar-thumb': {
-              background: theme.palette.grey[300],
-              borderRadius: '10px',
-              '&:hover': { background: theme.palette.grey[400] },
-            },
-            scrollbarWidth: 'thin',
-            scrollbarColor: `${theme.palette.grey[300]} transparent`,
-          }}
-        >
-          <Box
-            component="table"
-            sx={{ width: '100%', borderCollapse: 'collapse', minWidth: 'max-content' }}
-          >
-            <Box component="thead">
-              <Box component="tr">
+        </styles.DescriptionText>
+        <styles.TableContainer>
+          <styles.TableElement component="table">
+            <styles.TableElement component="thead">
+              <styles.TableElement component="tr">
                 {[
                   'Payer',
                   'Total $',
@@ -65,102 +47,43 @@ export const DepositReconciliationTopPayers: React.FC<DepositReconciliationTopPa
                   getDeltaLabel(columns || [], compareMode),
                   '6-months Trend',
                 ].map((label) => (
-                  <Box
+                  <styles.TableHeaderCell
                     component="th"
                     key={label}
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      textAlign: label === 'Payer' || label === '6-months Trend' ? 'left' : 'right',
-                      color: theme.palette.text.secondary,
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      fontSize: 12,
-                      whiteSpace: 'nowrap',
-                    }}
+                    align={label === 'Payer' || label === '6-months Trend' ? 'left' : 'right'}
                   >
                     {label}
-                  </Box>
+                  </styles.TableHeaderCell>
                 ))}
-              </Box>
-            </Box>
-            <Box component="tbody">
+              </styles.TableElement>
+            </styles.TableElement>
+            <styles.TableElement component="tbody">
               {topPayers.map((row, idx) => (
-                <Box component="tr" key={`${row.payer}-${idx}`}>
-                  <Box
-                    component="td"
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {row.payer}
-                  </Box>
-                  <Box
-                    component="td"
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      textAlign: 'right',
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                <styles.TableElement component="tr" key={`${row.payer}-${idx}`}>
+                  <styles.TableCell component="td">{row.payer}</styles.TableCell>
+                  <styles.TableCell component="td" align="right">
                     {row.total}
-                  </Box>
-                  <Box
-                    component="td"
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      textAlign: 'right',
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  </styles.TableCell>
+                  <styles.TableCell component="td" align="right">
                     {row.share}
-                  </Box>
-                  <Box
-                    component="td"
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      textAlign: 'right',
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  </styles.TableCell>
+                  <styles.TableCell component="td" align="right">
                     {row.matchRate}
-                  </Box>
-                  <Box
+                  </styles.TableCell>
+                  <styles.TableCell
                     component="td"
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      textAlign: 'right',
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      color: deltaColor(
-                        row.momDelta,
-                        theme.palette.success.main,
-                        theme.palette.error.main,
-                        theme.palette.text.secondary,
-                      ),
-                      fontWeight: 700,
-                      whiteSpace: 'nowrap',
-                    }}
+                    align="right"
+                    color={deltaColor(
+                      row.momDelta,
+                      theme.palette.success.main,
+                      theme.palette.error.main,
+                      theme.palette.text.secondary,
+                    )}
+                    fontWeight={700}
                   >
                     {toText(row.momDelta)}
-                  </Box>
-                  <Box
-                    component="td"
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  </styles.TableCell>
+                  <styles.TableCell component="td">
                     {row.sixMonthTrend && row.sixMonthTrend.length > 1 ? (
                       <Sparkline
                         values={row.sixMonthTrend}
@@ -172,13 +95,13 @@ export const DepositReconciliationTopPayers: React.FC<DepositReconciliationTopPa
                         )}
                       />
                     ) : null}
-                  </Box>
-                </Box>
+                  </styles.TableCell>
+                </styles.TableElement>
               ))}
-            </Box>
-          </Box>
-        </Box>
+            </styles.TableElement>
+          </styles.TableElement>
+        </styles.TableContainer>
       </CardContent>
-    </Card>
+    </styles.StyledCard>
   );
 };

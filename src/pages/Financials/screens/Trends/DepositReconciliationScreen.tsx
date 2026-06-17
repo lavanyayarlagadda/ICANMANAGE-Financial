@@ -34,6 +34,9 @@ import {
   GuideDivider,
   GuideList,
   GuideListItem,
+  _InsightsCard,
+  _InsightsTitle,
+  _InsightsText,
 } from './DepositReconciliationScreen.styles';
 
 const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
@@ -122,21 +125,20 @@ const DepositReconciliationScreen: React.FC<{ skip?: boolean }> = ({ skip = fals
         controls={contract.controls}
       />
       {/* {safeInsights.length > 0 && (
-        <Card sx={{ mb: 2, borderLeft: `4px solid ${theme.palette.error.main}` }}>
+        <_InsightsCard>
           <CardContent>
-            <Typography
+            <_InsightsTitle
               variant="subtitle1"
-              sx={{ fontWeight: 700, color: theme.palette.error.main, mb: 1 }}
             >
               {monthAtGlanceTitle}
-            </Typography>
+            </_InsightsTitle>
             {safeInsights.map((line, idx) => (
-              <Typography key={idx} variant="body2" sx={{ mb: 0.5 }}>
+              <_InsightsText key={idx} variant="body2">
                 {toText(line)}
-              </Typography>
+              </_InsightsText>
             ))}
           </CardContent>
-        </Card>
+        </_InsightsCard>
       )} */}
       <DepositReconciliationHeroCards heroCards={safeHeroCards} />
       <DepositReconciliationAging

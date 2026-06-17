@@ -1,11 +1,18 @@
 import React, { useMemo } from 'react';
-import { Box, IconButton, Typography } from '@mui/material';
 import { ChatBubbleOutline } from '@mui/icons-material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
 import { formatCurrency, formatDate } from '@/utils/formatters';
-import { HighlightCell } from './ReconciliationScreen.styles';
+import {
+  HighlightCell,
+  CurrencyTypography,
+  DateTypography,
+  LinkContainerBox,
+  LinkTextTypography,
+  CommentIconButton,
+  StyledChatBubbleIcon,
+} from './ReconciliationScreen.styles';
 import { ReconciliationRow, ReconciliationStatus } from './ReconciliationScreen.hook';
 
 interface HeaderData {
@@ -96,9 +103,9 @@ export const useReconciliationColumns = ({
 
             if (header.isCurrency) {
               const content = (
-                <Typography variant="body2" sx={{ fontWeight: 700, color: 'inherit' }}>
+                <CurrencyTypography variant="body2">
                   {formatCurrency(Number(val))}
-                </Typography>
+                </CurrencyTypography>
               );
               return header.highlightOnZero && Number(val) === 0 ? (
                 <HighlightCell>{formatCurrency(Number(val))}</HighlightCell>
@@ -108,27 +115,15 @@ export const useReconciliationColumns = ({
             }
 
             if (header.id === 'reconcileDate') {
-              return (
-                <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary' }}>
-                  {formatDate(val as string)}
-                </Typography>
-              );
+              return <DateTypography variant="body2">{formatDate(val as string)}</DateTypography>;
             }
 
             if (header.isLink) {
               return (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography
+                <LinkContainerBox>
+                  <LinkTextTypography
                     variant="body2"
-                    sx={{
-                      fontWeight: 700,
-                      color: row.isEdited ? 'success.main' : 'primary.main',
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
+                    isEdited={row.isEdited}
                     onClick={() => {
                       setSelectedRow(row);
                       setSelectedTxNo(String(val));
@@ -136,25 +131,20 @@ export const useReconciliationColumns = ({
                     }}
                   >
                     {String(val ?? '-')}
-                  </Typography>
+                  </LinkTextTypography>
                   {view === 'reconciled' && (
-                    <IconButton
+                    <CommentIconButton
                       size="small"
-                      sx={{
-                        p: 0.2,
-                        color: 'text.disabled',
-                        '&:hover': { color: 'primary.main', bgcolor: 'grey.100' },
-                      }}
                       onClick={(e) => {
                         e.stopPropagation();
                         setCommentsRow(row);
                         setCommentsDialogOpen(true);
                       }}
                     >
-                      <ChatBubbleOutline sx={{ fontSize: 16 }} />
-                    </IconButton>
+                      <StyledChatBubbleIcon />
+                    </CommentIconButton>
                   )}
-                </Box>
+                </LinkContainerBox>
               );
             }
 

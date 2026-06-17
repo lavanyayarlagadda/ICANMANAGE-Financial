@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, Button, ButtonGroup, Stack, Typography } from '@mui/material';
+import { ButtonGroup, Typography } from '@mui/material';
 import { formatDateTime } from '@/utils/formatters';
+import * as styles from './DepositReconciliationHeader.styles';
 
 interface DepositReconciliationHeaderProps {
   title: string;
@@ -32,88 +33,70 @@ export const DepositReconciliationHeader: React.FC<DepositReconciliationHeaderPr
   controls,
 }) => {
   return (
-    <Box
-      sx={{
-        mb: 2,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-start',
-        gap: 2,
-      }}
-    >
-      <Box>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {title}
-        </Typography>
+    <styles.HeaderWrapper>
+      <styles.ControlBox>
+        <styles.TitleText variant="h5">{title}</styles.TitleText>
         <Typography variant="body2" color="text.secondary">
           {subtitle} Updated {formatDateTime(updatedAt)}.
         </Typography>
-      </Box>
+      </styles.ControlBox>
 
-      <Stack
-        direction="row"
-        spacing={1.5}
-        sx={{ flexWrap: 'wrap', rowGap: 1, justifyContent: 'flex-start' }}
-      >
-        <Box sx={{ textAlign: 'left' }}>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+      <styles.StackWrapper direction="row" spacing={1.5}>
+        <styles.ControlBox>
+          <styles.LabelText variant="caption" color="text.secondary">
             Trailing window
-          </Typography>
+          </styles.LabelText>
           <ButtonGroup size="small" variant="outlined">
             {(controls?.trailingWindow?.options || ['3m', '6m', '12m', '24m']).map((opt) => (
-              <Button
+              <styles.Button40
                 key={opt}
                 onClick={() => setTrailingWindow(opt)}
                 variant={trailingWindow === opt ? 'contained' : 'outlined'}
-                sx={{ minWidth: 40 }}
               >
                 {opt}
-              </Button>
+              </styles.Button40>
             ))}
           </ButtonGroup>
-        </Box>
-        {/* <Box>
-          <Typography
+        </styles.ControlBox>
+        {/* <styles.ControlBox>
+          <styles.LabelText
             variant="caption"
             color="text.secondary"
-            sx={{ display: "block", mb: 0.5 }}
           >
             Forecast
-          </Typography>
+          </styles.LabelText>
           <ButtonGroup size="small" variant="outlined">
             {(controls?.forecastWindow?.options || ["off", "3m", "6m"]).map(
               (opt) => (
-                <Button
+                <styles.Button40
                   key={opt}
                   onClick={() => setForecastWindow(opt)}
                   variant={forecastWindow === opt ? "contained" : "outlined"}
-                  sx={{ minWidth: 40 }}
                 >
                   {opt}
-                </Button>
+                </styles.Button40>
               ),
             )}
           </ButtonGroup>
-        </Box> */}
+        </styles.ControlBox> */}
 
-        <Box sx={{ textAlign: 'left' }}>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+        <styles.ControlBox>
+          <styles.LabelText variant="caption" color="text.secondary">
             Compare
-          </Typography>
+          </styles.LabelText>
           <ButtonGroup size="small" variant="outlined">
             {(controls?.comparisonMode?.options || ['MoM', 'YoY']).map((opt) => (
-              <Button
+              <styles.Button48
                 key={opt}
                 onClick={() => setCompareMode(opt)}
                 variant={compareMode === opt ? 'contained' : 'outlined'}
-                sx={{ minWidth: 48 }}
               >
                 {opt}
-              </Button>
+              </styles.Button48>
             ))}
           </ButtonGroup>
-        </Box>
-      </Stack>
-    </Box>
+        </styles.ControlBox>
+      </styles.StackWrapper>
+    </styles.HeaderWrapper>
   );
 };

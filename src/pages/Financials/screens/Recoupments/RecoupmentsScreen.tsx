@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, useTheme, InputAdornment, Button } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Typography, InputAdornment } from '@mui/material';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -10,19 +9,18 @@ import { RecoupmentRecord } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useRecoupmentsScreen } from './RecoupmentsScreen.hook';
 import {
-  monospaceStyles,
-  amountStyles,
-  boldStyles,
+  MonospaceBox,
+  AmountText,
+  BoldText,
   ToolbarWrapper,
   SearchField,
-  pageContainerStyles,
-  searchWrapperStyles,
-  searchIconStyles,
-  searchButtonStyles,
+  PageContainer,
+  SearchWrapper,
+  StyledSearchIcon,
+  SearchButton,
 } from './RecoupmentsScreen.styles';
 
 const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-  const theme = useTheme();
   const {
     recoupments,
     totalElements,
@@ -57,11 +55,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         label: 'RECOUPMENT ID',
         minWidth: 140,
         accessor: (r) => r.recoupmentId,
-        render: (r) => (
-          <Typography variant="body2" sx={boldStyles}>
-            {r.recoupmentId}
-          </Typography>
-        ),
+        render: (r) => <BoldText variant="body2">{r.recoupmentId}</BoldText>,
       },
       {
         id: 'transactionNo',
@@ -98,7 +92,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         label: 'ORIG. PAYMENT',
         minWidth: 120,
         accessor: (r) => r.originalPaymentAmount,
-        render: (r) => <Box sx={monospaceStyles}>{formatCurrency(r.originalPaymentAmount)}</Box>,
+        render: (r) => <MonospaceBox>{formatCurrency(r.originalPaymentAmount)}</MonospaceBox>,
       },
       {
         id: 'recoupmentAmount',
@@ -106,9 +100,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         minWidth: 130,
         accessor: (r) => r.recoupmentAmount,
         render: (r) => (
-          <Typography variant="body2" sx={amountStyles(theme)}>
-            {formatCurrency(r.recoupmentAmount)}
-          </Typography>
+          <AmountText variant="body2">{formatCurrency(r.recoupmentAmount)}</AmountText>
         ),
       },
       {
@@ -126,13 +118,13 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         render: (r) => <StatusBadge status={r.status} />,
       },
     ],
-    [theme, handleDrillDown, payerOptions, payerOptionsLoading, payerOptionsError],
+    [handleDrillDown, payerOptions, payerOptionsLoading, payerOptionsError],
   );
 
   return (
-    <Box sx={pageContainerStyles}>
+    <PageContainer>
       <ToolbarWrapper>
-        <Box sx={searchWrapperStyles}>
+        <SearchWrapper>
           <SearchField
             size="small"
             placeholder="Search by Transaction #"
@@ -142,21 +134,20 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={searchIconStyles} />
+                  <StyledSearchIcon />
                 </InputAdornment>
               ),
             }}
           />
-          <Button
+          <SearchButton
             variant="contained"
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={searchButtonStyles}
           >
             Search
-          </Button>
-        </Box>
+          </SearchButton>
+        </SearchWrapper>
       </ToolbarWrapper>
       <DataTable
         gridName="Recoupments"
@@ -181,7 +172,7 @@ const RecoupmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         download={false}
         loading={isFetching}
       />
-    </Box>
+    </PageContainer>
   );
 };
 

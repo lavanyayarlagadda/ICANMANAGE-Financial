@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
-import { Box, Chip, Typography, useTheme, IconButton } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { BankDepositItem } from '@/interfaces/financials';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -12,6 +10,19 @@ import { ReconStatus, SystemStatus } from '@/constants/statuses';
 
 import { DynamicColumn } from '@/interfaces/api/common';
 import MultiValueDisplay from '@/components/atoms/MultiValueDisplay/MultiValueDisplay';
+import {
+  MonospaceText,
+  PrimaryText,
+  BoldText,
+  VarianceText,
+  StatusChip,
+  CheckCircleIcon,
+  ErrorIcon,
+  ReconciledChip,
+  StatusBox,
+  Variance1Chip,
+  Variance2Chip,
+} from './BankDepositsScreen.styles';
 
 interface UseBankDepositColumnsProps {
   expandedRows: Set<string>;
@@ -30,8 +41,6 @@ export const useBankDepositColumns = ({
   payerOptions,
   statusOptions,
 }: UseBankDepositColumnsProps) => {
-  const theme = useTheme();
-
   const columns = useMemo<DataColumn<BankDepositItem>[]>(() => {
     // Base columns that are always present or have complex custom rendering
     const baseColumns: Record<string, DataColumn<BankDepositItem>> = {
@@ -59,11 +68,7 @@ export const useBankDepositColumns = ({
         label: 'TRANSACTION NO',
         align: 'center',
         accessor: (row) => row.transactionNo,
-        render: (row) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
-            {row.transactionNo}
-          </Typography>
-        ),
+        render: (row) => <MonospaceText variant="body2">{row.transactionNo}</MonospaceText>,
       },
       baiReceivedDate: {
         id: 'baiReceivedDate',
@@ -79,9 +84,7 @@ export const useBankDepositColumns = ({
         accessor: (row) => row.accountNo,
         render: (row) => (
           <Box>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.main }}>
-              {row.accountNo}
-            </Typography>
+            <PrimaryText variant="body2">{row.accountNo}</PrimaryText>
             <Typography variant="caption" color="text.secondary">
               {formatDate(row.baiReceivedDate)}
             </Typography>
@@ -101,22 +104,14 @@ export const useBankDepositColumns = ({
         label: 'BANK AMT',
         align: 'center',
         accessor: (row) => row.baiAmount,
-        render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {formatCurrency(row.baiAmount)}
-          </Typography>
-        ),
+        render: (row) => <BoldText variant="body2">{formatCurrency(row.baiAmount)}</BoldText>,
       },
       remitAmount: {
         id: 'remitAmount',
         label: 'REMITTANCE',
         align: 'center',
         accessor: (row) => row.remitAmount,
-        render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {formatCurrency(row.remitAmount)}
-          </Typography>
-        ),
+        render: (row) => <BoldText variant="body2">{formatCurrency(row.remitAmount)}</BoldText>,
       },
       variance: {
         id: 'variance',
@@ -125,15 +120,9 @@ export const useBankDepositColumns = ({
         accessor: (row) => row.varianceAmount,
         disableSort: true,
         render: (row) => (
-          <Typography
-            variant="body2"
-            sx={{
-              fontWeight: 600,
-              color: row.varianceAmount < 0 ? theme.palette.error.main : theme.palette.text.primary,
-            }}
-          >
+          <VarianceText variant="body2" amount={row.varianceAmount}>
             {formatCurrency(row.varianceAmount)}
-          </Typography>
+          </VarianceText>
         ),
       },
       status: {
@@ -153,59 +142,22 @@ export const useBankDepositColumns = ({
               ? themeConfig.status[ReconStatus.MATCHED]
               : themeConfig.status[SystemStatus.CRITICAL];
             return (
-              <Chip
+              <StatusChip
                 label={status}
-                sx={{
-                  backgroundColor: statusColors.bg,
-                  color: statusColors.text,
-                  border: `1px solid ${theme.palette.divider}`,
-                }}
-                icon={
-                  isMatched ? (
-                    <CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} />
-                  ) : (
-                    <ErrorOutlineIcon sx={{ fontSize: '14px !important' }} />
-                  )
-                }
+                bg={statusColors.bg}
+                textColor={statusColors.text}
+                icon={isMatched ? <CheckCircleIcon /> : <ErrorIcon />}
               />
             );
           } else if (row.status === 'Reconciled') {
-            return (
-              <Chip
-                label={row.status}
-                sx={{
-                  backgroundColor: '#E8F5E9',
-                  color: '2E7D32',
-                  border: `1px solid ${theme.palette.divider}`,
-                }}
-                icon={<CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} />}
-              />
-            );
+            return <ReconciledChip label={row.status} icon={<CheckCircleIcon />} />;
           }
           if (!row.variance1Status && !row.variance2Status) return '-';
           return (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              {row.variance1Status && (
-                <Chip
-                  label={row.variance1Status}
-                  sx={{
-                    backgroundColor: themeConfig.colors.slate[50],
-                    color: themeConfig.colors.success,
-                    fontWeight: 500,
-                  }}
-                />
-              )}
-              {row.variance2Status && (
-                <Chip
-                  label={row.variance2Status}
-                  sx={{
-                    backgroundColor: themeConfig.status[SystemStatus.CRITICAL].bg,
-                    color: themeConfig.colors.warning,
-                    fontWeight: 500,
-                  }}
-                />
-              )}
-            </Box>
+            <StatusBox>
+              {row.variance1Status && <Variance1Chip label={row.variance1Status} />}
+              {row.variance2Status && <Variance2Chip label={row.variance2Status} />}
+            </StatusBox>
           );
         },
       },
@@ -273,11 +225,7 @@ export const useBankDepositColumns = ({
                 actualField.toLowerCase().includes('remit') ||
                 actualField.toLowerCase().includes('deposit'))
             ) {
-              return (
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {formatCurrency(val)}
-                </Typography>
-              );
+              return <BoldText variant="body2">{formatCurrency(val)}</BoldText>;
             }
             return base.render ? (
               base.render(row)
@@ -322,11 +270,7 @@ export const useBankDepositColumns = ({
               mappedId.toLowerCase().includes('amount') ||
               mappedId.toLowerCase().includes('variance'))
           ) {
-            return (
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {formatCurrency(val)}
-              </Typography>
-            );
+            return <BoldText variant="body2">{formatCurrency(val)}</BoldText>;
           }
           if (mappedId.toLowerCase().includes('date') && val) {
             return <Typography variant="body2">{formatDate(String(val))}</Typography>;
@@ -345,15 +289,7 @@ export const useBankDepositColumns = ({
     }
 
     return mappedColumns;
-  }, [
-    expandedRows,
-    theme,
-    toggleRow,
-    dynamicColumns,
-    isHeadersSuccess,
-    payerOptions,
-    statusOptions,
-  ]);
+  }, [expandedRows, toggleRow, dynamicColumns, isHeadersSuccess, payerOptions, statusOptions]);
 
   return { columns };
 };

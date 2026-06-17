@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
+import { CardContent, useTheme } from '@mui/material';
 import { Sparkline } from './Sparkline';
 import {
   deltaColor,
@@ -8,6 +8,7 @@ import {
   type TrendColumn,
   type SectionRow,
 } from '../helpers/depositReconciliationHelpers';
+import * as styles from './SectionTable.styles';
 
 interface SectionTableProps {
   title: string;
@@ -25,39 +26,19 @@ export const SectionTable: React.FC<SectionTableProps> = ({
   compareMode,
 }) => {
   const theme = useTheme();
-  // const firstForecastIdx = columns.findIndex((col) => col.kind === 'FORECAST');
   const deltaLabel = getDeltaLabel(columns, compareMode);
 
   return (
-    <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
+    <styles.StyledCard>
       <CardContent>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <styles.TitleText variant="h6">{title}</styles.TitleText>
+        <styles.DescriptionText variant="body2" color="text.secondary">
           {description}
-        </Typography>
-        <Box
-          sx={{
-            overflowX: 'auto',
-            maxWidth: '100%',
-            '&::-webkit-scrollbar': { height: '8px' },
-            '&::-webkit-scrollbar-track': { background: 'transparent' },
-            '&::-webkit-scrollbar-thumb': {
-              background: theme.palette.grey[300],
-              borderRadius: '10px',
-              '&:hover': { background: theme.palette.grey[400] },
-            },
-            scrollbarWidth: 'thin',
-            scrollbarColor: `${theme.palette.grey[300]} transparent`,
-          }}
-        >
-          <Box
-            component="table"
-            sx={{ width: '100%', borderCollapse: 'collapse', minWidth: 'max-content' }}
-          >
-            <Box component="thead">
-              <Box component="tr">
+        </styles.DescriptionText>
+        <styles.TableContainer>
+          <styles.TableElement component="table">
+            <styles.TableElement component="thead">
+              <styles.TableElement component="tr">
                 {[
                   '',
                   'Trend',
@@ -70,84 +51,47 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                   const isForecastCol = idx >= 3 && columns[idx - 3].kind === 'FORECAST';
 
                   return (
-                    <Box
+                    <styles.TableHeaderCell
                       component="th"
                       key={`${label}-${idx}`}
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        textAlign: idx === 0 ? 'left' : 'right',
-                        color: theme.palette.text.secondary,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                        borderLeft:
-                          isPartialCol || isForecastCol
-                            ? `1px dashed ${theme.palette.divider}`
-                            : 'none',
-                        fontSize: 12,
-                        whiteSpace: 'nowrap',
-                      }}
+                      align={idx === 0 ? 'left' : 'right'}
+                      showBorderLeft={isPartialCol || isForecastCol}
                     >
                       {label}
-                    </Box>
+                    </styles.TableHeaderCell>
                   );
                 })}
-              </Box>
-            </Box>
-            <Box component="tbody">
+              </styles.TableElement>
+            </styles.TableElement>
+            <styles.TableElement component="tbody">
               {rows.map((row) => {
                 if (row.isGroupHeader) {
                   return (
-                    <Box component="tr" key={row.id}>
-                      <Box
+                    <styles.TableElement component="tr" key={row.id}>
+                      <styles.TableCell
                         component="td"
                         colSpan={columns.length + 3}
-                        sx={{
-                          py: 1,
-                          px: 1,
-                          borderBottom: `1px solid ${theme.palette.divider}`,
-                          fontWeight: 600,
-                          color: theme.palette.text.primary,
-                          whiteSpace: 'nowrap',
-                        }}
+                        fontWeight={600}
+                        color="text.primary"
                       >
                         {row.name}
-                      </Box>
-                    </Box>
+                      </styles.TableCell>
+                    </styles.TableElement>
                   );
                 }
 
                 const isBoldRow = row.isTotal || row.isSubtotal;
 
                 return (
-                  <Box
-                    component="tr"
-                    key={row.id}
-                    sx={{
-                      backgroundColor: isBoldRow ? theme.palette.action.hover : 'transparent',
-                    }}
-                  >
-                    <Box
+                  <styles.TableRowElement component="tr" key={row.id} isBoldRow={isBoldRow}>
+                    <styles.TableCell
                       component="td"
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        pl: row.isSubtotal || row.isTotal ? 1 : 2.5,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                        fontWeight: isBoldRow ? 700 : 500,
-                        whiteSpace: 'nowrap',
-                      }}
+                      pl={row.isSubtotal || row.isTotal ? 1 : 2.5}
+                      fontWeight={isBoldRow ? 700 : 500}
                     >
                       {row.name}
-                    </Box>
-                    <Box
-                      component="td"
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                        textAlign: 'right',
-                      }}
-                    >
+                    </styles.TableCell>
+                    <styles.TableCell component="td" align="right">
                       {row.sparkline && row.sparkline.length > 0 ? (
                         <Sparkline
                           values={row.sparkline}
@@ -159,63 +103,49 @@ export const SectionTable: React.FC<SectionTableProps> = ({
                           )}
                         />
                       ) : null}
-                    </Box>
-                    <Box
+                    </styles.TableCell>
+                    <styles.TableCell
                       component="td"
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                        textAlign: 'right',
-                        color: deltaColor(
-                          row.momDelta,
-                          theme.palette.success.main,
-                          theme.palette.error.main,
-                          theme.palette.text.secondary,
-                        ),
-                        fontWeight: 700,
-                        whiteSpace: 'nowrap',
-                      }}
+                      align="right"
+                      color={deltaColor(
+                        row.momDelta,
+                        theme.palette.success.main,
+                        theme.palette.error.main,
+                        theme.palette.text.secondary,
+                      )}
+                      fontWeight={700}
                     >
                       {toText(row.momDelta)}
-                    </Box>
+                    </styles.TableCell>
                     {row.amounts.map((value, idx) => {
                       const col = columns[idx];
                       const isForecast = col.kind === 'FORECAST';
                       const isPartial = col.kind === 'PARTIAL';
                       return (
-                        <Box
+                        <styles.TableCell
                           component="td"
                           key={`${row.id}-${idx}`}
-                          sx={{
-                            py: 1,
-                            px: 1,
-                            textAlign: 'right',
-                            borderBottom: `1px solid ${theme.palette.divider}`,
-                            borderLeft:
-                              isPartial || isForecast
-                                ? `1px dashed ${theme.palette.divider}`
-                                : 'none',
-                            color:
-                              isForecast || isPartial
-                                ? theme.palette.text.secondary
-                                : theme.palette.text.primary,
-                            fontStyle: isForecast || isPartial ? 'italic' : 'normal',
-                            fontWeight: isBoldRow ? 700 : 500,
-                            whiteSpace: 'nowrap',
-                          }}
+                          align="right"
+                          showBorderLeft={isPartial || isForecast}
+                          color={
+                            isForecast || isPartial
+                              ? theme.palette.text.secondary
+                              : theme.palette.text.primary
+                          }
+                          fontStyle={isForecast || isPartial ? 'italic' : 'normal'}
+                          fontWeight={isBoldRow ? 700 : 500}
                         >
                           {value}
-                        </Box>
+                        </styles.TableCell>
                       );
                     })}
-                  </Box>
+                  </styles.TableRowElement>
                 );
               })}
-            </Box>
-          </Box>
-        </Box>
+            </styles.TableElement>
+          </styles.TableElement>
+        </styles.TableContainer>
       </CardContent>
-    </Card>
+    </styles.StyledCard>
   );
 };

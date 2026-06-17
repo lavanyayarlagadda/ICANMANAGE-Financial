@@ -18,7 +18,8 @@ import {
   BalanceText,
   AgingChip,
   PriorityChip,
-  gridContainerStyles,
+  SummaryGrid,
+  _ErrorAlert,
 } from './CollectionsScreen.styles';
 import { useCollectionsScreen } from './CollectionsScreen.hook';
 
@@ -159,12 +160,12 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
       </HeaderBox>
 
       {/* {isError && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
-                    Failed to load Collections details. Please try reloading or contact support.
-                </Alert>
-            )} */}
+        <_ErrorAlert severity="error">
+          Failed to load Collections details. Please try reloading or contact support.
+        </_ErrorAlert>
+      )} */}
 
-      <Grid container spacing={2} sx={gridContainerStyles}>
+      <SummaryGrid container spacing={2}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <SummaryCard
             title="Total Due"
@@ -185,7 +186,7 @@ const CollectionsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <SummaryCard title="Open Accounts" value={String(stats.openAccounts)} />
         </Grid>
-      </Grid>
+      </SummaryGrid>
 
       <DataTable
         gridName="Collections"

@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { Typography, Chip, useTheme, Box, InputAdornment, Button } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { InputAdornment } from '@mui/material';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RangeDropdown from '@/components/atoms/RangeDropdown/RangeDropdown';
@@ -10,19 +9,18 @@ import { OtherAdjustmentRecord } from '@/interfaces/financials';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useOtherAdjustmentsScreen } from './OtherAdjustmentsScreen.hook';
 import {
-  adjustmentChipStyles,
-  amountStyles,
+  AdjustmentChip,
+  AmountText,
   ToolbarWrapper,
   SearchField,
-  adjustmentIdStyles,
-  pageContainerStyles,
-  searchWrapperStyles,
-  searchIconStyles,
-  searchButtonStyles,
+  AdjustmentIdText,
+  PageContainer,
+  SearchWrapper,
+  StyledSearchIcon,
+  SearchButton,
 } from './OtherAdjustmentsScreen.styles';
 
 const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) => {
-  const theme = useTheme();
   const {
     adjustments,
     totalElements,
@@ -56,11 +54,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         label: 'Adjustment ID',
         minWidth: 160,
         accessor: (r) => r.adjustmentId,
-        render: (r) => (
-          <Typography variant="body2" sx={adjustmentIdStyles}>
-            {r.adjustmentId}
-          </Typography>
-        ),
+        render: (r) => <AdjustmentIdText variant="body2">{r.adjustmentId}</AdjustmentIdText>,
       },
       {
         id: 'transactionNo',
@@ -82,7 +76,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         minWidth: 140,
         accessor: (r) => r.type,
         // filterOptions: ['WRITE-OFF', 'CREDIT', 'INTEREST', 'CONTRACTUAL', 'REFUND', 'TRANSFER', 'RECLASSIFICATION', 'CHARITY'],
-        render: (r) => <Chip label={r.type} size="small" sx={adjustmentChipStyles(r.type)} />,
+        render: (r) => <AdjustmentChip label={r.type} size="small" adjType={r.type} />,
       },
       {
         id: 'payer',
@@ -98,9 +92,9 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         minWidth: 120,
         accessor: (r) => r.amount,
         render: (r) => (
-          <Typography variant="body2" sx={amountStyles(r.amount, theme)}>
+          <AmountText variant="body2" amount={r.amount}>
             {formatCurrency(r.amount)}
-          </Typography>
+          </AmountText>
         ),
       },
       {
@@ -118,18 +112,13 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         render: (r) => <StatusBadge status={r.status} />,
       },
     ],
-    [theme, handleDrillDown, payerOptions],
+    [handleDrillDown, payerOptions],
   );
 
   return (
-    <Box sx={pageContainerStyles}>
-      {/* {isError && (
-                <Alert severity="error" sx={{ mb: 3, borderRadius: '8px' }}>
-                    Failed to load Other Adjustments details. Please try reloading or contact support.
-                </Alert>
-            )} */}
+    <PageContainer>
       <ToolbarWrapper>
-        <Box sx={searchWrapperStyles}>
+        <SearchWrapper>
           <SearchField
             size="small"
             placeholder="Search by Transaction #"
@@ -139,21 +128,20 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={searchIconStyles} />
+                  <StyledSearchIcon />
                 </InputAdornment>
               ),
             }}
           />
-          <Button
+          <SearchButton
             variant="contained"
             size="small"
             disabled={!searchTerm}
             onClick={() => onSearch(searchTerm)}
-            sx={searchButtonStyles}
           >
             Search
-          </Button>
-        </Box>
+          </SearchButton>
+        </SearchWrapper>
       </ToolbarWrapper>
       <DataTable
         gridName="Other Adjustments"
@@ -178,7 +166,7 @@ const OtherAdjustmentsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
         download={false}
         loading={isFetching}
       />
-    </Box>
+    </PageContainer>
   );
 };
 

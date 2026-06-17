@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, Card } from '@mui/material';
+import { Box, Typography, Card, Grid } from '@mui/material';
 
 export const TrendsWrapper = styled(Box)(() => ({
   padding: 0,
@@ -56,3 +56,59 @@ export const RiskCardStyled = styled(Card)<{ severity: 'error' | 'warning' }>(
     boxShadow: 'none',
   }),
 );
+
+export const MetricValueTypography = styled(Typography)(({ theme }) => ({
+  marginTop: theme.spacing(1),
+}));
+
+export const MarginGrid = styled(Grid)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+}));
+
+export const SubtitleMarginTypography = styled(Typography)(({ theme }) => ({
+  marginBottom: theme.spacing(2),
+}));
+
+export const BoldTypography = styled(Typography)(() => ({
+  fontWeight: 700,
+}));
+
+export const BoldMonospaceTypography = styled(Typography)(() => ({
+  fontFamily: 'monospace',
+  fontWeight: 600,
+}));
+
+export const SemiBoldTypography = styled(Typography)(() => ({
+  fontWeight: 600,
+}));
+
+export const StatusBadgeBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'status',
+})<{ status: string }>(({ status, theme }) => {
+  const isCritical = status === 'CRITICAL';
+  const isImproving = status === 'IMPROVING';
+  return {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+    paddingTop: theme.spacing(0.5),
+    paddingBottom: theme.spacing(0.5),
+    borderRadius: theme.spacing(0.5),
+    display: 'inline-block',
+    backgroundColor: isCritical
+      ? theme.palette.error.light
+      : isImproving
+        ? theme.palette.success.light
+        : theme.palette.info.light,
+    color: isCritical
+      ? theme.palette.error.contrastText
+      : isImproving
+        ? theme.palette.success.contrastText
+        : theme.palette.info.contrastText,
+  };
+});
+
+export const StyledCellText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'isOverall',
+})<{ isOverall?: boolean }>(({ isOverall }) => ({
+  fontWeight: isOverall ? 700 : 500,
+}));

@@ -148,3 +148,203 @@ export const NoColumnsBox = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.action.hover,
   borderRadius: theme.spacing(1),
 }));
+
+import { Alert, Grid } from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import SearchIcon from '@mui/icons-material/Search';
+
+export const StyledSearchIcon = styled(SearchIcon)(({ theme }) => ({
+  fontSize: 18,
+  color: theme.palette.primary.main,
+}));
+
+export const SearchButton = styled(Button)({
+  height: '36px',
+  borderRadius: '8px',
+  textTransform: 'none',
+  fontWeight: 600,
+});
+
+export const MonospaceText = styled(Typography)(() => ({
+  fontFamily: 'monospace',
+  fontWeight: 600,
+}));
+
+export const PrimaryText = styled(Typography)(({ theme }) => ({
+  fontWeight: 600,
+  color: theme.palette.primary.main,
+}));
+
+export const BoldText = styled(Typography)(() => ({
+  fontWeight: 600,
+}));
+
+export const VarianceText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'amount',
+})<{ amount: number }>(({ theme, amount }) => ({
+  fontWeight: 600,
+  color: amount < 0 ? theme.palette.error.main : theme.palette.text.primary,
+}));
+
+export const StatusChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== 'bg' && prop !== 'textColor',
+})<{ bg: string; textColor: string }>(({ theme, bg, textColor }) => ({
+  backgroundColor: bg,
+  color: textColor,
+  border: `1px solid ${theme.palette.divider}`,
+}));
+
+export const CheckCircleIcon = styled(CheckCircleOutlineIcon)(() => ({
+  fontSize: '14px !important',
+}));
+
+export const ErrorIcon = styled(ErrorOutlineIcon)(() => ({
+  fontSize: '14px !important',
+}));
+
+export const ReconciledChip = styled(Chip)(({ theme }) => ({
+  backgroundColor: '#E8F5E9',
+  color: '#2E7D32',
+  border: `1px solid ${theme.palette.divider}`,
+}));
+
+export const StatusBox = styled(Box)(() => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '2px',
+}));
+
+export const Variance1Chip = styled(Chip)(() => ({
+  backgroundColor: '#f8fafc',
+  color: '#10b981',
+  fontWeight: 500,
+}));
+
+export const Variance2Chip = styled(Chip)(() => ({
+  backgroundColor: '#fee2e2',
+  color: '#f59e0b',
+  fontWeight: 500,
+}));
+
+export const SummaryGrid = styled(Grid)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+}));
+
+export const _ErrorAlert = styled(Alert)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  borderRadius: '8px',
+}));
+
+export const HoverExpandedContentBox = styled(ExpandedContentBox)(({ theme }) => ({
+  backgroundColor: theme.palette.action.hover,
+}));
+
+export const LoadingWrapperBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  paddingTop: theme.spacing(4),
+  paddingBottom: theme.spacing(4),
+  gap: theme.spacing(1),
+}));
+
+export const FullHeightSubSectionWrapper = styled(SubSectionWrapper)(() => ({
+  height: '100%',
+}));
+
+export const SubSectionHeaderTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 800,
+  color: theme.palette.primary.main,
+  letterSpacing: '0.05em',
+}));
+
+export const DataRowBox = styled(Box)(({ theme }) => ({
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+  paddingTop: theme.spacing(1.5),
+  paddingBottom: theme.spacing(1.5),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+}));
+
+export const RowFlexBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  marginBottom: theme.spacing(0.5),
+}));
+
+export const EmptySectionBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(4),
+  textAlign: 'center',
+}));
+
+export const StyledPostingItemBox = styled(PostingItemBox)(({ theme }) => ({
+  padding: theme.spacing(1.5),
+  borderRadius: '8px',
+  borderLeft: `4px solid ${theme.palette.warning.main}`,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+}));
+
+export const BoldPrimaryTypography = styled(Typography)(({ theme }) => ({
+  fontWeight: 600,
+  color: theme.palette.primary.main,
+}));
+
+export const BoldFlexTypography = styled(Typography)(() => ({
+  flex: 1,
+  fontWeight: 600,
+}));
+
+export const AmountValueTypography = styled(Typography)(() => ({
+  width: 100,
+  textAlign: 'right',
+  fontWeight: 700,
+}));
+
+export const BlockCaptionTypography = styled(Typography)(() => ({
+  display: 'block',
+}));
+
+export const DescTypography = styled(Typography)(({ theme }) => ({
+  display: 'inline-block',
+  maxWidth: '100%',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  marginTop: theme.spacing(0.5),
+  fontStyle: 'italic',
+}));
+
+export const NormalSpanBox = styled('span')(({ theme }) => ({
+  fontStyle: 'normal',
+  fontWeight: 800,
+  color: theme.palette.text.primary,
+}));
+
+export const BoldCaptionFlexTypography = styled(Typography)(() => ({
+  flex: 1,
+  fontWeight: 700,
+}));
+
+export const PostingListContainerBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(1.5),
+}));
+
+export const RowFlexAlignCenteredBox = styled(Box)(() => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+}));
+
+export const SemiboldTypography = styled(Typography)(() => ({
+  fontWeight: 600,
+}));
+
+export const BlockCaptionMarginTypography = styled(Typography)(({ theme }) => ({
+  display: 'block',
+  marginTop: theme.spacing(0.5),
+}));

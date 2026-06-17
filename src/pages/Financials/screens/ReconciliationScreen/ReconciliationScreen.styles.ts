@@ -1,4 +1,5 @@
-import { styled, Box, Paper, TextField, SxProps, Theme } from '@mui/material';
+import { styled, Box, Paper, TextField, Theme, IconButton, Typography } from '@mui/material';
+import { ChatBubbleOutline } from '@mui/icons-material';
 import { ReconciliationRow } from './ReconciliationScreen.hook';
 
 export const ScreenWrapper = styled(Box)(({ theme }) => ({
@@ -278,9 +279,11 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-export const searchIconStyles: SxProps<Theme> = {
-  color: 'text.disabled',
-};
+import SearchIcon from '@mui/icons-material/Search';
+
+export const StyledSearchIcon = styled(SearchIcon)(({ theme }) => ({
+  color: theme.palette.text.disabled,
+}));
 
 export const getRowStyle = (row: ReconciliationRow) => ({
   backgroundColor: row.isEdited ? 'grey.50' : 'transparent',
@@ -295,3 +298,44 @@ export const getRowStyle = (row: ReconciliationRow) => ({
       row.isEdited ? t.palette.grey[100] + ' !important' : t.palette.grey[50] + ' !important',
   },
 });
+
+export const CurrencyTypography = styled(Typography)(() => ({
+  fontWeight: 700,
+  color: 'inherit',
+}));
+
+export const DateTypography = styled(Typography)(({ theme }) => ({
+  fontWeight: 600,
+  color: theme.palette.text.secondary,
+}));
+
+export const LinkContainerBox = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+}));
+
+export const LinkTextTypography = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'isEdited',
+})<{ isEdited?: boolean }>(({ theme, isEdited }) => ({
+  fontWeight: 700,
+  color: isEdited ? theme.palette.success.main : theme.palette.primary.main,
+  cursor: 'pointer',
+  textDecoration: 'underline',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+}));
+
+export const CommentIconButton = styled(IconButton)(({ theme }) => ({
+  padding: '1.6px',
+  color: theme.palette.text.disabled,
+  '&:hover': {
+    color: theme.palette.primary.main,
+    backgroundColor: theme.palette.grey[100],
+  },
+}));
+
+export const StyledChatBubbleIcon = styled(ChatBubbleOutline)(() => ({
+  fontSize: 16,
+}));

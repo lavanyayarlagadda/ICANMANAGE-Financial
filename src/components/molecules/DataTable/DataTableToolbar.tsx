@@ -5,7 +5,6 @@ import {
   InputAdornment,
   IconButton,
   Collapse,
-  Menu,
   ListItemText,
   Autocomplete,
   TextField,
@@ -13,6 +12,7 @@ import {
   createFilterOptions,
   MenuItem,
   ListItemIcon,
+  Menu,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -50,6 +50,7 @@ import {
   FilterFormControl,
   AutocompleteListboxStyles,
   ExportButton,
+  StyledMenu,
 } from './DataTable.styles';
 import { FilterableColumn, DataColumn } from './DataTable.hook';
 
@@ -262,14 +263,13 @@ export function DataTableToolbar<T>({
             >
               Columns
             </ColumnsButton>
-            <Menu
+            <StyledMenu
               anchorEl={columnMenuAnchor}
               open={Boolean(columnMenuAnchor)}
               onClose={() => setColumnMenuAnchor(null)}
               PaperProps={{
                 style: ColumnMenuPaperStyles,
               }}
-              MenuListProps={{ sx: { p: 0 } }}
             >
               <ColumnMenuHeaderBox>
                 <Typography variant="subtitle2" fontWeight={600} color="text.primary">
@@ -332,7 +332,7 @@ export function DataTableToolbar<T>({
                   )}
                 </ColumnMenuUpdateButton>
               </ColumnMenuFooterBox>
-            </Menu>
+            </StyledMenu>
 
             {download && (
               <>
@@ -426,7 +426,7 @@ export function DataTableToolbar<T>({
                     }}
                     loading={col.isFilterLoading}
                     ListboxProps={{
-                      sx: AutocompleteListboxStyles,
+                      style: AutocompleteListboxStyles,
                     }}
                     renderOption={(props, option) => {
                       const { key: _key, ...rest } =

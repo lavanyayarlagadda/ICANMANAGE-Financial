@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 import {
-  Box,
   Typography,
-  Paper,
   List,
   ListItemText,
   ListItemAvatar,
@@ -24,18 +22,18 @@ import {
   StyledListItemButton,
   StyledAvatar,
   MonospaceAmount,
-  headerWrapperStyles,
-  refreshWrapperStyles,
-  refreshTextStyles,
-  claimsSectionWrapperStyles,
-  claimsHeaderStyles,
-  boldTextStyles,
-  paperStyles,
-  paginationWrapperStyles,
-  providerTextStyles,
-  serviceLinesHeaderStyles,
-  loadingBadgeStyles,
-  loadingTextStyles,
+  HeaderWrapperBox,
+  RefreshWrapperBox,
+  RefreshTextTypography,
+  ClaimsSectionWrapperBox,
+  ClaimsHeaderBox,
+  BoldTextTypography,
+  StyledPaper,
+  PaginationWrapperBox,
+  ProviderTextTypography,
+  ServiceLinesHeaderBox,
+  LoadingBadgeBox,
+  LoadingTextTypography,
 } from './RemittanceDetailScreen.styles';
 import { useRemittanceDetailScreen } from './RemittanceDetailScreen.hook';
 
@@ -147,30 +145,28 @@ const RemittanceDetailScreen: React.FC = () => {
 
   return (
     <ScreenWrapper>
-      <Box sx={headerWrapperStyles}>
+      <HeaderWrapperBox>
         <SectionHeader variant="h6">Remittance Detail (Claims)</SectionHeader>
         {isClaimsFetching && (
-          <Box sx={refreshWrapperStyles}>
-            <Typography variant="caption" sx={refreshTextStyles}>
-              Refreshing Claims...
-            </Typography>
+          <RefreshWrapperBox>
+            <RefreshTextTypography variant="caption">Refreshing Claims...</RefreshTextTypography>
             <CircularProgress size={16} thickness={5} />
-          </Box>
+          </RefreshWrapperBox>
         )}
-      </Box>
+      </HeaderWrapperBox>
       <PatientNameHeader variant="subtitle1">
         Claim Detail – {detail?.patientName || 'N/A'}
       </PatientNameHeader>
 
       {claims && (
-        <Box sx={claimsSectionWrapperStyles}>
-          <Box sx={claimsHeaderStyles}>
-            <Typography variant="subtitle2" sx={boldTextStyles}>
+        <ClaimsSectionWrapperBox>
+          <ClaimsHeaderBox>
+            <BoldTextTypography variant="subtitle2">
               Affected Claims in this Transaction
-            </Typography>
+            </BoldTextTypography>
             {/* We could add a mini pagination here if total claims > size */}
-          </Box>
-          <Paper variant="outlined" sx={paperStyles}>
+          </ClaimsHeaderBox>
+          <StyledPaper variant="outlined">
             <List disablePadding>
               {claims.map((claim: RemittanceDetail, idx: number) => (
                 <StyledListItemButton
@@ -193,17 +189,17 @@ const RemittanceDetailScreen: React.FC = () => {
               ))}
             </List>
             {totalClaims > 3 && (
-              <Box sx={paginationWrapperStyles}>
+              <PaginationWrapperBox>
                 <Pagination
                   size="small"
                   count={Math.ceil(totalClaims / 3)}
                   page={claimsQueryParams.page + 1}
                   onChange={(_, p) => handleClaimsPageChange(p - 1)}
                 />
-              </Box>
+              </PaginationWrapperBox>
             )}
-          </Paper>
-        </Box>
+          </StyledPaper>
+        </ClaimsSectionWrapperBox>
       )}
 
       {detail && (
@@ -247,26 +243,22 @@ const RemittanceDetailScreen: React.FC = () => {
             },
           ]}
           footer={
-            <Typography variant="body2" sx={providerTextStyles}>
+            <ProviderTextTypography variant="body2">
               Provider: {detail.providerName || 'N/A'}
-            </Typography>
+            </ProviderTextTypography>
           }
         />
       )}
 
-      <Box sx={serviceLinesHeaderStyles}>
-        <Typography variant="subtitle1" sx={boldTextStyles}>
-          Service Line Details
-        </Typography>
+      <ServiceLinesHeaderBox>
+        <BoldTextTypography variant="subtitle1">Service Line Details</BoldTextTypography>
         {(isSlFetching || isSlLoading) && (
-          <Box sx={loadingBadgeStyles(theme.palette.action.hover)}>
-            <Typography variant="caption" sx={loadingTextStyles}>
-              LOADING DETAILS
-            </Typography>
+          <LoadingBadgeBox hoverBg={theme.palette.action.hover}>
+            <LoadingTextTypography variant="caption">LOADING DETAILS</LoadingTextTypography>
             <CircularProgress size={14} thickness={6} />
-          </Box>
+          </LoadingBadgeBox>
         )}
-      </Box>
+      </ServiceLinesHeaderBox>
 
       <DataTable
         columns={serviceLineColumns}

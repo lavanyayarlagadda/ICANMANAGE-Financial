@@ -57,15 +57,19 @@ export const MoreChip = styled(Chip)(({ theme }) => ({
   '&:hover': { backgroundColor: themeConfig.colors.surfaceInfoHover },
 }));
 
-export const PopoverPaperProps = {
-  width: 280,
-  maxHeight: 400,
-  borderRadius: 8, // borderRadius: 2 in theme is usually 8px
-  boxShadow: themeConfig.shadows.dropdown,
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column',
-};
+import { Popover } from '@mui/material';
+
+export const StyledPopover = styled(Popover)(() => ({
+  '& .MuiPopover-paper': {
+    width: 280,
+    maxHeight: 400,
+    borderRadius: 8,
+    boxShadow: themeConfig.shadows.dropdown,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+}));
 
 export const PopoverHeader = styled(Box)(({ theme }) => ({
   padding: theme.spacing(1.5),

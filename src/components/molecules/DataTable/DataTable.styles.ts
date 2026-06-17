@@ -20,6 +20,7 @@ import {
   MenuItem,
   ListItemIcon,
   Checkbox,
+  Menu,
 } from '@mui/material';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 
@@ -500,3 +501,9 @@ export const AutocompleteListboxStyles = {
   overflowY: 'auto' as const,
   scrollbarWidth: 'thin' as const,
 };
+
+export const StyledMenu = styled(Menu)(() => ({
+  '& .MuiMenu-list': {
+    padding: 0,
+  },
+}));

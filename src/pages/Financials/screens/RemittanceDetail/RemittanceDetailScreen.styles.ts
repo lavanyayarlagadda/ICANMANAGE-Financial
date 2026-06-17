@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, ListItemButton, Avatar, SxProps, Theme } from '@mui/material';
+import { Box, Typography, ListItemButton, Avatar } from '@mui/material';
 
 export const ScreenWrapper = styled(Box)(() => ({
   // padding handled by parent
@@ -35,74 +35,80 @@ export const MonospaceAmount = styled(Typography)(() => ({
   fontFamily: 'monospace',
 }));
 
-export const headerWrapperStyles: SxProps<Theme> = {
+import { Paper } from '@mui/material';
+
+export const HeaderWrapperBox = styled(Box)(() => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-};
+}));
 
-export const refreshWrapperStyles: SxProps<Theme> = {
+export const RefreshWrapperBox = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 1,
-};
+  gap: '8px',
+}));
 
-export const refreshTextStyles: SxProps<Theme> = {
+export const RefreshTextTypography = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
-  color: 'primary.main',
-};
+  color: theme.palette.primary.main,
+}));
 
-export const claimsSectionWrapperStyles: SxProps<Theme> = {
-  mb: 3,
-};
+export const ClaimsSectionWrapperBox = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+}));
 
-export const claimsHeaderStyles: SxProps<Theme> = {
+export const ClaimsHeaderBox = styled(Box)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  mb: 1,
-};
+  marginBottom: theme.spacing(1),
+}));
 
-export const boldTextStyles: SxProps<Theme> = {
+export const BoldTextTypography = styled(Typography)(() => ({
   fontWeight: 700,
-};
+}));
 
-export const paperStyles: SxProps<Theme> = {
-  borderRadius: 2,
+export const StyledPaper = styled(Paper)(() => ({
+  borderRadius: '8px',
   overflow: 'hidden',
-};
+}));
 
-export const paginationWrapperStyles: SxProps<Theme> = {
-  p: 1,
+export const PaginationWrapperBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(1),
   display: 'flex',
   justifyContent: 'center',
   borderTop: '1px solid',
-  borderColor: 'divider',
-};
+  borderColor: theme.palette.divider,
+}));
 
-export const providerTextStyles: SxProps<Theme> = {
+export const ProviderTextTypography = styled(Typography)(() => ({
   fontWeight: 600,
-};
+}));
 
-export const serviceLinesHeaderStyles: SxProps<Theme> = {
-  mt: 4,
-  mb: 1,
+export const ServiceLinesHeaderBox = styled(Box)(({ theme }) => ({
+  marginTop: theme.spacing(4),
+  marginBottom: theme.spacing(1),
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-};
+}));
 
-export const loadingBadgeStyles = (hoverBg: string): SxProps<Theme> => ({
+export const LoadingBadgeBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'hoverBg',
+})<{ hoverBg: string }>(({ hoverBg }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: 1,
-  bgcolor: hoverBg,
-  px: 1.5,
-  py: 0.5,
-  borderRadius: 1,
-});
+  gap: '8px',
+  backgroundColor: hoverBg,
+  paddingLeft: '12px',
+  paddingRight: '12px',
+  paddingTop: '4px',
+  paddingBottom: '4px',
+  borderRadius: '4px',
+}));
 
-export const loadingTextStyles: SxProps<Theme> = {
+export const LoadingTextTypography = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
-  color: 'primary.main',
-};
+  color: theme.palette.primary.main,
+}));

@@ -1,26 +1,28 @@
-import { SxProps, Theme, Box, TextField } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { themeConfig } from '@/theme/themeConfig';
 
-export const monospaceStyles: SxProps<Theme> = {
-  fontFamily: 'monospace',
-};
+import { Box, Typography, Button, TextField } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
-export const amountStyles = (theme: Theme): SxProps<Theme> => ({
+export const MonospaceBox = styled(Box)(() => ({
+  fontFamily: 'monospace',
+}));
+
+export const AmountText = styled(Typography)(({ theme }) => ({
   fontFamily: 'monospace',
   fontWeight: 600,
   color: theme.palette.error.main,
-});
+}));
 
-export const reasonStyles: SxProps<Theme> = {
+export const ReasonText = styled(Typography)(() => ({
   fontSize: '0.8rem',
   color: themeConfig.colors.text.secondary,
-};
+}));
 
-export const boldStyles: SxProps<Theme> = {
+export const BoldText = styled(Typography)(() => ({
   fontWeight: 600,
   color: themeConfig.colors.text.primary,
-};
+}));
 
 export const ToolbarWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -50,29 +52,30 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-export const pageContainerStyles: SxProps<Theme> = {
+export const PageContainer = styled(Box)(() => ({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
   height: '100%',
   minHeight: 0,
-};
+}));
 
-export const searchWrapperStyles: SxProps<Theme> = {
+export const SearchWrapper = styled(Box)(() => ({
   display: 'flex',
-  gap: 1,
+  gap: '8px',
   alignItems: 'center',
-};
+}));
 
-export const searchIconStyles: SxProps<Theme> = {
+export const StyledSearchIcon = styled(SearchIcon)(({ theme }) => ({
   fontSize: 18,
-  color: 'primary.main',
-};
+  color: theme.palette.primary.main,
+}));
 
-export const searchButtonStyles: SxProps<Theme> = {
+export const SearchButton = styled(Button)(() => ({
   height: '36px',
   borderRadius: '8px',
   textTransform: 'none',
   fontWeight: 600,
-  px: 2,
-};
+  paddingLeft: '16px',
+  paddingRight: '16px',
+}));

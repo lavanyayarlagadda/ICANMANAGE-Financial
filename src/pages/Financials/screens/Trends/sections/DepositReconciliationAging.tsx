@@ -1,11 +1,12 @@
 import React from 'react';
-import { Box, Card, CardContent, Typography, useTheme } from '@mui/material';
+import { CardContent, Typography, useTheme } from '@mui/material';
 import {
   agingRiskColor,
   toText,
   type AgingSummary,
   type AgingRow,
 } from '../helpers/depositReconciliationHelpers';
+import * as styles from './DepositReconciliationAging.styles';
 
 interface DepositReconciliationAgingProps {
   agingData: {
@@ -24,45 +25,33 @@ export const DepositReconciliationAging: React.FC<DepositReconciliationAgingProp
   const theme = useTheme();
 
   return (
-    <Card sx={{ mb: 2, border: `1px solid ${theme.palette.divider}` }}>
+    <styles.StyledCard>
       <CardContent>
-        <Typography variant="h6" sx={{ fontWeight: 700 }}>
-          {String(agingData.title || '')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.6 }}>
+        <styles.TitleText variant="h6">{String(agingData.title || '')}</styles.TitleText>
+        <styles.DescriptionText variant="body2" color="text.secondary">
           {String(agingData.description || '')}
-        </Typography>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
-          {agingSummary?.headlineValue || '—'}
-        </Typography>
+        </styles.DescriptionText>
+        <styles.HeadlineText variant="h5">{agingSummary?.headlineValue || '—'}</styles.HeadlineText>
         <Typography variant="caption" color="text.secondary">
           {agingSummary?.headlineMeta || ''}
         </Typography>
 
-        <Box sx={{ mt: 2, overflowX: 'auto' }}>
-          <Box component="table" sx={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
-            <Box component="thead">
-              <Box component="tr">
+        <styles.TableContainer>
+          <styles.TableElement component="table">
+            <styles.TableElement component="thead">
+              <styles.TableElement component="tr">
                 {['Age Bucket', 'Deposits', 'Amount', '% of $', 'Distribution'].map((label) => (
-                  <Box
+                  <styles.TableHeaderCell
                     component="th"
                     key={label}
-                    sx={{
-                      py: 1,
-                      px: 1,
-                      textAlign:
-                        label === 'Age Bucket' || label === 'Distribution' ? 'left' : 'right',
-                      color: theme.palette.text.secondary,
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      fontSize: 12,
-                    }}
+                    align={label === 'Age Bucket' || label === 'Distribution' ? 'left' : 'right'}
                   >
                     {label}
-                  </Box>
+                  </styles.TableHeaderCell>
                 ))}
-              </Box>
-            </Box>
-            <Box component="tbody">
+              </styles.TableElement>
+            </styles.TableElement>
+            <styles.TableElement component="tbody">
               {agingRows.map((row) => {
                 const percent =
                   Number(
@@ -79,82 +68,29 @@ export const DepositReconciliationAging: React.FC<DepositReconciliationAgingProp
                       : theme.palette.error.main;
 
                 return (
-                  <Box component="tr" key={row.bucket}>
-                    <Box
-                      component="td"
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                      }}
-                    >
-                      {row.bucket}
-                    </Box>
-                    <Box
-                      component="td"
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        textAlign: 'right',
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                      }}
-                    >
+                  <styles.TableElement component="tr" key={row.bucket}>
+                    <styles.TableCell component="td">{row.bucket}</styles.TableCell>
+                    <styles.TableCell component="td" align="right">
                       {row.deposits}
-                    </Box>
-                    <Box
-                      component="td"
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        textAlign: 'right',
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                      }}
-                    >
+                    </styles.TableCell>
+                    <styles.TableCell component="td" align="right">
                       {row.amount}
-                    </Box>
-                    <Box
-                      component="td"
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        textAlign: 'right',
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                      }}
-                    >
+                    </styles.TableCell>
+                    <styles.TableCell component="td" align="right">
                       {toText(row.share)}
-                    </Box>
-                    <Box
-                      component="td"
-                      sx={{
-                        py: 1,
-                        px: 1,
-                        borderBottom: `1px solid ${theme.palette.divider}`,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          backgroundColor: theme.palette.action.hover,
-                          borderRadius: 2,
-                          height: 10,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            width: `${Math.max(8, percent)}%`,
-                            height: '100%',
-                            borderRadius: 2,
-                            backgroundColor: barColor,
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  </Box>
+                    </styles.TableCell>
+                    <styles.TableCell component="td">
+                      <styles.ProgressBarContainer>
+                        <styles.ProgressBar percent={percent} barColor={barColor} />
+                      </styles.ProgressBarContainer>
+                    </styles.TableCell>
+                  </styles.TableElement>
                 );
               })}
-            </Box>
-          </Box>
-        </Box>
+            </styles.TableElement>
+          </styles.TableElement>
+        </styles.TableContainer>
       </CardContent>
-    </Card>
+    </styles.StyledCard>
   );
 };

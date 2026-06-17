@@ -2,6 +2,7 @@ import React from 'react';
 import { Grid, useTheme } from '@mui/material';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import { formatCurrency } from '@/utils/formatters';
+import { SummaryGrid } from '../BankDepositsScreen.styles';
 
 interface BankDepositSummaryProps {
   totalBankAmt: number;
@@ -17,7 +18,7 @@ const BankDepositSummary: React.FC<BankDepositSummaryProps> = ({
   const theme = useTheme();
 
   return (
-    <Grid container spacing={2} sx={{ mb: 4 }}>
+    <SummaryGrid container spacing={2}>
       <Grid size={{ xs: 12, md: 4 }}>
         <SummaryCard
           title="TOTAL COLLECTIONS"
@@ -41,7 +42,7 @@ const BankDepositSummary: React.FC<BankDepositSummaryProps> = ({
           backgroundColor={theme.palette.background.paper}
         />
       </Grid>
-    </Grid>
+    </SummaryGrid>
   );
 };
 

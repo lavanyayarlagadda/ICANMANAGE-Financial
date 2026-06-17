@@ -4,65 +4,57 @@ import {
   Typography,
   Grid,
   ToggleButton,
-  ToggleButtonGroup,
-  Chip,
   Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  IconButton,
   InputAdornment,
   Button as MuiButton,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import SettingsIcon from '@mui/icons-material/Settings';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import SummaryCard from '@/components/atoms/SummaryCard/SummaryCard';
 import Button from '@/components/atoms/Button/Button';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { useSuspenseAccountsScreen } from './SuspenseAccountsScreen.hook';
 import {
-  accountChipStyles,
-  toggleButtonGroupStyles,
   ToolbarWrapper,
   SearchField,
-  modalTitleStyles,
-  modalContentStyles,
-  modalInnerWrapperStyles,
-  modalHeaderGridStyles,
-  modalHeaderTextStyles,
-  modalHeaderCenterTextStyles,
-  modalHeaderRightTextStyles,
-  modalListContainerStyles,
-  modalRowGridStyles,
-  modalRowKeyStyles,
-  modalRowLabelStyles,
-  modalRowCenterStyles,
-  modalRowChipStyles,
-  modalRowActionsStyles,
-  disabledIconBtnStyles,
-  smallIconStyles,
-  modalSectionTitleStyles,
-  modalActionsStyles,
-  modalCancelBtnStyles,
-  itemCountStyles,
-  amountTextStyles,
-  emptyAmountStyles,
-  normalTextStyles,
-  screenWrapperStyles,
-  searchWrapperStyles,
-  searchIconStyles,
-  searchButtonStyles,
-  screenHeaderStyles,
-  screenHeaderTitleStyles,
-  screenHeaderRightStyles,
-  summaryGridStyles,
+  ModalTitle,
+  ModalContent,
+  ModalInnerWrapper,
+  ModalHeaderGrid,
+  ModalHeaderText,
+  ModalHeaderCenterText,
+  ModalHeaderRightText,
+  ModalListContainer,
+  ModalRowGrid,
+  ModalRowKeyText,
+  ModalRowLabelText,
+  ModalRowCenterBox,
+  ModalRowChip,
+  ModalRowActionsBox,
+  DisabledIconButton,
+  SmallEditIcon,
+  SmallDeleteIcon,
+  SmallSettingsIcon,
+  ModalSectionTitleText,
+  ModalActions,
+  ModalCancelButton,
+  AccountChip,
+  ItemCountText,
+  AmountText,
+  EmptyAmountText,
+  NormalText,
+  ScreenWrapperBox,
+  SearchWrapper,
+  StyledSearchIcon,
+  SearchButton,
+  ScreenHeaderBox,
+  ScreenHeaderTitleText,
+  ScreenHeaderRightBox,
+  SummaryGrid,
+  StyledToggleButtonGroup,
 } from './SuspenseAccountsScreen.styles';
 import { SUSPENSE_ACCOUNTS, BY_PAYER_DATA, BY_MONTH_DATA } from './SuspenseAccounts.constants';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
@@ -71,53 +63,40 @@ import DataTable from '@/components/molecules/DataTable/DataTable';
 const ManageAccountsModal = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={modalTitleStyles}>Manage Suspense Accounts</DialogTitle>
-      <DialogContent sx={modalContentStyles}>
-        <Box sx={modalInnerWrapperStyles}>
-          <Box sx={modalHeaderGridStyles}>
-            <Typography variant="caption" sx={modalHeaderTextStyles}>
-              KEY
-            </Typography>
-            <Typography variant="caption" sx={modalHeaderTextStyles}>
-              LABEL
-            </Typography>
-            <Typography variant="caption" sx={modalHeaderCenterTextStyles}>
-              COLOR
-            </Typography>
-            <Typography variant="caption" sx={modalHeaderRightTextStyles}>
-              ACTIONS
-            </Typography>
-          </Box>
-          <Box sx={modalListContainerStyles}>
+      <ModalTitle>Manage Suspense Accounts</ModalTitle>
+      <ModalContent>
+        <ModalInnerWrapper>
+          <ModalHeaderGrid>
+            <ModalHeaderText variant="caption">KEY</ModalHeaderText>
+            <ModalHeaderText variant="caption">LABEL</ModalHeaderText>
+            <ModalHeaderCenterText variant="caption">COLOR</ModalHeaderCenterText>
+            <ModalHeaderRightText variant="caption">ACTIONS</ModalHeaderRightText>
+          </ModalHeaderGrid>
+          <ModalListContainer>
             {SUSPENSE_ACCOUNTS.map((acc) => (
-              <Box key={acc.key} sx={modalRowGridStyles}>
-                <Typography variant="body2" sx={modalRowKeyStyles}>
-                  {acc.key.toUpperCase()}
-                </Typography>
-                <Typography variant="body2" sx={modalRowLabelStyles}>
-                  {acc.label}
-                </Typography>
-                <Box sx={modalRowCenterStyles}>
-                  <Chip
+              <ModalRowGrid key={acc.key}>
+                <ModalRowKeyText variant="body2">{acc.key.toUpperCase()}</ModalRowKeyText>
+                <ModalRowLabelText variant="body2">{acc.label}</ModalRowLabelText>
+                <ModalRowCenterBox>
+                  <ModalRowChip
                     label={acc.key.split('_')[0].toUpperCase()}
                     size="small"
-                    sx={modalRowChipStyles(acc.color, acc.textColor)}
+                    bg={acc.color}
+                    textColor={acc.textColor}
                   />
-                </Box>
-                <Box sx={modalRowActionsStyles}>
-                  <IconButton size="small" sx={disabledIconBtnStyles}>
-                    <EditIcon sx={smallIconStyles} />
-                  </IconButton>
-                  <IconButton size="small" sx={disabledIconBtnStyles}>
-                    <DeleteIcon sx={smallIconStyles} />
-                  </IconButton>
-                </Box>
-              </Box>
+                </ModalRowCenterBox>
+                <ModalRowActionsBox>
+                  <DisabledIconButton size="small">
+                    <SmallEditIcon />
+                  </DisabledIconButton>
+                  <DisabledIconButton size="small">
+                    <SmallDeleteIcon />
+                  </DisabledIconButton>
+                </ModalRowActionsBox>
+              </ModalRowGrid>
             ))}
-          </Box>
-          <Typography variant="body2" sx={modalSectionTitleStyles}>
-            Add New Account
-          </Typography>
+          </ModalListContainer>
+          <ModalSectionTitleText variant="body2">Add New Account</ModalSectionTitleText>
           <Grid container spacing={2}>
             <Grid size={{ xs: 6 }}>
               <TextField fullWidth label="ACCOUNT KEY" size="small" />
@@ -138,16 +117,14 @@ const ManageAccountsModal = ({ open, onClose }: { open: boolean; onClose: () => 
               <TextField fullWidth label="DESCRIPTION" size="small" />
             </Grid>
           </Grid>
-        </Box>
-      </DialogContent>
-      <DialogActions sx={modalActionsStyles}>
-        <Button onClick={onClose} sx={modalCancelBtnStyles}>
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={onClose}>
+        </ModalInnerWrapper>
+      </ModalContent>
+      <ModalActions>
+        <ModalCancelButton onClick={onClose}>Cancel</ModalCancelButton>
+        <MuiButton variant="contained" onClick={onClose}>
           Save Account
-        </Button>
-      </DialogActions>
+        </MuiButton>
+      </ModalActions>
     </Dialog>
   );
 };
@@ -249,28 +226,35 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
           if (id === 'accountType' || id === 'account' || id === 'payer' || id === 'month') {
             const accountInfo = SUSPENSE_ACCOUNTS.find((s) => s.label === val);
             if (accountInfo) {
-              return <Chip label={String(val)} size="small" sx={accountChipStyles(accountInfo)} />;
+              return (
+                <AccountChip
+                  label={String(val)}
+                  size="small"
+                  bg={accountInfo.color}
+                  textColor={accountInfo.textColor}
+                />
+              );
             }
           }
           if (id === 'items') {
-            return <Typography sx={itemCountStyles}>{String(val)}</Typography>;
+            return <ItemCountText>{String(val)}</ItemCountText>;
           }
           if (typeof val === 'number') {
             return (
-              <Typography sx={amountTextStyles(id === 'totalBalance' || id === 'total')}>
+              <AmountText isTotal={id === 'totalBalance' || id === 'total'}>
                 {formatCurrency(val)}
-              </Typography>
+              </AmountText>
             );
           }
           if (val === null || val === undefined) {
-            return <Typography sx={emptyAmountStyles}>-</Typography>;
+            return <EmptyAmountText>-</EmptyAmountText>;
           }
           return (
-            <Typography sx={normalTextStyles}>
+            <NormalText>
               {/^\d{4}-\d{2}$/.test(String(val)) || /^\d{4}-\d{2}-\d{2}$/.test(String(val))
                 ? formatDate(String(val))
                 : String(val)}
-            </Typography>
+            </NormalText>
           );
         },
       };
@@ -304,9 +288,9 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
   };
 
   return (
-    <Box sx={screenWrapperStyles}>
+    <ScreenWrapperBox>
       <ToolbarWrapper>
-        <Box sx={searchWrapperStyles}>
+        <SearchWrapper>
           <SearchField
             size="small"
             placeholder="Search by Transaction #"
@@ -316,55 +300,47 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={searchIconStyles} />
+                  <StyledSearchIcon />
                 </InputAdornment>
               ),
             }}
           />
-          <MuiButton
-            variant="contained"
-            size="small"
-            onClick={() => onSearch(searchTerm)}
-            sx={searchButtonStyles}
-          >
+          <SearchButton variant="contained" size="small" onClick={() => onSearch(searchTerm)}>
             Search
-          </MuiButton>
-        </Box>
+          </SearchButton>
+        </SearchWrapper>
       </ToolbarWrapper>
 
-      <Box sx={screenHeaderStyles}>
+      <ScreenHeaderBox>
         <Box>
-          <Typography variant="h6" sx={screenHeaderTitleStyles}>
-            Suspense Accounts
-          </Typography>
+          <ScreenHeaderTitleText variant="h6">Suspense Accounts</ScreenHeaderTitleText>
           <Typography variant="body2" color="text.secondary">
             Monitor funds held in suspense.
           </Typography>
         </Box>
-        <Box sx={screenHeaderRightStyles}>
+        <ScreenHeaderRightBox>
           <Button
             variant="outlined"
             size="small"
-            startIcon={<SettingsIcon sx={smallIconStyles} />}
+            startIcon={<SmallSettingsIcon />}
             onClick={() => toggleManageDialog(true)}
           >
             Manage Accounts
           </Button>
-          <ToggleButtonGroup
+          <StyledToggleButtonGroup
             value={viewType}
             exclusive
             onChange={handleViewChange}
             size="small"
-            sx={toggleButtonGroupStyles}
           >
             <ToggleButton value="account">By Account</ToggleButton>
             <ToggleButton value="payer">By Payer</ToggleButton>
             <ToggleButton value="month">By Month</ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Box>
+          </StyledToggleButtonGroup>
+        </ScreenHeaderRightBox>
+      </ScreenHeaderBox>
 
-      <Grid container spacing={2} sx={summaryGridStyles}>
+      <SummaryGrid container spacing={2}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <SummaryCard
             title="TOTAL OPEN SUSPENSE"
@@ -395,14 +371,14 @@ const SuspenseAccountsScreen: React.FC<{ skip?: boolean }> = ({ skip = false }) 
             backgroundColor="background.paper"
           />
         </Grid>
-      </Grid>
+      </SummaryGrid>
 
       {viewType === 'account' && renderTable(suspenseAccounts, 'account')}
       {viewType === 'payer' && renderTable(BY_PAYER_DATA, 'payer')}
       {viewType === 'month' && renderTable(BY_MONTH_DATA, 'month')}
 
       <ManageAccountsModal open={manageDialogOpen} onClose={() => toggleManageDialog(false)} />
-    </Box>
+    </ScreenWrapperBox>
   );
 };
 

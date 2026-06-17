@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, Typography, Chip, SxProps, Theme } from '@mui/material';
+import { Box, Typography, Chip } from '@mui/material';
 import { themeConfig } from '@/theme/themeConfig';
 
 export const ScreenWrapper = styled(Box)(() => ({
@@ -53,6 +53,13 @@ export const PriorityChip = styled(Chip)<{ priority: string }>(({ priority }) =>
   };
 });
 
-export const gridContainerStyles: SxProps<Theme> = {
-  mb: 3,
-};
+import { Grid, Alert } from '@mui/material';
+
+export const SummaryGrid = styled(Grid)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+}));
+
+export const _ErrorAlert = styled(Alert)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  borderRadius: '8px',
+}));

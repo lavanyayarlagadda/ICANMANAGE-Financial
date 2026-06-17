@@ -2,7 +2,15 @@ import React from 'react';
 import { Box, CardContent, Grid, Typography, useTheme } from '@mui/material';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { formatCurrency } from '@/utils/formatters';
-import { RichCard, SectionHeader, TitleText, PieChartWrapper } from '../TrendsScreen.styles';
+import {
+  RichCard,
+  SectionHeader,
+  TitleText,
+  PieChartWrapper,
+  MetricValueTypography,
+  MarginGrid,
+  SubtitleMarginTypography,
+} from '../TrendsScreen.styles';
 
 interface ExecutiveSummarySectionProps {
   execSummary: unknown;
@@ -31,16 +39,16 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
       <SectionHeader>
         <TitleText variant="h6">Executive Summary</TitleText>
       </SectionHeader>
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <MarginGrid container spacing={2}>
         <Grid size={{ xs: 12, md: 3 }}>
           <RichCard>
             <CardContent>
               <Typography variant="caption" color="text.secondary">
                 Total Collections
               </Typography>
-              <Typography variant="h4" sx={{ mt: 1 }}>
+              <MetricValueTypography variant="h4">
                 {formatCurrency(execSummary?.data?.totalCollectionsMtd ?? 0)}
-              </Typography>
+              </MetricValueTypography>
             </CardContent>
           </RichCard>
         </Grid>
@@ -50,9 +58,9 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
               <Typography variant="caption" color="text.secondary">
                 Recon Rate
               </Typography>
-              <Typography variant="h4" sx={{ mt: 1 }}>
+              <MetricValueTypography variant="h4">
                 {execSummary?.data?.reconciliationRate ?? 0}%
-              </Typography>
+              </MetricValueTypography>
             </CardContent>
           </RichCard>
         </Grid>
@@ -62,9 +70,9 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
               <Typography variant="caption" color="text.secondary">
                 Open Suspense
               </Typography>
-              <Typography variant="h4" sx={{ mt: 1 }}>
+              <MetricValueTypography variant="h4">
                 {formatCurrency(execSummary?.data?.openSuspense ?? 0)}
-              </Typography>
+              </MetricValueTypography>
             </CardContent>
           </RichCard>
         </Grid>
@@ -74,20 +82,18 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
               <Typography variant="caption" color="text.secondary">
                 Avg Days to Recon
               </Typography>
-              <Typography variant="h4" sx={{ mt: 1 }}>
+              <MetricValueTypography variant="h4">
                 {execSummary?.data?.avgDaysToReconcile ?? 0}
-              </Typography>
+              </MetricValueTypography>
             </CardContent>
           </RichCard>
         </Grid>
-      </Grid>
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      </MarginGrid>
+      <MarginGrid container spacing={2}>
         <Grid size={{ xs: 12, md: 6 }}>
           <RichCard>
             <CardContent>
-              <Typography variant="subtitle2" sx={{ mb: 2 }}>
-                Payment Mix
-              </Typography>
+              <SubtitleMarginTypography variant="subtitle2">Payment Mix</SubtitleMarginTypography>
               <PieChartWrapper>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -119,9 +125,9 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
           <Grid size={{ xs: 12, md: 6 }}>
             <RichCard>
               <CardContent>
-                <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                <SubtitleMarginTypography variant="subtitle2">
                   Adjustment Breakdown
-                </Typography>
+                </SubtitleMarginTypography>
                 <PieChartWrapper>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -152,7 +158,7 @@ export const ExecutiveSummarySection: React.FC<ExecutiveSummarySectionProps> = (
             </RichCard>
           </Grid>
         )}
-      </Grid>
+      </MarginGrid>
     </Box>
   );
 };

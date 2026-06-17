@@ -1,17 +1,18 @@
 import React from 'react';
-import { Box, Typography, Grid, TextField, MenuItem, Button } from '@mui/material';
+import { MenuItem } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { format, isToday, parseISO } from 'date-fns';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { Grid } from '@mui/material';
 import {
   FilterContainer,
   ToggleWrapper,
   ToggleButton,
-  DayStripContainer,
   DayCard,
 } from '../ReconciliationScreen.styles';
 import { FilterState, ReconciliationStatus } from '../ReconciliationScreen.hook';
+import * as styles from './ReconciliationFilters.styles';
 
 interface ReconciliationFiltersProps {
   view: ReconciliationStatus;
@@ -44,11 +45,11 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <FilterContainer elevation={0} sx={{ p: 2, mb: 3 }}>
-        <Box sx={{ width: '100%' }}>
+      <FilterContainer elevation={0}>
+        <styles.MainWrapper>
           {/* Row 0: Toggle at Top - Hide for reconciled */}
           {view !== 'reconciled' && (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <styles.ToggleContainer>
               <ToggleWrapper>
                 <ToggleButton active={dateMode === 'range'} onClick={() => setDateMode('range')}>
                   DateRange
@@ -57,33 +58,20 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                   DayWise
                 </ToggleButton>
               </ToggleWrapper>
-            </Box>
+            </styles.ToggleContainer>
           )}
 
           {/* Row 1: Primary Selection & Search */}
           <Grid container spacing={2} alignItems="flex-end">
             {view === 'reconciled' ? (
               <Grid size={{ xs: 12, md: 3 }}>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontWeight: 800,
-                    display: 'block',
-                    mb: 0.5,
-                    color: 'text.secondary',
-                    fontSize: '11px',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Aging Filter
-                </Typography>
-                <TextField
+                <styles.FilterLabel variant="caption">Aging Filter</styles.FilterLabel>
+                <styles.FilterTextField
                   size="small"
                   select
                   fullWidth
                   value={activeAge || 'All'}
                   onChange={(e) => setActiveAge(e.target.value === 'All' ? null : e.target.value)}
-                  sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } }}
                 >
                   <MenuItem value="All">All Aging Selected</MenuItem>
                   {ageRanges.map((age) => (
@@ -91,25 +79,13 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                       {age}
                     </MenuItem>
                   ))}
-                </TextField>
+                </styles.FilterTextField>
               </Grid>
             ) : (
               <>
                 <Grid size={{ xs: 12, md: 2 }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight: 800,
-                      display: 'block',
-                      mb: 0.5,
-                      color: 'text.secondary',
-                      fontSize: '11px',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    From Date
-                  </Typography>
-                  <DatePicker
+                  <styles.FilterLabel variant="caption">From Date</styles.FilterLabel>
+                  <styles.StyledDatePicker
                     value={searchFilters.fromDate ? parseISO(searchFilters.fromDate) : null}
                     onChange={(newValue) =>
                       setSearchFilters({
@@ -121,26 +97,13 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                       textField: {
                         size: 'small',
                         fullWidth: true,
-                        sx: { '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } },
                       },
                     }}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight: 800,
-                      display: 'block',
-                      mb: 0.5,
-                      color: 'text.secondary',
-                      fontSize: '11px',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    To Date
-                  </Typography>
-                  <DatePicker
+                  <styles.FilterLabel variant="caption">To Date</styles.FilterLabel>
+                  <styles.StyledDatePicker
                     value={searchFilters.toDate ? parseISO(searchFilters.toDate) : null}
                     onChange={(newValue) =>
                       setSearchFilters({
@@ -152,136 +115,79 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                       textField: {
                         size: 'small',
                         fullWidth: true,
-                        sx: { '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } },
                       },
                     }}
                   />
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight: 800,
-                      display: 'block',
-                      mb: 0.5,
-                      color: 'text.secondary',
-                      fontSize: '11px',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Payor
-                  </Typography>
-                  <TextField
+                  <styles.FilterLabel variant="caption">Payor</styles.FilterLabel>
+                  <styles.FilterTextField
                     size="small"
                     select
                     fullWidth
                     value={searchFilters.payor}
                     onChange={(e) => setSearchFilters({ ...searchFilters, payor: e.target.value })}
-                    sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } }}
                   >
                     <MenuItem value="All">All Payors Selected</MenuItem>
                     <MenuItem value="UnitedHealthcare">UnitedHealthcare</MenuItem>
                     <MenuItem value="Aetna">Aetna</MenuItem>
-                  </TextField>
+                  </styles.FilterTextField>
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight: 800,
-                      display: 'block',
-                      mb: 0.5,
-                      color: 'text.secondary',
-                      fontSize: '11px',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Status
-                  </Typography>
-                  <TextField
+                  <styles.FilterLabel variant="caption">Status</styles.FilterLabel>
+                  <styles.FilterTextField
                     size="small"
                     select
                     fullWidth
                     value={searchFilters.status}
                     onChange={(e) => setSearchFilters({ ...searchFilters, status: e.target.value })}
-                    sx={{ '& .MuiOutlinedInput-root': { bgcolor: 'grey.50' } }}
                   >
                     <MenuItem value="All">All Status Selected</MenuItem>
                     <MenuItem value="Done">Done</MenuItem>
                     <MenuItem value="Pending">Pending</MenuItem>
-                  </TextField>
+                  </styles.FilterTextField>
                 </Grid>
               </>
             )}
-            <Grid
-              size={{ xs: 12, md: view === 'reconciled' ? 2 : 4 }}
-              sx={{ display: 'flex', gap: 1 }}
-            >
-              <Button
-                variant="contained"
-                startIcon={<SearchIcon fontSize="small" />}
-                onClick={applyFilters}
-                sx={{
-                  height: '40px',
-                  textTransform: 'none',
-                  fontWeight: 700,
-                  borderRadius: '8px',
-                  px: 4,
-                }}
-              >
-                Search
-              </Button>
+            <Grid size={{ xs: 12, md: view === 'reconciled' ? 2 : 4 }}>
+              <styles.SearchButtonContainer>
+                <styles.SearchButton
+                  variant="contained"
+                  startIcon={<SearchIcon fontSize="small" />}
+                  onClick={applyFilters}
+                >
+                  Search
+                </styles.SearchButton>
+              </styles.SearchButtonContainer>
             </Grid>
           </Grid>
 
           {/* Row 2: Advanced Actions - Hide for reconciled */}
           {view !== 'reconciled' && (
-            <Box
-              sx={{
-                mt: 3,
-                pt: 2,
-                borderTop: (t) => `1px solid ${t.palette.divider}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.8,
-                  cursor: 'pointer',
-                  color: 'primary.main',
-                  fontWeight: 700,
-                  fontSize: '13px',
-                  '&:hover': { opacity: 0.8, textDecoration: 'underline' },
-                }}
-                onClick={() => setAdvancedSearchOpen(true)}
-              >
-                <SearchIcon sx={{ fontSize: 16 }} />
+            <styles.AdvancedActionsContainer>
+              <styles.AdvancedSearchLink onClick={() => setAdvancedSearchOpen(true)}>
+                <styles.StyledSearchIcon />
                 Advanced Search
-              </Box>
+              </styles.AdvancedSearchLink>
 
               {dateMode === 'day' && (
-                <Button
+                <styles.ApplyDayFiltersButton
                   variant="outlined"
                   size="small"
                   startIcon={<SearchIcon fontSize="small" />}
                   onClick={applyFilters}
-                  sx={{ textTransform: 'none', fontWeight: 700, px: 3, borderRadius: '6px' }}
                 >
                   Apply Day Filters
-                </Button>
+                </styles.ApplyDayFiltersButton>
               )}
-            </Box>
+            </styles.AdvancedActionsContainer>
           )}
-        </Box>
+        </styles.MainWrapper>
       </FilterContainer>
 
       {/* Day Wise Strip */}
       {dateMode === 'day' && (
-        <DayStripContainer sx={{ mb: 4, px: 1 }}>
+        <styles.StyledDayStripContainer>
           {daysInView.map((day) => {
             const dateStr = format(day, 'yyyy-MM-dd');
             const isActive = searchFilters.fromDate === dateStr;
@@ -295,24 +201,14 @@ const ReconciliationFilters: React.FC<ReconciliationFiltersProps> = ({
                   applyFilters();
                 }}
               >
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontWeight: 800,
-                    fontSize: '10px',
-                    textTransform: 'uppercase',
-                    opacity: isActive ? 1 : 0.6,
-                  }}
-                >
+                <styles.DayCardLabel variant="caption" active={isActive}>
                   {format(day, 'EEE')}
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 900, fontSize: '18px', my: -0.2 }}>
-                  {format(day, 'd')}
-                </Typography>
+                </styles.DayCardLabel>
+                <styles.DayCardValue variant="body1">{format(day, 'd')}</styles.DayCardValue>
               </DayCard>
             );
           })}
-        </DayStripContainer>
+        </styles.StyledDayStripContainer>
       )}
     </LocalizationProvider>
   );

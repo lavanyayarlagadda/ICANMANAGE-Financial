@@ -1,12 +1,18 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Typography } from '@mui/material';
 import DataTable from '@/components/molecules/DataTable/DataTable';
 import { DataColumn } from '@/components/molecules/DataTable/DataTable.hook';
 import RowActionMenu from '@/components/molecules/RowActionMenu/RowActionMenu';
-import { SystemStatus } from '@/constants/statuses';
 import { PayerPerformanceRecord } from '@/interfaces/financials';
 import { formatCurrency } from '@/utils/formatters';
-import { SectionHeader, TitleText } from '../TrendsScreen.styles';
+import {
+  SectionHeader,
+  TitleText,
+  BoldTypography,
+  BoldMonospaceTypography,
+  SemiBoldTypography,
+  StatusBadgeBox,
+} from '../TrendsScreen.styles';
 
 interface PayerPerformanceSectionProps {
   payerPerformanceRecords: PayerPerformanceRecord[];
@@ -25,8 +31,6 @@ export const PayerPerformanceSection: React.FC<PayerPerformanceSectionProps> = (
   handleDrillDown,
   isFetching,
 }) => {
-  const theme = useTheme();
-
   const payerColumns = useMemo<DataColumn<PayerPerformanceRecord>[]>(
     () => [
       {
@@ -41,21 +45,15 @@ export const PayerPerformanceSection: React.FC<PayerPerformanceSectionProps> = (
         minWidth: 140,
         accessor: (row) => row.id,
         render: (row) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
-            {row.id}
-          </Typography>
+          <BoldMonospaceTypography variant="body2">{row.id}</BoldMonospaceTypography>
         ),
       },
       {
         id: 'payerName',
-        label: 'PAYOR',
+        label: 'PAYER',
         minWidth: 150,
         accessor: (row) => row.payerName,
-        render: (row) => (
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            {row.payerName}
-          </Typography>
-        ),
+        render: (row) => <SemiBoldTypography variant="body2">{row.payerName}</SemiBoldTypography>,
       },
       {
         id: 'volume',
@@ -110,35 +108,14 @@ export const PayerPerformanceSection: React.FC<PayerPerformanceSectionProps> = (
         id: 'status',
         label: 'STATUS',
         render: (row) => (
-          <Box
-            sx={{
-              px: 1,
-              py: 0.5,
-              borderRadius: 1,
-              display: 'inline-block',
-              backgroundColor:
-                row.status === SystemStatus.CRITICAL
-                  ? theme.palette.error.light
-                  : row.status === SystemStatus.IMPROVING
-                    ? theme.palette.success.light
-                    : theme.palette.info.light,
-              color:
-                row.status === SystemStatus.CRITICAL
-                  ? theme.palette.error.contrastText
-                  : row.status === SystemStatus.IMPROVING
-                    ? theme.palette.success.contrastText
-                    : theme.palette.info.contrastText,
-            }}
-          >
-            <Typography variant="caption" sx={{ fontWeight: 700 }}>
-              {row.status}
-            </Typography>
-          </Box>
+          <StatusBadgeBox status={row.status}>
+            <BoldTypography variant="caption">{row.status}</BoldTypography>
+          </StatusBadgeBox>
         ),
         accessor: (row) => row.status,
       },
     ],
-    [theme, handleDrillDown],
+    [handleDrillDown],
   );
 
   return (

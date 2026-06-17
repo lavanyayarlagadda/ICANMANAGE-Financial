@@ -1,6 +1,21 @@
-import { SxProps, Theme, Box, TextField } from '@mui/material';
+import { SxProps, Theme } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { themeConfig } from '@/theme/themeConfig';
+
+import {
+  Box,
+  Typography,
+  Chip,
+  Alert,
+  Grid,
+  Button,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  TextField,
+} from '@mui/material';
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+import SearchIcon from '@mui/icons-material/Search';
 
 export const offsetChipStyles: SxProps<Theme> = {
   height: 20,
@@ -9,14 +24,6 @@ export const offsetChipStyles: SxProps<Theme> = {
   bgcolor: themeConfig.colors.accent + '18',
   color: themeConfig.colors.accentDark,
   border: `1px solid ${themeConfig.colors.accent + '33'}`,
-};
-
-export const offsetGridStyles: SxProps<Theme> = {
-  display: 'grid',
-  gridTemplateColumns: '1.5fr 1fr 1.2fr 1fr',
-  minWidth: '100%',
-  px: 2,
-  py: 1,
 };
 
 export const noticeIdStyles: SxProps<Theme> = {
@@ -92,136 +99,165 @@ export const FilterField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-// Added style exports for FbRecoupScreen refactoring
-export const filesSectionWrapper: SxProps<Theme> = {
-  width: '75%',
-};
+export const OffsetGridRow = styled(Box)(({ theme }) => ({
+  display: 'grid',
+  gridTemplateColumns: '1.5fr 1fr 1.2fr 1fr',
+  minWidth: '100%',
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
+  paddingTop: theme.spacing(1),
+  paddingBottom: theme.spacing(1),
+}));
 
-export const filesSectionTitle: SxProps<Theme> = {
+export const FilesSectionWrapperBox = styled(Box)(() => ({
+  width: '75%',
+}));
+
+export const FilesSectionTitleText = styled(Typography)(() => ({
   fontWeight: 700,
-  mb: 1,
+  marginBottom: '8px',
   color: 'text.primary',
   textAlign: 'left',
-};
+}));
 
-export const filesContainer: SxProps<Theme> = {
+export const FilesContainerBox = styled(Box)(() => ({
   border: `1px solid ${themeConfig.colors.divider}`,
   borderRadius: '4px',
   maxHeight: 250,
   overflowY: 'auto',
   overflowX: 'hidden',
-};
+}));
 
-export const filesHeaderGrid: SxProps<Theme> = {
-  ...offsetGridStyles,
+export const FilesHeaderGridBox = styled(OffsetGridRow)(() => ({
   background: '#e4f0fa',
   borderBottom: `1px solid ${themeConfig.colors.divider}`,
   position: 'sticky',
   top: 0,
   zIndex: 1,
-};
+}));
 
-export const getFilesRowGridStyles = (isLast: boolean): SxProps<Theme> => ({
-  ...offsetGridStyles,
+export const FilesRowGridBox = styled(OffsetGridRow, {
+  shouldForwardProp: (prop) => prop !== 'isLast',
+})<{ isLast: boolean }>(({ isLast }) => ({
   borderBottom: isLast ? 'none' : `1px solid ${themeConfig.colors.divider}`,
   alignItems: 'center',
-});
+}));
 
-export const flexCenter: SxProps<Theme> = {
+export const FlexCenterBox = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-};
+}));
 
-export const fileLinkText: SxProps<Theme> = {
+export const FileLinkTextTypography = styled(Typography)(() => ({
   fontWeight: 600,
   display: 'flex',
   alignItems: 'center',
-};
+}));
 
-export const iconLeftMargin: SxProps<Theme> = {
+export const LeftMarginFileIcon = styled(InsertDriveFileOutlinedIcon)(() => ({
   fontSize: 16,
-  mr: 0.5,
-};
+  marginRight: '4px',
+}));
 
-export const fontWeight500: SxProps<Theme> = {
+export const FontWeight500Typography = styled(Typography)(() => ({
   fontWeight: 500,
-};
+}));
 
-export const boldText: SxProps<Theme> = {
+export const BoldTextTypography = styled(Typography)(() => ({
   fontWeight: 700,
-};
+}));
 
-export const boldText500: SxProps<Theme> = {
+export const BoldText500Typography = styled(Typography)(() => ({
   fontWeight: 500,
-};
+}));
 
-export const getAmountStyles = (amount: number): SxProps<Theme> => ({
+export const AmountTypography = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'amount',
+})<{ amount: number }>(({ theme, amount }) => ({
   fontWeight: 700,
-  color: amount < 0 ? 'error.main' : 'text.primary',
-});
+  color: amount < 0 ? theme.palette.error.main : theme.palette.text.primary,
+}));
 
-export const getSuspenseBalanceStyles = (balance: number): SxProps<Theme> => ({
+export const SuspenseBalanceTypography = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'balance',
+})<{ balance: number }>(({ theme, balance }) => ({
   fontWeight: 700,
-  color: balance > 0 ? 'primary.main' : 'text.secondary',
-});
+  color: balance > 0 ? theme.palette.primary.main : theme.palette.text.secondary,
+}));
 
-export const getTypeChipStyles = (bg: string, text: string): SxProps<Theme> => ({
+export const TypeChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== 'bg' && prop !== 'textColor',
+})<{ bg: string; textColor: string }>(({ bg, textColor }) => ({
   backgroundColor: bg,
-  color: text,
+  color: textColor,
   fontWeight: 700,
   fontSize: '10px',
-});
+}));
 
-export const screenHeader: SxProps<Theme> = {
-  mb: 3,
-};
+export const ScreenHeaderBox = styled(Box)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+}));
 
-export const screenHeaderTitle: SxProps<Theme> = {
+export const ScreenHeaderTitleText = styled(Typography)(() => ({
   fontWeight: 700,
-};
+}));
 
-export const summaryGrid: SxProps<Theme> = {
-  mb: 4,
-};
+export const SummaryGrid = styled(Grid)(({ theme }) => ({
+  marginBottom: theme.spacing(4),
+}));
 
-export const searchWrapper: SxProps<Theme> = {
+export const SearchWrapper = styled(Box)(() => ({
   display: 'flex',
-  gap: 1,
+  gap: '8px',
   alignItems: 'center',
-};
+}));
 
-export const searchIcon: SxProps<Theme> = {
+export const SearchIconStyled = styled(SearchIcon)(({ theme }) => ({
   fontSize: 18,
-  color: 'primary.main',
-};
+  color: theme.palette.primary.main,
+}));
 
-export const searchButton: SxProps<Theme> = {
+export const SearchButton = styled(Button)(() => ({
   height: '36px',
   borderRadius: '8px',
   textTransform: 'none',
   fontWeight: 600,
-  px: 2,
-};
+  paddingLeft: '16px',
+  paddingRight: '16px',
+}));
 
-export const emptyEraBox: SxProps<Theme> = {
-  p: 2,
+export const EmptyEraBox = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
   textAlign: 'center',
-};
+}));
 
-export const filterFormControl: SxProps<Theme> = {
+export const FilterFormControl = styled(FormControl)(() => ({
   minWidth: 160,
   maxWidth: 200,
   flexShrink: 0,
-};
+}));
 
-export const filterIconButton: SxProps<Theme> = {
-  p: '4px',
-};
+export const FilterIconButton = styled(IconButton)(() => ({
+  padding: '4px',
+}));
 
-export const filterInputProps: SxProps<Theme> = {
-  pr: '4px',
-  '& .MuiOutlinedInput-input': {
-    py: '8.5px',
+export const FilterTextField = styled(TextField)(() => ({
+  '& .MuiOutlinedInput-root': {
+    paddingRight: '4px',
+    '& .MuiOutlinedInput-input': {
+      paddingTop: '8.5px',
+      paddingBottom: '8.5px',
+    },
   },
-};
+}));
+
+export const _ErrorAlert = styled(Alert)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  borderRadius: '8px',
+}));
+
+export const AdornmentBox = styled(InputAdornment)(() => ({
+  margin: 0,
+  padding: 0,
+}));

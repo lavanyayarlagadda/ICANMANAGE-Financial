@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip, Popover, InputAdornment, ListItem, Typography } from '@mui/material';
+import { Tooltip, InputAdornment, ListItem, Typography } from '@mui/material';
 import { useMultiValueDisplay } from './MultiValueDisplay.hook';
 import * as styles from './MultiValueDisplay.styles';
 
@@ -77,7 +77,7 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
         )}
       </styles.StyledStack>
 
-      <Popover
+      <styles.StyledPopover
         id={open ? 'multi-value-popover' : undefined}
         open={open}
         anchorEl={anchorEl}
@@ -85,7 +85,6 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
         onClick={(e) => e.stopPropagation()}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        PaperProps={{ sx: styles.PopoverPaperProps }}
       >
         <styles.PopoverHeader>
           <styles.PopoverTitle variant="subtitle2">Items ({items.length})</styles.PopoverTitle>
@@ -133,7 +132,7 @@ const MultiValueDisplay: React.FC<MultiValueDisplayProps> = ({
             </styles.EmptyStateBox>
           )}
         </styles.StyledList>
-      </Popover>
+      </styles.StyledPopover>
     </styles.ContainerBox>
   );
 };

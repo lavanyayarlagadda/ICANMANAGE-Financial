@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { Box, TextField, Typography, SxProps, Theme } from '@mui/material';
+import { Box, TextField, Typography } from '@mui/material';
 
 export const ScreenWrapper = styled(Box)(() => ({
   position: 'relative',
@@ -146,19 +146,32 @@ export const FilterActionsWrapper = styled(Box)(({ theme }) => ({
   flexShrink: 0,
 }));
 
-export const chipContainerStyles: SxProps<Theme> = {
-  textAlign: 'right',
-  pr: 1,
-};
+import { IconButton, Button, Grid, Alert } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
-export const filterButtonStyles: SxProps<Theme> = {
+export const ChipContainerIconButton = styled(IconButton)(() => ({
+  textAlign: 'right',
+  paddingRight: '8px',
+}));
+
+export const FilterButton = styled(Button)(() => ({
   height: '36px',
   borderRadius: '8px',
   textTransform: 'none',
   fontWeight: 600,
-  px: 2,
-};
+  paddingLeft: '16px',
+  paddingRight: '16px',
+}));
 
-export const gridContainerStyles: SxProps<Theme> = {
-  mb: 3,
-};
+export const SummaryGrid = styled(Grid)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+}));
+
+export const SearchIconStyled = styled(SearchIcon)(() => ({
+  fontSize: 18,
+}));
+
+export const _ErrorAlert = styled(Alert)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  borderRadius: '8px',
+}));

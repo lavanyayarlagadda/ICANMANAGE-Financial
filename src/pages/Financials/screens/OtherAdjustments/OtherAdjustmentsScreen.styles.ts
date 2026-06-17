@@ -1,4 +1,4 @@
-import { SxProps, Theme, Box, TextField } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { themeConfig } from '@/theme/themeConfig';
 
@@ -13,14 +13,24 @@ export const adjustmentTypeColors: Record<string, string> = {
   CHARITY: themeConfig.colors.success,
 };
 
-export const adjustmentChipStyles = (type: string): SxProps<Theme> => ({
-  backgroundColor: `${adjustmentTypeColors[type] || themeConfig.colors.slate[500]}18`,
-  color: adjustmentTypeColors[type] || themeConfig.colors.slate[500],
-  fontWeight: 600,
-  fontSize: '0.7rem',
+import { Chip, Typography, Alert, Button } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+
+export const AdjustmentChip = styled(Chip, {
+  shouldForwardProp: (prop) => prop !== 'adjType',
+})<{ adjType: string }>(({ adjType }) => {
+  const color = adjustmentTypeColors[adjType] || themeConfig.colors.slate[500];
+  return {
+    backgroundColor: `${color}18`,
+    color: color,
+    fontWeight: 600,
+    fontSize: '0.7rem',
+  };
 });
 
-export const amountStyles = (amount: number, theme: Theme): SxProps<Theme> => ({
+export const AmountText = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== 'amount',
+})<{ amount: number }>(({ theme, amount }) => ({
   fontFamily: 'monospace',
   fontWeight: 600,
   color:
@@ -29,7 +39,7 @@ export const amountStyles = (amount: number, theme: Theme): SxProps<Theme> => ({
       : amount > 0
         ? theme.palette.success.main
         : theme.palette.text.primary,
-});
+}));
 
 export const ToolbarWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -59,33 +69,39 @@ export const SearchField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-export const adjustmentIdStyles: SxProps<Theme> = {
+export const AdjustmentIdText = styled(Typography)(() => ({
   fontWeight: 600,
-};
+}));
 
-export const pageContainerStyles: SxProps<Theme> = {
+export const PageContainer = styled(Box)(() => ({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
   height: '100%',
   minHeight: 0,
-};
+}));
 
-export const searchWrapperStyles: SxProps<Theme> = {
+export const SearchWrapper = styled(Box)(() => ({
   display: 'flex',
-  gap: 1,
+  gap: '8px',
   alignItems: 'center',
-};
+}));
 
-export const searchIconStyles: SxProps<Theme> = {
+export const StyledSearchIcon = styled(SearchIcon)(({ theme }) => ({
   fontSize: 18,
-  color: 'primary.main',
-};
+  color: theme.palette.primary.main,
+}));
 
-export const searchButtonStyles: SxProps<Theme> = {
+export const SearchButton = styled(Button)(() => ({
   height: '36px',
   borderRadius: '8px',
   textTransform: 'none',
   fontWeight: 600,
-  px: 2,
-};
+  paddingLeft: '16px',
+  paddingRight: '16px',
+}));
+
+export const _ErrorAlert = styled(Alert)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  borderRadius: '8px',
+}));

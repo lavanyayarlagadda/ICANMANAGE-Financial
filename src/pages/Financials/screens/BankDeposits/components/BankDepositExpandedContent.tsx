@@ -1,12 +1,28 @@
 import React from 'react';
-import { Box, Grid, Typography, useTheme, Tooltip } from '@mui/material';
+import { Box, Grid, Typography, Tooltip } from '@mui/material';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import { RowHistoryData } from '@/interfaces/financials';
 import {
-  ExpandedContentBox,
-  SubSectionWrapper,
+  HoverExpandedContentBox,
+  LoadingWrapperBox,
+  FullHeightSubSectionWrapper,
   SubSectionHeader,
-  PostingItemBox,
+  SubSectionHeaderTitle,
+  DataRowBox,
+  RowFlexBox,
+  EmptySectionBox,
+  StyledPostingItemBox,
+  BoldPrimaryTypography,
+  BoldFlexTypography,
+  AmountValueTypography,
+  BlockCaptionTypography,
+  DescTypography,
+  NormalSpanBox,
+  BoldCaptionFlexTypography,
+  PostingListContainerBox,
+  RowFlexAlignCenteredBox,
+  SemiboldTypography,
+  BlockCaptionMarginTypography,
 } from '../BankDepositsScreen.styles';
 
 interface BankDepositExpandedContentProps {
@@ -20,55 +36,42 @@ const BankDepositExpandedContent: React.FC<BankDepositExpandedContentProps> = ({
   isLoading,
   isMindPath,
 }) => {
-  const theme = useTheme();
-
   if (isLoading) {
     return (
-      <ExpandedContentBox sx={{ backgroundColor: theme.palette.action.hover, p: 2 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4, gap: 1 }}>
-          <Typography variant="body2" color="primary" sx={{ fontWeight: 600 }}>
-            Loading History...
-          </Typography>
+      <HoverExpandedContentBox>
+        <LoadingWrapperBox>
+          <BoldPrimaryTypography variant="body2">Loading History...</BoldPrimaryTypography>
           <Typography variant="caption" color="text.secondary">
             Fetching detailed reconciliation data
           </Typography>
-        </Box>
-      </ExpandedContentBox>
+        </LoadingWrapperBox>
+      </HoverExpandedContentBox>
     );
   }
 
   return (
-    <ExpandedContentBox sx={{ backgroundColor: theme.palette.action.hover, p: 2 }}>
+    <HoverExpandedContentBox>
       <Grid container spacing={2}>
         {/* Section A: BANK DEPOSIT (BAI) */}
         <Grid size={{ xs: 12, lg: 4 }}>
-          <SubSectionWrapper sx={{ height: '100%' }}>
+          <FullHeightSubSectionWrapper>
             <SubSectionHeader>
-              <Typography
-                variant="caption"
-                sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}
-              >
+              <SubSectionHeaderTitle variant="caption">
                 (A) BANK DEPOSIT (BAI)
-              </Typography>
+              </SubSectionHeaderTitle>
             </SubSectionHeader>
-            <Box sx={{ p: 0 }}>
+            <Box padding={0}>
               {historyData?.baiDataRecords?.map((bai, idx: number) => (
-                <Box
-                  key={idx}
-                  sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${theme.palette.divider}` }}
-                >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>
+                <DataRowBox key={idx}>
+                  <RowFlexBox>
+                    <BoldFlexTypography variant="body2">
                       {bai.bankName || 'Unknown Bank'}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}
-                    >
+                    </BoldFlexTypography>
+                    <AmountValueTypography variant="body2">
                       {formatCurrency(bai.amountPaid)}
-                    </Typography>
-                  </Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    </AmountValueTypography>
+                  </RowFlexBox>
+                  <BlockCaptionTypography variant="caption" color="text.secondary">
                     <Box component="span" fontWeight={800} color="text.primary">
                       Acc:
                     </Box>{' '}
@@ -92,9 +95,9 @@ const BankDepositExpandedContent: React.FC<BankDepositExpandedContentProps> = ({
                         {bai.transactionType || '-'}
                       </>
                     )}
-                  </Typography>
+                  </BlockCaptionTypography>
                   {!isMindPath && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    <BlockCaptionTypography variant="caption" color="text.secondary">
                       <Box component="span" fontWeight={800} color="text.primary">
                         Branch:
                       </Box>{' '}
@@ -103,183 +106,120 @@ const BankDepositExpandedContent: React.FC<BankDepositExpandedContentProps> = ({
                         Brand:
                       </Box>{' '}
                       {bai.brandName || '-'}
-                    </Typography>
+                    </BlockCaptionTypography>
                   )}
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                  <BlockCaptionTypography variant="caption" color="text.secondary">
                     <Box component="span" fontWeight={800} color="text.primary">
                       File:
                     </Box>{' '}
                     {bai.fileName || '-'}
-                  </Typography>
+                  </BlockCaptionTypography>
                   {!isMindPath && (
                     <Tooltip title={bai.description || ''}>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          display: 'inline-block',
-                          maxWidth: '100%',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          mt: 0.5,
-                          fontStyle: 'italic',
-                        }}
-                      >
-                        <Box
-                          component="span"
-                          fontWeight={800}
-                          color="text.primary"
-                          sx={{ fontStyle: 'normal' }}
-                        >
-                          Desc:
-                        </Box>{' '}
+                      <DescTypography variant="caption" color="text.secondary">
+                        <NormalSpanBox>Desc:</NormalSpanBox>{' '}
                         {bai.description && bai.description.length > 30
                           ? bai.description.substring(0, 30) + '...'
                           : bai.description || '-'}
-                      </Typography>
+                      </DescTypography>
                     </Tooltip>
                   )}
-                </Box>
+                </DataRowBox>
               )) || (
-                <Box sx={{ p: 4, textAlign: 'center' }}>
+                <EmptySectionBox>
                   <Typography variant="caption" color="text.secondary">
                     No BAI data found
                   </Typography>
-                </Box>
+                </EmptySectionBox>
               )}
             </Box>
-          </SubSectionWrapper>
+          </FullHeightSubSectionWrapper>
         </Grid>
 
         {/* Section B: REMITTANCE ADVICE */}
         <Grid size={{ xs: 12, lg: 4 }}>
-          <SubSectionWrapper sx={{ height: '100%' }}>
+          <FullHeightSubSectionWrapper>
             <SubSectionHeader>
-              <Typography
-                variant="caption"
-                sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}
-              >
-                (B) REMITTANCE ADVICE
-              </Typography>
+              <SubSectionHeaderTitle variant="caption">(B) REMITTANCE ADVICE</SubSectionHeaderTitle>
             </SubSectionHeader>
-            <Box sx={{ p: 0 }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  px: 2,
-                  py: 1.5,
-                  borderBottom: `1px solid ${theme.palette.divider}`,
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ flex: 1, fontWeight: 700 }}
-                >
-                  PAYER / DATE
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}
-                >
-                  AMOUNT
-                </Typography>
-              </Box>
+            <Box padding={0}>
+              <DataRowBox>
+                <RowFlexBox>
+                  <BoldCaptionFlexTypography variant="caption" color="text.secondary">
+                    PAYER / DATE
+                  </BoldCaptionFlexTypography>
+                  <AmountValueTypography variant="caption" color="text.secondary">
+                    AMOUNT
+                  </AmountValueTypography>
+                </RowFlexBox>
+              </DataRowBox>
               {historyData?.remitDataRecords?.map((remit, idx: number) => (
-                <Box
-                  key={idx}
-                  sx={{ px: 2, py: 1.5, borderBottom: `1px solid ${theme.palette.divider}` }}
-                >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography variant="body2" sx={{ flex: 1, fontWeight: 600 }}>
-                      {remit.payerName}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ width: 100, textAlign: 'right', fontWeight: 700 }}
-                    >
+                <DataRowBox key={idx}>
+                  <RowFlexBox>
+                    <BoldFlexTypography variant="body2">{remit.payerName}</BoldFlexTypography>
+                    <AmountValueTypography variant="body2">
                       {formatCurrency(remit.amount)}
-                    </Typography>
-                  </Box>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                    </AmountValueTypography>
+                  </RowFlexBox>
+                  <BlockCaptionTypography variant="caption" color="text.secondary">
                     Date: {remit.receivedDate ? formatDate(remit.receivedDate) : '-'} | File:{' '}
                     {remit.fileName}
-                  </Typography>
-                </Box>
+                  </BlockCaptionTypography>
+                </DataRowBox>
               )) || (
-                <Box sx={{ p: 4, textAlign: 'center' }}>
+                <EmptySectionBox>
                   <Typography variant="caption" color="text.secondary">
                     No remittance advice found
                   </Typography>
-                </Box>
+                </EmptySectionBox>
               )}
             </Box>
-          </SubSectionWrapper>
+          </FullHeightSubSectionWrapper>
         </Grid>
 
         {/* Section C: POSTING & APPLICATION */}
         <Grid size={{ xs: 12, lg: 4 }}>
-          <SubSectionWrapper sx={{ height: '100%' }}>
+          <FullHeightSubSectionWrapper>
             <SubSectionHeader>
-              <Typography
-                variant="caption"
-                sx={{ fontWeight: 800, color: theme.palette.primary.main, letterSpacing: '0.05em' }}
-              >
+              <SubSectionHeaderTitle variant="caption">
                 (C) POSTING & APPLICATION
-              </Typography>
+              </SubSectionHeaderTitle>
             </SubSectionHeader>
-            <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <PostingListContainerBox>
               {historyData?.cashPostingRecords?.map((post, idx: number) => (
-                <PostingItemBox
-                  key={idx}
-                  sx={{
-                    p: 1.5,
-                    borderRadius: '8px',
-                    borderLeft: `4px solid ${theme.palette.warning.main}`,
-                    backgroundColor: theme.palette.background.paper,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                  }}
-                >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                <StyledPostingItemBox key={idx}>
+                  <RowFlexBox>
+                    <BoldFlexTypography variant="body2">
                       {post.payerName || 'Unknown Payer'}
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                    </BoldFlexTypography>
+                    <BoldFlexTypography variant="body2">
                       {formatCurrency(post.amount)}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                  >
+                    </BoldFlexTypography>
+                  </RowFlexBox>
+                  <RowFlexAlignCenteredBox>
                     <Typography variant="caption" color="text.secondary">
                       {post.depositDate ? formatDate(post.depositDate) : '-'} | {post.paymentMethod}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                    <SemiboldTypography variant="caption" color="text.secondary">
                       Batch: {post.batchId}
-                    </Typography>
-                  </Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: 'block', mt: 0.5 }}
-                  >
+                    </SemiboldTypography>
+                  </RowFlexAlignCenteredBox>
+                  <BlockCaptionMarginTypography variant="caption" color="text.secondary">
                     {post.fileName} | {post.paymentType}
-                  </Typography>
-                </PostingItemBox>
+                  </BlockCaptionMarginTypography>
+                </StyledPostingItemBox>
               )) || (
-                <Box sx={{ p: 4, textAlign: 'center' }}>
+                <EmptySectionBox>
                   <Typography variant="caption" color="text.secondary">
                     No posting application data found
                   </Typography>
-                </Box>
+                </EmptySectionBox>
               )}
-            </Box>
-          </SubSectionWrapper>
+            </PostingListContainerBox>
+          </FullHeightSubSectionWrapper>
         </Grid>
       </Grid>
-    </ExpandedContentBox>
+    </HoverExpandedContentBox>
   );
 };
 

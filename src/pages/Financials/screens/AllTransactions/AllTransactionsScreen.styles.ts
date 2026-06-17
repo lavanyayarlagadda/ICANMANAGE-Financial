@@ -85,3 +85,9 @@ export const SearchButton = styled(Button)({
   paddingLeft: '16px',
   paddingRight: '16px',
 });
+
+import { Alert } from '@mui/material';
+export const _ErrorAlert = styled(Alert)(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+  borderRadius: '8px',
+}));
