@@ -1,7 +1,7 @@
 import React from 'react';
 import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { setIsGlobalFetching, setIsReloading } from '@/store/slices/uiSlice';
+import { setIsGlobalFetching, setIsReloading, setActiveExportType } from '@/store/slices/uiSlice';
 import {
   useGetDepositReconciliationAdjustedCashDepositQuery,
   useGetDepositReconciliationAgingQuery,
@@ -61,6 +61,7 @@ export const useDepositReconciliation = ({ contract, skip }: UseDepositReconcili
 
   const handleExportPdf = React.useCallback(async () => {
     try {
+      dispatch(setActiveExportType('pdf'));
       const result = await triggerExportPdf(trendsQueryParams).unwrap();
       if (result) {
         downloadFileFromBlob(
@@ -70,8 +71,10 @@ export const useDepositReconciliation = ({ contract, skip }: UseDepositReconcili
       }
     } catch (err) {
       console.error('PDF export failed:', err);
+    } finally {
+      dispatch(setActiveExportType(null));
     }
-  }, [triggerExportPdf, trendsQueryParams]);
+  }, [triggerExportPdf, trendsQueryParams, dispatch]);
 
   const agingQueryParams = React.useMemo(
     (): DepositReconAgingQueryParams => ({

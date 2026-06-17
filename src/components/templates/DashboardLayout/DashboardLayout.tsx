@@ -55,6 +55,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     tenant,
     ui,
     financials,
+    pageName,
   } = useDashboardLayout();
 
   const { mobileMenuOpen, sidebarCollapsed } = ui;
@@ -135,7 +136,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                   : isLoadingDetails
                     ? 'Authorizing Account & Permissions...'
                     : ui.isReloading
-                      ? 'Syncing Fresh Financial Data...'
+                      ? `Syncing Fresh ${pageName} Data...`
                       : ui.activeExportType
                         ? `Generating ${ui.activeExportType.toUpperCase()} Report`
                         : ui.isDrillingDown

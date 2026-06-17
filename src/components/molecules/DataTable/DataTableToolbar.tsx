@@ -276,7 +276,43 @@ export function DataTableToolbar<T>({
                   Manage Columns
                 </Typography>
               </ColumnMenuHeaderBox>
-              <ColumnMenuListContainer>
+              <ColumnMenuItem
+                onClick={() => {
+                  const toggleableColumns = columns.filter((c) => c.label && c.id !== 'actions');
+                  const isAllVisible = stagedColumns.size === 0;
+                  if (isAllVisible) {
+                    // Hide all toggleable columns except the first one, keeping at least one selected
+                    const columnsToHide = toggleableColumns.slice(1).map((c) => c.id);
+                    setStagedColumns(new Set(columnsToHide));
+                  } else {
+                    // Show all columns
+                    setStagedColumns(new Set());
+                  }
+                }}
+                disabled={isUpdatingColumns}
+              >
+                <ColumnListItemIcon>
+                  <ColumnCheckbox
+                    checked={stagedColumns.size === 0}
+                    indeterminate={
+                      stagedColumns.size > 0 &&
+                      stagedColumns.size < columns.filter((c) => c.label && c.id !== 'actions').length
+                    }
+                    disabled={isUpdatingColumns}
+                    size="small"
+                    disableRipple
+                  />
+                </ColumnListItemIcon>
+                <ListItemText
+                  primary="Select All"
+                  primaryTypographyProps={{
+                    variant: 'body2',
+                    color: 'text.secondary',
+                    fontWeight: 500,
+                  }}
+                />
+              </ColumnMenuItem>
+      <ColumnMenuListContainer>
                 {(() => {
                   const toggleableColumns = columns.filter((c) => c.label && c.id !== 'actions');
                   const visibleToggleableCount = toggleableColumns.filter(

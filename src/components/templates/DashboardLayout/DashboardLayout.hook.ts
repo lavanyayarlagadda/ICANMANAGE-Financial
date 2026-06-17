@@ -69,6 +69,20 @@ export const useDashboardLayout = () => {
     [menus, accessibleModules, tenant.selectedTenantId],
   );
 
+  const currentTab = useMemo(
+    () => financialsTabs.find((t) => t.id === ui.activeTab),
+    [financialsTabs, ui.activeTab],
+  );
+  const currentSubTab = useMemo(() => {
+    if (!currentTab || !currentTab.subTabs) return null;
+    return currentTab.subTabs.find((st) => st.id === ui.activeSubTab);
+  }, [currentTab, ui.activeSubTab]);
+  const pageName = useMemo(() => {
+    return ui.activePage === 'collections'
+      ? 'Collections'
+      : currentSubTab?.label || currentTab?.label || 'Financials';
+  }, [ui.activePage, currentTab, currentSubTab]);
+
   return {
     ui,
     financials,
@@ -78,6 +92,7 @@ export const useDashboardLayout = () => {
     isOverlayActive,
     isWaitingForTenants,
     hasInitError,
+    pageName,
     ...permissions,
     handleNavClick,
     handleMenuToggle,

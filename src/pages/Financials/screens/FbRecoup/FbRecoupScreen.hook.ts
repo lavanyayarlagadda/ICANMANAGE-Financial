@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch, RootState } from '@/store';
 import { useLocation } from 'react-router-dom';
-import { setIsGlobalFetching, setActiveExportType } from '@/store/slices/uiSlice';
+import { setIsGlobalFetching, setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
 import {
   useSearchPlbDetailsQuery,
   useLazyExportPlbDetailsQuery,
@@ -395,12 +395,22 @@ export const useFbRecoupScreen = ({ skip = false }: { skip?: boolean } = {}) => 
 
   useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {
-      if (!skip) {
-        refetchNotices();
-      }
+      const doReload = async () => {
+        try {
+          dispatch(setIsReloading(true));
+          if (!skip) {
+            await refetchNotices();
+          }
+        } catch (err) {
+          console.error('Reload failed:', err);
+        } finally {
+          dispatch(setIsReloading(false));
+        }
+      };
+      doReload();
       reloadCount.current = actionTriggers.reload;
     }
-  }, [actionTriggers.reload, skip, refetchNotices]);
+  }, [actionTriggers.reload, skip, refetchNotices, dispatch]);
 
   return {
     setQueryParams,

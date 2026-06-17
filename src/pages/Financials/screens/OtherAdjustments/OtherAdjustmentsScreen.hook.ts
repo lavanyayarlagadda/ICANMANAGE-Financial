@@ -6,6 +6,7 @@ import {
   setActiveExportType,
   setIsGlobalFetching,
   setIsDrillingDown as setGlobalDrillingDown,
+  setIsReloading,
 } from '@/store/slices/uiSlice';
 import {
   setShowRemittanceDetail,
@@ -171,12 +172,22 @@ export const useOtherAdjustmentsScreen = ({ skip = false }: { skip?: boolean } =
 
   useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {
-      if (!isActualSkip) {
-        refetch();
-      }
+      const doReload = async () => {
+        try {
+          dispatch(setIsReloading(true));
+          if (!isActualSkip) {
+            await refetch();
+          }
+        } catch (err) {
+          console.error('Reload failed:', err);
+        } finally {
+          dispatch(setIsReloading(false));
+        }
+      };
+      doReload();
       reloadCount.current = actionTriggers.reload;
     }
-  }, [actionTriggers.reload, isActualSkip, refetch]);
+  }, [actionTriggers.reload, isActualSkip, refetch, dispatch]);
 
   const handleDrillDown = useCallback(
     async (row: OtherAdjustmentRecord) => {

@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { setActiveExportType } from '@/store/slices/uiSlice';
+import { setActiveExportType, setIsReloading } from '@/store/slices/uiSlice';
 import { useLazyExportBankDepositsQuery } from '@/store/api/financialsApi';
 import { downloadFileFromBlob } from '@/utils/downloadHelper';
 import { formatDateForFilename } from '@/utils/formatters';
@@ -80,10 +80,20 @@ export const useBankDepositActions = ({
 
   useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {
-      refetch();
+      const doReload = async () => {
+        try {
+          dispatch(setIsReloading(true));
+          await refetch();
+        } catch (err) {
+          console.error('Reload failed:', err);
+        } finally {
+          dispatch(setIsReloading(false));
+        }
+      };
+      doReload();
       reloadCount.current = actionTriggers.reload;
     }
-  }, [actionTriggers.reload, refetch]);
+  }, [actionTriggers.reload, refetch, dispatch]);
 
   return {
     handleExport,

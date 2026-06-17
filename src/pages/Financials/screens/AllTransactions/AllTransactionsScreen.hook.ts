@@ -6,6 +6,7 @@ import {
   openConfirmDelete,
   setActiveExportType,
   setIsGlobalFetching,
+  setIsReloading,
 } from '@/store/slices/uiSlice';
 import { AllTransaction, PaymentTransaction, RemittanceDetail } from '@/interfaces/financials';
 import {
@@ -230,12 +231,22 @@ export const useAllTransactionsScreen = ({ skip = false }: { skip?: boolean } = 
 
   useEffect(() => {
     if (actionTriggers.reload > reloadCount.current) {
-      if (!isActualSkip) {
-        refetch();
-      }
+      const doReload = async () => {
+        try {
+          dispatch(setIsReloading(true));
+          if (!isActualSkip) {
+            await refetch();
+          }
+        } catch (err) {
+          console.error('Reload failed:', err);
+        } finally {
+          dispatch(setIsReloading(false));
+        }
+      };
+      doReload();
       reloadCount.current = actionTriggers.reload;
     }
-  }, [actionTriggers.reload, isActualSkip, refetch]);
+  }, [actionTriggers.reload, isActualSkip, refetch, dispatch]);
 
   const [triggerSearchServiceLines] = useLazySearchServiceLinesQuery();
   const [triggerGetRemittance] = useLazyGetRemittanceClaimsQuery();

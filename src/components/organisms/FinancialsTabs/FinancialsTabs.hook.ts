@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { setActiveTab, setActiveSubTab } from '@/store/slices/uiSlice';
+import { resetGlobalFilters } from '@/store/slices/financialsSlice';
 import { getNavigationStructure } from '@/utils/navigationUtils';
 import { MenuItem } from '@/store/api/userApi';
 import { useUserPermissions } from '@/hooks/useUserPermissions';
@@ -46,25 +47,29 @@ export const useFinancialsTabs = ({
   const handleMainTabChange = useCallback(
     (index: number, path: string) => {
       if (activeTab !== index) {
+        dispatch(resetGlobalFilters());
         dispatch(setActiveTab(index));
         dispatch(setActiveSubTab(0));
       }
-
+ 
       // Automatically navigate to the first sub-tab if it exists
       const targetTab = financialsTabs.find((t) => t.id === index);
       const targetPath =
         targetTab && targetTab.subTabs && targetTab.subTabs.length > 0
           ? targetTab.subTabs[0].path
           : path;
-
+ 
       navigate(targetPath);
     },
     [dispatch, navigate, activeTab, financialsTabs],
   );
-
+ 
   const handleSubTabChange = useCallback(
     (index: number, path: string) => {
-      if (activeSubTab !== index) dispatch(setActiveSubTab(index));
+      if (activeSubTab !== index) {
+        dispatch(resetGlobalFilters());
+        dispatch(setActiveSubTab(index));
+      }
       navigate(path);
     },
     [dispatch, navigate, activeSubTab],
@@ -101,5 +106,7 @@ export const useFinancialsTabs = ({
     currentSubTabs,
     handleMainTabChange,
     handleSubTabChange,
+    currentMainTab,
+    currentSubTab,
   };
 };
